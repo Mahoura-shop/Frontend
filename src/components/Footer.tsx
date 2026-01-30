@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Instagram, Facebook, Twitter, Mail, Phone } from 'lucide-react';
+import { Instagram, Mail, Phone } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Footer() {
@@ -78,12 +78,12 @@ export default function Footer() {
                 <Phone className="w-4 h-4" />
                 ۰۲۱-۱۲۳۴۵۶۷۸
               </p>
-              <p className="flex items-center gap-2 text-white/80">
+              {/* <p className="flex items-center gap-2 text-white/80">
                 <Mail className="w-4 h-4" />
                 info@mahoura.com
-              </p>
+              </p> */}
               <div className="flex gap-4 pt-4">
-                {[Instagram, Facebook, Twitter].map((Icon, i) => (
+                {[Instagram].map((Icon, i) => (
                   <motion.a
                     key={i}
                     href="#"
@@ -99,7 +99,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/20 pt-8 text-center text-white/60">
-          <p>© ۱۴۰۳ ماهورا. تمامی حقوق محفوظ است.</p>
+          <p>© 1404 ماهورا. تمامی حقوق محفوظ است.</p>
         </div>
       </motion.div>
     </footer>

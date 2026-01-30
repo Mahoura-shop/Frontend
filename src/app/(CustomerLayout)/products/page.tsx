@@ -383,7 +383,7 @@ export default function ProductsPage() {
 														)}
 													</div>
 
-													<div className="absolute top-4 left-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+													{/* <div className="absolute top-4 left-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
 														<Button
 															size="icon"
 															variant="secondary"
@@ -415,7 +415,7 @@ export default function ProductsPage() {
 																<Eye className="w-5 h-5" />
 															</Button>
 														</Link>
-													</div>
+													</div> */}
 												</div>
 
 												<CardContent className="p-6">
@@ -425,12 +425,12 @@ export default function ProductsPage() {
 													<Link
 														href={`/products/${product.id}`}
 													>
-														<h3 className="text-xl font-bold mb-2 hover:text-primary-rose transition-colors cursor-pointer text-foreground">
+														<h3 className="text-xl font-bold mb-2 hover:text-accent-gold transition-colors cursor-pointer text-foreground">
 															{product.name}
 														</h3>
 													</Link>
 
-													{product.rating && (
+													{/* {product.rating && (
 														<div className="flex items-center gap-2 mb-3">
 															<div className="flex">
 																{[
@@ -461,9 +461,9 @@ export default function ProductsPage() {
 																نظر)
 															</span>
 														</div>
-													)}
+													)} */}
 
-													<div className="flex items-center justify-between mb-4">
+													<div className="flex place-content-end">
 														<div>
 															<motion.span
 																className="text-2xl font-bold text-primary-rose"
@@ -481,7 +481,7 @@ export default function ProductsPage() {
 														</div>
 													</div>
 
-													<div className="flex gap-2">
+													{/* <div className="flex gap-2">
 														<Button
 															variant="luxury"
 															className="flex-1"
@@ -497,7 +497,7 @@ export default function ProductsPage() {
 															<ShoppingBag className="w-4 h-4 ml-2" />
 															افزودن به سبد
 														</Button>
-													</div>
+													</div> */}
 												</CardContent>
 											</Card>
 										</motion.div>

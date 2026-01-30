@@ -36,16 +36,16 @@ export default function ContactPage() {
 			value: "۰۲۱-۱۲۳۴۵۶۷۸",
 			link: "tel:02112345678",
 		},
-		{
-			icon: Mail,
-			title: "ایمیل",
-			value: "info@mahoura.com",
-			link: "mailto:info@mahoura.com",
-		},
+		// {
+		// 	icon: Mail,
+		// 	title: "ایمیل",
+		// 	value: "info@mahoura.com",
+		// 	link: "mailto:info@mahoura.com",
+		// },
 		{
 			icon: MapPin,
 			title: "آدرس",
-			value: "تهران، خیابان ولیعصر، پلاک ۱۲۳",
+			value: "شیراز، رکن آباد، بلوار تلاش شرقی",
 			link: null,
 		},
 	];
