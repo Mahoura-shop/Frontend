@@ -15,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
-      <body className="antialiased">
+      <body className="antialiased no-scrollbar">
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

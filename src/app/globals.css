@@ -89,7 +89,7 @@
 
 @layer base {
 	* {
-		@apply border-border;
+		@apply border-border no-scrollbar;
 	}
 
 	body {
@@ -102,25 +102,18 @@
 	}
 
 	/* Smooth scrolling */
+
+	.no-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+
+	.no-scrollbar {
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
+
 	html {
 		scroll-behavior: smooth;
-	}
-
-	/* Custom Scrollbar */
-	::-webkit-scrollbar {
-		width: 8px;
-	}
-
-	::-webkit-scrollbar-track {
-		@apply bg-neutral-warm dark:bg-background;
-	}
-
-	::-webkit-scrollbar-thumb {
-		@apply bg-primary rounded-full;
-	}
-
-	::-webkit-scrollbar-thumb:hover {
-		@apply bg-accent-gold;
 	}
 
 	.rtl {
@@ -133,6 +126,16 @@
 
 @layer utilities {
 	/* Glassmorphism effect */
+
+	.no-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+
+	.no-scrollbar {
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
+
 	.glass {
 		@apply bg-white/10 backdrop-blur-lg border border-white/20;
 	}

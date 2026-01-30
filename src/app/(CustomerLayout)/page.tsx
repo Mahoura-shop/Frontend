@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import {
 	ChevronDown,
-	Sparkles,
 	ArrowLeft,
 	Heart,
 	Eye,
@@ -24,13 +23,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
 export default function Home() {
 	const [isScrolled, setIsScrolled] = useState(false);
-	const [newsletterEmail, setNewsletterEmail] = useState("");
-	const [newsletterSuccess, setNewsletterSuccess] = useState(false);
 
 	const { scrollYProgress } = useScroll();
 	const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
@@ -41,15 +37,6 @@ export default function Home() {
 		window.addEventListener("scroll", handleScroll);
 		return () => window.removeEventListener("scroll", handleScroll);
 	}, []);
-
-	const handleNewsletterSubmit = (e: React.FormEvent) => {
-		e.preventDefault();
-		setNewsletterSuccess(true);
-		setTimeout(() => {
-			setNewsletterSuccess(false);
-			setNewsletterEmail("");
-		}, 3000);
-	};
 
 	const categories = [
 		{
@@ -172,7 +159,7 @@ export default function Home() {
 										(word, i) => (
 											<motion.span
 												key={word}
-												className="inline-block gradient-text"
+												className="inline-block text-primary-rose"
 												initial={{ opacity: 0, y: 20 }}
 												animate={{ opacity: 1, y: 0 }}
 												transition={{
@@ -234,7 +221,7 @@ export default function Home() {
 										className="text-center"
 									>
 										<motion.div
-											className="text-3xl font-bold gradient-text"
+											className="text-3xl font-bold text-primary-rose"
 											initial={{ scale: 0 }}
 											animate={{ scale: 1 }}
 											transition={{
@@ -254,7 +241,7 @@ export default function Home() {
 
 						<motion.div
 							style={{ scale }}
-							className="relative h-[600px] hidden md:block"
+							className="relative h-[500px] hidden md:block"
 						>
 							<motion.div
 								initial={{ opacity: 0, scale: 0.8 }}
@@ -265,32 +252,9 @@ export default function Home() {
 								<img
 									src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=1000&fit=crop"
 									alt="Mahoura Products"
-									className="w-full h-full object-cover"
+									className="object-cover"
 								/>
 								<div className="absolute inset-0 bg-gradient-to-t from-primary-rose/30 to-transparent" />
-
-								{[...Array(5)].map((_, i) => (
-									<motion.div
-										key={i}
-										className="absolute"
-										style={{
-											left: `${20 + i * 20}%`,
-											top: `${30 + i * 10}%`,
-										}}
-										animate={{
-											y: [0, -20, 0],
-											opacity: [0, 1, 0],
-											scale: [0.8, 1.2, 0.8],
-										}}
-										transition={{
-											duration: 2,
-											repeat: Infinity,
-											delay: i * 0.4,
-										}}
-									>
-										<Sparkles className="w-6 h-6 text-accent-gold" />
-									</motion.div>
-								))}
 							</motion.div>
 						</motion.div>
 					</div>
@@ -344,7 +308,7 @@ export default function Home() {
 								}}
 								className="group relative"
 							>
-								<Card className="overflow-hidden border-2 hover:border-primary-rose transition-all duration-300 card-3d">
+								<Card className="overflow-hidden transition-all duration-300 card-3d">
 									<div className="relative h-64 overflow-hidden">
 										<motion.img
 											src={category.image}
@@ -385,18 +349,6 @@ export default function Home() {
 											</Button>
 										</div>
 									</div>
-
-									<motion.div
-										className="absolute top-4 left-4"
-										animate={{ y: [0, -8, 0] }}
-										transition={{
-											duration: 3,
-											repeat: Infinity,
-											ease: "easeInOut",
-										}}
-									>
-										<Sparkles className="w-6 h-6 text-accent-gold opacity-80" />
-									</motion.div>
 								</Card>
 
 								<div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 pointer-events-none rounded-lg" />
@@ -436,16 +388,6 @@ export default function Home() {
 								className="group"
 							>
 								<Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 relative">
-									{product.isNew && (
-										<Badge
-											variant="new"
-											className="absolute top-4 right-4 z-10"
-										>
-											<Star className="w-3 h-3 ml-1" />
-											جدید
-										</Badge>
-									)}
-
 									<div className="relative h-80 overflow-hidden">
 										<motion.img
 											src={product.image}
@@ -484,7 +426,7 @@ export default function Home() {
 										<div className="flex items-center justify-between">
 											<div>
 												<motion.span
-													className="text-2xl font-bold gradient-text"
+													className="text-2xl font-bold text-primary-rose"
 													whileHover={{ scale: 1.1 }}
 												>
 													{product.price}
@@ -531,10 +473,6 @@ export default function Home() {
 						viewport={{ once: true }}
 						className="text-center mb-16"
 					>
-						<Badge variant="new" className="mb-4">
-							<TrendingUp className="w-4 h-4 ml-1" />
-							تازه‌ها
-						</Badge>
 						<h2 className="text-5xl font-bold gradient-text">
 							جدیدترین محصولات
 						</h2>
@@ -563,18 +501,12 @@ export default function Home() {
 											className="w-full h-full object-cover"
 											whileHover={{ scale: 1.1 }}
 										/>
-										<Badge
-											variant="new"
-											className="absolute top-3 right-3 animate-bounce"
-										>
-											NEW
-										</Badge>
 									</div>
 									<CardContent className="p-4">
 										<h3 className="font-bold mb-2">
 											{product.name}
 										</h3>
-										<p className="text-lg gradient-text font-bold">
+										<p className="text-lg text-primary-rose font-bold">
 											{product.price} تومان
 										</p>
 									</CardContent>

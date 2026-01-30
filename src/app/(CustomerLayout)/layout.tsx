@@ -1,6 +1,7 @@
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function RootLayout({
 	children,
@@ -10,7 +11,8 @@ export default function RootLayout({
 	return (
 		<>
 			<Navbar />
-			<div className="mt-8">{children}</div>
+			<div className="pt-[70px]">{children}</div>
+			<Footer />
 		</>
 	);
 }

@@ -36,7 +36,7 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="min-h-screen bg-background flex" dir="rtl">
+    <div className="min-h-screen bg-background flex no-scrollbar" dir="rtl">
       {/* Sidebar - Fixed on the right */}
       <motion.aside
         initial={false}
