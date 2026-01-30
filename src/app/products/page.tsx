@@ -66,8 +66,6 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-      
       <div className="pt-20">
         {/* Header */}
         <div className="bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/20 py-16">
