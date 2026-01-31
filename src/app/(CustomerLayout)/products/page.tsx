@@ -140,7 +140,7 @@ export default function ProductsPage() {
 									</div>
 
 									{/* Search */}
-									<div className="mb-6">
+									{/* <div className="mb-6">
 										<label className="text-sm font-medium mb-2 block">
 											جستجو
 										</label>
@@ -157,7 +157,7 @@ export default function ProductsPage() {
 												className="pr-10"
 											/>
 										</div>
-									</div>
+									</div> */}
 
 									{/* Categories */}
 									<div className="mb-6">
@@ -249,8 +249,8 @@ export default function ProductsPage() {
 						<div className="flex-1">
 							{/* Toolbar */}
 							<div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-								<div className="flex items-center gap-4">
-									<Button
+								<div className="flex items-center gap-4 justify-between w-full">
+									{/* <Button
 										variant="outline"
 										className="lg:hidden"
 										onClick={() =>
@@ -259,13 +259,24 @@ export default function ProductsPage() {
 									>
 										<SlidersHorizontal className="w-5 h-5 ml-2" />
 										فیلترها
-									</Button>
+									</Button> */}
 
+									<div className="relative w-full">
+										<Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+										<Input
+											placeholder="نام محصول یا برند..."
+											value={searchQuery}
+											onChange={(e) =>
+												setSearchQuery(e.target.value)
+											}
+											className="pr-10"
+										/>
+									</div>
 									<Select
 										value={sortBy}
 										onValueChange={(e) => setSortBy(e)}
 									>
-										<SelectTrigger className="px-4 py-2 border rounded-lg bg-background text-foreground min-w-36">
+										<SelectTrigger className="py-2 border rounded-lg bg-background text-foreground w-48">
 											<SelectValue placeholder="مرتب سازی" />
 										</SelectTrigger>
 										<SelectContent>
@@ -290,7 +301,7 @@ export default function ProductsPage() {
 									</Select>
 								</div>
 
-								<div className="flex items-center gap-2">
+								{/* <div className="flex items-center gap-2">
 									<Button
 										variant={
 											viewMode === "grid"
@@ -313,7 +324,7 @@ export default function ProductsPage() {
 									>
 										<List className="w-5 h-5" />
 									</Button>
-								</div>
+								</div> */}
 							</div>
 
 							{/* Products */}
@@ -425,7 +436,7 @@ export default function ProductsPage() {
 													<Link
 														href={`/products/${product.id}`}
 													>
-														<h3 className="text-xl font-bold mb-2 hover:text-accent-gold transition-colors cursor-pointer text-foreground">
+														<h3 className="text-xl font-bold mb-2 transition-colors cursor-pointer text-foreground">
 															{product.name}
 														</h3>
 													</Link>
@@ -462,6 +473,10 @@ export default function ProductsPage() {
 															</span>
 														</div>
 													)} */}
+
+													<Badge>
+														{product.category}
+													</Badge>
 
 													<div className="flex place-content-end">
 														<div>

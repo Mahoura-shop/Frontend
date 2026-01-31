@@ -38,7 +38,6 @@ export default function AdminDashboard() {
     { id: 2, name: 'سرم ویتامین C', brand: 'Mahoura Care', category: 'مراقبت', stock: 'موجود', price: '۴۵۰,۰۰۰', image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=100' },
     { id: 3, name: 'پالت سایه چشم', brand: 'Mahoura Pro', category: 'آرایش', stock: 'ناموجود', price: '۳۵۰,۰۰۰', image: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=100' },
     { id: 4, name: 'کرم ضد آفتاب', brand: 'Mahoura Care', category: 'مراقبت', stock: 'موجود', price: '۳۸۰,۰۰۰', image: 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=100' },
-    { id: 5, name: 'ماسکارا', brand: 'Mahoura', category: 'آرایش', stock: 'موجود', price: '۲۸۰,۰۰۰', image: 'https://images.unsplash.com/photo-1631214460245-0e9b29740c17?w=100' },
   ];
 
   return (

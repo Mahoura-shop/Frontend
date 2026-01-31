@@ -97,12 +97,6 @@ export default function Home() {
 			image: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400",
 		},
 		{
-			id: 2,
-			name: "ماسکارا حجم دهنده",
-			price: "۲۸۰,۰۰۰",
-			image: "https://images.unsplash.com/photo-1631214460245-0e9b29740c17?w=400",
-		},
-		{
 			id: 3,
 			name: "هایلایتر طلایی",
 			price: "۳۸۰,۰۰۰",

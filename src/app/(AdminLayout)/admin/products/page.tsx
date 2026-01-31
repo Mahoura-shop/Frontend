@@ -141,20 +141,6 @@ export default function ProductsAdminPage() {
 			isNew: false,
 			productPic: null,
 		},
-		{
-			id: 5,
-			name: "ماسکارا حجم دهنده",
-			slug: "volumizing-mascara",
-			brand: "Mahoura",
-			category: "آرایش چشم",
-			price: 280000,
-			currencyCode: "IRR",
-			quantity: 78,
-			quantityType: "pieces",
-			isActive: true,
-			isNew: true,
-			productPic: null,
-		},
 	]);
 
 	// Filtering
