@@ -134,7 +134,7 @@ export default function AdminDashboard() {
                     <TableCell className="font-medium">{product.name}</TableCell>
                     <TableCell>{product.brand}</TableCell>
                     <TableCell>{product.category}</TableCell>
-                    <TableCell className="font-bold gradient-text">{product.price} تومان</TableCell>
+                    <TableCell className="font-bold text-primary-rose">{product.price} تومان</TableCell>
                     <TableCell>
                       <Badge variant={product.stock === 'موجود' ? 'available' : 'outOfStock'}>
                         {product.stock}

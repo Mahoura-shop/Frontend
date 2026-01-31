@@ -22,19 +22,19 @@ export default function Footer() {
 	};
 
 	return (
-		<footer className="bg-secondary-plum text-white py-16 mt-20">
+		<footer className="bg-secondary-plum text-white py-8">
 			<motion.div
 				initial={{ opacity: 0, y: 50 }}
 				whileInView={{ opacity: 1, y: 0 }}
 				viewport={{ once: true }}
 				className="container mx-auto px-4"
 			>
-				<div className="grid md:grid-cols-4 gap-8 mb-12">
+				<div className="grid md:grid-cols-4 gap-7 mb-12">
 					{/* Brand */}
 					<div>
-						<h3 className="text-2xl font-bold mb-4 text-accent-gold">
+						{/* <h3 className="text-2xl font-bold mb-4 text-accent-gold">
 							Mahoura
-						</h3>
+						</h3> */}
 						<Image src={logo} alt="Mahoura" className="w-32 h-32 place-self-center" />
 						<p className="text-white/80">
 							تجربه زیبایی بی‌نظیر با محصولات لوکس ماهورا

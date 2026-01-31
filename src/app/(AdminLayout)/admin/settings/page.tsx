@@ -181,7 +181,7 @@ export default function SettingsPage() {
 											</p>
 											<p className="text-sm">
 												معادل:{" "}
-												<span className="font-bold gradient-text">
+												<span className="font-bold text-primary-rose">
 													{new Intl.NumberFormat(
 														"fa-IR",
 													).format(irrPrice)}
