@@ -16,8 +16,8 @@ export default function Footer() {
 		support: [
 			{ label: "درباره ما", href: "/about" },
 			{ label: "تماس با ما", href: "/contact" },
-			{ label: "سوالات متداول", href: "/faq" },
-			{ label: "شرایط استفاده", href: "/terms" },
+			// { label: "سوالات متداول", href: "/faq" },
+			// { label: "شرایط استفاده", href: "/terms" },
 		],
 	};
 

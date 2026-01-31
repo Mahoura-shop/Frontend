@@ -93,14 +93,14 @@ export default function Navbar() {
 						className="flex items-center gap-3"
 					>
 						{/* Language Toggle */}
-						<Button
+						{/* <Button
 							variant="ghost"
 							size="icon"
 							onClick={toggleLanguage}
 							className="hidden md:flex"
 						>
 							<Globe className="w-5 h-5" />
-						</Button>
+						</Button> */}
 
 						{/* Theme Toggle */}
 						<Button

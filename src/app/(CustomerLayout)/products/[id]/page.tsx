@@ -406,7 +406,7 @@ export default function ProductDetailPage() {
 				</div>
 
 				{/* Product Details Tabs */}
-				<motion.div
+				{/* <motion.div
 					initial={{ opacity: 0, y: 30 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true }}
@@ -495,10 +495,10 @@ export default function ProductDetailPage() {
 							)}
 						</CardContent>
 					</Card>
-				</motion.div>
+				</motion.div> */}
 
 				{/* Related Products */}
-				{relatedProducts.length > 0 && (
+				{/* {relatedProducts.length > 0 && (
 					<div>
 						<h2 className="text-3xl font-bold mb-8">
 							محصولات مرتبط
@@ -544,7 +544,7 @@ export default function ProductDetailPage() {
 							))}
 						</div>
 					</div>
-				)}
+				)} */}
 			</div>
 		</div>
 	);
