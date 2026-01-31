@@ -106,7 +106,7 @@ export default function ProductsPage() {
 								تمامی محصولات
 							</h1>
 							<p className="text-muted-foreground text-lg">
-								{filteredProducts.length} محصول موجود
+								{products.length} محصول موجود
 							</p>
 						</motion.div>
 					</div>

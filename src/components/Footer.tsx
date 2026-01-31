@@ -35,7 +35,11 @@ export default function Footer() {
 						{/* <h3 className="text-2xl font-bold mb-4 text-accent-gold">
 							Mahoura
 						</h3> */}
-						<Image src={logo} alt="Mahoura" className="w-32 h-32 place-self-center" />
+						<Image
+							src={logo}
+							alt="Mahoura"
+							className="w-32 h-32 place-self-center"
+						/>
 						<p className="text-white/80">
 							تجربه زیبایی بی‌نظیر با محصولات لوکس ماهورا
 						</p>
@@ -81,7 +85,7 @@ export default function Footer() {
 						<div className="space-y-3">
 							<p className="flex items-center gap-2 text-white/80">
 								<Phone className="w-4 h-4" />
-								۰۲۱-۱۲۳۴۵۶۷۸
+								<p className="ltr">+989173362580</p>
 							</p>
 							{/* <p className="flex items-center gap-2 text-white/80">
                 <Mail className="w-4 h-4" />
