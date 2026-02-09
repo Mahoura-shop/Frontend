@@ -34,7 +34,7 @@ interface Category {
 	name: string;
 	slug: string;
 	description?: string;
-	image: string | null;
+	categoryPic: string | null;
 	count: number;
 	isActive: boolean;
 }
@@ -51,7 +51,7 @@ export default function CategoriesPage() {
 			id: 1,
 			name: "آرایش صورت",
 			slug: "makeup-face",
-			image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=200",
+			categoryPic: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=200",
 			count: 120,
 			isActive: true,
 		},
@@ -59,7 +59,7 @@ export default function CategoriesPage() {
 			id: 2,
 			name: "مراقبت از پوست",
 			slug: "skin-care",
-			image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=200",
+			categoryPic: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=200",
 			count: 85,
 			isActive: true,
 		},
@@ -67,7 +67,7 @@ export default function CategoriesPage() {
 			id: 3,
 			name: "آرایش چشم",
 			slug: "eye-makeup",
-			image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=200",
+			categoryPic: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=200",
 			count: 65,
 			isActive: true,
 		},
@@ -75,7 +75,7 @@ export default function CategoriesPage() {
 			id: 4,
 			name: "عطر و ادکلن",
 			slug: "perfume",
-			image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=200",
+			categoryPic: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=200",
 			count: 45,
 			isActive: true,
 		},
@@ -83,7 +83,7 @@ export default function CategoriesPage() {
 			id: 5,
 			name: "مراقبت مو",
 			slug: "hair-care",
-			image: null,
+			categoryPic: null,
 			count: 38,
 			isActive: true,
 		},
@@ -91,7 +91,7 @@ export default function CategoriesPage() {
 			id: 6,
 			name: "لوازم آرایش",
 			slug: "makeup-tools",
-			image: null,
+			categoryPic: null,
 			count: 25,
 			isActive: false,
 		},
@@ -197,9 +197,9 @@ export default function CategoriesPage() {
 						>
 							<Card className="overflow-hidden group hover:shadow-xl transition-all">
 								<div className="relative h-48 bg-muted flex items-center justify-center overflow-hidden">
-									{category.image ? (
+									{category.categoryPic ? (
 										<img
-											src={category.image}
+											src={category.categoryPic}
 											alt={category.name}
 											className="w-full h-full object-cover"
 										/>
