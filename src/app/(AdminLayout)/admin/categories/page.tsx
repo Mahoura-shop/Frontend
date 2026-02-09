@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
 	Plus,
@@ -26,17 +26,17 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
-import { toast } from "sonner";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
+import { getData } from "@/services/services";
 
 interface Category {
 	id: number;
 	name: string;
 	slug: string;
+	description?: string;
 	image: string | null;
-	productCount: number;
+	count: number;
 	isActive: boolean;
-	parentId: number | null;
 }
 
 export default function CategoriesPage() {
@@ -52,59 +52,53 @@ export default function CategoriesPage() {
 			name: "آرایش صورت",
 			slug: "makeup-face",
 			image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=200",
-			productCount: 120,
+			count: 120,
 			isActive: true,
-			parentId: null,
 		},
 		{
 			id: 2,
 			name: "مراقبت از پوست",
 			slug: "skin-care",
 			image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=200",
-			productCount: 85,
+			count: 85,
 			isActive: true,
-			parentId: null,
 		},
 		{
 			id: 3,
 			name: "آرایش چشم",
 			slug: "eye-makeup",
 			image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=200",
-			productCount: 65,
+			count: 65,
 			isActive: true,
-			parentId: null,
 		},
 		{
 			id: 4,
 			name: "عطر و ادکلن",
 			slug: "perfume",
 			image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=200",
-			productCount: 45,
+			count: 45,
 			isActive: true,
-			parentId: null,
 		},
 		{
 			id: 5,
 			name: "مراقبت مو",
 			slug: "hair-care",
 			image: null,
-			productCount: 38,
+			count: 38,
 			isActive: true,
-			parentId: null,
 		},
 		{
 			id: 6,
 			name: "لوازم آرایش",
 			slug: "makeup-tools",
 			image: null,
-			productCount: 25,
+			count: 25,
 			isActive: false,
-			parentId: null,
 		},
 	]);
 
 	const filteredCategories = categories.filter((cat) =>
-		cat.name.toLowerCase().includes(searchQuery.toLowerCase()),
+		cat?.name?.toLowerCase().includes(searchQuery.toLowerCase()),
 	);
 
 	const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
@@ -115,6 +109,13 @@ export default function CategoriesPage() {
 
 	const activeCount = categories.filter((c) => c.isActive).length;
 	const inactiveCount = categories.filter((c) => !c.isActive).length;
+
+	useEffect(() => {
+		getData({ endPoint: `/v1/category` }).then((data) => {
+			// console.log("data", [...categories, ...data.data]);
+			setCategories((prev) => [...prev, ...data.data]);
+		});
+	}, []);
 
 	const handleDelete = (id: number) => {
 		setCategories(categories.filter((c) => c.id !== id));
@@ -256,7 +257,7 @@ export default function CategoriesPage() {
 									</h3>
 									<div className="flex items-center justify-between text-sm">
 										<span className="text-muted-foreground">
-											{category.productCount} محصول
+											{category.count} محصول
 										</span>
 										<Button
 											variant="ghost"
@@ -302,7 +303,7 @@ export default function CategoriesPage() {
 										</TableCell>
 										<TableCell>
 											<Badge variant="secondary">
-												{category.productCount} محصول
+												{category.count} محصول
 											</Badge>
 										</TableCell>
 										<TableCell>

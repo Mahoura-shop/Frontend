@@ -7,11 +7,6 @@ export const metadata: Metadata = {
 	title: "Mahoura",
 	description:
 		"Luxury Persian Cosmetics & Beauty Products - محصولات آرایشی و بهداشتی لوکس",
-	icons: {
-		icon: { url: "../assets/logo.png" },
-		apple: { url: "../assets/logo.png" },
-	},
-	manifest: "../assets/logo.png",
 };
 
 export default function RootLayout({
@@ -21,9 +16,6 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="fa" dir="rtl" suppressHydrationWarning>
-			<head>
-				<link rel="manifest" href="/manifest.json" />
-			</head>
 			<body className="antialiased no-scrollbar">
 				<ThemeProvider
 					attribute="class"
