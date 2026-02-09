@@ -24,14 +24,14 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useProductStore, Product } from "@/store/useProductStore";
+import { useProductStore } from "@/store/useProductStore";
 
 export default function ProductDetailPage() {
 	const params = useParams();
 	const router = useRouter();
 	const productId = parseInt(params.id as string);
 
-	const { products, addToCart, toggleWishlist, wishlist } = useProductStore();
+	const { products } = useProductStore();
 	const product = products.find((p) => p.id === productId);
 
 	const [selectedImage, setSelectedImage] = useState(0);
@@ -39,15 +39,6 @@ export default function ProductDetailPage() {
 	const [selectedSize, setSelectedSize] = useState<string | null>(null);
 	const [selectedColor, setSelectedColor] = useState<string | null>(null);
 	const [addedToCart, setAddedToCart] = useState(false);
-
-	useEffect(() => {
-		if (product?.sizes && product.sizes.length > 0) {
-			setSelectedSize(product.sizes[0]);
-		}
-		if (product?.colors && product.colors.length > 0) {
-			setSelectedColor(product.colors[0]);
-		}
-	}, [product]);
 
 	if (!product) {
 		return (
@@ -63,19 +54,7 @@ export default function ProductDetailPage() {
 		);
 	}
 
-	const images = product.images || [product.image];
-	const isInWishlist = wishlist.includes(product.id);
-
-	const handleAddToCart = () => {
-		addToCart(
-			product,
-			quantity,
-			selectedSize || undefined,
-			selectedColor || undefined,
-		);
-		setAddedToCart(true);
-		setTimeout(() => setAddedToCart(false), 2000);
-	};
+	const images = product.productPic || [product.productPic];
 
 	const relatedProducts = products
 		.filter((p) => p.category === product.category && p.id !== product.id)
@@ -135,7 +114,7 @@ export default function ProductDetailPage() {
 								</Badge>
 							)}
 
-							{!product.available && (
+							{product.quantity == 0 && (
 								<div className="absolute inset-0 bg-black/60 flex items-center justify-center">
 									<div className="text-center text-white">
 										<h3 className="text-3xl font-bold mb-2">
@@ -184,14 +163,14 @@ export default function ProductDetailPage() {
 						<div className="flex justify-between">
 							<div>
 								<p className="text-muted-foreground mb-2">
-									{product.brand}
+									{product.brand.name}
 								</p>
 								<h1 className="text-4xl font-bold mb-2">
 									{product.name}
 								</h1>
-								{product.nameEn && (
+								{product.slug && (
 									<p className="text-lg text-muted-foreground">
-										{product.category}
+										{product.category.name}
 									</p>
 								)}
 							</div>
@@ -234,7 +213,7 @@ export default function ProductDetailPage() {
 									animate={{ scale: 1 }}
 									transition={{ type: "spring" }}
 								>
-									{product.priceFormatted}
+									{product.price}
 								</motion.span>
 								<span className="text-2xl text-muted-foreground">
 									تومان
@@ -253,7 +232,7 @@ export default function ProductDetailPage() {
 						</div>
 
 						{/* Sizes */}
-						{product.sizes && product.sizes.length > 0 && (
+						{/* {product.sizes && product.sizes.length > 0 && (
 							<div>
 								<h3 className="text-lg font-bold mb-3">سایز</h3>
 								<div className="flex gap-3">
@@ -275,7 +254,7 @@ export default function ProductDetailPage() {
 									))}
 								</div>
 							</div>
-						)}
+						)} */}
 
 						{/* Colors */}
 						{/* {product.colors && product.colors.length > 0 && (

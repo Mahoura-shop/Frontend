@@ -4,7 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
-  title: "Mahoura - تجربه زیبایی بی‌نظیر",
+  title: "Mahoura",
   description: "Luxury Persian Cosmetics & Beauty Products - محصولات آرایشی و بهداشتی لوکس",
 };
 
