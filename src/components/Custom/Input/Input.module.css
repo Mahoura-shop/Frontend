@@ -1,0 +1,403 @@
+/* Input.module.css */
+
+.numberInput::-webkit-outer-spin-button,
+.numberInput::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.numberInput[type="number"] {
+	-moz-appearance: textfield;
+}
+
+/* Container */
+.Conter {
+	@apply flex flex-col;
+	/* width: 90%; */
+	width: 100%;
+	position: relative;
+	/* text-align: right; */
+	margin-top: 25px;
+	font-size: clamp(10px, 3.5vw, 15px);
+}
+
+.inputWrapper {
+	position: relative;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+/* Main Input Styling */
+.Input {
+	font-family: "Vazirmatn", sans-serif;
+	width: 100%;
+	height: 45px;
+	padding: 0.875rem 1rem;
+	padding-left: 2.5rem;
+	font-size: 0.9375rem;
+	line-height: 1.5;
+	color: hsl(var(--foreground));
+	background-color: hsl(var(--background));
+	border: 1.5px solid hsl(var(--border));
+	border-radius: 12px;
+	box-shadow: 0 0 25px -17px hsla(var(--primary-rose), 0.4);
+	outline: none;
+	transition: all 0.25s cubic-bezier(0.19, 1, 0.22, 1);
+	cursor: text;
+	z-index: 0;
+	display: flex;
+	align-items: center;
+}
+
+.Input::placeholder {
+	color: hsl(var(--muted-foreground));
+	opacity: 0.6;
+}
+
+/* Hover State */
+.Input:hover {
+	border-color: hsl(var(--border) / 0.7);
+	box-shadow: 0px 0px 25px -15px hsla(var(--primary-rose), 0.6);
+}
+
+/* Active/Press State */
+.Input:active {
+	transform: scale(0.98);
+}
+
+/* Focus State */
+.Input:focus {
+	border-color: hsl(var(--primary-rose));
+	box-shadow:
+		0 0 0 3px hsla(var(--primary-rose), 0.1),
+		0 0 30px -10px hsla(var(--primary-rose), 0.5);
+	color: hsl(var(--foreground));
+}
+
+/* Icon Styling - FIXED CENTERING */
+.icon {
+	position: absolute;
+	right: 1rem;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 1.25rem;
+	height: 1.25rem;
+	color: hsl(var(--muted-foreground));
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	pointer-events: auto;
+	z-index: 3;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* .Input:focus ~ .icon,
+.icon:hover {
+	color: hsl(var(--primary-rose));
+} */
+
+/* Floating Label - FIXED CENTERING */
+.text {
+	position: absolute;
+	right: 12px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: hsl(var(--muted-foreground));
+	font-size: clamp(10px, 3.5vw, 15px);
+	pointer-events: none;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	background: transparent;
+	padding: 0 0.25rem;
+	z-index: 2;
+	line-height: 1;
+	display: flex;
+	align-items: center;
+	pointer-events: none;
+	height: auto;
+}
+
+/* When input has icon, adjust label position */
+.inputWrapper:has(.icon) .text {
+	right: 3rem;
+}
+
+/* Label moves up when focused or has value */
+.Input:focus ~ .text,
+.Input:not(:placeholder-shown) ~ .text {
+	top: 0;
+	transform: translateY(-50%);
+	right: 0.75rem;
+	font-size: 0.75rem;
+	/* color: hsl(var(--primary-rose)); */
+	background: hsl(var(--background));
+	padding: 0 0.5rem;
+	font-weight: 500;
+}
+
+/* Error State */
+.errorMessage {
+	display: block;
+	margin-top: 0.5rem;
+	font-size: 0.8125rem;
+	color: hsl(var(--destructive));
+	animation: slideDown 0.3s ease;
+	text-align: right;
+}
+
+@keyframes slideDown {
+	from {
+		opacity: 0;
+		transform: translateY(-0.5rem);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.inputWrapper:has(.Input.error) .icon {
+	color: hsl(var(--destructive));
+}
+
+/* Or if you want more specificity */
+.Input.error ~ .icon {
+	color: hsl(var(--destructive));
+}
+
+.inputWrapper:has(.Input.error):focus .text {
+	color: hsl(var(--destructive));
+}
+
+/* Or if you want more specificity */
+.Input.error:focus ~ .text {
+	color: hsl(var(--destructive));
+}
+
+/* For LTR direction */
+.inputWrapper:has(.Input[dir="ltr"].error) .icon {
+	color: hsl(var(--destructive));
+}
+
+.Input.error {
+	border-color: hsl(var(--destructive));
+	box-shadow:
+		0 0 0 3px hsla(var(--destructive), 0.1),
+		0 0 25px -15px hsla(var(--destructive), 0.4);
+}
+
+.Input.error:focus {
+	border-color: hsl(var(--destructive));
+	box-shadow:
+		0 0 0 3px hsla(var(--destructive), 0.15),
+		0 0 30px -10px hsla(var(--destructive), 0.5);
+}
+
+/* Disabled State */
+.Input:disabled {
+	background-color: hsl(var(--muted) / 0.3);
+	color: hsl(var(--muted-foreground));
+	border-color: hsl(var(--border) / 0.5);
+	cursor: not-allowed;
+	opacity: 0.6;
+}
+
+.Input:disabled:hover {
+	transform: none;
+}
+
+/* RTL/LTR Support */
+.Input[dir="rtl"] {
+	text-align: right;
+	padding-right: 1rem;
+	padding-left: 1rem;
+}
+
+.Input[dir="rtl"]:has(~ .icon) {
+	padding-right: 3rem;
+}
+
+.Input[dir="ltr"] {
+	text-align: left;
+	padding-left: 3rem;
+	padding-right: 1rem;
+}
+
+/* Icon positioning for LTR - FIXED */
+.inputWrapper:has(.Input[dir="ltr"]) .icon {
+	right: auto;
+	left: 1rem;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+/* Label positioning for LTR - FIXED */
+.inputWrapper:has(.Input[dir="ltr"]) .text {
+	right: auto;
+	left: 3rem;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.Input[dir="ltr"]:focus ~ .text,
+.Input[dir="ltr"]:not(:placeholder-shown) ~ .text {
+	right: auto;
+	left: 0.75rem;
+	top: 0;
+	transform: translateY(-50%);
+}
+
+/* RTL label when floating - FIXED */
+.Input[dir="rtl"]:focus ~ .text,
+.Input[dir="rtl"]:not(:placeholder-shown) ~ .text {
+	top: 0;
+	transform: translateY(-50%);
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+	.Input {
+		background-color: hsl(var(--background));
+		border-color: hsl(var(--border));
+		/* box-shadow: 0 0 25px -17px hsla(var(--primary-rose), 0.3); */
+	}
+
+	.Input:hover {
+		border-color: hsl(var(--border) / 0.8);
+		/* box-shadow: 0px 0px 25px -15px hsla(var(--primary-rose), 0.5); */
+	}
+
+	/* .Input:focus {
+		border-color: hsl(var(--primary-rose));
+		box-shadow:
+			0 0 0 3px hsla(var(--primary-rose), 0.15),
+			0 0 30px -10px hsla(var(--primary-rose), 0.4);
+	} */
+
+	.Input:focus ~ .text,
+	.Input:not(:placeholder-shown) ~ .text {
+		background: hsl(var(--background));
+	}
+}
+
+/* Focus Visible (Accessibility) */
+/* .Input:focus-visible {
+	outline: 2px solid hsl(var(--primary-rose));
+	outline-offset: 2px;
+} */
+
+/* Responsive */
+@media (max-width: 640px) {
+	.Input {
+		font-size: 1rem;
+		padding: 0.75rem 0.875rem;
+		height: 42px;
+	}
+
+	.Input[dir="ltr"] {
+		padding-left: 2.5rem;
+	}
+
+	.Input[dir="rtl"]:has(~ .icon) {
+		padding-right: 2.5rem;
+	}
+
+	.icon {
+		width: 1.125rem;
+		height: 1.125rem;
+		top: 50%;
+		transform: translateY(-50%);
+	}
+
+	.text {
+		top: 50%;
+		transform: translateY(-50%);
+	}
+
+	.Input:focus ~ .text,
+	.Input:not(:placeholder-shown) ~ .text {
+		top: 0;
+		transform: translateY(-50%);
+	}
+}
+
+/* Autofill Styling */
+.Input:-webkit-autofill,
+.Input:-webkit-autofill:hover,
+.Input:-webkit-autofill:focus {
+	-webkit-text-fill-color: hsl(var(--foreground));
+	-webkit-box-shadow: 0 0 0 1000px hsl(var(--background)) inset;
+	transition: background-color 5000s ease-in-out 0s;
+	border-radius: 12px;
+	border: 1.5px solid hsl(var(--border));
+}
+
+/* Selection */
+.Input::selection {
+	background-color: hsla(var(--primary-rose), 0.3);
+	color: hsl(var(--foreground));
+}
+
+/* Premium Gradient Variant */
+.Input.premium {
+	background:
+		linear-gradient(hsl(var(--background)), hsl(var(--background)))
+			padding-box,
+		linear-gradient(
+				135deg,
+				hsl(var(--primary-rose)),
+				hsl(var(--accent-gold)),
+				hsl(var(--secondary-plum))
+			)
+			border-box;
+	border: 2px solid transparent;
+	box-shadow: 0 0 25px -17px hsla(var(--primary-rose), 0.4);
+}
+
+.Input.premium:hover {
+	box-shadow: 0 0 25px -15px hsla(var(--primary-rose), 0.6);
+}
+
+.Input.premium:focus {
+	box-shadow:
+		0 0 0 3px hsla(var(--primary-rose), 0.1),
+		0 0 30px -10px hsla(var(--primary-rose), 0.5),
+		0 4px 20px -5px hsla(var(--accent-gold), 0.3);
+}
+
+/* Success State */
+.Input.success {
+	border-color: hsl(142, 71%, 45%);
+	box-shadow:
+		0 0 0 3px hsla(142, 71%, 45%, 0.1),
+		0 0 25px -15px hsla(142, 71%, 45%, 0.4);
+}
+
+.Input.success:focus {
+	border-color: hsl(142, 71%, 45%);
+	box-shadow:
+		0 0 0 3px hsla(142, 71%, 45%, 0.15),
+		0 0 30px -10px hsla(142, 71%, 45%, 0.5);
+}
+
+/* Loading State */
+.Input.loading {
+	background-image: linear-gradient(
+		90deg,
+		hsl(var(--muted) / 0.1) 0%,
+		hsl(var(--muted) / 0.3) 50%,
+		hsl(var(--muted) / 0.1) 100%
+	);
+	background-size: 200% 100%;
+	animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+	0% {
+		background-position: -200% 0;
+	}
+	100% {
+		background-position: 200% 0;
+	}
+}
