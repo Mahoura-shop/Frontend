@@ -132,14 +132,14 @@ export default function AdminLayout({
 											<span className="font-medium flex-1 text-right">
 												{item.label}
 											</span>
-											{item.count !== null && (
+											{/* {item.count !== null && (
 												<Badge
 													variant="secondary"
 													className="mr-auto"
 												>
 													{item.count}
 												</Badge>
-											)}
+											)} */}
 										</button>
 									</Link>
 								</motion.div>

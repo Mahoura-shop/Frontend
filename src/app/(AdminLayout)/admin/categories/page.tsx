@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
 	Plus,
@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
-import { getData } from "@/services/services";
+import { deleteData, getData } from "@/services/services";
 
 interface Category {
 	id: number;
@@ -51,7 +51,8 @@ export default function CategoriesPage() {
 			id: 1,
 			name: "آرایش صورت",
 			slug: "makeup-face",
-			categoryPic: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=200",
+			categoryPic:
+				"https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=200",
 			count: 120,
 			isActive: true,
 		},
@@ -59,7 +60,8 @@ export default function CategoriesPage() {
 			id: 2,
 			name: "مراقبت از پوست",
 			slug: "skin-care",
-			categoryPic: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=200",
+			categoryPic:
+				"https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=200",
 			count: 85,
 			isActive: true,
 		},
@@ -67,7 +69,8 @@ export default function CategoriesPage() {
 			id: 3,
 			name: "آرایش چشم",
 			slug: "eye-makeup",
-			categoryPic: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=200",
+			categoryPic:
+				"https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=200",
 			count: 65,
 			isActive: true,
 		},
@@ -75,7 +78,8 @@ export default function CategoriesPage() {
 			id: 4,
 			name: "عطر و ادکلن",
 			slug: "perfume",
-			categoryPic: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=200",
+			categoryPic:
+				"https://images.unsplash.com/photo-1541643600914-78b084683601?w=200",
 			count: 45,
 			isActive: true,
 		},
@@ -110,15 +114,21 @@ export default function CategoriesPage() {
 	const activeCount = categories.filter((c) => c.isActive).length;
 	const inactiveCount = categories.filter((c) => !c.isActive).length;
 
-	useEffect(() => {
+	const fetchCategories = useCallback(() => {
 		getData({ endPoint: `/v1/category` }).then((data) => {
-			// console.log("data", [...categories, ...data.data]);
-			setCategories((prev) => [...prev, ...data.data]);
+			setCategories(data.data);
+			// setCategories((prev) => [...prev, ...data.data]);
 		});
 	}, []);
 
+	useEffect(() => {
+		fetchCategories();
+	}, [fetchCategories]);
+
 	const handleDelete = (id: number) => {
-		setCategories(categories.filter((c) => c.id !== id));
+		deleteData({ endPoint: `/v1/category/${id}` }).then(() =>
+			fetchCategories(),
+		);
 		CustomToast("دسته‌بندی با موفقیت حذف شد", "success");
 	};
 
@@ -212,21 +222,21 @@ export default function CategoriesPage() {
 										<Button
 											size="icon"
 											variant="secondary"
-											className="h-8 w-8"
+											className="h-8 w-8 hover:bg-background/80"
 										>
 											<Eye className="w-4 h-4" />
 										</Button>
 										<Button
 											size="icon"
 											variant="secondary"
-											className="h-8 w-8"
+											className="h-8 w-8 hover:bg-background/80"
 										>
 											<Pencil className="w-4 h-4" />
 										</Button>
 										<Button
 											size="icon"
 											variant="secondary"
-											className="h-8 w-8 text-red-500"
+											className="h-8 w-8 text-red-500 hover:bg-background/80"
 											onClick={() =>
 												handleDelete(category.id)
 											}
