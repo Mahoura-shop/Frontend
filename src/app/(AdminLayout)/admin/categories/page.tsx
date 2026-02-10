@@ -26,7 +26,7 @@ import {
 import { Pagination } from "@/components/ui/pagination";
 import { getData } from "@/services/services";
 import DeleteCategoryDialog from "@/components/admin/Category/DeleteCategoryDialog";
-import CategoryDialog from "@/components/admin/Category/CreateCategoryDialog";
+import UpdateCategoryDialog from "@/components/admin/Category/UpdateCategoryDialog";
 import Button from "@/components/Custom/Button/Button";
 
 export default function CategoriesPage() {
@@ -122,7 +122,10 @@ export default function CategoriesPage() {
 						<Plus className="w-4 h-4" />
 						افزودن دسته‌بندی
 					</Button> */}
-					<CategoryDialog fetchCategories={fetchCategories} mode="create" />
+					<UpdateCategoryDialog
+						fetchCategories={fetchCategories}
+						mode="create"
+					/>
 				</div>
 			</div>
 
@@ -157,8 +160,12 @@ export default function CategoriesPage() {
 										>
 											<Eye className="w-4 h-4" />
 										</Button>
-										
-					<CategoryDialog fetchCategories={fetchCategories} mode="update" category={category} />
+
+										<UpdateCategoryDialog
+											fetchCategories={fetchCategories}
+											mode="update"
+											category={category}
+										/>
 										{/* <Button
 											size="icon"
 											variant="secondary"

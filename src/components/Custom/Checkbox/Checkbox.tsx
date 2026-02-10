@@ -33,8 +33,8 @@ export default function Checkbox({
 				type="checkbox"
 				{...field}
 				{...props}
-				checked={checked}
-				onChange={onChange}
+				checked={field.value}
+				// onChange={onChange}
 				disabled={disabled}
 			/>
 			<label className="check" htmlFor={inputId} aria-checked={checked}>

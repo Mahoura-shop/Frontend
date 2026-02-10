@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	Dialog,
 	DialogBody,
@@ -33,7 +33,7 @@ import { postData, postImageData, putImageData } from "@/services/services";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import Button from "@/components/Custom/Button/Button";
 
-export default function CategoryDialog({
+export default function UpdateCategoryDialog({
 	category,
 	fetchCategories,
 	mode = "create",
@@ -45,6 +45,9 @@ export default function CategoryDialog({
 	const [categoryDialogOpen, setCategoryDialogOpen] =
 		useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(false);
+	useEffect(() => {
+		console.log("category", category);
+	}, []);
 	const updateCategory = async (values: Category) => {
 		setLoading(true);
 		const formData = new FormData();
@@ -59,9 +62,9 @@ export default function CategoryDialog({
 		) {
 			formData.append("description", values.description || "");
 		}
-		if (!(mode === "update" && category?.isActive === values.isActive)) {
-			formData.append("isActive", values.isActive.toString());
-		}
+		// if (!(mode === "update" && category?.isActive === values.isActive)) {
+		// }
+		formData.append("isActive", values.isActive.toString());
 		if (
 			values.categoryPic &&
 			!(mode === "update" && category?.categoryPic === values.categoryPic)
@@ -86,7 +89,7 @@ export default function CategoryDialog({
 		}
 		const apiFunc = mode === "update" ? putImageData : postImageData;
 		apiFunc({
-			endPoint: `/v1/category${mode === "update" && "/" + category?.id}`,
+			endPoint: `/v1/category${mode === "update" ? "/" + category?.id : ""}`,
 			data: formData,
 		})
 			.then((data) => {
@@ -132,61 +135,64 @@ export default function CategoryDialog({
 					validationSchema={createCategorySchema}
 					onSubmit={updateCategory}
 				>
-					<Form className="grid gap-4">
-						<DialogHeader>
-							<DialogTitle>
-								{mode === "create"
-									? "افزودن دسته‌بندی"
-									: "ویرایش دسته‌بندی"}
-							</DialogTitle>
-						</DialogHeader>
-						<div className="flex gap-2">
-							<Input
-								name="name"
-								icon={Package}
-								label="نام فارسی دسته‌بندی"
-							/>
-							<Input
-								name="slug"
-								icon={Globe}
-								label="نام انگلیسی دسته‌بندی"
-							/>
-						</div>
-						<Textarea
-							name="description"
-							icon={List}
-							label="توضیحات دسته‌بندی"
-						/>
-						<div className="flex gap-2">
-							<Checkbox
-								name="isActive"
-								// checked={isActive}
-								// onChange={() => setIsActive((pre) => !pre)}
-							/>
-							<p>این دسته‌بندی فعال است</p>
-						</div>
-						<ImageCropModal
-							name="categoryPic"
-							label="تصویر دسته‌بندی"
-						/>
-						{/* </DialogBody> */}
-						<StickyDialogFooter>
-							<div className="flex gap-4">
-								<Button
-									onClick={() => setCategoryDialogOpen(false)}
-								>
-									انصراف
-								</Button>
-								<Button
-									className="bg-primary-rose hover:bg-primary-rose/80 text-black"
-									type="submit"
-									loading={loading}
-								>
-									{mode === "create" ? "افزودن" : "ویرایش"}
-								</Button>
+						<Form className="grid gap-4">
+							<DialogHeader>
+								<DialogTitle>
+									{mode === "create"
+										? "افزودن دسته‌بندی"
+										: "ویرایش دسته‌بندی"}
+								</DialogTitle>
+							</DialogHeader>
+							<div className="flex gap-2">
+								<Input
+									name="name"
+									icon={Package}
+									label="نام فارسی دسته‌بندی"
+								/>
+								<Input
+									name="slug"
+									icon={Globe}
+									label="نام انگلیسی دسته‌بندی"
+								/>
 							</div>
-						</StickyDialogFooter>
-					</Form>
+							<Textarea
+								name="description"
+								icon={List}
+								label="توضیحات دسته‌بندی"
+							/>
+							<div className="flex gap-2">
+								<Checkbox
+									name="isActive"
+								/>
+								<p>این دسته‌بندی فعال است</p>
+							</div>
+							<ImageCropModal
+								name="categoryPic"
+								label="تصویر دسته‌بندی"
+							/>
+							{/* </DialogBody> */}
+							<StickyDialogFooter>
+								<div className="flex gap-4">
+									<Button
+										onClick={() =>
+											setCategoryDialogOpen(false)
+										}
+										type="button"
+									>
+										انصراف
+									</Button>
+									<Button
+										className="bg-primary-rose hover:bg-primary-rose/80 text-black"
+										type="submit"
+										loading={loading}
+									>
+										{mode === "create"
+											? "افزودن"
+											: "ویرایش"}
+									</Button>
+								</div>
+							</StickyDialogFooter>
+						</Form>
 				</Formik>
 			</DialogContent>
 		</Dialog>

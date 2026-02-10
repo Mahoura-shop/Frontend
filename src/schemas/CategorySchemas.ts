@@ -18,6 +18,6 @@ export const createCategoryInitialValues = {
 	name: "",
 	slug: "",
 	description: "",
-	isActive: true,
+	isActive: false,
 	categoryPic: null,
 };
