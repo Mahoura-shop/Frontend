@@ -19,8 +19,6 @@ import logo from "@/assets/logo.png";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Toaster } from "@/components/ui/sonner";
 import Image from "next/image";
 
 export default function AdminLayout({
@@ -206,9 +204,6 @@ export default function AdminLayout({
 				{/* Page Content */}
 				{children}
 			</div>
-
-			{/* Toast Notifications */}
-			<Toaster />
 		</div>
 	);
 }

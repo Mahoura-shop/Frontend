@@ -12,7 +12,7 @@ export default function StickyDialogFooter({
 }>) {
 	return (
 		<div
-			className={`w-full sticky bottom-0 py-4 bg-background ${className}`}
+			className={`w-full sticky bottom-0 py-4 z-50 bg-background ${className}`}
 		>
 			<DialogFooter className={`w-full ${footerClassName}`}>
 				{children}
