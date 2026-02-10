@@ -28,16 +28,7 @@ import {
 import { Pagination } from "@/components/ui/pagination";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import { deleteData, getData } from "@/services/services";
-
-interface Category {
-	id: number;
-	name: string;
-	slug: string;
-	description?: string;
-	categoryPic: string | null;
-	count: number;
-	isActive: boolean;
-}
+import DeleteCategoryDialog from "@/components/admin/Category/DeleteCategoryDialog";
 
 export default function CategoriesPage() {
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -124,13 +115,6 @@ export default function CategoriesPage() {
 	useEffect(() => {
 		fetchCategories();
 	}, [fetchCategories]);
-
-	const handleDelete = (id: number) => {
-		deleteData({ endPoint: `/v1/category/${id}` }).then(() =>
-			fetchCategories(),
-		);
-		CustomToast("دسته‌بندی با موفقیت حذف شد", "success");
-	};
 
 	return (
 		<main className="p-6">
@@ -233,7 +217,11 @@ export default function CategoriesPage() {
 										>
 											<Pencil className="w-4 h-4" />
 										</Button>
-										<Button
+										<DeleteCategoryDialog
+											id={category?.id}
+											fetchCategories={fetchCategories}
+										/>
+										{/* <Button
 											size="icon"
 											variant="secondary"
 											className="h-8 w-8 text-red-500 hover:bg-background/80"
@@ -242,7 +230,7 @@ export default function CategoriesPage() {
 											}
 										>
 											<Trash2 className="w-4 h-4" />
-										</Button>
+										</Button> */}
 									</div>
 
 									{/* Status Badge */}
@@ -345,7 +333,13 @@ export default function CategoriesPage() {
 												>
 													<Pencil className="w-4 h-4" />
 												</Button>
-												<Button
+												<DeleteCategoryDialog
+													id={category?.id}
+													fetchCategories={
+														fetchCategories
+													}
+												/>
+												{/* <Button
 													variant="ghost"
 													size="icon"
 													className="h-8 w-8 text-red-500"
@@ -356,7 +350,7 @@ export default function CategoriesPage() {
 													}
 												>
 													<Trash2 className="w-4 h-4" />
-												</Button>
+												</Button> */}
 											</div>
 										</TableCell>
 									</motion.tr>
