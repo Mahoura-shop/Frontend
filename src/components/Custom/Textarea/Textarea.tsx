@@ -1,6 +1,7 @@
 "use client";
-import style from "./Input.module.css";
+import style from "./Textarea.module.css";
 import { AlertCircle, LucideIcon } from "lucide-react";
+
 import { useField } from "formik";
 import { cn } from "@/lib/utils";
 import {
@@ -9,7 +10,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
+interface Props extends React.InputHTMLAttributes<HTMLTextAreaElement> {
 	name: string;
 	children?: React.ReactNode;
 	icon?: LucideIcon;
@@ -31,7 +32,7 @@ const isRTL = (text: string | undefined): boolean => {
 	return rtlChars.test(text);
 };
 
-export default function Input({
+export default function Textarea({
 	name,
 	children,
 	icon: Icon,
@@ -55,7 +56,7 @@ export default function Input({
 	return (
 		<div className={cn(style.Conter, containerClassName, "font-vazirmatn")}>
 			<div className={style.inputWrapper}>
-				<input
+				<textarea
 					dir={direction}
 					{...field}
 					{...props}
@@ -63,7 +64,7 @@ export default function Input({
 					placeholder=" "
 					disabled={loading || props.disabled} // Disable when loading
 					className={cn(
-						"font-vazirmatn",
+						"font-vazirmatn min-h-12",
 						style.Input,
 						onlyNumbers && style.numberInput,
 						hasError && style.error,

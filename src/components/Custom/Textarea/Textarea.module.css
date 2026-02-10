@@ -77,7 +77,7 @@
 .icon {
 	position: absolute;
 	right: 1rem;
-	top: 50%;
+	top: 1.5rem;
 	transform: translateY(-50%);
 	width: 1.25rem;
 	height: 1.25rem;
@@ -99,8 +99,8 @@
 /* Floating Label - FIXED CENTERING */
 .text {
 	position: absolute;
-	right: 12px;
-	top: 50%;
+	right: 3rem;
+	top: 1.5rem;
 	transform: translateY(-50%);
 	color: hsl(var(--muted-foreground));
 	font-size: clamp(10px, 3.5vw, 15px);
@@ -226,7 +226,7 @@
 .inputWrapper:has(.Input[dir="ltr"]) .icon {
 	right: auto;
 	left: 1rem;
-	top: 50%;
+	top: 1.5rem;
 	transform: translateY(-50%);
 }
 

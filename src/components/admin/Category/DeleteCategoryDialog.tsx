@@ -30,7 +30,7 @@ export default function DeleteCategoryDialog({
 		CustomToast("دسته‌بندی با موفقیت حذف شد", "success");
 	};
 	return (
-		<Dialog open={open} onOpenChange={(value) => setOpen(value)}>
+		<Dialog open={open} onOpenChange={(value: boolean) => setOpen(value)}>
 			<DialogTrigger>
 				<Button
 					size="icon"
@@ -40,7 +40,7 @@ export default function DeleteCategoryDialog({
 					<Trash2 className="w-4 h-4" />
 				</Button>
 			</DialogTrigger>
-			<DialogContent>
+			<DialogContent className="max-w-xl pb-4">
 				<DialogHeader>
 					<DialogTitle>حذف دسته‌بندی</DialogTitle>
 				</DialogHeader>

@@ -12,7 +12,6 @@ import {
 	Eye,
 	FolderTree,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +27,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { getData } from "@/services/services";
 import DeleteCategoryDialog from "@/components/admin/Category/DeleteCategoryDialog";
 import CreateCategoryDialog from "@/components/admin/Category/CreateCategoryDialog";
+import Button from "@/components/Custom/Button/Button";
 
 export default function CategoriesPage() {
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -122,7 +122,7 @@ export default function CategoriesPage() {
 						<Plus className="w-4 h-4" />
 						افزودن دسته‌بندی
 					</Button> */}
-					<CreateCategoryDialog />
+					<CreateCategoryDialog fetchCategories={fetchCategories} />
 				</div>
 			</div>
 
