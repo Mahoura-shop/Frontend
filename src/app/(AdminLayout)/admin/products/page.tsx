@@ -126,12 +126,44 @@ export default function ProductsAdminPage() {
 		});
 	}
 
+	const handleSort = (column: SortColumn) => {
+		if (sortColumn === column) {
+			setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+		} else {
+			setSortColumn(column);
+			setSortDirection("asc");
+		}
+	};
+
+	// Helper function to get sortable value
+	const getSortValue = (product: Product, column: keyof Product) => {
+		const value = product[column];
+
+		// Handle objects with name property (category, brand)
+		if (value && typeof value === "object" && "name" in value) {
+			return value.name || "";
+		}
+
+		// Handle booleans
+		if (typeof value === "boolean") {
+			return value ? 1 : 0; // Convert to number for sorting
+		}
+
+		// Handle null/undefined
+		if (value === null || value === undefined) {
+			return "";
+		}
+
+		return value;
+	};
+
 	// Sorting
 	if (sortColumn) {
 		filteredProducts.sort((a, b) => {
-			const aVal = a[sortColumn];
-			const bVal = b[sortColumn];
+			const aVal = getSortValue(a, sortColumn as keyof Product);
+			const bVal = getSortValue(b, sortColumn as keyof Product);
 
+			// Handle different types
 			if (typeof aVal === "string" && typeof bVal === "string") {
 				return sortDirection === "asc"
 					? aVal.localeCompare(bVal, "fa")
@@ -142,7 +174,13 @@ export default function ProductsAdminPage() {
 				return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
 			}
 
-			return 0;
+			// Handle mixed types - convert to string
+			const aString = String(aVal);
+			const bString = String(bVal);
+
+			return sortDirection === "asc"
+				? aString.localeCompare(bString, "fa")
+				: bString.localeCompare(aString, "fa");
 		});
 	}
 
@@ -154,16 +192,7 @@ export default function ProductsAdminPage() {
 
 	const activeCount = products.filter((p) => p.isActive).length;
 	const inactiveCount = products.filter((p) => !p.isActive).length;
-
-	const handleSort = (column: SortColumn) => {
-		if (sortColumn === column) {
-			setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-		} else {
-			setSortColumn(column);
-			setSortDirection("asc");
-		}
-	};
-
+	
 	const SortIcon = ({ column }: { column: SortColumn }) => {
 		if (sortColumn !== column)
 			return <ArrowUpDown className="w-4 h-4 opacity-50" />;
