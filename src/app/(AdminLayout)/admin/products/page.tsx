@@ -46,6 +46,8 @@ import { getData } from "@/services/services";
 import { useEffect } from "react";
 import { useCallback } from "react";
 import DeleteProductDialog from "@/components/admin/Product/DeleteProductDialog";
+import UpdateProductDialog from "@/components/admin/Product/UpdateProductDialog";
+import { Brand } from "@/types/Brand";
 
 type SortColumn = "name" | "brand" | "category" | "price" | "quantity" | null;
 type SortDirection = "asc" | "desc";
@@ -58,22 +60,24 @@ export default function ProductsAdminPage() {
 	const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 	const [filterColumn, setFilterColumn] = useState<string>("");
 	const [filterValue, setFilterValue] = useState<string>("");
-	const [showAddModal, setShowAddModal] = useState(false);
-	const [showCropModal, setShowCropModal] = useState(false);
-	const [selectedImage, setSelectedImage] = useState<string | null>(null);
-	const [formData, setFormData] = useState({
-		name: "",
-		brand: "",
-		category: "",
-		price: "",
-		currency: "IRR",
-		quantity: "",
-		quantityType: "pieces",
-	});
+
+	const [categories, setCategories] = useState<Category[]>([]);
+	const [brands, setBrands] = useState<Brand[]>([]);
+
 	const itemsPerPage = 10;
 
 	const [products, setProducts] = useState<Product[]>([]);
 
+	const fetchBrands = useCallback(() => {
+		getData({ endPoint: `/v1/brand` }).then((data) => {
+			setBrands(data.data);
+		});
+	}, []);
+	const fetchCategories = useCallback(() => {
+		getData({ endPoint: `/v1/category` }).then((data) => {
+			setCategories(data.data);
+		});
+	}, []);
 	const fetchProducts = useCallback(() => {
 		getData({ endPoint: `/v1/product` }).then((data) => {
 			setProducts(data.data);
@@ -83,7 +87,9 @@ export default function ProductsAdminPage() {
 
 	useEffect(() => {
 		fetchProducts();
-	}, [fetchProducts]);
+		fetchBrands();
+		fetchCategories();
+	}, []);
 
 	// Filtering
 	let filteredProducts = [...products];
@@ -326,11 +332,16 @@ export default function ProductsAdminPage() {
 						</Button>
 					)}
 				</div>
-
-				<Button className="gap-2" onClick={() => setShowAddModal(true)}>
+				<UpdateProductDialog
+					fetchProducts={fetchProducts}
+					mode="create"
+					categories={categories}
+					brands={brands}
+				/>
+				{/* <Button className="gap-2">
 					<Plus className="w-4 h-4" />
 					افزودن محصول
-				</Button>
+				</Button> */}
 			</div>
 
 			{/* Table */}
@@ -460,7 +471,10 @@ export default function ProductsAdminPage() {
 											>
 												<Pencil className="w-4 h-4" />
 											</Button>
-											<DeleteProductDialog id={product?.id} fetchProducts={fetchProducts} />
+											<DeleteProductDialog
+												id={product?.id}
+												fetchProducts={fetchProducts}
+											/>
 											{/* <Button
 												variant="ghost"
 												size="icon"

@@ -11,9 +11,11 @@ export const createBrandSchema = Yup.object({
 });
 
 export const createBrandInitialValues = {
+	id: 0,
 	name: "",
 	slug: "",
 	description: "",
+	count: 0,
 	isActive: false,
 	brandPic: null,
 };

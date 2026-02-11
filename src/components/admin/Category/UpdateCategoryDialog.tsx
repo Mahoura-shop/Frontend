@@ -103,9 +103,7 @@ export default function UpdateCategoryDialog({
 					"error",
 					translateErrorObject(error.response.data.messages),
 				);
-					setErrors(
-						translateErrorObject(error.response.data.messages),
-					);
+				setErrors(translateErrorObject(error.response.data.messages));
 			})
 			.finally(() => setLoading(false));
 	};
@@ -139,7 +137,7 @@ export default function UpdateCategoryDialog({
 					initialValues={
 						mode === "create"
 							? createCategoryInitialValues
-							: category
+							: category || createCategoryInitialValues
 					}
 					validationSchema={createCategorySchema}
 					onSubmit={updateCategory}

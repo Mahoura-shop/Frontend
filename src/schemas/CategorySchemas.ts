@@ -15,9 +15,11 @@ export const createCategorySchema = Yup.object({
 });
 
 export const createCategoryInitialValues = {
+	id: 0,
 	name: "",
 	slug: "",
 	description: "",
 	isActive: false,
 	categoryPic: null,
+	count: 0,
 };

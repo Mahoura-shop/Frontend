@@ -44,8 +44,7 @@ export default function UpdateBrandDialog({
 	fetchBrands: () => void;
 	mode: "update" | "create";
 }) {
-	const [brandDialogOpen, setBrandDialogOpen] =
-		useState<boolean>(false);
+	const [brandDialogOpen, setBrandDialogOpen] = useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(false);
 	const updateBrand = async (
 		values: Brand,
@@ -59,9 +58,7 @@ export default function UpdateBrandDialog({
 		if (!(mode === "update" && brand?.slug === values.slug)) {
 			formData.append("slug", values.slug);
 		}
-		if (
-			!(mode === "update" && brand?.description === values.description)
-		) {
+		if (!(mode === "update" && brand?.description === values.description)) {
 			formData.append("description", values.description || "");
 		}
 		// if (!(mode === "update" && brand?.isActive === values.isActive)) {
@@ -104,9 +101,7 @@ export default function UpdateBrandDialog({
 					"error",
 					translateErrorObject(error.response.data.messages),
 				);
-					setErrors(
-						translateErrorObject(error.response.data.messages),
-					);
+				setErrors(translateErrorObject(error.response.data.messages));
 			})
 			.finally(() => setLoading(false));
 	};
@@ -120,9 +115,7 @@ export default function UpdateBrandDialog({
 					<Button className="gap-2">
 						<Plus className="w-4 h-4" />
 						<p>
-							{mode === "create"
-								? "افزودن برند"
-								: "ویرایش برند"}
+							{mode === "create" ? "افزودن برند" : "ویرایش برند"}
 						</p>
 					</Button>
 				) : (
@@ -140,7 +133,7 @@ export default function UpdateBrandDialog({
 					initialValues={
 						mode === "create"
 							? createBrandInitialValues
-							: brand
+							: brand || createBrandInitialValues
 					}
 					validationSchema={createBrandSchema}
 					onSubmit={updateBrand}
@@ -174,10 +167,7 @@ export default function UpdateBrandDialog({
 							<Checkbox name="isActive" />
 							<p>این برند فعال است</p>
 						</div>
-						<ImageCropModal
-							name="brandPic"
-							label="تصویر برند"
-						/>
+						<ImageCropModal name="brandPic" label="تصویر برند" />
 						{/* </DialogBody> */}
 						<StickyDialogFooter>
 							<div className="flex gap-4">
