@@ -74,14 +74,15 @@ export default function ProductsAdminPage() {
 	const [products, setProducts] = useState<Product[]>([]);
 
 	const fetchCategories = useCallback(() => {
-			getData({ endPoint: `/v1/product` }).then((data) => {
-				setProducts(data.data);
-			});
-		}, []);
-	
-		useEffect(() => {
-			fetchCategories();
-		}, [fetchCategories]);
+		getData({ endPoint: `/v1/product` }).then((data) => {
+			setProducts(data.data);
+			console.log("data", data.data);
+		});
+	}, []);
+
+	useEffect(() => {
+		fetchCategories();
+	}, [fetchCategories]);
 
 	// Filtering
 	let filteredProducts = [...products];
@@ -90,14 +91,36 @@ export default function ProductsAdminPage() {
 		filteredProducts = filteredProducts.filter(
 			(p) =>
 				p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				p.brand?.name .toLowerCase().includes(searchQuery.toLowerCase()),
+				p.brand?.name.toLowerCase().includes(searchQuery.toLowerCase()),
 		);
 	}
 
 	if (filterColumn && filterValue) {
 		filteredProducts = filteredProducts.filter((p) => {
-			const value = p[filterColumn as keyof Product];
-			return String(value)
+			const columnValue = p[filterColumn as keyof Product];
+
+			// Handle boolean fields (isActive, isNew)
+			if (filterColumn === "isActive" || filterColumn === "isNew") {
+				const boolValue = columnValue === true ? "فعال" : "غیرفعال";
+				return boolValue === filterValue;
+			}
+
+			// Handle objects with name property (category, brand)
+			if (
+				columnValue &&
+				typeof columnValue === "object" &&
+				"name" in columnValue
+			) {
+				return String(columnValue.name)
+					.toLowerCase()
+					.includes(filterValue.toLowerCase());
+			}
+
+			if (columnValue === null || columnValue === undefined) {
+				return filterValue === "بدون مقدار";
+			}
+
+			return String(columnValue)
 				.toLowerCase()
 				.includes(filterValue.toLowerCase());
 		});
@@ -158,11 +181,24 @@ export default function ProductsAdminPage() {
 
 	const getFilterOptions = () => {
 		if (!filterColumn) return [];
+
+		if (filterColumn === "isActive" || filterColumn === "isNew") {
+			return ["فعال", "غیرفعال"];
+		}
+
 		const uniqueValues = new Set(
-			products.map((p) => String(p[filterColumn as keyof Product])),
+			products.map((p) => {
+				const value = p[filterColumn as keyof Product];
+				return value?.name || value || "بدون مقدار";
+			}),
 		);
+
 		return Array.from(uniqueValues);
 	};
+
+	useEffect(() => {
+		console.log("getFilterOptions", getFilterOptions(), products);
+	}, []);
 
 	return (
 		<main className="p-6 no-scrollbar">
@@ -211,6 +247,7 @@ export default function ProductsAdminPage() {
 						onValueChange={(val: any) => {
 							setFilterColumn(val);
 							setFilterValue("");
+							setCurrentPage(1);
 						}}
 					>
 						<SelectTrigger className="w-[180px]">
@@ -219,13 +256,17 @@ export default function ProductsAdminPage() {
 						<SelectContent>
 							<SelectItem value="brand">برند</SelectItem>
 							<SelectItem value="category">دسته‌بندی</SelectItem>
+							<SelectItem value="isActive">وضعیت</SelectItem>
 						</SelectContent>
 					</Select>
 
 					{filterColumn && (
 						<Select
 							value={filterValue}
-							onValueChange={setFilterValue}
+							onValueChange={(value) => {
+								setFilterValue(value);
+								setCurrentPage(1);
+							}}
 						>
 							<SelectTrigger className="w-[180px]">
 								<SelectValue placeholder="انتخاب مقدار" />
@@ -248,6 +289,7 @@ export default function ProductsAdminPage() {
 								setSearchQuery("");
 								setFilterColumn("");
 								setFilterValue("");
+								setCurrentPage(1);
 							}}
 						>
 							پاک کردن فیلترها
@@ -341,7 +383,9 @@ export default function ProductsAdminPage() {
 										{product.name}
 									</TableCell>
 									<TableCell>{product.brand?.name}</TableCell>
-									<TableCell>{product.category?.name}</TableCell>
+									<TableCell>
+										{product.category?.name}
+									</TableCell>
 									<TableCell className="font-bold text-primary-rose">
 										{formatPrice(product.price)}
 									</TableCell>
