@@ -32,6 +32,7 @@ import StickyDialogFooter from "@/components/StickyDialogFooter/StickyDialogFoot
 import { postData, postImageData, putImageData } from "@/services/services";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import Button from "@/components/Custom/Button/Button";
+import { translateErrorObject } from "@/utils/translateErrorObject";
 
 export default function UpdateCategoryDialog({
 	category,
@@ -45,10 +46,10 @@ export default function UpdateCategoryDialog({
 	const [categoryDialogOpen, setCategoryDialogOpen] =
 		useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(false);
-	useEffect(() => {
-		console.log("category", category);
-	}, []);
-	const updateCategory = async (values: Category) => {
+	const updateCategory = async (
+		values: Category,
+		{ setErrors }: { setErrors: any },
+	) => {
 		setLoading(true);
 		const formData = new FormData();
 		if (!(mode === "update" && category?.name === values.name)) {
@@ -97,7 +98,15 @@ export default function UpdateCategoryDialog({
 				setCategoryDialogOpen(false);
 				fetchCategories();
 			})
-			.catch((err) => console.log(err))
+			.catch((error) => {
+				console.log(
+					"error",
+					translateErrorObject(error.response.data.messages),
+				);
+					setErrors(
+						translateErrorObject(error.response.data.messages),
+					);
+			})
 			.finally(() => setLoading(false));
 	};
 	return (
@@ -135,64 +144,58 @@ export default function UpdateCategoryDialog({
 					validationSchema={createCategorySchema}
 					onSubmit={updateCategory}
 				>
-						<Form className="grid gap-4">
-							<DialogHeader>
-								<DialogTitle>
-									{mode === "create"
-										? "افزودن دسته‌بندی"
-										: "ویرایش دسته‌بندی"}
-								</DialogTitle>
-							</DialogHeader>
-							<div className="flex gap-2">
-								<Input
-									name="name"
-									icon={Package}
-									label="نام فارسی دسته‌بندی"
-								/>
-								<Input
-									name="slug"
-									icon={Globe}
-									label="نام انگلیسی دسته‌بندی"
-								/>
-							</div>
-							<Textarea
-								name="description"
-								icon={List}
-								label="توضیحات دسته‌بندی"
+					<Form className="grid gap-4">
+						<DialogHeader>
+							<DialogTitle>
+								{mode === "create"
+									? "افزودن دسته‌بندی"
+									: "ویرایش دسته‌بندی"}
+							</DialogTitle>
+						</DialogHeader>
+						<div className="flex gap-2">
+							<Input
+								name="name"
+								icon={Package}
+								label="نام فارسی دسته‌بندی"
 							/>
-							<div className="flex gap-2">
-								<Checkbox
-									name="isActive"
-								/>
-								<p>این دسته‌بندی فعال است</p>
-							</div>
-							<ImageCropModal
-								name="categoryPic"
-								label="تصویر دسته‌بندی"
+							<Input
+								name="slug"
+								icon={Globe}
+								label="نام انگلیسی دسته‌بندی"
 							/>
-							{/* </DialogBody> */}
-							<StickyDialogFooter>
-								<div className="flex gap-4">
-									<Button
-										onClick={() =>
-											setCategoryDialogOpen(false)
-										}
-										type="button"
-									>
-										انصراف
-									</Button>
-									<Button
-										className="bg-primary-rose hover:bg-primary-rose/80 text-black"
-										type="submit"
-										loading={loading}
-									>
-										{mode === "create"
-											? "افزودن"
-											: "ویرایش"}
-									</Button>
-								</div>
-							</StickyDialogFooter>
-						</Form>
+						</div>
+						<Textarea
+							name="description"
+							icon={List}
+							label="توضیحات دسته‌بندی"
+						/>
+						<div className="flex gap-2">
+							<Checkbox name="isActive" />
+							<p>این دسته‌بندی فعال است</p>
+						</div>
+						<ImageCropModal
+							name="categoryPic"
+							label="تصویر دسته‌بندی"
+						/>
+						{/* </DialogBody> */}
+						<StickyDialogFooter>
+							<div className="flex gap-4">
+								<Button
+									onClick={() => setCategoryDialogOpen(false)}
+									type="button"
+								>
+									انصراف
+								</Button>
+								<Button
+									className="bg-primary-rose hover:bg-primary-rose/80 text-black"
+									type="submit"
+									loading={loading}
+								>
+									{mode === "create" ? "افزودن" : "ویرایش"}
+								</Button>
+							</div>
+						</StickyDialogFooter>
+					</Form>
 				</Formik>
 			</DialogContent>
 		</Dialog>
