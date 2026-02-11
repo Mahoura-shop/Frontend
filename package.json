@@ -29,7 +29,7 @@
     "embla-carousel-react": "^8.6.0",
     "formik": "^2.4.9",
     "framer-motion": "^11.18.2",
-    "lucide-react": "latest",
+    "lucide-react": "^0.563.0",
     "next": "^16.1.6",
     "next-themes": "^0.2.1",
     "react": "^18.3.1",

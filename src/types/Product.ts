@@ -11,10 +11,10 @@ export interface Product {
 	isNew: boolean;
 	priority: number;
 	minOrder: number;
-	category: Category;
-	brand: Brand;
+	category?: Category;
+	brand?: Brand;
 	quantity: number;
 	quantityType: string;
 	currencyCode: string;
-	productPic: string;
+	productPic: string | null;
 }

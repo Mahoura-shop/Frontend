@@ -15,7 +15,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
 	Table,
@@ -40,24 +39,12 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import ImageCropModal from "@/components/admin/ImageCropModal";
-import { toast } from "sonner";
 import { useSettingsStore } from "@/store/useSettingsStore";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
-
-interface Product {
-	id: number;
-	name: string;
-	slug: string;
-	brand: string;
-	category: string;
-	price: number;
-	currencyCode: string;
-	quantity: number;
-	quantityType: string;
-	isActive: boolean;
-	isNew: boolean;
-	productPic: string | null;
-}
+import { Product } from "@/types/Product";
+import { getData } from "@/services/services";
+import { useEffect } from "react";
+import { useCallback } from "react";
 
 type SortColumn = "name" | "brand" | "category" | "price" | "quantity" | null;
 type SortDirection = "asc" | "desc";
@@ -84,64 +71,17 @@ export default function ProductsAdminPage() {
 	});
 	const itemsPerPage = 10;
 
-	const [products, setProducts] = useState<Product[]>([
-		{
-			id: 1,
-			name: "رژ لب مات شماره ۱",
-			slug: "matte-lipstick-1",
-			brand: "Mahoura",
-			category: "آرایش صورت",
-			price: 299000,
-			currencyCode: "IRR",
-			quantity: 45,
-			quantityType: "pieces",
-			isActive: true,
-			isNew: true,
-			productPic: null,
-		},
-		{
-			id: 2,
-			name: "سرم ویتامین C",
-			slug: "vitamin-c-serum",
-			brand: "Mahoura Care",
-			category: "مراقبت از پوست",
-			price: 450000,
-			currencyCode: "IRR",
-			quantity: 32,
-			quantityType: "ml",
-			isActive: true,
-			isNew: true,
-			productPic: null,
-		},
-		{
-			id: 3,
-			name: "پالت سایه چشم",
-			slug: "eyeshadow-palette",
-			brand: "Mahoura Pro",
-			category: "آرایش چشم",
-			price: 350000,
-			currencyCode: "IRR",
-			quantity: 0,
-			quantityType: "pieces",
-			isActive: false,
-			isNew: false,
-			productPic: null,
-		},
-		{
-			id: 4,
-			name: "کرم ضد آفتاب",
-			slug: "sunscreen-cream",
-			brand: "Mahoura Care",
-			category: "مراقبت از پوست",
-			price: 380000,
-			currencyCode: "IRR",
-			quantity: 60,
-			quantityType: "ml",
-			isActive: true,
-			isNew: false,
-			productPic: null,
-		},
-	]);
+	const [products, setProducts] = useState<Product[]>([]);
+
+	const fetchCategories = useCallback(() => {
+			getData({ endPoint: `/v1/product` }).then((data) => {
+				setProducts(data.data);
+			});
+		}, []);
+	
+		useEffect(() => {
+			fetchCategories();
+		}, [fetchCategories]);
 
 	// Filtering
 	let filteredProducts = [...products];
@@ -150,7 +90,7 @@ export default function ProductsAdminPage() {
 		filteredProducts = filteredProducts.filter(
 			(p) =>
 				p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				p.brand.toLowerCase().includes(searchQuery.toLowerCase()),
+				p.brand?.name .toLowerCase().includes(searchQuery.toLowerCase()),
 		);
 	}
 
@@ -224,42 +164,6 @@ export default function ProductsAdminPage() {
 		return Array.from(uniqueValues);
 	};
 
-	const handleAddProduct = () => {
-		const priceInIRR =
-			formData.currency === "IRR"
-				? parseFloat(formData.price)
-				: convertToIRR(parseFloat(formData.price), formData.currency);
-
-		const newProduct: Product = {
-			id: products.length + 1,
-			name: formData.name,
-			slug: formData.name.toLowerCase().replace(/\s+/g, "-"),
-			brand: formData.brand,
-			category: formData.category,
-			price: priceInIRR,
-			currencyCode: "IRR",
-			quantity: parseInt(formData.quantity),
-			quantityType: formData.quantityType,
-			isActive: true,
-			isNew: true,
-			productPic: selectedImage,
-		};
-
-		setProducts([...products, newProduct]);
-		CustomToast("محصول با موفقیت اضافه شد", "success");
-		setShowAddModal(false);
-		setFormData({
-			name: "",
-			brand: "",
-			category: "",
-			price: "",
-			currency: "IRR",
-			quantity: "",
-			quantityType: "pieces",
-		});
-		setSelectedImage(null);
-	};
-
 	return (
 		<main className="p-6 no-scrollbar">
 			{/* Header with Counts */}
@@ -304,7 +208,7 @@ export default function ProductsAdminPage() {
 					{/* Two-Step Filter */}
 					<Select
 						value={filterColumn}
-						onValueChange={(val) => {
+						onValueChange={(val: any) => {
 							setFilterColumn(val);
 							setFilterValue("");
 						}}
@@ -313,7 +217,6 @@ export default function ProductsAdminPage() {
 							<SelectValue placeholder="انتخاب فیلتر" />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="name">نام محصول</SelectItem>
 							<SelectItem value="brand">برند</SelectItem>
 							<SelectItem value="category">دسته‌بندی</SelectItem>
 						</SelectContent>
@@ -437,8 +340,8 @@ export default function ProductsAdminPage() {
 									<TableCell className="font-medium">
 										{product.name}
 									</TableCell>
-									<TableCell>{product.brand}</TableCell>
-									<TableCell>{product.category}</TableCell>
+									<TableCell>{product.brand?.name}</TableCell>
+									<TableCell>{product.category?.name}</TableCell>
 									<TableCell className="font-bold text-primary-rose">
 										{formatPrice(product.price)}
 									</TableCell>
