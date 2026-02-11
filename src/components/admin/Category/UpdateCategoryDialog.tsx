@@ -167,10 +167,7 @@ export default function UpdateCategoryDialog({
 							icon={List}
 							label="توضیحات دسته‌بندی"
 						/>
-						<div className="flex gap-2">
-							<Checkbox name="isActive" />
-							<p>این دسته‌بندی فعال است</p>
-						</div>
+						<Checkbox name="isActive" label="دسته‌بندی فعال است" />
 						<ImageCropModal
 							name="categoryPic"
 							label="تصویر دسته‌بندی"

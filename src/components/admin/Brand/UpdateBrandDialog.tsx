@@ -163,10 +163,7 @@ export default function UpdateBrandDialog({
 							icon={List}
 							label="توضیحات برند"
 						/>
-						<div className="flex gap-2">
-							<Checkbox name="isActive" />
-							<p>این برند فعال است</p>
-						</div>
+						<Checkbox name="isActive" label="برند فعال است" />
 						<ImageCropModal name="brandPic" label="تصویر برند" />
 						{/* </DialogBody> */}
 						<StickyDialogFooter>

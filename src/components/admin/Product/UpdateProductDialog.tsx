@@ -166,9 +166,11 @@ export default function UpdateProductDialog({
 			.catch((error) => {
 				console.log(
 					"error",
-					translateErrorObject(error.response.data.messages),
+					translateErrorObject(error?.response?.data?.messages),
 				);
-				setErrors(translateErrorObject(error.response.data.messages));
+				setErrors(
+					translateErrorObject(error?.response?.data?.messages),
+				);
 			})
 			.finally(() => setLoading(false));
 	};
@@ -220,12 +222,12 @@ export default function UpdateProductDialog({
 								<Input
 									name="name"
 									icon={Package}
-									label="نام محصول"
+									label="نام فارسی محصول"
 								/>
 								<Input
 									name="slug"
 									icon={Globe}
-									label="شناسه URL (slug)"
+									label="نام انگلیسی محصول"
 								/>
 							</div>
 
@@ -320,17 +322,11 @@ export default function UpdateProductDialog({
 
 							{/* Checkboxes */}
 							<div className="flex gap-6">
-								<div className="flex gap-2 items-center">
-									<Checkbox name="isActive" />
-									<p>محصول فعال است</p>
-								</div>
-								<div className="flex gap-2 items-center">
-									<Checkbox name="isNew" />
-									<p className="flex items-center gap-1">
-										<Star className="w-4 h-4 text-amber-500" />
-										محصول جدید است
-									</p>
-								</div>
+								<Checkbox
+									name="isActive"
+									label="محصول فعال است"
+								/>
+								<Checkbox name="isNew" label="محصول جدید است" />
 							</div>
 
 							{/* Image Upload */}

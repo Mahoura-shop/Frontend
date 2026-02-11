@@ -464,27 +464,17 @@ export default function ProductsAdminPage() {
 											>
 												<Eye className="w-4 h-4" />
 											</Button>
-											<Button
-												variant="ghost"
-												size="icon"
-												className="h-8 w-8"
-											>
-												<Pencil className="w-4 h-4" />
-											</Button>
+											<UpdateProductDialog
+												fetchProducts={fetchProducts}
+												product={product}
+												mode="update"
+												categories={categories}
+												brands={brands}
+											/>
 											<DeleteProductDialog
 												id={product?.id}
 												fetchProducts={fetchProducts}
 											/>
-											{/* <Button
-												variant="ghost"
-												size="icon"
-												className="h-8 w-8 text-red-500"
-												onClick={() =>
-													handleDelete(product.id)
-												}
-											>
-												<Trash2 className="w-4 h-4" />
-											</Button> */}
 										</div>
 									</TableCell>
 								</motion.tr>

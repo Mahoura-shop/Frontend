@@ -12,7 +12,7 @@ export const createProductInitialValues = {
 	categoryID: null,
 	brandID: null,
 	quantity: 0,
-	quantityType: 'pieces',
+	quantityType: 'عدد',
 	currencyCode: 'IRR',
 	productPic: null,
 };
@@ -22,9 +22,9 @@ export const createProductSchema = Yup.object({
 		.required('نام محصول الزامی است')
 		.max(50, 'نام محصول نباید بیشتر از ۵۰ کاراکتر باشد'),
 	slug: Yup.string()
-		.required('شناسه URL الزامی است')
-		.max(50, 'شناسه URL نباید بیشتر از ۵۰ کاراکتر باشد')
-		.matches(/^[a-z0-9-]+$/, 'شناسه URL فقط باید شامل حروف انگلیسی کوچک، اعداد و خط تیره باشد'),
+		.required('نام انگلیسی الزامی است')
+		.max(50, 'نام انگلیسی نباید بیشتر از ۵۰ کاراکتر باشد')
+		.matches(/^[a-zA-Z0-9-|\s]+$/, 'نام انگلیسی فقط باید شامل حروف انگلیسی، اعداد و خط تیره باشد'),
 	price: Yup.number()
 		.required('قیمت الزامی است')
 		.min(0, 'قیمت نمی‌تواند منفی باشد'),
@@ -41,8 +41,7 @@ export const createProductSchema = Yup.object({
 		.required('موجودی الزامی است')
 		.min(0, 'موجودی نمی‌تواند منفی باشد'),
 	quantityType: Yup.string()
-		.required('واحد شمارش الزامی است')
-		.oneOf(['pieces', 'ml', 'g', 'kg', 'l'], 'واحد شمارش نامعتبر است'),
+		.required('واحد شمارش الزامی است'),
 	currencyCode: Yup.string()
 		.required('واحد پول الزامی است')
 		.max(5, 'کد ارز نباید بیشتر از ۵ کاراکتر باشد'),

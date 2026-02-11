@@ -8,6 +8,7 @@ interface CheckboxProps {
 	checked?: boolean;
 	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 	id?: string;
+	label?: string;
 	shape?: ReactElement;
 	disabled?: boolean;
 }
@@ -18,6 +19,7 @@ export default function Checkbox({
 	checked,
 	onChange,
 	id,
+	label,
 	disabled,
 	shape,
 	...props
@@ -27,23 +29,34 @@ export default function Checkbox({
 	const inputId = id ?? `cc-${fallbackId}`;
 
 	return (
-		<StyledWrapper>
-			<input
-				id={inputId}
-				type="checkbox"
-				{...field}
-				{...props}
-				checked={field.value}
-				// onChange={onChange}
-				disabled={disabled}
-			/>
-			<label className="check" htmlFor={inputId} aria-checked={checked}>
-				<svg viewBox="0 0 18 18" style={{ width: size, height: size }}>
-					<path d="M1,9 L1,3.5 C1,2 2,1 3.5,1 L14.5,1 C16,1 17,2 17,3.5 L17,14.5 C17,16 16,17 14.5,17 L3.5,17 C2,17 1,16 1,14.5 L1,9 Z" />
-					<polyline points="1 9 7 14 15 4" />
-				</svg>
-			</label>
-		</StyledWrapper>
+		<div className="flex gap-2 items-center">
+			<StyledWrapper>
+				<input
+					id={inputId}
+					type="checkbox"
+					{...field}
+					{...props}
+					checked={field.value}
+					// onChange={onChange}
+					disabled={disabled}
+				/>
+				<label
+					className="check"
+					htmlFor={inputId}
+					aria-checked={checked}
+				>
+					<svg
+						viewBox="0 0 18 18"
+						style={{ width: size, height: size }}
+					>
+						<path d="M1,9 L1,3.5 C1,2 2,1 3.5,1 L14.5,1 C16,1 17,2 17,3.5 L17,14.5 C17,16 16,17 14.5,17 L3.5,17 C2,17 1,16 1,14.5 L1,9 Z" />
+						<polyline points="1 9 7 14 15 4" />
+					</svg>
+				</label>
+			</StyledWrapper>
+
+			<p>{label}</p>
+		</div>
 	);
 }
 
