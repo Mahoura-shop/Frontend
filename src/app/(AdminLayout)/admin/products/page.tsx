@@ -45,6 +45,7 @@ import { Product } from "@/types/Product";
 import { getData } from "@/services/services";
 import { useEffect } from "react";
 import { useCallback } from "react";
+import DeleteProductDialog from "@/components/admin/Product/DeleteProductDialog";
 
 type SortColumn = "name" | "brand" | "category" | "price" | "quantity" | null;
 type SortDirection = "asc" | "desc";
@@ -73,7 +74,7 @@ export default function ProductsAdminPage() {
 
 	const [products, setProducts] = useState<Product[]>([]);
 
-	const fetchCategories = useCallback(() => {
+	const fetchProducts = useCallback(() => {
 		getData({ endPoint: `/v1/product` }).then((data) => {
 			setProducts(data.data);
 			console.log("data", data.data);
@@ -81,8 +82,8 @@ export default function ProductsAdminPage() {
 	}, []);
 
 	useEffect(() => {
-		fetchCategories();
-	}, [fetchCategories]);
+		fetchProducts();
+	}, [fetchProducts]);
 
 	// Filtering
 	let filteredProducts = [...products];
@@ -192,7 +193,7 @@ export default function ProductsAdminPage() {
 
 	const activeCount = products.filter((p) => p.isActive).length;
 	const inactiveCount = products.filter((p) => !p.isActive).length;
-	
+
 	const SortIcon = ({ column }: { column: SortColumn }) => {
 		if (sortColumn !== column)
 			return <ArrowUpDown className="w-4 h-4 opacity-50" />;
@@ -459,7 +460,8 @@ export default function ProductsAdminPage() {
 											>
 												<Pencil className="w-4 h-4" />
 											</Button>
-											<Button
+											<DeleteProductDialog id={product?.id} fetchProducts={fetchProducts} />
+											{/* <Button
 												variant="ghost"
 												size="icon"
 												className="h-8 w-8 text-red-500"
@@ -468,7 +470,7 @@ export default function ProductsAdminPage() {
 												}
 											>
 												<Trash2 className="w-4 h-4" />
-											</Button>
+											</Button> */}
 										</div>
 									</TableCell>
 								</motion.tr>
