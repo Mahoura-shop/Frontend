@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
 	Plus,
@@ -28,15 +28,11 @@ import {
 import { Pagination } from "@/components/ui/pagination";
 import { toast } from "sonner";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
-
-interface Brand {
-	id: number;
-	name: string;
-	slug: string;
-	logo: string | null;
-	productCount: number;
-	isActive: boolean;
-}
+import BrandInfoDialog from "@/components/admin/Brand/BrandInfoDialog";
+import UpdateBrandDialog from "@/components/admin/Brand/UpdateBrandDialog";
+import DeleteBrandDialog from "@/components/admin/Brand/DeleteBrandDialog";
+import { getData } from "@/services/services";
+import { Brand } from "@/types/Brand";
 
 export default function BrandsPage() {
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -45,48 +41,7 @@ export default function BrandsPage() {
 	const itemsPerPage = 12;
 
 	// Sample data
-	const [brands, setBrands] = useState<Brand[]>([
-		{
-			id: 1,
-			name: "Mahoura Signature",
-			slug: "mahoura-signature",
-			logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200",
-			productCount: 45,
-			isActive: true,
-		},
-		{
-			id: 2,
-			name: "Mahoura Care",
-			slug: "mahoura-care",
-			logo: "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=200",
-			productCount: 32,
-			isActive: true,
-		},
-		{
-			id: 3,
-			name: "Mahoura Pro",
-			slug: "mahoura-pro",
-			logo: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=200",
-			productCount: 28,
-			isActive: true,
-		},
-		{
-			id: 4,
-			name: "Glow Natural",
-			slug: "glow-natural",
-			logo: null,
-			productCount: 15,
-			isActive: true,
-		},
-		{
-			id: 5,
-			name: "Pure Beauty",
-			slug: "pure-beauty",
-			logo: null,
-			productCount: 22,
-			isActive: false,
-		},
-	]);
+	const [brands, setBrands] = useState<Brand[]>([]);
 
 	const filteredBrands = brands.filter((brand) =>
 		brand.name.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -101,10 +56,15 @@ export default function BrandsPage() {
 	const activeCount = brands.filter((b) => b.isActive).length;
 	const inactiveCount = brands.filter((b) => !b.isActive).length;
 
-	const handleDelete = (id: number) => {
-		setBrands(brands.filter((b) => b.id !== id));
-		CustomToast("برند با موفقیت حذف شد", "success");
-	};
+	const fetchBrands = useCallback(() => {
+		getData({ endPoint: `/v1/brand` }).then((data) => {
+			setBrands(data.data);
+		});
+	}, []);
+
+	useEffect(() => {
+		fetchBrands();
+	}, [fetchBrands]);	
 
 	return (
 		<main className="p-6">
@@ -181,11 +141,11 @@ export default function BrandsPage() {
 						>
 							<Card className="overflow-hidden group hover:shadow-xl transition-all">
 								<div className="relative h-48 bg-muted flex items-center justify-center">
-									{brand.logo ? (
+									{brand.brandPic ? (
 										<img
-											src={brand.logo}
+											src={brand.brandPic}
 											alt={brand.name}
-											className="w-full h-full object-contain p-4"
+											className="w-full h-full object-cover"
 										/>
 									) : (
 										<ImageIcon className="w-16 h-16 text-muted-foreground" />
@@ -193,30 +153,16 @@ export default function BrandsPage() {
 
 									{/* Quick Actions */}
 									<div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-										<Button
-											size="icon"
-											variant="secondary"
-											className="h-8 w-8"
-										>
-											<Eye className="w-4 h-4" />
-										</Button>
-										<Button
-											size="icon"
-											variant="secondary"
-											className="h-8 w-8"
-										>
-											<Pencil className="w-4 h-4" />
-										</Button>
-										<Button
-											size="icon"
-											variant="secondary"
-											className="h-8 w-8 text-red-500"
-											onClick={() =>
-												handleDelete(brand.id)
-											}
-										>
-											<Trash2 className="w-4 h-4" />
-										</Button>
+										<BrandInfoDialog brand={brand} />
+										<UpdateBrandDialog
+											fetchBrands={fetchBrands}
+											mode="update"
+											brand={brand}
+										/>
+										<DeleteBrandDialog
+											id={brand?.id}
+											fetchBrands={fetchBrands}
+										/>
 									</div>
 
 									{/* Status Badge */}
@@ -241,7 +187,7 @@ export default function BrandsPage() {
 									</h3>
 									<div className="flex items-center justify-between text-sm">
 										<span className="text-muted-foreground">
-											{brand.productCount} محصول
+											{brand.count} محصول
 										</span>
 										<Button
 											variant="ghost"
@@ -287,7 +233,7 @@ export default function BrandsPage() {
 										</TableCell>
 										<TableCell>
 											<Badge variant="secondary">
-												{brand.productCount} محصول
+												{brand.count} محصول
 											</Badge>
 										</TableCell>
 										<TableCell>
@@ -305,7 +251,19 @@ export default function BrandsPage() {
 										</TableCell>
 										<TableCell>
 											<div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-												<Button
+												<BrandInfoDialog
+													brand={brand}
+												/>
+												<UpdateBrandDialog
+													fetchBrands={fetchBrands}
+													mode="update"
+													brand={brand}
+												/>
+												<DeleteBrandDialog
+													id={brand?.id}
+													fetchBrands={fetchBrands}
+												/>
+												{/* <Button
 													variant="ghost"
 													size="icon"
 													className="h-8 w-8"
@@ -328,7 +286,7 @@ export default function BrandsPage() {
 													}
 												>
 													<Trash2 className="w-4 h-4" />
-												</Button>
+												</Button> */}
 											</div>
 										</TableCell>
 									</motion.tr>

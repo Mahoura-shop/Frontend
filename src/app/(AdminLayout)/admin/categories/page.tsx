@@ -28,6 +28,7 @@ import { getData } from "@/services/services";
 import DeleteCategoryDialog from "@/components/admin/Category/DeleteCategoryDialog";
 import UpdateCategoryDialog from "@/components/admin/Category/UpdateCategoryDialog";
 import Button from "@/components/Custom/Button/Button";
+import CategoryInfoDialog from "@/components/admin/Category/CategoryInfoDialog";
 
 export default function CategoriesPage() {
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -54,7 +55,6 @@ export default function CategoriesPage() {
 	const fetchCategories = useCallback(() => {
 		getData({ endPoint: `/v1/category` }).then((data) => {
 			setCategories(data.data);
-			// setCategories((prev) => [...prev, ...data.data]);
 		});
 	}, []);
 
@@ -153,40 +153,18 @@ export default function CategoriesPage() {
 
 									{/* Quick Actions */}
 									<div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-										<Button
-											size="icon"
-											variant="secondary"
-											className="h-8 w-8 hover:bg-background/80"
-										>
-											<Eye className="w-4 h-4" />
-										</Button>
-
+										<CategoryInfoDialog
+											category={category}
+										/>
 										<UpdateCategoryDialog
 											fetchCategories={fetchCategories}
 											mode="update"
 											category={category}
 										/>
-										{/* <Button
-											size="icon"
-											variant="secondary"
-											className="h-8 w-8 hover:bg-background/80"
-										>
-											<Pencil className="w-4 h-4" />
-										</Button> */}
 										<DeleteCategoryDialog
 											id={category?.id}
 											fetchCategories={fetchCategories}
 										/>
-										{/* <Button
-											size="icon"
-											variant="secondary"
-											className="h-8 w-8 text-red-500 hover:bg-background/80"
-											onClick={() =>
-												handleDelete(category.id)
-											}
-										>
-											<Trash2 className="w-4 h-4" />
-										</Button> */}
 									</div>
 
 									{/* Status Badge */}
@@ -275,20 +253,31 @@ export default function CategoriesPage() {
 										</TableCell>
 										<TableCell>
 											<div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-												<Button
+												<CategoryInfoDialog
+													category={category}
+												/>
+												{/* <Button
 													variant="ghost"
 													size="icon"
 													className="h-8 w-8"
 												>
 													<Eye className="w-4 h-4" />
-												</Button>
-												<Button
+												</Button> */}
+
+												<UpdateCategoryDialog
+													fetchCategories={
+														fetchCategories
+													}
+													mode="update"
+													category={category}
+												/>
+												{/* <Button
 													variant="ghost"
 													size="icon"
 													className="h-8 w-8"
 												>
 													<Pencil className="w-4 h-4" />
-												</Button>
+												</Button> */}
 												<DeleteCategoryDialog
 													id={category?.id}
 													fetchCategories={

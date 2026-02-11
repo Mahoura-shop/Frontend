@@ -1,0 +1,42 @@
+const mockBrands: Brand[] = [
+	{
+		id: 1,
+		name: "Mahoura Signature",
+		slug: "mahoura-signature",
+		logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200",
+		productCount: 45,
+		isActive: true,
+	},
+	{
+		id: 2,
+		name: "Mahoura Care",
+		slug: "mahoura-care",
+		logo: "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=200",
+		productCount: 32,
+		isActive: true,
+	},
+	{
+		id: 3,
+		name: "Mahoura Pro",
+		slug: "mahoura-pro",
+		logo: "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=200",
+		productCount: 28,
+		isActive: true,
+	},
+	{
+		id: 4,
+		name: "Glow Natural",
+		slug: "glow-natural",
+		logo: null,
+		productCount: 15,
+		isActive: true,
+	},
+	{
+		id: 5,
+		name: "Pure Beauty",
+		slug: "pure-beauty",
+		logo: null,
+		productCount: 22,
+		isActive: false,
+	},
+];

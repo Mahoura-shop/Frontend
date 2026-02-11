@@ -1,0 +1,19 @@
+import * as Yup from "yup";
+
+export const createBrandSchema = Yup.object({
+	name: Yup.string().required("نام برند الزامی است"),
+	slug: Yup.string()
+		.required("نام انگلیسی برند الزامی است")
+		.matches(/^[a-zA-Z0-9-_\s]+$/, "فقط حروف انگلیسی و اعداد مجاز است"),
+	description: Yup.string().max(500, "توضیحات نباید بیشتر از 500 حرف باشد"),
+	isActive: Yup.bool().required("وضعیت فعال بودن برند الزامی است"),
+	brandPic: Yup.mixed().nullable(),
+});
+
+export const createBrandInitialValues = {
+	name: "",
+	slug: "",
+	description: "",
+	isActive: false,
+	brandPic: null,
+};
