@@ -32,22 +32,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
-import ImageCropModal from "@/components/admin/ImageCropModal";
 import { useSettingsStore } from "@/store/useSettingsStore";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
-import { Product } from "@/types/Product";
 import { getData } from "@/services/services";
 import { useEffect } from "react";
 import { useCallback } from "react";
 import DeleteProductDialog from "@/components/admin/Product/DeleteProductDialog";
 import UpdateProductDialog from "@/components/admin/Product/UpdateProductDialog";
-import { Brand } from "@/types/Brand";
+import ProductInfoDialog from "@/components/admin/Product/ProductInfoDialog";
 
 type SortColumn = "name" | "brand" | "category" | "price" | "quantity" | null;
 type SortDirection = "asc" | "desc";
@@ -70,18 +62,23 @@ export default function ProductsAdminPage() {
 
 	const fetchBrands = useCallback(() => {
 		getData({ endPoint: `/v1/brand` }).then((data) => {
-			setBrands(data.data);
+			setBrands(data?.data);
 		});
 	}, []);
 	const fetchCategories = useCallback(() => {
 		getData({ endPoint: `/v1/category` }).then((data) => {
-			setCategories(data.data);
+			setCategories(data?.data);
 		});
 	}, []);
 	const fetchProducts = useCallback(() => {
 		getData({ endPoint: `/v1/product` }).then((data) => {
-			setProducts(data.data);
-			console.log("data", data.data);
+			const productsList = data?.data.map((product: Product) => ({
+				...product,
+				categoryID: product?.categoryID?.toString(),
+				brandID: product?.brandID?.toString(),
+			}));
+			setProducts(productsList);
+			console.log("products", productsList);
 		});
 	}, []);
 
@@ -210,11 +207,6 @@ export default function ProductsAdminPage() {
 		);
 	};
 
-	const handleDelete = (id: number) => {
-		setProducts(products.filter((p) => p.id !== id));
-		CustomToast("محصول با موفقیت حذف شد", "success");
-	};
-
 	const getFilterOptions = () => {
 		if (!filterColumn) return [];
 
@@ -231,10 +223,6 @@ export default function ProductsAdminPage() {
 
 		return Array.from(uniqueValues);
 	};
-
-	useEffect(() => {
-		console.log("getFilterOptions", getFilterOptions(), products);
-	}, []);
 
 	return (
 		<main className="p-6 no-scrollbar">
@@ -423,9 +411,11 @@ export default function ProductsAdminPage() {
 									<TableCell className="font-medium">
 										{product.name}
 									</TableCell>
-									<TableCell>{product.brand?.name}</TableCell>
 									<TableCell>
-										{product.category?.name}
+										{product.brand?.name || "-"}
+									</TableCell>
+									<TableCell>
+										{product.category?.name || "-"}
 									</TableCell>
 									<TableCell className="font-bold text-primary-rose">
 										{formatPrice(product.price)}
@@ -457,13 +447,9 @@ export default function ProductsAdminPage() {
 									</TableCell>
 									<TableCell>
 										<div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-											<Button
-												variant="ghost"
-												size="icon"
-												className="h-8 w-8"
-											>
-												<Eye className="w-4 h-4" />
-											</Button>
+											<ProductInfoDialog
+												product={product}
+											/>
 											<UpdateProductDialog
 												fetchProducts={fetchProducts}
 												product={product}
@@ -494,215 +480,6 @@ export default function ProductsAdminPage() {
 					/>
 				</div>
 			)}
-
-			{/* Add/Edit Product Modal */}
-			{/* <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-				<DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-					<DialogHeader>
-						<DialogTitle>افزودن محصول جدید</DialogTitle>
-					</DialogHeader>
-					<div className="space-y-4">
-						<div className="grid grid-cols-2 gap-4">
-							<div className="space-y-2">
-								<Label>نام محصول</Label>
-								<Input
-									placeholder="نام محصول"
-									value={formData.name}
-									onChange={(e) =>
-										setFormData({
-											...formData,
-											name: e.target.value,
-										})
-									}
-								/>
-							</div>
-							<div className="space-y-2">
-								<Label>برند</Label>
-								<Select
-									value={formData.brand}
-									onValueChange={(val) =>
-										setFormData({ ...formData, brand: val })
-									}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="انتخاب برند" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="Mahoura">
-											Mahoura
-										</SelectItem>
-										<SelectItem value="Mahoura Care">
-											Mahoura Care
-										</SelectItem>
-										<SelectItem value="Mahoura Pro">
-											Mahoura Pro
-										</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-						</div>
-
-						<div className="grid grid-cols-2 gap-4">
-							<div className="space-y-2">
-								<Label>دسته‌بندی</Label>
-								<Select
-									value={formData.category}
-									onValueChange={(val) =>
-										setFormData({
-											...formData,
-											category: val,
-										})
-									}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="انتخاب دسته" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="آرایش صورت">
-											آرایش صورت
-										</SelectItem>
-										<SelectItem value="مراقبت از پوست">
-											مراقبت از پوست
-										</SelectItem>
-										<SelectItem value="آرایش چشم">
-											آرایش چشم
-										</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-							<div className="space-y-2">
-								<Label>نوع واحد</Label>
-								<Select
-									value={formData.quantityType}
-									onValueChange={(val) =>
-										setFormData({
-											...formData,
-											quantityType: val,
-										})
-									}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="نوع واحد" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="pieces">
-											عدد
-										</SelectItem>
-										<SelectItem value="ml">
-											میلی‌لیتر
-										</SelectItem>
-										<SelectItem value="g">گرم</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-						</div>
-
-						<div className="grid grid-cols-3 gap-4">
-							<div className="space-y-2">
-								<Label>قیمت</Label>
-								<Input
-									type="number"
-									placeholder="قیمت"
-									value={formData.price}
-									onChange={(e) =>
-										setFormData({
-											...formData,
-											price: e.target.value,
-										})
-									}
-								/>
-							</div>
-							<div className="space-y-2">
-								<Label>ارز</Label>
-								<Select
-									value={formData.currency}
-									onValueChange={(val) =>
-										setFormData({
-											...formData,
-											currency: val,
-										})
-									}
-								>
-									<SelectTrigger>
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="IRR">
-											ریال
-										</SelectItem>
-										<SelectItem value="USD">
-											دلار
-										</SelectItem>
-										<SelectItem value="EUR">
-											یورو
-										</SelectItem>
-									</SelectContent>
-								</Select>
-							</div>
-							<div className="space-y-2">
-								<Label>موجودی</Label>
-								<Input
-									type="number"
-									placeholder="تعداد"
-									value={formData.quantity}
-									onChange={(e) =>
-										setFormData({
-											...formData,
-											quantity: e.target.value,
-										})
-									}
-								/>
-							</div>
-						</div>
-
-						<div className="space-y-2">
-							<Label>تصویر محصول</Label>
-							<Button
-								variant="outline"
-								className="w-full"
-								type="button"
-								onClick={() => {
-									setShowCropModal(true);
-									setShowAddModal(false);
-								}}
-							>
-								{selectedImage ? "تغییر تصویر" : "انتخاب تصویر"}
-							</Button>
-							{selectedImage && (
-								<img
-									src={selectedImage}
-									alt="Preview"
-									className="w-32 h-32 object-cover rounded mt-2"
-								/>
-							)}
-						</div>
-
-						<div className="flex justify-end gap-2 pt-4">
-							<Button
-								variant="outline"
-								onClick={() => setShowAddModal(false)}
-							>
-								لغو
-							</Button>
-							<Button onClick={handleAddProduct}>ذخیره</Button>
-						</div>
-					</div>
-				</DialogContent>
-			</Dialog> */}
-
-			{/* Image Crop Modal */}
-			{/* <ImageCropModal
-				isOpen={showCropModal}
-				onClose={() => {
-					setShowCropModal(false);
-					setShowAddModal(true);
-				}}
-				onSave={(img) => {
-					setSelectedImage(img);
-					setShowAddModal(true);
-				}}
-				aspectRatio={1}
-			/> */}
 		</main>
 	);
 }

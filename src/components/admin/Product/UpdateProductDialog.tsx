@@ -23,6 +23,8 @@ import {
 	ShoppingCart,
 	Star,
 	TrendingUp,
+	FolderTree,
+	Tag,
 } from "lucide-react";
 import Input from "@/components/Custom/Input/Input";
 import Textarea from "@/components/Custom/Textarea/Textarea";
@@ -34,24 +36,6 @@ import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import Button from "@/components/Custom/Button/Button";
 import { translateErrorObject } from "@/utils/translateErrorObject";
 import Select from "@/components/Custom/Select/Select";
-
-interface Product {
-	id?: number;
-	name: string;
-	slug: string;
-	price: number;
-	description?: string;
-	isActive: boolean;
-	isNew: boolean;
-	priority?: number;
-	minOrder?: number;
-	categoryID?: number | null;
-	brandID?: number | null;
-	quantity: number;
-	quantityType: string;
-	currencyCode: string;
-	productPic?: string | null;
-}
 
 interface UpdateProductDialogProps {
 	product?: Product;
@@ -243,6 +227,7 @@ export default function UpdateProductDialog({
 								<Select
 									name="currencyCode"
 									label="واحد پول"
+									icon={DollarSign}
 									options={[
 										{ value: "IRR", label: "ریال (IRR)" },
 										{ value: "USD", label: "دلار (USD)" },
@@ -289,6 +274,8 @@ export default function UpdateProductDialog({
 								<Select
 									name="categoryID"
 									label="دسته‌بندی"
+									icon={FolderTree}
+									helper="انتخاب دسته‌بندی"
 									options={[
 										{
 											value: "",
@@ -303,6 +290,8 @@ export default function UpdateProductDialog({
 								<Select
 									name="brandID"
 									label="برند"
+									icon={Tag}
+									helper="انتخاب برند"
 									options={[
 										{ value: "", label: "انتخاب برند" },
 										...brands.map((brand) => ({

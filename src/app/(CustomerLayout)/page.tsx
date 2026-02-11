@@ -26,8 +26,6 @@ import {
 	CarouselNext,
 	CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Category } from "@/types/Category";
-import { Product } from "@/types/Product";
 
 export default function LandingPage() {
 	const { products } = useProductStore();

@@ -33,7 +33,6 @@ import { postData, postImageData, putImageData } from "@/services/services";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import Button from "@/components/Custom/Button/Button";
 import { translateErrorObject } from "@/utils/translateErrorObject";
-import { Brand } from "@/types/Brand";
 
 export default function UpdateBrandDialog({
 	brand,

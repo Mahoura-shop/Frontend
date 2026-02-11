@@ -10,10 +10,14 @@ import {
 	CheckCircle2,
 	XCircle,
 	Eye,
-	Edit,
-	Trash2,
 	Hash,
-	X,
+	DollarSign,
+	ShoppingCart,
+	TrendingUp,
+	Tag,
+	Star,
+	Layers,
+	Award,
 } from "lucide-react";
 import {
 	Dialog,
@@ -22,32 +26,15 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-interface CategoryInfoDialogProps {
-	category: {
-		id?: number;
-		name: string;
-		slug: string;
-		description?: string;
-		categoryPic?: string | null;
-		isActive: boolean;
-		createdAt?: string;
-		updatedAt?: string;
-		productsCount?: number;
-	};
-	onEdit?: () => void;
-	onDelete?: () => void;
+interface ProductInfoDialogProps {
+	product: Product;
 }
 
-export default function CategoryInfoDialog({
-	category,
-	onEdit,
-	onDelete,
-}: CategoryInfoDialogProps) {
+export default function ProductInfoDialog({ product }: ProductInfoDialogProps) {
 	const [open, setOpen] = useState(false);
 
 	const containerVariants = {
@@ -86,6 +73,35 @@ export default function CategoryInfoDialog({
 		},
 	};
 
+	// Format price with currency
+	const formatPrice = (price: number, currency: string) => {
+		const formatted = new Intl.NumberFormat("fa-IR").format(price);
+		const currencySymbol =
+			{
+				IRR: "ریال",
+				USD: "دلار",
+				EUR: "یورو",
+				GBP: "پوند",
+				AED: "درهم",
+				TRY: "لیر",
+			}[currency] || currency;
+		return `${formatted} ${currencySymbol}`;
+	};
+
+	// Format quantity with type
+	const formatQuantity = (quantity: number, type: string) => {
+		const formatted = new Intl.NumberFormat("fa-IR").format(quantity);
+		const typeLabel =
+			{
+				pieces: "عدد",
+				ml: "میلی‌لیتر",
+				g: "گرم",
+				kg: "کیلوگرم",
+				l: "لیتر",
+			}[type] || type;
+		return `${formatted} ${typeLabel}`;
+	};
+
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
@@ -98,7 +114,7 @@ export default function CategoryInfoDialog({
 				</Button>
 			</DialogTrigger>
 
-			<DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto pb-6">
+			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto pb-6">
 				<AnimatePresence mode="wait">
 					{open && (
 						<motion.div
@@ -114,13 +130,24 @@ export default function CategoryInfoDialog({
 										variants={itemVariants}
 										className="flex-1"
 									>
-										<DialogTitle className="text-2xl gradient-text">
-											{category.name}
-										</DialogTitle>
-										<div className="flex items-center gap-2 text-muted-foreground mt-2">
+										<div className="flex items-center gap-3 mb-2">
+											<DialogTitle className="text-2xl gradient-text">
+												{product.name}
+											</DialogTitle>
+											{product.isNew && (
+												<Badge
+													variant="new"
+													className="gap-1"
+												>
+													<Star className="w-3 h-3" />
+													جدید
+												</Badge>
+											)}
+										</div>
+										<div className="flex items-center gap-2 text-muted-foreground">
 											<Globe className="w-4 h-4" />
 											<span className="text-sm font-mono">
-												{category.slug}
+												{product.slug}
 											</span>
 										</div>
 									</motion.div>
@@ -130,17 +157,17 @@ export default function CategoryInfoDialog({
 										variants={itemVariants}
 										whileHover={{ scale: 1.05 }}
 										whileTap={{ scale: 0.95 }}
-										className="h-full flex place-self-center"
+										className="flex flex-col gap-2 px-4"
 									>
 										<Badge
 											variant={
-												category.isActive
+												product.isActive
 													? "available"
 													: "outOfStock"
 											}
 											className="gap-2 px-3 py-1"
 										>
-											{category.isActive ? (
+											{product.isActive ? (
 												<>
 													<CheckCircle2 className="w-3 h-3" />
 													فعال
@@ -152,6 +179,14 @@ export default function CategoryInfoDialog({
 												</>
 											)}
 										</Badge>
+										{product.quantity === 0 && (
+											<Badge
+												variant="outOfStock"
+												className="px-3 py-1"
+											>
+												موجودی تمام
+											</Badge>
+										)}
 									</motion.div>
 								</div>
 							</DialogHeader>
@@ -165,15 +200,15 @@ export default function CategoryInfoDialog({
 									variants={itemVariants}
 									className="flex justify-center"
 								>
-									{category.categoryPic ? (
+									{product.productPic ? (
 										<motion.div
 											variants={imageVariants}
 											className="relative group"
 										>
 											<div className="absolute inset-0 bg-gradient-to-br from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all" />
 											<img
-												src={category.categoryPic}
-												alt={category.name}
+												src={product.productPic}
+												alt={product.name}
 												className="relative w-full max-w-md h-64 object-cover rounded-2xl border-4 border-background shadow-2xl"
 											/>
 											<div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
@@ -191,8 +226,25 @@ export default function CategoryInfoDialog({
 									)}
 								</motion.div>
 
+								{/* Price Section */}
+								<motion.div variants={itemVariants}>
+									<div className="bg-gradient-to-br from-primary-rose/10 via-accent-gold/10 to-secondary-plum/10 p-6 rounded-2xl border-2 border-primary-rose/20">
+										<div className="text-center">
+											<p className="text-sm text-muted-foreground mb-2">
+												قیمت محصول
+											</p>
+											<p className="text-4xl font-bold gradient-text">
+												{formatPrice(
+													product.price,
+													product.currencyCode,
+												)}
+											</p>
+										</div>
+									</div>
+								</motion.div>
+
 								{/* Description */}
-								{category.description && (
+								{product.description && (
 									<motion.div
 										variants={itemVariants}
 										className="space-y-3"
@@ -208,7 +260,7 @@ export default function CategoryInfoDialog({
 											className="bg-gradient-to-br from-muted/50 to-muted/30 p-4 rounded-xl border border-border/50"
 										>
 											<p className="text-sm leading-relaxed">
-												{category.description}
+												{product.description}
 											</p>
 										</motion.div>
 									</motion.div>
@@ -216,115 +268,117 @@ export default function CategoryInfoDialog({
 
 								<Separator />
 
-								{/* Info Grid */}
+								{/* Basic Info Grid */}
 								<motion.div variants={itemVariants}>
 									<div className="flex items-center gap-2 mb-4">
 										<div className="w-1 h-5 bg-gradient-to-b from-primary-rose to-accent-gold rounded-full" />
 										<h3 className="text-sm font-semibold">
-											اطلاعات تکمیلی
+											اطلاعات اصلی
 										</h3>
 									</div>
 
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 										{/* ID */}
-										{category.id && (
+										{product.id && (
 											<InfoItem
 												icon={
 													<Hash className="w-4 h-4" />
 												}
-												label="شناسه"
-												value={`#${category.id}`}
+												label="شناسه محصول"
+												value={`#${product.id}`}
 											/>
 										)}
 
-										{/* Products Count */}
-										{category.productsCount !==
-											undefined && (
+										{/* Category */}
+										{product.category && (
 											<InfoItem
 												icon={
-													<Package className="w-4 h-4" />
+													<Layers className="w-4 h-4" />
 												}
-												label="تعداد محصولات"
-												value={new Intl.NumberFormat(
-													"fa-IR",
-												).format(
-													category.productsCount,
+												label="دسته‌بندی"
+												value={product.category.name}
+											/>
+										)}
+
+										{/* Brand */}
+										{product.brand && (
+											<InfoItem
+												icon={
+													<Award className="w-4 h-4" />
+												}
+												label="برند"
+												value={product.brand.name}
+											/>
+										)}
+
+										{/* Quantity */}
+										<InfoItem
+											icon={
+												<Package className="w-4 h-4" />
+											}
+											label="موجودی"
+											value={formatQuantity(
+												product.quantity,
+												product.quantityType,
+											)}
+											highlight={product.quantity === 0}
+										/>
+
+										{/* Min Order */}
+										{product.minOrder && (
+											<InfoItem
+												icon={
+													<ShoppingCart className="w-4 h-4" />
+												}
+												label="حداقل سفارش"
+												value={formatQuantity(
+													product.minOrder,
+													product.quantityType,
 												)}
 											/>
 										)}
 
+										{/* Priority */}
+										{product.priority !== undefined &&
+											product.priority > 0 && (
+												<InfoItem
+													icon={
+														<TrendingUp className="w-4 h-4" />
+													}
+													label="اولویت نمایش"
+													value={new Intl.NumberFormat(
+														"fa-IR",
+													).format(product.priority)}
+												/>
+											)}
+
 										{/* Created Date */}
-										{category.createdAt && (
+										{product.createdAt && (
 											<InfoItem
 												icon={
 													<Calendar className="w-4 h-4" />
 												}
 												label="تاریخ ایجاد"
 												value={new Date(
-													category.createdAt,
+													product.createdAt,
 												).toLocaleDateString("fa-IR")}
 											/>
 										)}
 
 										{/* Updated Date */}
-										{category.updatedAt && (
+										{product.updatedAt && (
 											<InfoItem
 												icon={
 													<Calendar className="w-4 h-4" />
 												}
 												label="آخرین بروزرسانی"
 												value={new Date(
-													category.updatedAt,
+													product.updatedAt,
 												).toLocaleDateString("fa-IR")}
 											/>
 										)}
 									</div>
 								</motion.div>
-
-								{/* <Separator />
-
-								<motion.div
-									variants={itemVariants}
-									className="flex items-center justify-end gap-3 pt-2"
-								>
-									{onEdit && (
-										<motion.div
-											whileHover={{ scale: 1.05 }}
-											whileTap={{ scale: 0.95 }}
-										>
-											<Button
-												variant="outline"
-												onClick={() => {
-													onEdit();
-													setOpen(false);
-												}}
-												className="gap-2"
-											>
-												<Edit className="w-4 h-4" />
-												ویرایش
-											</Button>
-										</motion.div>
-									)}
-
-									{onDelete && (
-										<motion.div
-											whileHover={{ scale: 1.05 }}
-											whileTap={{ scale: 0.95 }}
-										>
-											<Button
-												variant="outline"
-												onClick={() => {
-													onDelete();
-													setOpen(false);
-												}}
-												className="gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
-											>
-												<Trash2 className="w-4 h-4" />
-												حذف
-											</Button>
-										</motion.div>
-									)}
-								</motion.div> */}
 							</div>
 						</motion.div>
 					)}
@@ -339,22 +393,44 @@ function InfoItem({
 	icon,
 	label,
 	value,
+	highlight = false,
 }: {
 	icon: React.ReactNode;
 	label: string;
 	value: string;
+	highlight?: boolean;
 }) {
 	return (
 		<motion.div
 			whileHover={{ scale: 1.02 }}
-			className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-muted/40 to-muted/20 border border-border/50 hover:border-primary-rose/30 transition-all"
+			className={`flex items-center gap-3 p-3 rounded-lg bg-gradient-to-br from-muted/40 to-muted/20 border border-border/50 hover:border-primary-rose/30 transition-all ${
+				highlight ? "border-destructive/50 bg-destructive/5" : ""
+			}`}
 		>
-			<div className="flex-shrink-0 w-9 h-9 rounded-lg bg-gradient-to-br from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20 flex items-center justify-center">
-				<div className="text-primary-rose">{icon}</div>
+			<div
+				className={`flex-shrink-0 w-9 h-9 rounded-lg bg-gradient-to-br ${
+					highlight
+						? "from-destructive/20 via-destructive/10 to-destructive/5"
+						: "from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20"
+				} flex items-center justify-center`}
+			>
+				<div
+					className={
+						highlight ? "text-destructive" : "text-primary-rose"
+					}
+				>
+					{icon}
+				</div>
 			</div>
 			<div className="flex-1 min-w-0">
 				<p className="text-xs text-muted-foreground mb-0.5">{label}</p>
-				<p className="text-sm font-semibold truncate">{value}</p>
+				<p
+					className={`text-sm font-semibold truncate ${
+						highlight ? "text-destructive" : ""
+					}`}
+				>
+					{value}
+				</p>
 			</div>
 		</motion.div>
 	);

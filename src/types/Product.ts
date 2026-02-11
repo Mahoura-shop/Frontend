@@ -1,7 +1,4 @@
-import { Brand } from "./Brand";
-import { Category } from "./Category";
-
-export interface Product {
+interface Product {
 	id: number;
 	name: string;
 	slug: string;
@@ -12,9 +9,11 @@ export interface Product {
 	priority: number;
 	minOrder: number;
 	category?: Category;
+	categoryID?: string;
+	brandID?: string;
 	brand?: Brand;
 	quantity: number;
 	quantityType: string;
 	currencyCode: string;
-	productPic: string | null;
+	productPic: string | undefined;
 }

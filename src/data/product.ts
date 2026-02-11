@@ -1,6 +1,4 @@
-import { Product } from "@/types/Product";
-
-const mockProducts: Product[] = [
+export const mockProducts: Product[] = [
 	{
 		id: 1,
 		name: "رژ لب مات شماره ۱",
@@ -11,7 +9,7 @@ const mockProducts: Product[] = [
 		quantityType: "pieces",
 		isActive: true,
 		isNew: true,
-		productPic: null,
+		productPic: undefined,
 		priority: 4,
 		minOrder: 10,
 	},
@@ -25,7 +23,7 @@ const mockProducts: Product[] = [
 		quantityType: "ml",
 		isActive: true,
 		isNew: true,
-		productPic: null,
+		productPic: undefined,
 		priority: 4,
 		minOrder: 10,
 	},
@@ -39,7 +37,7 @@ const mockProducts: Product[] = [
 		quantityType: "pieces",
 		isActive: false,
 		isNew: false,
-		productPic: null,
+		productPic: undefined,
 		priority: 4,
 		minOrder: 10,
 	},
@@ -53,7 +51,7 @@ const mockProducts: Product[] = [
 		quantityType: "ml",
 		isActive: true,
 		isNew: false,
-		productPic: null,
+		productPic: undefined,
 		priority: 4,
 		minOrder: 10,
 	},

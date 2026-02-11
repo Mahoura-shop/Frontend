@@ -28,25 +28,13 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 interface CategoryInfoDialogProps {
-	category: {
-		id?: number;
-		name: string;
-		slug: string;
-		description?: string;
-		categoryPic?: string | null;
-		isActive: boolean;
-		createdAt?: string;
-		updatedAt?: string;
-		productsCount?: number;
-	};
+	category: Category;
 	onEdit?: () => void;
 	onDelete?: () => void;
 }
 
 export default function CategoryInfoDialog({
 	category,
-	onEdit,
-	onDelete,
 }: CategoryInfoDialogProps) {
 	const [open, setOpen] = useState(false);
 
@@ -238,7 +226,7 @@ export default function CategoryInfoDialog({
 										)}
 
 										{/* Products Count */}
-										{category.productsCount !==
+										{category.count !==
 											undefined && (
 											<InfoItem
 												icon={
@@ -248,34 +236,8 @@ export default function CategoryInfoDialog({
 												value={new Intl.NumberFormat(
 													"fa-IR",
 												).format(
-													category.productsCount,
+													category.count,
 												)}
-											/>
-										)}
-
-										{/* Created Date */}
-										{category.createdAt && (
-											<InfoItem
-												icon={
-													<Calendar className="w-4 h-4" />
-												}
-												label="تاریخ ایجاد"
-												value={new Date(
-													category.createdAt,
-												).toLocaleDateString("fa-IR")}
-											/>
-										)}
-
-										{/* Updated Date */}
-										{category.updatedAt && (
-											<InfoItem
-												icon={
-													<Calendar className="w-4 h-4" />
-												}
-												label="آخرین بروزرسانی"
-												value={new Date(
-													category.updatedAt,
-												).toLocaleDateString("fa-IR")}
 											/>
 										)}
 									</div>

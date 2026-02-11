@@ -32,7 +32,6 @@ import BrandInfoDialog from "@/components/admin/Brand/BrandInfoDialog";
 import UpdateBrandDialog from "@/components/admin/Brand/UpdateBrandDialog";
 import DeleteBrandDialog from "@/components/admin/Brand/DeleteBrandDialog";
 import { getData } from "@/services/services";
-import { Brand } from "@/types/Brand";
 
 export default function BrandsPage() {
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");

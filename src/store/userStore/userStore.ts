@@ -1,5 +1,3 @@
-// src/stores/useProfileStore.ts
-import { UserState } from "@/types/userTypes";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 

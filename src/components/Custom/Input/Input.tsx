@@ -1,5 +1,5 @@
 "use client";
-import style from "./Input.module.css";
+import styles from "./Input.module.css";
 import { AlertCircle, LucideIcon } from "lucide-react";
 import { useField } from "formik";
 import { cn } from "@/lib/utils";
@@ -53,8 +53,8 @@ export default function Input({
 	const direction = isRTL(value) ? "rtl" : "ltr";
 
 	return (
-		<div className={cn(style.Conter, containerClassName, "font-vazirmatn")}>
-			<div className={style.inputWrapper}>
+		<div className={cn(styles.Conter, containerClassName, "font-vazirmatn")}>
+			<div className={styles.inputWrapper}>
 				<input
 					dir={direction}
 					{...field}
@@ -64,12 +64,12 @@ export default function Input({
 					disabled={loading || props.disabled} // Disable when loading
 					className={cn(
 						"font-vazirmatn",
-						style.Input,
-						onlyNumbers && style.numberInput,
-						hasError && style.error,
-						variant === "premium" && style.premium,
-						variant === "success" && style.success,
-						loading && style.loading,
+						styles.Input,
+						onlyNumbers && styles.numberInput,
+						hasError && styles.error,
+						variant === "premium" && styles.premium,
+						variant === "success" && styles.success,
+						loading && styles.loading,
 						inputClassName,
 					)}
 					onChange={(e) => {
@@ -87,7 +87,7 @@ export default function Input({
 				{label && (
 					<label
 						className={cn(
-							style.text,
+							styles.text,
 							errorClassName,
 							"font-vazirmatn",
 						)}
@@ -103,7 +103,7 @@ export default function Input({
 							<TooltipTrigger asChild>
 								<Icon
 									onClick={onIconClick}
-									className={cn(style.icon, iconClassName)}
+									className={cn(styles.icon, iconClassName)}
 								/>
 							</TooltipTrigger>
 							<TooltipContent className="rtl">
@@ -113,7 +113,7 @@ export default function Input({
 					) : (
 						<Icon
 							onClick={onIconClick}
-							className={cn(style.icon, iconClassName)}
+							className={cn(styles.icon, iconClassName)}
 						/>
 					)
 				) : (
@@ -122,7 +122,7 @@ export default function Input({
 							<TooltipTrigger asChild>
 								<AlertCircle
 									onClick={onIconClick}
-									className={cn(style.icon, iconClassName)}
+									className={cn(styles.icon, iconClassName)}
 								/>
 							</TooltipTrigger>
 							<TooltipContent className="rtl">
@@ -134,7 +134,7 @@ export default function Input({
 
 				{/* Error Message */}
 				{/* {hasError && (
-					<div className={style.errorMessage}>{meta.error}</div>
+					<div className={styles.errorMessage}>{meta.error}</div>
 				)} */}
 			</div>
 		</div>

@@ -28,25 +28,11 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 interface BrandInfoDialogProps {
-	brand: {
-		id?: number;
-		name: string;
-		slug: string;
-		description?: string;
-		brandPic?: string | null;
-		isActive: boolean;
-		createdAt?: string;
-		updatedAt?: string;
-		productsCount?: number;
-	};
-	onEdit?: () => void;
-	onDelete?: () => void;
+	brand: Brand;
 }
 
 export default function BrandInfoDialog({
 	brand,
-	onEdit,
-	onDelete,
 }: BrandInfoDialogProps) {
 	const [open, setOpen] = useState(false);
 
@@ -238,7 +224,7 @@ export default function BrandInfoDialog({
 										)}
 
 										{/* Products Count */}
-										{brand.productsCount !==
+										{brand.count !==
 											undefined && (
 											<InfoItem
 												icon={
@@ -248,34 +234,8 @@ export default function BrandInfoDialog({
 												value={new Intl.NumberFormat(
 													"fa-IR",
 												).format(
-													brand.productsCount,
+													brand.count,
 												)}
-											/>
-										)}
-
-										{/* Created Date */}
-										{brand.createdAt && (
-											<InfoItem
-												icon={
-													<Calendar className="w-4 h-4" />
-												}
-												label="تاریخ ایجاد"
-												value={new Date(
-													brand.createdAt,
-												).toLocaleDateString("fa-IR")}
-											/>
-										)}
-
-										{/* Updated Date */}
-										{brand.updatedAt && (
-											<InfoItem
-												icon={
-													<Calendar className="w-4 h-4" />
-												}
-												label="آخرین بروزرسانی"
-												value={new Date(
-													brand.updatedAt,
-												).toLocaleDateString("fa-IR")}
 											/>
 										)}
 									</div>

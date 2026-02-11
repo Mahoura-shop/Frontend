@@ -59,3 +59,42 @@
 	color: hsl(var(--destructive));
 	text-align: right;
 }
+
+.icon {
+	position: absolute;
+	left: 1rem;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 1.25rem;
+	height: 1.25rem;
+	color: hsl(var(--muted-foreground));
+	transition: all 0.3s ease;
+	cursor: pointer;
+	z-index: 3;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.trigger.error ~ .icon {
+	color: hsl(var(--destructive));
+}
+
+/* 
+.container:has(.icon) .label {
+	right: 3rem;
+}
+
+.trigger {
+	padding-left: 2.5rem;
+}
+
+.trigger[dir="ltr"] {
+	padding-left: 1rem;
+	padding-right: 2.5rem;
+}
+
+.container:has(.trigger[dir="ltr"]) .icon {
+	right: auto;
+	left: 1rem;
+} */

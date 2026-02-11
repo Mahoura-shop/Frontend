@@ -10,8 +10,14 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { AlertCircle, LucideIcon } from "lucide-react";
 import styles from "./Select.module.css";
 import { cn } from "@/lib/utils";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface SelectOption {
 	value: string;
@@ -25,7 +31,11 @@ interface SelectProps {
 	placeholder?: string;
 	disabled?: boolean;
 	required?: boolean;
+	helper?: string;
 	className?: string;
+	iconClassName?: string;
+	icon?: LucideIcon;
+	onIconClick?: () => void;
 }
 
 export default function Select({
@@ -34,13 +44,23 @@ export default function Select({
 	options,
 	placeholder,
 	disabled = false,
+	helper,
 	required = false,
 	className = "",
+	iconClassName,
+	icon: Icon,
+	onIconClick,
 }: SelectProps) {
 	const [field, meta, helpers] = useField(name);
 
 	const hasError = meta.touched && meta.error;
-	const hasValue = Boolean(field.value);
+	const hasValue = field.value !== "" && field.value !== "0" && field.value;
+
+	const direction = /[\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC]/.test(
+		field.value || "",
+	)
+		? "rtl"
+		: "ltr";
 
 	const safeOptions = options.map((opt) => ({
 		...opt,
@@ -61,10 +81,15 @@ export default function Select({
 				}}
 			>
 				<SelectTrigger
-					className={cn(styles.trigger, hasError && "error")}
+					dir={direction}
+					className={cn(
+						styles.trigger,
+						hasError && styles.error,
+						"[&>svg]:hidden",
+					)}
 					onBlur={() => helpers.setTouched(true)}
 				>
-					<SelectValue placeholder={placeholder || " "} />
+					<SelectValue placeholder={" "} />
 				</SelectTrigger>
 
 				<SelectContent>
@@ -79,17 +104,48 @@ export default function Select({
 			</ShadcnSelect>
 
 			{/* Floating label */}
-			<label
-				className={cn(
-					styles.label,
-					(hasValue || meta.touched) && styles.floating,
-				)}
-			>
+			<label className={cn(styles.label, hasValue && styles.floating)}>
 				{label}
-				{required && <span className="text-red-500 mr-1">*</span>}
+				{required && <span className="text-destructive mr-1">*</span>}
 			</label>
 
-			{hasError && <div className={styles.errorText}>{meta.error}</div>}
+			{/* Icon */}
+			{Icon ? (
+				hasError ? (
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Icon
+								onClick={onIconClick}
+								className={cn(styles.icon, iconClassName, "text-destructive")}
+							/>
+						</TooltipTrigger>
+						<TooltipContent className="rtl">
+							<p>{meta.error}</p>
+						</TooltipContent>
+					</Tooltip>
+				) : (
+					<Icon
+						onClick={onIconClick}
+						className={cn(styles.icon, iconClassName)}
+					/>
+				)
+			) : (
+				hasError && (
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<AlertCircle
+								onClick={onIconClick}
+								className={cn(styles.icon, iconClassName)}
+							/>
+						</TooltipTrigger>
+						<TooltipContent className="rtl">
+							<p>{meta.error}</p>
+						</TooltipContent>
+					</Tooltip>
+				)
+			)}
+
+			{/* {hasError && <div className={styles.errorText}>{meta.error}</div>} */}
 		</div>
 	);
 }
