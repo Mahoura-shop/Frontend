@@ -46,7 +46,7 @@ export default function Navbar() {
 								<Image
 									src={logo}
 									alt="Mahoura"
-									className="w-12 h-12"
+									className="w-12 h-12 dark:invert"
 								/>
 								{/* <p>Mahoura</p> */}
 							</div>

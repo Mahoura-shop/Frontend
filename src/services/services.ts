@@ -13,7 +13,7 @@ import type {
 	PutParams,
 } from "../types/apiTypes";
 
-export const baseURL = "http://localhost:8080"; // backend URL
+export const baseURL = "http://localhost:8080/"; // backend URL
 
 const apiClient: AxiosInstance = axios.create({
 	baseURL,
@@ -100,6 +100,18 @@ export const putData = async ({ endPoint, data }: PutParams) => {
 		return response.data;
 	} catch (error) {
 		console.error("error in putData", error);
+		throw error;
+	}
+};
+
+export const putImageData = async ({ endPoint, data }: PutParams) => {
+	try {
+		const response: AxiosResponse = await apiClient.put(endPoint, data, {
+			headers: { "Content-Type": "multipart/form-data" },
+		});
+		return response.data;
+	} catch (error) {
+		console.error("error in putImageData", error);
 		throw error;
 	}
 };

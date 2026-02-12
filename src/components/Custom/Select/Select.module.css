@@ -1,0 +1,100 @@
+/* Select.module.css */
+
+.container {
+	position: relative;
+	width: 100%;
+	font-family: "Vazirmatn", sans-serif;
+}
+
+.trigger {
+	height: 45px;
+	border-radius: 12px;
+	padding: 0.875rem 1rem;
+	font-size: 0.9375rem;
+	border: 1.5px solid hsl(var(--border));
+	background-color: hsl(var(--background));
+	box-shadow: 0 0 25px -17px hsla(var(--primary-rose), 0.4);
+	transition: all 0.25s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.trigger[data-state="open"],
+.trigger:focus {
+	border-color: hsl(var(--primary-rose));
+	box-shadow:
+		0 0 0 3px hsla(var(--primary-rose), 0.1),
+		0 0 30px -10px hsla(var(--primary-rose), 0.5);
+}
+
+.trigger.error {
+	border-color: hsl(var(--destructive));
+	box-shadow:
+		0 0 0 3px hsla(var(--destructive), 0.1),
+		0 0 25px -15px hsla(var(--destructive), 0.4);
+}
+
+.label {
+	position: absolute;
+	right: 1rem;
+	top: 50%;
+	transform: translateY(-50%);
+	color: hsl(var(--muted-foreground));
+	font-size: 0.9rem;
+	pointer-events: none;
+	transition: all 0.3s ease;
+	background: transparent;
+}
+
+.floating {
+	top: 0;
+	transform: translateY(-50%);
+	font-size: 0.75rem;
+	background: hsl(var(--background));
+	padding: 0 0.5rem;
+	font-weight: 500;
+}
+
+.errorText {
+	margin-top: 0.5rem;
+	font-size: 0.8125rem;
+	color: hsl(var(--destructive));
+	text-align: right;
+}
+
+.icon {
+	position: absolute;
+	left: 1rem;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 1.25rem;
+	height: 1.25rem;
+	color: hsl(var(--muted-foreground));
+	transition: all 0.3s ease;
+	cursor: pointer;
+	z-index: 3;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.trigger.error ~ .icon {
+	color: hsl(var(--destructive));
+}
+
+/* 
+.container:has(.icon) .label {
+	right: 3rem;
+}
+
+.trigger {
+	padding-left: 2.5rem;
+}
+
+.trigger[dir="ltr"] {
+	padding-left: 1rem;
+	padding-right: 2.5rem;
+}
+
+.container:has(.trigger[dir="ltr"]) .icon {
+	right: auto;
+	left: 1rem;
+} */

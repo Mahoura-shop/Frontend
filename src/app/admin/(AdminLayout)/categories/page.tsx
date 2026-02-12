@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
 	Plus,
@@ -9,11 +9,9 @@ import {
 	Grid3x3,
 	List,
 	Search,
-	Image as ImageIcon,
 	Eye,
 	FolderTree,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -26,18 +24,11 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { Pagination } from "@/components/ui/pagination";
-import { toast } from "sonner";
-import CustomToast from "@/components/Custom/CustomToast/CustomToast";
-
-interface Category {
-	id: number;
-	name: string;
-	slug: string;
-	image: string | null;
-	productCount: number;
-	isActive: boolean;
-	parentId: number | null;
-}
+import { getData } from "@/services/services";
+import DeleteCategoryDialog from "@/components/admin/Category/DeleteCategoryDialog";
+import UpdateCategoryDialog from "@/components/admin/Category/UpdateCategoryDialog";
+import Button from "@/components/Custom/Button/Button";
+import CategoryInfoDialog from "@/components/admin/Category/CategoryInfoDialog";
 
 export default function CategoriesPage() {
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -46,65 +37,10 @@ export default function CategoriesPage() {
 	const itemsPerPage = 12;
 
 	// Sample data
-	const [categories, setCategories] = useState<Category[]>([
-		{
-			id: 1,
-			name: "آرایش صورت",
-			slug: "makeup-face",
-			image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=200",
-			productCount: 120,
-			isActive: true,
-			parentId: null,
-		},
-		{
-			id: 2,
-			name: "مراقبت از پوست",
-			slug: "skin-care",
-			image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=200",
-			productCount: 85,
-			isActive: true,
-			parentId: null,
-		},
-		{
-			id: 3,
-			name: "آرایش چشم",
-			slug: "eye-makeup",
-			image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=200",
-			productCount: 65,
-			isActive: true,
-			parentId: null,
-		},
-		{
-			id: 4,
-			name: "عطر و ادکلن",
-			slug: "perfume",
-			image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=200",
-			productCount: 45,
-			isActive: true,
-			parentId: null,
-		},
-		{
-			id: 5,
-			name: "مراقبت مو",
-			slug: "hair-care",
-			image: null,
-			productCount: 38,
-			isActive: true,
-			parentId: null,
-		},
-		{
-			id: 6,
-			name: "لوازم آرایش",
-			slug: "makeup-tools",
-			image: null,
-			productCount: 25,
-			isActive: false,
-			parentId: null,
-		},
-	]);
+	const [categories, setCategories] = useState<Category[]>([]);
 
 	const filteredCategories = categories.filter((cat) =>
-		cat.name.toLowerCase().includes(searchQuery.toLowerCase()),
+		cat?.name?.toLowerCase().includes(searchQuery.toLowerCase()),
 	);
 
 	const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
@@ -116,10 +52,15 @@ export default function CategoriesPage() {
 	const activeCount = categories.filter((c) => c.isActive).length;
 	const inactiveCount = categories.filter((c) => !c.isActive).length;
 
-	const handleDelete = (id: number) => {
-		setCategories(categories.filter((c) => c.id !== id));
-		CustomToast("دسته‌بندی با موفقیت حذف شد", "success");
-	};
+	const fetchCategories = useCallback(() => {
+		getData({ endPoint: `/v1/category` }).then((data) => {
+			setCategories(data.data ?? []);
+		});
+	}, []);
+
+	useEffect(() => {
+		fetchCategories();
+	}, [fetchCategories]);
 
 	return (
 		<main className="p-6">
@@ -177,100 +118,118 @@ export default function CategoriesPage() {
 					>
 						<List className="w-5 h-5" />
 					</Button>
-					<Button className="gap-2">
+					{/* <Button className="gap-2">
 						<Plus className="w-4 h-4" />
 						افزودن دسته‌بندی
-					</Button>
+					</Button> */}
+					<UpdateCategoryDialog
+						fetchCategories={fetchCategories}
+						mode="create"
+					/>
 				</div>
 			</div>
 
 			{/* Grid View */}
 			{viewMode === "grid" && (
-				<div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-					{paginatedCategories.map((category, i) => (
-						<motion.div
-							key={category.id}
-							initial={{ opacity: 0, scale: 0.9 }}
-							animate={{ opacity: 1, scale: 1 }}
-							transition={{ delay: i * 0.05 }}
-						>
-							<Card className="overflow-hidden group hover:shadow-xl transition-all">
-								<div className="relative h-48 bg-muted flex items-center justify-center overflow-hidden">
-									{category.image ? (
-										<img
-											src={category.image}
-											alt={category.name}
-											className="w-full h-full object-cover"
-										/>
-									) : (
-										<FolderTree className="w-16 h-16 text-muted-foreground" />
-									)}
+				<>
+					{paginatedCategories.length === 0 && (
+						<Card>
+							<CardContent className="p-0">
+								<Table>
+									<TableBody>
+										<TableRow>
+											<TableCell
+												colSpan={100}
+												className="text-center"
+											>
+												<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
+													هیچ دسته‌بندی یافت نشد.
+												</div>
+											</TableCell>
+										</TableRow>
+									</TableBody>
+								</Table>
+							</CardContent>
+						</Card>
+					)}
+					<div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+						{paginatedCategories.map((category, i) => (
+							<motion.div
+								key={category.id}
+								initial={{ opacity: 0, scale: 0.9 }}
+								animate={{ opacity: 1, scale: 1 }}
+								transition={{ delay: i * 0.05 }}
+							>
+								<Card className="overflow-hidden group hover:shadow-xl transition-all">
+									<div className="relative h-48 bg-muted flex items-center justify-center overflow-hidden">
+										{category.categoryPic ? (
+											<img
+												src={category.categoryPic}
+												alt={category.name}
+												className="w-full h-full object-cover"
+											/>
+										) : (
+											<FolderTree className="w-16 h-16 text-muted-foreground" />
+										)}
 
-									{/* Quick Actions */}
-									<div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-										<Button
-											size="icon"
-											variant="secondary"
-											className="h-8 w-8"
-										>
-											<Eye className="w-4 h-4" />
-										</Button>
-										<Button
-											size="icon"
-											variant="secondary"
-											className="h-8 w-8"
-										>
-											<Pencil className="w-4 h-4" />
-										</Button>
-										<Button
-											size="icon"
-											variant="secondary"
-											className="h-8 w-8 text-red-500"
-											onClick={() =>
-												handleDelete(category.id)
-											}
-										>
-											<Trash2 className="w-4 h-4" />
-										</Button>
+										{/* Quick Actions */}
+										<div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+											<CategoryInfoDialog
+												category={category}
+											/>
+											<UpdateCategoryDialog
+												fetchCategories={
+													fetchCategories
+												}
+												mode="update"
+												category={category}
+											/>
+											<DeleteCategoryDialog
+												id={category?.id}
+												fetchCategories={
+													fetchCategories
+												}
+											/>
+										</div>
+
+										{/* Status Badge */}
+										<div className="absolute top-2 right-2">
+											<Badge
+												variant={
+													category.isActive
+														? "available"
+														: "outOfStock"
+												}
+											>
+												{category.isActive
+													? "فعال"
+													: "غیرفعال"}
+											</Badge>
+										</div>
 									</div>
 
-									{/* Status Badge */}
-									<div className="absolute top-2 right-2">
-										<Badge
-											variant={
-												category.isActive
-													? "available"
-													: "outOfStock"
-											}
-										>
-											{category.isActive
-												? "فعال"
-												: "غیرفعال"}
-										</Badge>
-									</div>
-								</div>
-
-								<CardContent className="p-4">
-									<h3 className="font-bold mb-2 text-lg">
-										{category.name}
-									</h3>
-									<div className="flex items-center justify-between text-sm">
-										<span className="text-muted-foreground">
-											{category.productCount} محصول
-										</span>
-										<Button
-											variant="ghost"
-											size="sm"
-											className="h-8"
-										>
-											مشاهده محصولات
-										</Button>
-									</div>
-								</CardContent>
-							</Card>
-						</motion.div>
-					))}
-				</div>
+									<CardContent className="p-4">
+										<h3 className="font-bold mb-2 text-lg">
+											{category.name}
+										</h3>
+										<div className="flex items-center justify-between text-sm">
+											<span className="text-muted-foreground">
+												{category.count} محصول
+											</span>
+											<Button
+												variant="ghost"
+												size="sm"
+												className="h-8"
+											>
+												مشاهده محصولات
+											</Button>
+										</div>
+									</CardContent>
+								</Card>
+							</motion.div>
+						))}
+					</div>
+				</>
 			)}
 
 			{/* List View */}
@@ -289,6 +248,18 @@ export default function CategoriesPage() {
 								</TableRow>
 							</TableHeader>
 							<TableBody>
+								{paginatedCategories.length === 0 && (
+									<TableRow>
+										<TableCell
+											colSpan={100}
+											className="text-center"
+										>
+											<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
+												هیچ دسته‌بندی یافت نشد.
+											</div>
+										</TableCell>
+									</TableRow>
+								)}
 								{paginatedCategories.map((category, i) => (
 									<motion.tr
 										key={category.id}
@@ -302,7 +273,7 @@ export default function CategoriesPage() {
 										</TableCell>
 										<TableCell>
 											<Badge variant="secondary">
-												{category.productCount} محصول
+												{category.count} محصول
 											</Badge>
 										</TableCell>
 										<TableCell>
@@ -320,21 +291,38 @@ export default function CategoriesPage() {
 										</TableCell>
 										<TableCell>
 											<div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-												<Button
+												<CategoryInfoDialog
+													category={category}
+												/>
+												{/* <Button
 													variant="ghost"
 													size="icon"
 													className="h-8 w-8"
 												>
 													<Eye className="w-4 h-4" />
-												</Button>
-												<Button
+												</Button> */}
+
+												<UpdateCategoryDialog
+													fetchCategories={
+														fetchCategories
+													}
+													mode="update"
+													category={category}
+												/>
+												{/* <Button
 													variant="ghost"
 													size="icon"
 													className="h-8 w-8"
 												>
 													<Pencil className="w-4 h-4" />
-												</Button>
-												<Button
+												</Button> */}
+												<DeleteCategoryDialog
+													id={category?.id}
+													fetchCategories={
+														fetchCategories
+													}
+												/>
+												{/* <Button
 													variant="ghost"
 													size="icon"
 													className="h-8 w-8 text-red-500"
@@ -345,7 +333,7 @@ export default function CategoriesPage() {
 													}
 												>
 													<Trash2 className="w-4 h-4" />
-												</Button>
+												</Button> */}
 											</div>
 										</TableCell>
 									</motion.tr>

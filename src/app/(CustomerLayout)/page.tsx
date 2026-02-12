@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/carousel";
 
 export default function LandingPage() {
-	const { products, toggleWishlist, wishlist } = useProductStore();
+	const { products } = useProductStore();
 	const [categoryIndices, setCategoryIndices] = useState([0, 1, 2]);
 	const [featuredIndices, setFeaturedIndices] = useState([0, 1, 2]);
 	const [newIndices, setNewIndices] = useState([0, 1, 2]);
@@ -87,17 +87,17 @@ export default function LandingPage() {
 
 	const newProducts = products.filter((p) => p.isNew).slice(0, 6);
 
-	const CategoryCard = ({ category }: any) => (
+	const CategoryCard = ({ category }: { category: any }) => (
 		<Link href={`/categories/${category.id}`}>
 			<Card
 				className={`group overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300`}
 			>
 				<div className="relative h-80 overflow-hidden">
-					<img
-						src={category.image}
+					{/* <img
+						src={category.}
 						alt={category.name}
 						className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-					/>
+					/> */}
 					<div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/0 to-transparent" />
 					<div className="absolute inset-0 bg-primary-rose/0 group-hover:bg-primary-rose/10 transition-colors duration-300" />
 
@@ -113,7 +113,7 @@ export default function LandingPage() {
 								variant="secondary"
 								className="bg-white/20 text-white"
 							>
-								{category.count} محصول
+								{category.name} محصول
 							</Badge>
 							<ArrowLeft className="w-5 h-5 transform group-hover:translate-x-[-8px] transition-transform" />
 						</div>
@@ -123,11 +123,11 @@ export default function LandingPage() {
 		</Link>
 	);
 
-	const ProductCard = ({ product }: any) => (
+	const ProductCard = ({ product }: { product: Product }) => (
 		<Card className="group overflow-hidden hover:shadow-xl transition-all">
 			<div className="relative h-80 overflow-hidden">
 				<img
-					src={product.image}
+					src={product.productPic}
 					alt={product.name}
 					className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
 				/>
@@ -138,15 +138,15 @@ export default function LandingPage() {
 							جدید
 						</Badge>
 					)}
-					{!product.available && (
+					{/* {!product.available && (
 						<Badge variant="outOfStock">ناموجود</Badge>
-					)}
+					)} */}
 				</div>
 			</div>
 
 			<CardContent className="p-6">
 				<p className="text-sm text-muted-foreground mb-1">
-					{product.brand}
+					{product?.brand?.name}
 				</p>
 				<Link href={`/products/${product.id}`}>
 					<h3 className="text-xl font-bold mb-2 transition-colors">
@@ -154,12 +154,12 @@ export default function LandingPage() {
 					</h3>
 				</Link>
 
-				<Badge>{product.category}</Badge>
+				<Badge>{product?.category?.name}</Badge>
 
 				<div className="flex place-content-end">
 					<div>
 						<span className="text-2xl font-bold text-primary-rose">
-							{product.priceFormatted}
+							{product.price}
 						</span>
 						<span className="text-sm text-muted-foreground mr-2">
 							تومان

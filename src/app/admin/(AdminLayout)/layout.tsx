@@ -19,8 +19,6 @@ import logo from "@/assets/logo.png";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Toaster } from "@/components/ui/sonner";
 import Image from "next/image";
 
 export default function AdminLayout({
@@ -72,7 +70,7 @@ export default function AdminLayout({
 	];
 
 	const handleLogout = () => {
-		router.push("/admin/login");
+		router.push("/");
 	};
 
 	return (
@@ -92,7 +90,7 @@ export default function AdminLayout({
 								<Image
 									src={logo}
 									alt="Mahoura"
-									className="w-32 h-32"
+									className="w-32 h-32 dark:invert"
 								/>
 							</div>
 							<Button
@@ -132,14 +130,14 @@ export default function AdminLayout({
 											<span className="font-medium flex-1 text-right">
 												{item.label}
 											</span>
-											{item.count !== null && (
+											{/* {item.count !== null && (
 												<Badge
 													variant="secondary"
 													className="mr-auto"
 												>
 													{item.count}
 												</Badge>
-											)}
+											)} */}
 										</button>
 									</Link>
 								</motion.div>
@@ -206,9 +204,6 @@ export default function AdminLayout({
 				{/* Page Content */}
 				{children}
 			</div>
-
-			{/* Toast Notifications */}
-			<Toaster />
 		</div>
 	);
 }

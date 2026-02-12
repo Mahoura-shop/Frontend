@@ -32,9 +32,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { useEffect } from "react";
 
 export default function ProductsPage() {
-	const { products, addToCart, toggleWishlist, wishlist } = useProductStore();
+	const { products, getProducts } = useProductStore();
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedCategory, setSelectedCategory] = useState<string>("all");
 	const [priceRange, setPriceRange] = useState<
@@ -44,6 +45,10 @@ export default function ProductsPage() {
 	const [showFilters, setShowFilters] = useState(false);
 	const [sortBy, setSortBy] = useState<string>("newest");
 
+	useEffect(() => {
+		console.log("products", products);
+		getProducts();
+	}, []);
 	const categories = [
 		"all",
 		"آرایش صورت",
@@ -51,45 +56,6 @@ export default function ProductsPage() {
 		"آرایش چشم",
 		"عطر و ادکلن",
 	];
-
-	const filteredProducts = useMemo(() => {
-		let filtered = [...products];
-
-		if (searchQuery) {
-			filtered = filtered.filter(
-				(p) =>
-					p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-					p.brand.toLowerCase().includes(searchQuery.toLowerCase()),
-			);
-		}
-
-		if (selectedCategory !== "all") {
-			filtered = filtered.filter((p) => p.category === selectedCategory);
-		}
-
-		if (priceRange !== "all") {
-			filtered = filtered.filter((p) => {
-				if (priceRange === "low") return p.price < 300000;
-				if (priceRange === "mid")
-					return p.price >= 300000 && p.price < 400000;
-				if (priceRange === "high") return p.price >= 400000;
-				return true;
-			});
-		}
-
-		filtered.sort((a, b) => {
-			if (sortBy === "price-low") return a.price - b.price;
-			if (sortBy === "price-high") return b.price - a.price;
-			if (sortBy === "popular") return (b.rating || 0) - (a.rating || 0);
-			return b.isNew ? 1 : -1;
-		});
-
-		return filtered;
-	}, [products, searchQuery, selectedCategory, priceRange, sortBy]);
-
-	const handleAddToCart = (product: any) => {
-		addToCart(product, 1);
-	};
 
 	return (
 		<div className="min-h-screen bg-background">
@@ -328,7 +294,7 @@ export default function ProductsPage() {
 							</div>
 
 							{/* Products */}
-							{filteredProducts.length === 0 ? (
+							{products && products?.length === 0 ? (
 								<div className="text-center py-20">
 									<Package className="w-20 h-20 mx-auto text-muted-foreground mb-4" />
 									<h3 className="text-2xl font-bold mb-2">
@@ -346,55 +312,56 @@ export default function ProductsPage() {
 											: "space-y-6"
 									}
 								>
-									{filteredProducts.map((product, i) => (
-										<motion.div
-											key={product.id}
-											initial={{ opacity: 0, y: 20 }}
-											animate={{ opacity: 1, y: 0 }}
-											transition={{ delay: i * 0.05 }}
-										>
-											<Card className="overflow-hidden group hover:shadow-xl transition-all duration-300">
-												<div className="relative">
-													<Link
-														href={`/products/${product.id}`}
-													>
-														<div
-															className={`relative ${viewMode === "grid" ? "h-80" : "h-60 md:h-80"} overflow-hidden cursor-pointer`}
+									{products &&
+										products?.map((product, i) => (
+											<motion.div
+												key={i}
+												initial={{ opacity: 0, y: 20 }}
+												animate={{ opacity: 1, y: 0 }}
+												transition={{ delay: i * 0.05 }}
+											>
+												<Card className="overflow-hidden group hover:shadow-xl transition-all duration-300">
+													<div className="relative">
+														<Link
+															href={`/products/${product.id}`}
 														>
-															<motion.img
-																src={
-																	product.image
-																}
-																alt={
-																	product.name
-																}
-																className="w-full h-full object-cover"
-																whileHover={{
-																	scale: 1.1,
-																}}
-																transition={{
-																	duration: 0.4,
-																}}
-															/>
-															<div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+															<div
+																className={`relative ${viewMode === "grid" ? "h-80" : "h-60 md:h-80"} overflow-hidden cursor-pointer`}
+															>
+																<motion.img
+																	src={
+																		product.productPic
+																	}
+																	alt={
+																		product.name
+																	}
+																	className="w-full h-full object-cover"
+																	whileHover={{
+																		scale: 1.1,
+																	}}
+																	transition={{
+																		duration: 0.4,
+																	}}
+																/>
+																<div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+															</div>
+														</Link>
+
+														<div className="absolute top-4 right-4 flex flex-col gap-2">
+															{product.isNew && (
+																<Badge variant="new">
+																	<Star className="w-3 h-3 ml-1" />
+																	جدید
+																</Badge>
+															)}
+															{product.quantity == 0 && (
+																<Badge variant="outOfStock">
+																	ناموجود
+																</Badge>
+															)}
 														</div>
-													</Link>
 
-													<div className="absolute top-4 right-4 flex flex-col gap-2">
-														{product.isNew && (
-															<Badge variant="new">
-																<Star className="w-3 h-3 ml-1" />
-																جدید
-															</Badge>
-														)}
-														{!product.available && (
-															<Badge variant="outOfStock">
-																ناموجود
-															</Badge>
-														)}
-													</div>
-
-													{/* <div className="absolute top-4 left-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+														{/* <div className="absolute top-4 left-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
 														<Button
 															size="icon"
 															variant="secondary"
@@ -427,21 +394,21 @@ export default function ProductsPage() {
 															</Button>
 														</Link>
 													</div> */}
-												</div>
+													</div>
 
-												<CardContent className="p-6">
-													<p className="text-sm text-muted-foreground mb-1">
-														{product.brand}
-													</p>
-													<Link
-														href={`/products/${product.id}`}
-													>
-														<h3 className="text-xl font-bold mb-2 transition-colors cursor-pointer text-foreground">
-															{product.name}
-														</h3>
-													</Link>
+													<CardContent className="p-6">
+														<p className="text-sm text-muted-foreground mb-1">
+															{product.brand?.name}
+														</p>
+														<Link
+															href={`/products/${product.id}`}
+														>
+															<h3 className="text-xl font-bold mb-2 transition-colors cursor-pointer text-foreground">
+																{product?.name}
+															</h3>
+														</Link>
 
-													{/* {product.rating && (
+														{/* {product.rating && (
 														<div className="flex items-center gap-2 mb-3">
 															<div className="flex">
 																{[
@@ -474,29 +441,29 @@ export default function ProductsPage() {
 														</div>
 													)} */}
 
-													<Badge>
-														{product.category}
-													</Badge>
+														<Badge>
+															{product.category?.name}
+														</Badge>
 
-													<div className="flex place-content-end">
-														<div>
-															<motion.span
-																className="text-2xl font-bold text-primary-rose"
-																whileHover={{
-																	scale: 1.05,
-																}}
-															>
-																{
-																	product.priceFormatted
-																}
-															</motion.span>
-															<span className="text-sm text-muted-foreground mr-2">
-																تومان
-															</span>
+														<div className="flex place-content-end">
+															<div>
+																<motion.span
+																	className="text-2xl font-bold text-primary-rose"
+																	whileHover={{
+																		scale: 1.05,
+																	}}
+																>
+																	{
+																		product.price
+																	}
+																</motion.span>
+																<span className="text-sm text-muted-foreground mr-2">
+																	تومان
+																</span>
+															</div>
 														</div>
-													</div>
 
-													{/* <div className="flex gap-2">
+														{/* <div className="flex gap-2">
 														<Button
 															variant="luxury"
 															className="flex-1"
@@ -513,10 +480,10 @@ export default function ProductsPage() {
 															افزودن به سبد
 														</Button>
 													</div> */}
-												</CardContent>
-											</Card>
-										</motion.div>
-									))}
+													</CardContent>
+												</Card>
+											</motion.div>
+										))}
 								</div>
 							)}
 						</div>
