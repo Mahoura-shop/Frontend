@@ -18,6 +18,7 @@ import {
 	Sparkles,
 	Shield,
 	Truck,
+	ImageIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -33,12 +34,6 @@ export default function ProductDetailPage() {
 
 	const { products } = useProductStore();
 	const product = products.find((p) => p.id === productId);
-
-	const [selectedImage, setSelectedImage] = useState(0);
-	const [quantity, setQuantity] = useState(1);
-	const [selectedSize, setSelectedSize] = useState<string | null>(null);
-	const [selectedColor, setSelectedColor] = useState<string | null>(null);
-	const [addedToCart, setAddedToCart] = useState(false);
 
 	if (!product) {
 		return (
@@ -90,18 +85,22 @@ export default function ProductDetailPage() {
 						animate={{ opacity: 1, x: 0 }}
 					>
 						{/* Main Image */}
-						<div className="relative mb-4 rounded-2xl overflow-hidden shadow-2xl group">
+						<div className="relative mb-4 rounded-2xl overflow-hidden shadow-2xl group min-h-[70vh] flex place-items-center place-content-center">
 							<AnimatePresence mode="wait">
-								<motion.img
-									key={selectedImage}
-									src={images[selectedImage]}
-									alt={product.name}
-									className="w-full h-[500px] object-cover"
-									initial={{ opacity: 0 }}
-									animate={{ opacity: 1 }}
-									exit={{ opacity: 0 }}
-									transition={{ duration: 0.3 }}
-								/>
+								{product?.productPic ? (
+									<motion.img
+										key={product.productPic}
+										src={product.productPic}
+										alt={product.name}
+										className="w-full h-[500px] object-cover"
+										initial={{ opacity: 0 }}
+										animate={{ opacity: 1 }}
+										exit={{ opacity: 0 }}
+										transition={{ duration: 0.3 }}
+									/>
+								) : (
+									<ImageIcon className="w-16 h-16 text-muted-foreground" />
+								)}
 							</AnimatePresence>
 
 							{product.isNew && (
@@ -160,17 +159,17 @@ export default function ProductDetailPage() {
 						animate={{ opacity: 1, x: 0 }}
 						className="space-y-6"
 					>
-						<div className="flex justify-between">
+						<div className="flex justify-between border-b">
 							<div>
 								<p className="text-muted-foreground mb-2">
-									{product.brand.name}
+									{product?.brand?.name}
 								</p>
 								<h1 className="text-4xl font-bold mb-2">
 									{product.name}
 								</h1>
 								{product.slug && (
 									<p className="text-lg text-muted-foreground">
-										{product.category.name}
+										{product?.category?.name}
 									</p>
 								)}
 							</div>
@@ -205,7 +204,7 @@ export default function ProductDetailPage() {
 						)} */}
 
 						{/* Price */}
-						<div className="py-6 border-y">
+						<div className="py-6 border-b">
 							<div className="flex items-baseline gap-3">
 								<motion.span
 									className="text-5xl font-bold text-primary-rose"
@@ -222,15 +221,16 @@ export default function ProductDetailPage() {
 						</div>
 
 						{/* Description */}
-						<div>
-							<h3 className="text-xl font-bold mb-3">
-								توضیحات محصول
-							</h3>
-							<p className="text-muted-foreground leading-relaxed">
-								{product.description}
-							</p>
-						</div>
-
+						{product?.description && (
+							<div>
+								<h3 className="text-xl font-bold mb-3">
+									توضیحات محصول
+								</h3>
+								<p className="text-muted-foreground leading-relaxed">
+									{product.description}
+								</p>
+							</div>
+						)}
 						{/* Sizes */}
 						{/* {product.sizes && product.sizes.length > 0 && (
 							<div>

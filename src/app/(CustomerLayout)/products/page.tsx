@@ -14,6 +14,7 @@ import {
 	X,
 	Eye,
 	Package,
+	ImageIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -320,30 +321,34 @@ export default function ProductsPage() {
 												animate={{ opacity: 1, y: 0 }}
 												transition={{ delay: i * 0.05 }}
 											>
-												<Card className="overflow-hidden group hover:shadow-xl transition-all duration-300">
+												<Card className="overflow-hidden group hover:shadow-xl transition-all duration-300 min-h-[400px]">
 													<div className="relative">
 														<Link
 															href={`/products/${product.id}`}
 														>
 															<div
-																className={`relative ${viewMode === "grid" ? "h-80" : "h-60 md:h-80"} overflow-hidden cursor-pointer`}
+																className={`relative h-60 bg-muted overflow-hidden cursor-pointer flex place-items-center place-content-center`}
 															>
-																<motion.img
-																	src={
-																		product.productPic
-																	}
-																	alt={
-																		product.name
-																	}
-																	className="w-full h-full object-cover"
-																	whileHover={{
-																		scale: 1.1,
-																	}}
-																	transition={{
-																		duration: 0.4,
-																	}}
-																/>
-																<div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+																{product.productPic ? (
+																	<motion.img
+																		src={
+																			product.productPic
+																		}
+																		alt={
+																			product.name
+																		}
+																		className="w-full h-full object-cover"
+																		whileHover={{
+																			scale: 1.1,
+																		}}
+																		transition={{
+																			duration: 0.3,
+																		}}
+																	/>
+																) : (
+																	<ImageIcon className="w-16 h-16 text-muted-foreground" />
+																)}
+																{/* <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" /> */}
 															</div>
 														</Link>
 
@@ -354,7 +359,8 @@ export default function ProductsPage() {
 																	جدید
 																</Badge>
 															)}
-															{product.quantity == 0 && (
+															{product.quantity ==
+																0 && (
 																<Badge variant="outOfStock">
 																	ناموجود
 																</Badge>
@@ -396,9 +402,12 @@ export default function ProductsPage() {
 													</div> */}
 													</div>
 
-													<CardContent className="p-6">
+													<CardContent className="py-4 px-6">
 														<p className="text-sm text-muted-foreground mb-1">
-															{product.brand?.name}
+															{
+																product.brand
+																	?.name
+															}
 														</p>
 														<Link
 															href={`/products/${product.id}`}
@@ -440,10 +449,16 @@ export default function ProductsPage() {
 															</span>
 														</div>
 													)} */}
-
-														<Badge>
-															{product.category?.name}
-														</Badge>
+														{product.category
+															?.name && (
+															<Badge className="inline-flex place-content-center place-items-center justify-center">
+																{
+																	product
+																		.category
+																		?.name
+																}
+															</Badge>
+														)}
 
 														<div className="flex place-content-end">
 															<div>
