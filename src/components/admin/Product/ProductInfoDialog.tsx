@@ -235,8 +235,10 @@ export default function ProductInfoDialog({ product }: ProductInfoDialogProps) {
 											</p>
 											<p className="text-4xl font-bold gradient-text">
 												{formatPrice(
-													product.price,
-													product.currencyCode,
+													Number(product.price),
+													String(
+														product.currency?.code,
+													),
 												)}
 											</p>
 										</div>
@@ -351,32 +353,6 @@ export default function ProductInfoDialog({ product }: ProductInfoDialogProps) {
 													).format(product.priority)}
 												/>
 											)}
-
-										{/* Created Date */}
-										{product.createdAt && (
-											<InfoItem
-												icon={
-													<Calendar className="w-4 h-4" />
-												}
-												label="تاریخ ایجاد"
-												value={new Date(
-													product.createdAt,
-												).toLocaleDateString("fa-IR")}
-											/>
-										)}
-
-										{/* Updated Date */}
-										{product.updatedAt && (
-											<InfoItem
-												icon={
-													<Calendar className="w-4 h-4" />
-												}
-												label="آخرین بروزرسانی"
-												value={new Date(
-													product.updatedAt,
-												).toLocaleDateString("fa-IR")}
-											/>
-										)}
 									</div>
 								</motion.div>
 							</div>

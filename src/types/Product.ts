@@ -22,6 +22,7 @@ interface Product {
 	brand?: Brand;
 	quantity: number;
 	quantityType: string;
-	currencyCode: string;
+	currency?: Currency;
+	currencyID: number;
 	productPic: string | undefined;
 }

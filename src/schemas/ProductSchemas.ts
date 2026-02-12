@@ -23,7 +23,7 @@ export const createProductInitialValues = {
 	quantity: 0,
 	quantityType: "عدد",
 	// foreign: false,
-	currencyCode: "IRR",
+	currencyID: "1",
 	productPic: undefined,
 };
 
@@ -67,8 +67,6 @@ export const createProductSchema = Yup.object({
 		.required("موجودی الزامی است")
 		.min(0, "موجودی نمی‌تواند منفی باشد"),
 	quantityType: Yup.string().required("واحد شمارش الزامی است"),
-	currencyCode: Yup.string()
-		.required("واحد پول الزامی است")
-		.max(5, "کد ارز نباید بیشتر از ۵ کاراکتر باشد"),
+	currencyID: Yup.number().required("واحد پول الزامی است"),
 	productPic: Yup.string().nullable(),
 });

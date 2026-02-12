@@ -72,35 +72,43 @@ export default function ProductsAdminPage() {
 	}, []);
 	const fetchProducts = useCallback(() => {
 		getData({ endPoint: `/v1/product` }).then((data) => {
-			const productsList = data?.data?.map((product: Product) => ({
-				...product,
-				categoryID: product?.categoryID?.toString(),
-				brandID: product?.brandID?.toString(),
-				irrPrice:
-					product?.irrPrice === 0 ? undefined : product?.irrPrice,
-				consumerPrice:
-					product?.consumerPrice === 0
-						? undefined
-						: product?.consumerPrice,
-				step1Percent:
-					product?.step1Percent === 0
-						? undefined
-						: product?.step1Percent,
-				step2Percent:
-					product?.step2Percent === 0
-						? undefined
-						: product?.step2Percent,
-				step3Percent:
-					product?.step3Percent === 0
-						? undefined
-						: product?.step3Percent,
-				step1Price:
-					product?.step1Price === 0 ? undefined : product?.step1Price,
-				step2Price:
-					product?.step2Price === 0 ? undefined : product?.step2Price,
-				step3Price:
-					product?.step3Price === 0 ? undefined : product?.step3Price,
-			})) ?? [];
+			const productsList =
+				data?.data?.map((product: Product) => ({
+					...product,
+					categoryID: product?.categoryID?.toString(),
+					brandID: product?.brandID?.toString(),
+					currencyID: product?.currencyID?.toString(),
+					irrPrice:
+						product?.irrPrice === 0 ? undefined : product?.irrPrice,
+					consumerPrice:
+						product?.consumerPrice === 0
+							? undefined
+							: product?.consumerPrice,
+					step1Percent:
+						product?.step1Percent === 0
+							? undefined
+							: product?.step1Percent,
+					step2Percent:
+						product?.step2Percent === 0
+							? undefined
+							: product?.step2Percent,
+					step3Percent:
+						product?.step3Percent === 0
+							? undefined
+							: product?.step3Percent,
+					step1Price:
+						product?.step1Price === 0
+							? undefined
+							: product?.step1Price,
+					step2Price:
+						product?.step2Price === 0
+							? undefined
+							: product?.step2Price,
+					step3Price:
+						product?.step3Price === 0
+							? undefined
+							: product?.step3Price,
+				})) ?? [];
 			setProducts(productsList);
 			console.log("products", productsList);
 		});

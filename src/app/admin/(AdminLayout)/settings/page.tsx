@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { DollarSign, Save, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,37 +11,43 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useSettingsStore } from "@/store/useSettingsStore";
-import { toast } from "sonner";
+import { getData, putData } from "@/services/services";
+import Input from "@/components/Custom/Input/Input";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 
 export default function SettingsPage() {
-	const { currencyRates, updateRate } = useSettingsStore();
-	const [editedRates, setEditedRates] = useState(currencyRates);
+	const [currencies, setCurrencies] = useState<Currency[]>([]);
 
-	const handleRateChange = (code: string, value: string) => {
-		const numValue = parseFloat(value) || 0;
-		setEditedRates((prev) =>
-			prev.map((rate) =>
-				rate.code === code ? { ...rate, rate: numValue } : rate,
+	const fetchCurrencies = () => {
+		getData({ endPoint: `/v1/currency` }).then((data) => {
+			console.log("data", data?.data);
+			setCurrencies(data?.data);
+		});
+	};
+
+	const saveAllCurrencies = async () => {
+		for (const currency of currencies) {
+			if (currency.code === "IRR") continue;
+
+			await putData({
+				endPoint: `/v1/currency/${currency.id}`,
+				data: currency,
+			});
+		}
+		CustomToast("تغییرات با موفقیت ذخیره شد", "success");
+	};
+	useEffect(() => {
+		fetchCurrencies();
+	}, []);
+
+	const handleRateChange = (id: number, value: string) => {
+		setCurrencies((prev) =>
+			prev.map((currency) =>
+				currency.id === id
+					? { ...currency, convertRate: Number(value) }
+					: currency,
 			),
 		);
-	};
-
-	const handleSave = () => {
-		editedRates.forEach((rate) => {
-			if (rate.code !== "IRR") {
-				updateRate(rate.code, rate.rate);
-			}
-		});
-		CustomToast("تنظیمات با موفقیت ذخیره شد", "success");
-	};
-
-	const handleReset = () => {
-		setEditedRates(currencyRates);
-		CustomToast("تغییرات لغو شد", "info");
 	};
 
 	return (
@@ -69,7 +75,7 @@ export default function SettingsPage() {
 					</CardHeader>
 					<CardContent>
 						<div className="grid md:grid-cols-2 gap-6">
-							{editedRates.map((currency, i) => (
+							{currencies.map((currency, i) => (
 								<motion.div
 									key={currency.code}
 									initial={{ opacity: 0, x: -20 }}
@@ -77,35 +83,18 @@ export default function SettingsPage() {
 									transition={{ delay: i * 0.1 }}
 									className="space-y-2"
 								>
-									<Label
-										htmlFor={currency.code}
-										className="flex items-center justify-between"
-									>
-										<span className="flex items-center gap-2">
-											<span className="text-2xl">
-												{currency.symbol}
-											</span>
-											<span className="font-bold">
-												{currency.nameFa}
-											</span>
-											<span className="text-sm text-muted-foreground">
-												({currency.code})
-											</span>
-										</span>
-									</Label>
 									<div className="flex items-center gap-2">
 										<span className="text-sm text-muted-foreground whitespace-nowrap">
 											1 {currency.code} =
 										</span>
 										<Input
+											label={`${currency.name} (${currency.code})`}
+											icon={DollarSign}
 											id={currency.code}
 											type="number"
-											value={currency.rate}
-											onChange={(e) =>
-												handleRateChange(
-													currency.code,
-													e.target.value,
-												)
+											value={currency.convertRate}
+											onValueChange={(v: string) =>
+												handleRateChange(currency.id, v)
 											}
 											disabled={currency.code === "IRR"}
 											className="text-left"
@@ -116,10 +105,13 @@ export default function SettingsPage() {
 									</div>
 									{currency.code !== "IRR" && (
 										<p className="text-xs text-muted-foreground">
-											۱۰۰ {currency.code} ={" "}
 											{new Intl.NumberFormat(
 												"fa-IR",
-											).format(currency.rate * 100)}{" "}
+											).format(1)}{" "}
+											{currency.name} ={" "}
+											{new Intl.NumberFormat(
+												"fa-IR",
+											).format(currency.convertRate)}{" "}
 											ریال
 										</p>
 									)}
@@ -128,69 +120,21 @@ export default function SettingsPage() {
 						</div>
 
 						<div className="flex gap-4 mt-8 pt-6 border-t">
-							<Button onClick={handleSave} className="gap-2">
+							<Button
+								onClick={saveAllCurrencies}
+								className="gap-2"
+							>
 								<Save className="w-4 h-4" />
 								ذخیره تغییرات
 							</Button>
 							<Button
 								variant="outline"
-								onClick={handleReset}
+								onClick={fetchCurrencies}
 								className="gap-2"
 							>
 								<RefreshCw className="w-4 h-4" />
 								لغو تغییرات
 							</Button>
-						</div>
-					</CardContent>
-				</Card>
-			</motion.div>
-
-			{/* Example Conversions */}
-			<motion.div
-				initial={{ opacity: 0, y: 20 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ delay: 0.2 }}
-				className="mt-6"
-			>
-				<Card>
-					<CardHeader>
-						<CardTitle>مثال تبدیل ارز</CardTitle>
-						<CardDescription>
-							نمونه‌ای از تبدیل قیمت‌ها
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<div className="grid md:grid-cols-3 gap-4">
-							{editedRates
-								.filter((c) => c.code !== "IRR")
-								.slice(0, 3)
-								.map((currency) => {
-									const examplePrice = 100;
-									const irrPrice =
-										examplePrice * currency.rate;
-									return (
-										<div
-											key={currency.code}
-											className="p-4 rounded-lg bg-muted/50 border"
-										>
-											<p className="text-sm text-muted-foreground mb-2">
-												قیمت به {currency.nameFa}
-											</p>
-											<p className="text-2xl font-bold mb-1">
-												{examplePrice} {currency.symbol}
-											</p>
-											<p className="text-sm">
-												معادل:{" "}
-												<span className="font-bold text-primary-rose">
-													{new Intl.NumberFormat(
-														"fa-IR",
-													).format(irrPrice)}
-												</span>{" "}
-												ریال
-											</p>
-										</div>
-									);
-								})}
 						</div>
 					</CardContent>
 				</Card>

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -34,7 +34,7 @@ import Textarea from "@/components/Custom/Textarea/Textarea";
 import Checkbox from "@/components/Custom/Checkbox/Checkbox";
 import ImageCropModal from "../ImageCropModal";
 import StickyDialogFooter from "@/components/StickyDialogFooter/StickyDialogFooter";
-import { postImageData, putImageData } from "@/services/services";
+import { getData, postImageData, putImageData } from "@/services/services";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import Button from "@/components/Custom/Button/Button";
 import { translateErrorObject } from "@/utils/translateErrorObject";
@@ -62,6 +62,7 @@ export default function UpdateProductDialog({
 	// const [irrPrice, setIrrPrice] = useState<number | undefined>(undefined);
 	const [step2Origin, setStep2Origin] = useState<boolean>(false);
 	const [step3Origin, setStep3Origin] = useState<boolean>(false);
+	const [currencies, setCurrencies] = useState<Currency[]>([]);
 
 	// const [baseStep1, setBaseStep1] = useState<number | undefined>(undefined);
 	// const [baseStep2, setBaseStep2] = useState<number | undefined>(undefined);
@@ -90,6 +91,16 @@ export default function UpdateProductDialog({
 	// const baseStep1Safe = baseStep1 || 0;
 	// const baseStep2Safe = baseStep2 || 0;
 	// const baseStep3Safe = baseStep3 || 0;
+
+	const fetchCurrencies = () => {
+		getData({ endPoint: `/v1/currency` }).then((data) => {
+			setCurrencies(data?.data);
+		});
+	};
+
+	useEffect(() => {
+		fetchCurrencies();
+	}, []);
 
 	const updateProduct = async (
 		values: Product,
@@ -146,13 +157,8 @@ export default function UpdateProductDialog({
 		) {
 			formData.append("quantityType", values.quantityType);
 		}
-		if (
-			!(
-				mode === "update" &&
-				product?.currencyCode === values.currencyCode
-			)
-		) {
-			formData.append("currencyCode", values.currencyCode);
+		if (!(mode === "update" && product?.currencyID === values.currencyID)) {
+			formData.append("currencyID", values.currencyID.toString());
 		}
 		if (
 			!(mode === "update" && product?.irrPrice === values.irrPrice) &&
@@ -308,13 +314,13 @@ export default function UpdateProductDialog({
 			onOpenChange={(value: boolean) => setProductDialogOpen(value)}
 		>
 			<DialogTrigger
-				// size={mode !== "create" ? "icon" : "default"}
-				// variant={mode !== "create" ? "secondary" : "default"}
-				// className={
-				// 	mode !== "create"
-				// 		? "h-8 w-8 hover:bg-background/80"
-				// 		: "gap-2"
-				// }
+			// size={mode !== "create" ? "icon" : "default"}
+			// variant={mode !== "create" ? "secondary" : "default"}
+			// className={
+			// 	mode !== "create"
+			// 		? "h-8 w-8 hover:bg-background/80"
+			// 		: "gap-2"
+			// }
 			>
 				{/* <div>
 					<Plus className="w-4 h-4" />
@@ -363,14 +369,17 @@ export default function UpdateProductDialog({
 						const baseStep1 = values["step1Price"];
 						const baseStep2 = values["step2Price"];
 						const baseStep3 = values["step3Price"];
+						const rate =
+							currencies.find(
+								(currency: Currency) =>
+									currency.id ===
+									Number(values["currencyID"]),
+							)?.convertRate || 1;
 						// Base rice
 						useEffect(() => {
 							if (price === undefined) return;
-							setFieldValue(
-								"irrPrice",
-								Math.round(price * 45000),
-							);
-						}, [price]);
+							setFieldValue("irrPrice", Math.round(price * rate));
+						}, [price, rate]);
 
 						// Step 1 Price
 						useEffect(() => {
@@ -480,35 +489,15 @@ export default function UpdateProductDialog({
 										icon={DollarSign}
 									/>
 									<Select
-										name="currencyCode"
+										name="currencyID"
 										label="واحد پول"
 										icon={DollarSign}
-										options={[
-											{
-												value: "IRR",
-												label: "ریال (IRR)",
-											},
-											{
-												value: "USD",
-												label: "دلار (USD)",
-											},
-											{
-												value: "EUR",
-												label: "یورو (EUR)",
-											},
-											{
-												value: "GBP",
-												label: "پوند (GBP)",
-											},
-											{
-												value: "AED",
-												label: "درهم (AED)",
-											},
-											{
-												value: "TRY",
-												label: "لیر (TRY)",
-											},
-										]}
+										options={currencies.map(
+											(currency: Currency) => ({
+												value: currency.id.toString(),
+												label: `${currency.name} (${currency.code})`,
+											}),
+										)}
 									/>
 									<Input
 										name="irrPrice"
