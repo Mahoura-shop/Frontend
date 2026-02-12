@@ -1,3 +1,3 @@
-export interface UserState {
+interface UserState {
 	username: string | null;
 }
