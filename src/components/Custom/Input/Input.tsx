@@ -52,7 +52,8 @@ export default function Input({
 	const [field, meta] = useField(name as string);
 	const hasError = meta.touched && meta.error;
 	const usingFormik = name ? true : false;
-	const actualValue = usingFormik ? (field.value ?? "") : String(value);
+	const actualValue = usingFormik ? (field.value ?? "") : (value ?? "");
+
 	const direction = isRTL(actualValue) ? "rtl" : "ltr";
 
 	return (

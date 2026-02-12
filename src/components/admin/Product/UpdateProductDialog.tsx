@@ -59,40 +59,36 @@ export default function UpdateProductDialog({
 }: UpdateProductDialogProps) {
 	const [productDialogOpen, setProductDialogOpen] = useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(false);
-	const [basePrice, setBasePrice] = useState<number | undefined>(undefined);
-	const [step2Origin, setStep2Origin] = useState<boolean>(false);
-	const [step3Origin, setStep3Origin] = useState<boolean>(false);
-	const [baseStep1, setBaseStep1] = useState<number | undefined>(undefined);
-	const [baseStep2, setBaseStep2] = useState<number | undefined>(undefined);
-	const [baseStep3, setBaseStep3] = useState<number | undefined>(undefined);
-	const [step1, setStep1] = useState<number | undefined>(undefined);
-	const [step2, setStep2] = useState<number | undefined>(undefined);
-	const [step3, setStep3] = useState<number | undefined>(undefined);
+	// const [basePrice, setBasePrice] = useState<number | undefined>(undefined);
+	// const [step2Origin, setStep2Origin] = useState<boolean>(false);
+	// const [step3Origin, setStep3Origin] = useState<boolean>(false);
+	// const [baseStep1, setBaseStep1] = useState<number | undefined>(undefined);
+	// const [baseStep2, setBaseStep2] = useState<number | undefined>(undefined);
+	// const [baseStep3, setBaseStep3] = useState<number | undefined>(undefined);
+	// const [step1, setStep1] = useState<number | undefined>(undefined);
+	// const [step2, setStep2] = useState<number | undefined>(undefined);
+	// const [step3, setStep3] = useState<number | undefined>(undefined);
+
+	const [price, setPrice] = useState<number | undefined>();
+	const [consumerPrice, setConsumerPrice] = useState<number | undefined>();
+	const [basePrice, setBasePrice] = useState<number | undefined>();
+
+	const [step1, setStep1] = useState<number | undefined>();
+	const [baseStep1, setBaseStep1] = useState<number | undefined>();
+
+	const [step2, setStep2] = useState<number | undefined>();
+	const [baseStep2, setBaseStep2] = useState<number | undefined>();
+
+	const [step3, setStep3] = useState<number | undefined>();
+	const [baseStep3, setBaseStep3] = useState<number | undefined>();
+
+	const [step2Origin, setStep2Origin] = useState(false);
+	const [step3Origin, setStep3Origin] = useState(false);
+
 	const basePriceSafe = basePrice || 0;
-	const step2Safe = step2 || 0;
-	const step3Safe = step3 || 0;
 	const baseStep1Safe = baseStep1 || 0;
 	const baseStep2Safe = baseStep2 || 0;
-
-	const updateStep2Base = (value: string, step2origin: boolean) => {
-		if (value) {
-			const base = step2origin ? basePriceSafe : baseStep1Safe;
-			setBaseStep2(Math.round(base * (1 + Number(value) / 100)));
-			setStep2(Number(value));
-		} else {
-			setStep2(undefined);
-		}
-	};
-
-	const updateStep3Base = (value: string, step3origin: boolean) => {
-		if (value) {
-			const base = step3origin ? basePriceSafe : baseStep2Safe;
-			setBaseStep3(Math.round(base * (1 + Number(value) / 100)));
-			setStep3(Number(value));
-		} else {
-			setStep3(undefined);
-		}
-	};
+	const baseStep3Safe = baseStep3 || 0;
 
 	const updateProduct = async (
 		values: Product,
@@ -202,31 +198,202 @@ export default function UpdateProductDialog({
 			.finally(() => setLoading(false));
 	};
 
+	// const handleStep1Percent = (value: string) => {
+	// 	if (!value || basePrice === undefined) {
+	// 		setStep1(undefined);
+	// 		setBaseStep1(undefined);
+	// 		return;
+	// 	}
+
+	// 	const percent = Number(value);
+	// 	const newPrice = Math.round(basePrice * (1 + percent / 100));
+
+	// 	setStep1(percent);
+	// 	setBaseStep1(newPrice);
+	// };
+
+	// const handleStep1Price = (value: string) => {
+	// 	if (!value || basePrice === undefined) {
+	// 		setBaseStep1(undefined);
+	// 		return;
+	// 	}
+
+	// 	const price = Number(value);
+	// 	setBaseStep1(price);
+
+	// 	// const percent = calculatePercent(basePrice, price);
+	// 	// setStep1(percent);
+	// };
+
+	// const handleStep2Percent = (value: string) => {
+	// 	if (!value || basePrice === undefined) {
+	// 		setStep2(undefined);
+	// 		setBaseStep2(undefined);
+	// 		return;
+	// 	}
+
+	// 	const base = step2Origin ? basePrice : (baseStep1 ?? 0);
+
+	// 	const percent = Number(value);
+	// 	const newPrice = Math.round(base * (1 + percent / 100));
+
+	// 	setStep2(percent);
+	// 	setBaseStep2(newPrice);
+	// };
+
+	// const handleStep2Price = (value: string) => {
+	// 	if (!value || basePrice === undefined) {
+	// 		setBaseStep2(undefined);
+	// 		return;
+	// 	}
+
+	// 	const base = step2Origin ? basePrice : (baseStep1 ?? 0);
+
+	// 	const price = Number(value);
+	// 	setBaseStep2(price);
+
+	// 	// const percent = calculatePercent(base, price);
+	// 	// setStep2(percent);
+	// };
+
+	// const handleStep3Percent = (value: string) => {
+	// 	if (!value || basePrice === undefined) {
+	// 		setStep3(undefined);
+	// 		setBaseStep3(undefined);
+	// 		return;
+	// 	}
+	// 	const base = step3Origin ? basePrice : (baseStep2 ?? 0);
+
+	// 	const percent = Number(value);
+	// 	const newPrice = Math.round(base * (1 + percent / 100));
+
+	// 	setStep3(percent);
+	// 	setBaseStep3(newPrice);
+	// };
+
+	// const handleStep3Price = (value: string) => {
+	// 	if (!value || basePrice === undefined) {
+	// 		setBaseStep3(undefined);
+	// 		return;
+	// 	}
+
+	// 	const base = step3Origin ? basePrice : (baseStep2 ?? 0);
+
+	// 	const price = Number(value);
+	// 	setBaseStep3(price);
+
+	// 	// const percent = calculatePercent(base, price);
+	// 	// setStep3(percent);
+	// };
+
+	// useEffect(() => {
+	// 	if (basePrice === undefined) return;
+
+	// 	// Step 1
+	// 	if (step1 !== undefined) {
+	// 		const calculated = Math.round(basePrice * (1 + step1 / 100));
+	// 		setBaseStep1(calculated);
+	// 	}
+
+	// 	// Step 2
+	// 	if (step2 !== undefined) {
+	// 		const baseForStep2 = step2Origin ? basePrice : (baseStep1 ?? 0);
+
+	// 		setBaseStep2(Math.round(baseForStep2 * (1 + step2 / 100)));
+	// 	}
+
+	// 	// Step 3
+	// 	if (step3 !== undefined) {
+	// 		const baseForStep3 = step3Origin ? basePrice : (baseStep2 ?? 0);
+
+	// 		setBaseStep3(Math.round(baseForStep3 * (1 + step3 / 100)));
+	// 	}
+	// }, [basePrice, step1, step2, step3, step2Origin, step3Origin]);
+
+	// useEffect(() => {
+	// 	const base1 = basePriceSafe;
+	// 	const calculatedBaseStep1 =
+	// 		step1 !== undefined
+	// 			? Math.round(base1 * (1 + step1 / 100))
+	// 			: undefined;
+
+	// 	setBaseStep1(calculatedBaseStep1);
+
+	// 	const base2 = step2Origin ? basePriceSafe : (calculatedBaseStep1 ?? 0);
+	// 	const calculatedBaseStep2 =
+	// 		step2 !== undefined
+	// 			? Math.round(base2 * (1 + step2 / 100))
+	// 			: undefined;
+
+	// 	setBaseStep2(calculatedBaseStep2);
+
+	// 	const base3 = step3Origin ? basePriceSafe : (calculatedBaseStep2 ?? 0);
+	// 	const calculatedBaseStep3 =
+	// 		step3 !== undefined
+	// 			? Math.round(base3 * (1 + step3 / 100))
+	// 			: undefined;
+
+	// 	setBaseStep3(calculatedBaseStep3);
+	// }, [basePrice, step1, step2, step3, step2Origin, step3Origin]);
+
+	// useEffect(() => {
+	// 	if (!basePrice) return;
+	// 	if (step1 !== undefined) handleStep1Percent(step1.toString());
+	// 	if (step2 !== undefined) handleStep2Percent(step2.toString());
+	// 	if (step3 !== undefined) handleStep3Percent(step3.toString());
+	// }, [basePrice]);
+
+	// useEffect(() => {
+	// 	if (basePrice === undefined) return;
+	// 	if (step1 === undefined) return;
+	// 	const percent1 = Number(step1);
+	// 	const newPrice1 = Math.round(basePrice * (1 + percent1 / 100));
+	// 	handleStep1Price(newPrice1?.toString());
+	// 	if (step2 === undefined) return;
+	// 	const basePrice2 = step2Origin ? basePrice : newPrice1;
+	// 	const percent2 = Number(step2);
+	// 	const newPrice2 = Math.round(basePrice2 * (1 + percent2 / 100));
+	// 	handleStep2Price(newPrice2?.toString());
+	// 	if (step3 === undefined) return;
+	// 	const basePrice3 = step3Origin ? basePrice : newPrice2;
+	// 	const percent3 = Number(step3);
+	// 	const newPrice3 = Math.round(basePrice3 * (1 + percent3 / 100));
+	// 	handleStep2Price(newPrice3?.toString());
+	// }, [basePrice]);
+
+	// Base rice
 	useEffect(() => {
-		const base1 = basePriceSafe;
-		const calculatedBaseStep1 =
-			step1 !== undefined
-				? Math.round(base1 * (1 + step1 / 100))
-				: undefined;
+		if (price === undefined) return;
+		setBasePrice(price * 45000);
+	}, [price]);
 
-		setBaseStep1(calculatedBaseStep1);
+	// Step 1 Price
+	useEffect(() => {
+		if (basePrice === undefined || step1 === undefined) return;
+		setBaseStep1(basePrice * (1 + Number(step1) / 100));
+	}, [basePrice, step1]);
 
-		const base2 = step2Origin ? basePriceSafe : (calculatedBaseStep1 ?? 0);
-		const calculatedBaseStep2 =
-			step2 !== undefined
-				? Math.round(base2 * (1 + step2 / 100))
-				: undefined;
+	// Step 2 Price
+	useEffect(() => {
+		if (step2Origin) {
+			if (basePrice === undefined || step2 === undefined) return;
+			setBaseStep2(basePrice * (1 + Number(step2) / 100));
+		} else {
+			if (baseStep1 === undefined || step2 === undefined) return;
+			setBaseStep2(baseStep1 * (1 + Number(step2) / 100));
+		}
+	}, [step2Origin, basePrice, baseStep1, step2]);
 
-		setBaseStep2(calculatedBaseStep2);
-
-		const base3 = step3Origin ? basePriceSafe : (calculatedBaseStep2 ?? 0);
-		const calculatedBaseStep3 =
-			step3 !== undefined
-				? Math.round(base3 * (1 + step3 / 100))
-				: undefined;
-
-		setBaseStep3(calculatedBaseStep3);
-	}, [basePrice, step1, step2, step3, step2Origin, step3Origin]);
+	// Step 3 Price
+	useEffect(() => {
+		if (step3Origin) {
+			if (basePrice === undefined || step3 === undefined) return;
+			setBaseStep3(basePrice * (1 + Number(step3) / 100));
+		} else {
+			if (baseStep2 === undefined || step2 === undefined) return;
+			setBaseStep3(baseStep2 * (1 + Number(step3) / 100));
+		}
+	}, [step3Origin, basePrice, baseStep2, step3]);
 
 	return (
 		<Dialog
@@ -292,18 +459,18 @@ export default function UpdateProductDialog({
 								/>
 							</div>
 							<div className="grid grid-cols-4 gap-4">
-								<Checkbox
+								{/* <Checkbox
 									name="foreign"
 									label="محصول خارجی است"
-								/>
+								/> */}
 								<Input
-									name="price"
-									type="number"
-									icon={DollarSign}
-									label="قیمت"
+									value={price}
 									onValueChange={(value: string) => {
-										setBasePrice(Number(value) * 45000);
+										setPrice(Number(value));
 									}}
+									type="number"
+									label="قیمت"
+									icon={DollarSign}
 								/>
 								<Select
 									name="currencyCode"
@@ -318,45 +485,45 @@ export default function UpdateProductDialog({
 										{ value: "TRY", label: "لیر (TRY)" },
 									]}
 								/>
-								<InputFree
-									value={basePrice}
-									type="number"
+								<Input
+									value={Math.round(basePriceSafe) || ""}
 									onValueChange={(value: string) => {
 										setBasePrice(Number(value));
 									}}
+									type="number"
 									icon={DollarSign}
 									label="معادل ریالی"
+								/>
+								<Input
+									value={consumerPrice}
+									onValueChange={(value: string) => {
+										setConsumerPrice(Number(value));
+									}}
+									type="number"
+									label="قیمت مصرف کننده"
+									icon={DollarSign}
 								/>
 							</div>
 
 							{/* Step 1 */}
 							<div className="grid grid-cols-3 gap-4">
-								<InputFree
-									type="number"
-									icon={Percent}
+								<Input
 									value={step1}
 									onValueChange={(value: string) => {
-										if (value) {
-											setBaseStep1(
-												Math.round(
-													basePriceSafe *
-														(1 +
-															Number(value) /
-																100),
-												),
-											);
-											setStep1(Number(value));
-										} else {
-											setStep1(undefined);
-										}
+										setStep1(Number(value));
+										// handleStep1Percent(value);
 									}}
+									type="number"
+									icon={Percent}
 									label="درصد پله 1"
 								/>
-								<InputFree
+								<Input
 									type="number"
-									value={baseStep1}
+									value={Math.round(baseStep1Safe) || ""}
 									onValueChange={(value: string) => {
 										setBaseStep1(Number(value));
+										// handleStep1Price(value);
+										// setBaseStep1(Number(value));
 									}}
 									icon={PercentCircle}
 									label="قیمت پله 1"
@@ -368,29 +535,33 @@ export default function UpdateProductDialog({
 								<Input
 									value={step2}
 									onValueChange={(value: string) => {
-										updateStep2Base(value, step2Origin);
+										setStep2(Number(value));
+										// handleStep2Percent(value);
+										// updateStep2Base(value, step2Origin);
 									}}
 									type="number"
 									icon={Percent}
 									label="درصد پله 2"
 								/>
 								<Input
+									value={Math.round(baseStep2Safe) || ""}
+									onValueChange={(value: string) => {
+										setBaseStep2(Number(value));
+										// handleStep2Price(value);
+										// setBaseStep2(Number(value));
+									}}
 									type="number"
 									icon={PercentCircle}
 									label="قیمت پله 2"
-									value={baseStep2}
-									onValueChange={(value: string) => {
-										setBaseStep2(Number(value));
-									}}
 								/>
 								<Checkbox
 									checked={step2Origin}
 									onValueChange={(value: boolean) => {
 										setStep2Origin(value);
-										updateStep2Base(
-											step2Safe.toString(),
-											value,
-										);
+										// updateStep2Base(
+										// 	step2Safe.toString(),
+										// 	value,
+										// );
 									}}
 									label="نسبت به قیمت اصلی"
 								/>
@@ -401,7 +572,9 @@ export default function UpdateProductDialog({
 								<Input
 									value={step3}
 									onValueChange={(value: string) => {
-										updateStep3Base(value, step3Origin);
+										setStep3(Number(value));
+										// handleStep3Percent(value);
+										// updateStep3Base(value, step3Origin);
 									}}
 									type="number"
 									icon={Percent}
@@ -410,9 +583,11 @@ export default function UpdateProductDialog({
 								<Input
 									type="number"
 									icon={PercentCircle}
-									value={baseStep3}
+									value={Math.round(baseStep3Safe) || ""}
 									onValueChange={(value: string) => {
 										setBaseStep3(Number(value));
+										// handleStep3Price(value);
+										// setBaseStep3(Number(value));
 									}}
 									label="قیمت پله 3"
 								/>
@@ -420,10 +595,10 @@ export default function UpdateProductDialog({
 									checked={step3Origin}
 									onValueChange={(value: boolean) => {
 										setStep3Origin(value);
-										updateStep3Base(
-											step3Safe.toString(),
-											value,
-										);
+										// updateStep3Base(
+										// 	step3Safe.toString(),
+										// 	value,
+										// );
 									}}
 									label="نسبت به قیمت اصلی"
 								/>

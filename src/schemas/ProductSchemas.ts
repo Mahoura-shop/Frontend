@@ -4,7 +4,6 @@ export const createProductInitialValues = {
 	id: 0,
 	name: "",
 	slug: "",
-	price: null,
 	description: "",
 	isActive: true,
 	isNew: false,
@@ -14,7 +13,7 @@ export const createProductInitialValues = {
 	brandID: "",
 	quantity: 0,
 	quantityType: "عدد",
-	foreign: false,
+	// foreign: false,
 	currencyCode: "IRR",
 	productPic: undefined,
 };
@@ -30,12 +29,9 @@ export const createProductSchema = Yup.object({
 			/^[a-zA-Z0-9-|\s]+$/,
 			"نام انگلیسی فقط باید شامل حروف انگلیسی، اعداد و خط تیره باشد",
 		),
-	price: Yup.number()
-		.required("قیمت الزامی است")
-		.min(0, "قیمت نمی‌تواند منفی باشد"),
 	description: Yup.string(),
 	isActive: Yup.boolean(),
-	foreign: Yup.boolean(),
+	// foreign: Yup.boolean(),
 	isNew: Yup.boolean(),
 	priority: Yup.number().min(0, "اولویت نمی‌تواند منفی باشد"),
 	minOrder: Yup.number().min(1, "حداقل سفارش باید حداقل ۱ باشد"),
