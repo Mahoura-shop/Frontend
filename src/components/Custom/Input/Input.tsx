@@ -19,9 +19,9 @@ interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
 	errorClassName?: string;
 	inputClassName?: string;
 	containerClassName?: string;
-	variant?: "default" | "premium" | "success"; // Add variant prop
+	variant?: "default" | "premium" | "success";
 	label: string;
-	loading?: boolean; // Add loading prop
+	loading?: boolean;
 	value?: string | number;
 	onValueChange?: (value: string) => void;
 }
@@ -49,9 +49,17 @@ export default function Input({
 	label,
 	...props
 }: Props) {
-	const [field, meta] = useField(name as string);
+	// const [field, meta] = useField(name as string);
+	// const usingFormik = name ? true : false;
+	const usingFormik = !!name;
+	let field: any = {};
+	let meta: any = {};
+	if (usingFormik) {
+		[field, meta] = useField({ name });
+	}
+
 	const hasError = meta.touched && meta.error;
-	const usingFormik = name ? true : false;
+
 	const actualValue = usingFormik ? (field.value ?? "") : (value ?? "");
 
 	const direction = isRTL(actualValue) ? "rtl" : "ltr";
@@ -81,7 +89,7 @@ export default function Input({
 					)}
 					onChange={(e) => {
 						const newValue = e.target.value;
-						if (usingFormik) {
+						if (usingFormik && "onChange" in field) {
 							field.onChange(e);
 						}
 						onValueChange?.(newValue);

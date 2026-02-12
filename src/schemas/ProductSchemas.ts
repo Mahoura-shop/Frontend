@@ -5,11 +5,20 @@ export const createProductInitialValues = {
 	name: "",
 	slug: "",
 	description: "",
+	price: undefined,
 	isActive: true,
-	isNew: false,
+	isNew: true,
 	priority: 0,
 	minOrder: 1,
 	categoryID: "",
+	irrPrice: undefined,
+	consumerPrice: undefined,
+	step1Percent: undefined,
+	step2Percent: undefined,
+	step3Percent: undefined,
+	step1Price: undefined,
+	step2Price: undefined,
+	step3Price: undefined,
 	brandID: "",
 	quantity: 0,
 	quantityType: "عدد",
@@ -31,6 +40,23 @@ export const createProductSchema = Yup.object({
 		),
 	description: Yup.string(),
 	isActive: Yup.boolean(),
+	irrPrice: Yup.number().optional().min(0, "قیمت نمی‌تواند منفی باشد"),
+	consumerPrice: Yup.number().optional().min(0, "قیمت نمی‌تواند منفی باشد"),
+	step1Percent: Yup.number()
+		.optional()
+		.min(-100, "درصد نمیتواند کمتر از 100- باشد")
+		.max(100, "درصد نمیتواند بیشتر از 100 باشد"),
+	step2Percent: Yup.number()
+		.optional()
+		.min(-100, "درصد نمیتواند کمتر از 100- باشد")
+		.max(100, "درصد نمیتواند بیشتر از 100 باشد"),
+	step3Percent: Yup.number()
+		.optional()
+		.min(-100, "درصد نمیتواند کمتر از 100- باشد")
+		.max(100, "درصد نمیتواند بیشتر از 100 باشد"),
+	step1Price: Yup.number().optional().min(0, "قیمت نمی‌تواند منفی باشد"),
+	step2Price: Yup.number().optional().min(0, "قیمت نمی‌تواند منفی باشد"),
+	step3Price: Yup.number().optional().min(0, "قیمت نمی‌تواند منفی باشد"),
 	// foreign: Yup.boolean(),
 	isNew: Yup.boolean(),
 	priority: Yup.number().min(0, "اولویت نمی‌تواند منفی باشد"),

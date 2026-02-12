@@ -26,12 +26,18 @@ export default function Checkbox({
 	shape,
 	...props
 }: CheckboxProps) {
-	const [field, meta, helpers] = useField(name as string);
-	const fallbackId = useId();
-	const usingFormik = name ? true : false;
-	const actualChecked = usingFormik ? (field.checked) : checked;
-	const inputId = id ?? `cc-${fallbackId}`;
+	// const [field] = useField(name as string);
+	// const usingFormik = name ? true : false;
+	const usingFormik = !!name;
+	let field: any = {};
+	if (usingFormik) {
+		[field] = useField({ name, type: "checkbox" });
+	}
 
+	const actualChecked = usingFormik ? field.checked : checked;
+
+	const fallbackId = useId();
+	const inputId = id ?? `cc-${fallbackId}`;
 	return (
 		<div className="flex gap-2 items-center">
 			<StyledWrapper>

@@ -72,11 +72,35 @@ export default function ProductsAdminPage() {
 	}, []);
 	const fetchProducts = useCallback(() => {
 		getData({ endPoint: `/v1/product` }).then((data) => {
-			const productsList = data?.data.map((product: Product) => ({
+			const productsList = data?.data?.map((product: Product) => ({
 				...product,
 				categoryID: product?.categoryID?.toString(),
 				brandID: product?.brandID?.toString(),
-			}));
+				irrPrice:
+					product?.irrPrice === 0 ? undefined : product?.irrPrice,
+				consumerPrice:
+					product?.consumerPrice === 0
+						? undefined
+						: product?.consumerPrice,
+				step1Percent:
+					product?.step1Percent === 0
+						? undefined
+						: product?.step1Percent,
+				step2Percent:
+					product?.step2Percent === 0
+						? undefined
+						: product?.step2Percent,
+				step3Percent:
+					product?.step3Percent === 0
+						? undefined
+						: product?.step3Percent,
+				step1Price:
+					product?.step1Price === 0 ? undefined : product?.step1Price,
+				step2Price:
+					product?.step2Price === 0 ? undefined : product?.step2Price,
+				step3Price:
+					product?.step3Price === 0 ? undefined : product?.step3Price,
+			})) ?? [];
 			setProducts(productsList);
 			console.log("products", productsList);
 		});
@@ -400,6 +424,18 @@ export default function ProductsAdminPage() {
 							</TableRow>
 						</TableHeader>
 						<TableBody className="no-scrollbar">
+							{paginatedProducts.length === 0 && (
+								<TableRow>
+									<TableCell
+										colSpan={100}
+										className="text-center"
+									>
+										<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
+											هیچ محصولی یافت نشد.
+										</div>
+									</TableCell>
+								</TableRow>
+							)}
 							{paginatedProducts.map((product, i) => (
 								<motion.tr
 									key={product.id}
@@ -418,7 +454,7 @@ export default function ProductsAdminPage() {
 										{product.category?.name || "-"}
 									</TableCell>
 									<TableCell className="font-bold text-primary-rose">
-										{formatPrice(product.price)}
+										{formatPrice(product.price as number)}
 									</TableCell>
 									<TableCell>
 										<span

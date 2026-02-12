@@ -54,7 +54,7 @@ export default function CategoriesPage() {
 
 	const fetchCategories = useCallback(() => {
 		getData({ endPoint: `/v1/category` }).then((data) => {
-			setCategories(data.data);
+			setCategories(data.data ?? []);
 		});
 	}, []);
 
@@ -131,79 +131,105 @@ export default function CategoriesPage() {
 
 			{/* Grid View */}
 			{viewMode === "grid" && (
-				<div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-					{paginatedCategories.map((category, i) => (
-						<motion.div
-							key={category.id}
-							initial={{ opacity: 0, scale: 0.9 }}
-							animate={{ opacity: 1, scale: 1 }}
-							transition={{ delay: i * 0.05 }}
-						>
-							<Card className="overflow-hidden group hover:shadow-xl transition-all">
-								<div className="relative h-48 bg-muted flex items-center justify-center overflow-hidden">
-									{category.categoryPic ? (
-										<img
-											src={category.categoryPic}
-											alt={category.name}
-											className="w-full h-full object-cover"
-										/>
-									) : (
-										<FolderTree className="w-16 h-16 text-muted-foreground" />
-									)}
+				<>
+					{paginatedCategories.length === 0 && (
+						<Card>
+							<CardContent className="p-0">
+								<Table>
+									<TableBody>
+										<TableRow>
+											<TableCell
+												colSpan={100}
+												className="text-center"
+											>
+												<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
+													هیچ دسته‌بندی یافت نشد.
+												</div>
+											</TableCell>
+										</TableRow>
+									</TableBody>
+								</Table>
+							</CardContent>
+						</Card>
+					)}
+					<div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+						{paginatedCategories.map((category, i) => (
+							<motion.div
+								key={category.id}
+								initial={{ opacity: 0, scale: 0.9 }}
+								animate={{ opacity: 1, scale: 1 }}
+								transition={{ delay: i * 0.05 }}
+							>
+								<Card className="overflow-hidden group hover:shadow-xl transition-all">
+									<div className="relative h-48 bg-muted flex items-center justify-center overflow-hidden">
+										{category.categoryPic ? (
+											<img
+												src={category.categoryPic}
+												alt={category.name}
+												className="w-full h-full object-cover"
+											/>
+										) : (
+											<FolderTree className="w-16 h-16 text-muted-foreground" />
+										)}
 
-									{/* Quick Actions */}
-									<div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-										<CategoryInfoDialog
-											category={category}
-										/>
-										<UpdateCategoryDialog
-											fetchCategories={fetchCategories}
-											mode="update"
-											category={category}
-										/>
-										<DeleteCategoryDialog
-											id={category?.id}
-											fetchCategories={fetchCategories}
-										/>
+										{/* Quick Actions */}
+										<div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+											<CategoryInfoDialog
+												category={category}
+											/>
+											<UpdateCategoryDialog
+												fetchCategories={
+													fetchCategories
+												}
+												mode="update"
+												category={category}
+											/>
+											<DeleteCategoryDialog
+												id={category?.id}
+												fetchCategories={
+													fetchCategories
+												}
+											/>
+										</div>
+
+										{/* Status Badge */}
+										<div className="absolute top-2 right-2">
+											<Badge
+												variant={
+													category.isActive
+														? "available"
+														: "outOfStock"
+												}
+											>
+												{category.isActive
+													? "فعال"
+													: "غیرفعال"}
+											</Badge>
+										</div>
 									</div>
 
-									{/* Status Badge */}
-									<div className="absolute top-2 right-2">
-										<Badge
-											variant={
-												category.isActive
-													? "available"
-													: "outOfStock"
-											}
-										>
-											{category.isActive
-												? "فعال"
-												: "غیرفعال"}
-										</Badge>
-									</div>
-								</div>
-
-								<CardContent className="p-4">
-									<h3 className="font-bold mb-2 text-lg">
-										{category.name}
-									</h3>
-									<div className="flex items-center justify-between text-sm">
-										<span className="text-muted-foreground">
-											{category.count} محصول
-										</span>
-										<Button
-											variant="ghost"
-											size="sm"
-											className="h-8"
-										>
-											مشاهده محصولات
-										</Button>
-									</div>
-								</CardContent>
-							</Card>
-						</motion.div>
-					))}
-				</div>
+									<CardContent className="p-4">
+										<h3 className="font-bold mb-2 text-lg">
+											{category.name}
+										</h3>
+										<div className="flex items-center justify-between text-sm">
+											<span className="text-muted-foreground">
+												{category.count} محصول
+											</span>
+											<Button
+												variant="ghost"
+												size="sm"
+												className="h-8"
+											>
+												مشاهده محصولات
+											</Button>
+										</div>
+									</CardContent>
+								</Card>
+							</motion.div>
+						))}
+					</div>
+				</>
 			)}
 
 			{/* List View */}
@@ -222,6 +248,18 @@ export default function CategoriesPage() {
 								</TableRow>
 							</TableHeader>
 							<TableBody>
+								{paginatedCategories.length === 0 && (
+									<TableRow>
+										<TableCell
+											colSpan={100}
+											className="text-center"
+										>
+											<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
+												هیچ دسته‌بندی یافت نشد.
+											</div>
+										</TableCell>
+									</TableRow>
+								)}
 								{paginatedCategories.map((category, i) => (
 									<motion.tr
 										key={category.id}
