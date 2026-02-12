@@ -453,6 +453,13 @@ export default function ProductsAdminPage() {
 											<UpdateProductDialog
 												fetchProducts={fetchProducts}
 												product={product}
+												mode="copy"
+												categories={categories}
+												brands={brands}
+											/>
+											<UpdateProductDialog
+												fetchProducts={fetchProducts}
+												product={product}
 												mode="update"
 												categories={categories}
 												brands={brands}

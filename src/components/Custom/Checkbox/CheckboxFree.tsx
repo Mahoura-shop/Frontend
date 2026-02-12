@@ -5,31 +5,25 @@ import { useField } from "formik";
 interface CheckboxProps {
 	name?: string;
 	size?: number; // px
-	checked?: boolean;
-	onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-	onValueChange?: (checked: boolean) => void;
+	checked: boolean;
+	onValueChange: (value: boolean) => void;
 	id?: string;
 	label?: string;
 	shape?: ReactElement;
 	disabled?: boolean;
 }
 
-export default function Checkbox({
-	name,
+export default function CheckboxFree({
 	size = 20,
 	checked,
-	onChange,
+	onValueChange,
 	id,
 	label,
 	disabled,
-	onValueChange,
 	shape,
 	...props
 }: CheckboxProps) {
-	const [field, meta, helpers] = useField(name as string);
 	const fallbackId = useId();
-	const usingFormik = name ? true : false;
-	const actualChecked = usingFormik ? (field.checked) : checked;
 	const inputId = id ?? `cc-${fallbackId}`;
 
 	return (
@@ -38,15 +32,10 @@ export default function Checkbox({
 				<input
 					id={inputId}
 					type="checkbox"
-					{...(usingFormik ? field : {})}
 					{...props}
-					checked={actualChecked}
+					checked={checked}
 					onChange={(e) => {
-						if (usingFormik) {
-							field.onChange(e);
-						} else {
-							onValueChange?.(e?.target?.checked);
-						}
+						onValueChange(e?.target?.checked);
 					}}
 					disabled={disabled}
 				/>

@@ -63,7 +63,7 @@ export default function BrandsPage() {
 
 	useEffect(() => {
 		fetchBrands();
-	}, [fetchBrands]);	
+	}, [fetchBrands]);
 
 	return (
 		<main className="p-6">
@@ -121,10 +121,10 @@ export default function BrandsPage() {
 					>
 						<List className="w-5 h-5" />
 					</Button>
-					<Button className="gap-2">
-						<Plus className="w-4 h-4" />
-						افزودن برند
-					</Button>
+					<UpdateBrandDialog
+						fetchBrands={fetchBrands}
+						mode="create"
+					/>
 				</div>
 			</div>
 

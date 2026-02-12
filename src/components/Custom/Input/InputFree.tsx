@@ -1,16 +1,9 @@
 "use client";
 import styles from "./Input.module.css";
-import { AlertCircle, LucideIcon } from "lucide-react";
-import { useField } from "formik";
+import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
-	name?: string;
 	children?: React.ReactNode;
 	icon?: LucideIcon;
 	onIconClick?: () => void;
@@ -32,8 +25,7 @@ const isRTL = (text: string | undefined): boolean => {
 	return rtlChars.test(text);
 };
 
-export default function Input({
-	name,
+export default function InputFree({
 	children,
 	icon: Icon,
 	onIconClick,
@@ -41,19 +33,16 @@ export default function Input({
 	iconClassName,
 	errorClassName,
 	inputClassName,
-	value,
 	containerClassName,
 	variant = "default",
 	loading = false,
-	onValueChange,
 	label,
+	value,
+	onValueChange,
 	...props
 }: Props) {
-	const [field, meta] = useField(name as string);
-	const hasError = meta.touched && meta.error;
-	const usingFormik = name ? true : false;
-	const actualValue = usingFormik ? (field.value ?? "") : String(value);
-	const direction = isRTL(actualValue) ? "rtl" : "ltr";
+	const direction =
+		typeof value === "string" ? (isRTL(value) ? "rtl" : "ltr") : "ltr";
 
 	return (
 		<div
@@ -62,28 +51,25 @@ export default function Input({
 			<div className={styles.inputWrapper}>
 				<input
 					dir={direction}
-					{...(usingFormik ? field : {})}
 					{...props}
 					autoFocus={autoFocus}
-					value={actualValue}
+					value={value}
 					placeholder=" "
 					disabled={loading || props.disabled} // Disable when loading
 					className={cn(
 						"font-vazirmatn",
 						styles.Input,
 						props.type === "number" && styles.numberInput,
-						usingFormik && hasError && styles.error,
 						variant === "premium" && styles.premium,
 						variant === "success" && styles.success,
 						loading && styles.loading,
 						inputClassName,
 					)}
 					onChange={(e) => {
-						const newValue = e.target.value;
-						if (usingFormik) {
-							field.onChange(e);
+						if (onValueChange) {
+							const newValue = e.target.value;
+							onValueChange(newValue);
 						}
-						onValueChange?.(newValue);
 					}}
 				/>
 
@@ -101,55 +87,11 @@ export default function Input({
 				)}
 
 				{/* Icon */}
-
-				{usingFormik ? (
-					Icon ? (
-						hasError ? (
-							<Tooltip>
-								<TooltipTrigger asChild>
-									<Icon
-										onClick={onIconClick}
-										className={cn(
-											styles.icon,
-											iconClassName,
-										)}
-									/>
-								</TooltipTrigger>
-								<TooltipContent className="rtl">
-									<p>{meta.error}</p>
-								</TooltipContent>
-							</Tooltip>
-						) : (
-							<Icon
-								onClick={onIconClick}
-								className={cn(styles.icon, iconClassName)}
-							/>
-						)
-					) : (
-						hasError && (
-							<Tooltip>
-								<TooltipTrigger asChild>
-									<AlertCircle
-										onClick={onIconClick}
-										className={cn(
-											styles.icon,
-											iconClassName,
-										)}
-									/>
-								</TooltipTrigger>
-								<TooltipContent className="rtl">
-									<p>{meta.error}</p>
-								</TooltipContent>
-							</Tooltip>
-						)
-					)
-				) : (
-					Icon && (
-						<Icon
-							onClick={onIconClick}
-							className={cn(styles.icon, iconClassName)}
-						/>
-					)
+				{Icon && (
+					<Icon
+						onClick={onIconClick}
+						className={cn(styles.icon, iconClassName)}
+					/>
 				)}
 
 				{/* Error Message */}
