@@ -19,7 +19,7 @@ import {
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useProductStore } from "@/store/useProductStore";
 import Navbar from "@/components/Navbar";
@@ -35,29 +35,65 @@ import {
 } from "@/components/ui/select";
 import { useEffect } from "react";
 import { useCategoryStore } from "@/store/useCategoryStore";
+import { useBrandStore } from "@/store/useBrandStore";
+import Input from "@/components/Custom/Input/Input";
+import { Slider } from "@/components/ui/slider";
 
 export default function ProductsPage() {
 	const { products, fetchProducts } = useProductStore();
 	const { categories, fetchCategories } = useCategoryStore();
+	const { brands, fetchBrands } = useBrandStore();
 	// const { products, getProducts } = useProductStore();
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedCategory, setSelectedCategory] = useState<number>(0);
-	const [priceRange, setPriceRange] = useState<
-		"all" | "low" | "mid" | "high"
-	>("all");
+	const [selectedBrand, setSelectedBrand] = useState<number>(0);
+	const [priceRange, setPriceRange] = useState<number[]>([1000, 100000]);
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 	const [showFilters, setShowFilters] = useState(false);
 	const [sortBy, setSortBy] = useState<string>("newest");
 
+	const filteredProducts = products
+		.filter(
+			(product: Product) =>
+				Number(product.categoryID) === selectedCategory ||
+				selectedCategory === 0,
+		)
+		.filter(
+			(product: Product) =>
+				Number(product.brandID) === selectedBrand ||
+				selectedBrand === 0,
+		)
+		.filter(
+			(product: Product) =>
+				product.name.includes(searchQuery) || searchQuery === "",
+		)
+		.filter(
+			(product: Product) =>
+				Number(product.irrPrice) >= priceRange[0] &&
+				Number(product.irrPrice) <= priceRange[1],
+		);
+
+	const handlePriceChange = (values: number[]) => {
+		// Values are now automatically sorted [min, max]
+		setPriceRange(values);
+	};
+
+	const prices = products.map(
+		(product: Product) =>
+			Math.round(Number(product.irrPrice) / 1000) * 1000,
+	);
+
 	useEffect(() => {
 		fetchCategories();
-		fetchProducts();
+		fetchBrands();
+		fetchProducts().then((data) => {
+			const prices = data.map(
+				(product: Product) =>
+					Math.round(Number(product.irrPrice) / 1000) * 1000,
+			);
+			setPriceRange([Math.min(...prices), Math.max(...prices)]);
+		});
 	}, []);
-	const filteredProducts = products.filter(
-		(product: Product) =>
-			Number(product.categoryID) === selectedCategory ||
-			selectedCategory === 0,
-	);
 
 	return (
 		<div className="min-h-screen bg-background">
@@ -89,8 +125,8 @@ export default function ProductsPage() {
 							className={`lg:w-80 ${showFilters ? "block" : "hidden lg:block"}`}
 						>
 							<Card className="sticky top-24">
-								<CardContent className="p-6">
-									<div className="flex items-center justify-between mb-6">
+								<CardContent className="flex flex-col gap-6 p-6">
+									<div className="flex items-center justify-between">
 										<h3 className="text-xl font-bold flex items-center gap-2">
 											<Filter className="w-5 h-5" />
 											فیلترها
@@ -128,12 +164,18 @@ export default function ProductsPage() {
 									</div> */}
 
 									{/* Categories */}
-									<div className="mb-6">
+									<div className="">
 										<label className="text-sm font-medium mb-3 block">
 											دسته‌بندی
 										</label>
 										<div className="space-y-2">
-											{categories.map((cat) => (
+											{[
+												{
+													id: 0,
+													name: "تمام دسته‌بندی‌ها",
+												},
+												...categories,
+											].map((cat) => (
 												<button
 													key={cat.id}
 													onClick={() =>
@@ -148,84 +190,103 @@ export default function ProductsPage() {
 															: "hover:bg-muted"
 													}`}
 												>
-													{cat.id === 0
-														? "همه محصولات"
-														: cat.name}
+													{cat.name}
 												</button>
 											))}
 										</div>
 									</div>
 
 									{/* Brands */}
-									<div className="mb-6">
+									<div className="">
 										<label className="text-sm font-medium mb-3 block">
-											دسته‌بندی
+											برند
 										</label>
 										<div className="space-y-2">
-											{categories.map((cat) => (
+											{[
+												{ id: 0, name: "تمام برندها" },
+												...brands,
+											].map((brand) => (
 												<button
-													key={cat.id}
+													key={brand.id}
 													onClick={() =>
-														setSelectedCategory(
-															cat.id,
+														setSelectedBrand(
+															brand.id,
 														)
 													}
 													className={`w-full text-right px-4 py-2 rounded-lg transition-all ${
-														selectedCategory ===
-														cat.id
+														selectedBrand ===
+														brand.id
 															? "bg-gradient-to-r from-primary-rose to-secondary-plum text-white"
 															: "hover:bg-muted"
 													}`}
 												>
-													{cat.id === 0
-														? "همه محصولات"
-														: cat.name}
+													{brand.name}
 												</button>
 											))}
 										</div>
 									</div>
 
 									{/* Price Range */}
-									<div className="mb-6">
-										<label className="text-sm font-medium mb-3 block">
-											محدوده قیمت
-										</label>
-										<div className="space-y-2">
-											{[
-												{
-													value: "all",
-													label: "همه قیمت‌ها",
-												},
-												{
-													value: "low",
-													label: "زیر ۳۰۰,۰۰۰ تومان",
-												},
-												{
-													value: "mid",
-													label: "۳۰۰,۰۰۰ - ۴۰۰,۰۰۰ تومان",
-												},
-												{
-													value: "high",
-													label: "بالای ۴۰۰,۰۰۰ تومان",
-												},
-											].map((range) => (
-												<button
-													key={range.value}
-													onClick={() =>
-														setPriceRange(
-															range.value as any,
-														)
-													}
-													className={`w-full text-right px-4 py-2 rounded-lg transition-all text-sm ${
-														priceRange ===
-														range.value
-															? "bg-accent-gold text-white"
-															: "hover:bg-muted"
-													}`}
-												>
-													{range.label}
-												</button>
-											))}
+									{/* <Slider
+										value={priceRange}
+										onValueChange={setPriceRange}
+										max={100000}
+										step={1000}
+										min={0}
+										className="w-full"
+									/> */}
+									<div className="space-y-4">
+										<div className="flex items-center justify-between">
+											<span className="text-sm font-medium">
+												محدوده قیمت
+											</span>
+											{/* <span className="text-sm text-muted-foreground">
+												{new Intl.NumberFormat(
+													"fa-IR",
+												).format(priceRange[1])}{" "}
+												-{" "}
+												{new Intl.NumberFormat(
+													"fa-IR",
+												).format(priceRange[0])}{" "}
+												تومان
+											</span> */}
+										</div>
+
+										<Slider
+											value={priceRange}
+											onValueChange={handlePriceChange}
+											max={Math.max(...prices)}
+											min={Math.min(...prices)}
+											step={1000}
+										/>
+
+										<div className="grid grid-cols-2 gap-4">
+											<div className="p-3 rounded-lg bg-background border text-center">
+												<p className="text-xs text-muted-foreground mb-1">
+													حداکثر
+												</p>
+												<p className="font-bold gradient-text">
+													{new Intl.NumberFormat(
+														"fa-IR",
+													).format(priceRange[1])}
+												</p>
+												<p className="font-bold gradient-text">
+													تومان
+												</p>
+											</div>
+											<div className="p-3 rounded-lg bg-background border text-center">
+												<p className="text-xs text-muted-foreground mb-1">
+													حداقل
+												</p>
+												<p className="font-bold gradient-text">
+													{new Intl.NumberFormat(
+														"fa-IR",
+													).format(priceRange[0])}
+												</p>
+												<p className="font-bold gradient-text">
+													تومان
+												</p>
+											</div>
 										</div>
 									</div>
 
@@ -236,7 +297,10 @@ export default function ProductsPage() {
 										onClick={() => {
 											setSearchQuery("");
 											setSelectedCategory(0);
-											setPriceRange("all");
+											setPriceRange([
+												Math.min(...prices),
+												Math.max(...prices),
+											]);
 										}}
 									>
 										پاک کردن فیلترها
@@ -264,11 +328,16 @@ export default function ProductsPage() {
 									<div className="relative w-full">
 										<Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
 										<Input
-											placeholder="نام محصول یا برند..."
+											label="نام محصول یا برند..."
+											// placeholder="نام محصول یا برند..."
+											icon={Search}
 											value={searchQuery}
-											onChange={(e) =>
-												setSearchQuery(e.target.value)
-											}
+											// onChange={(e) =>
+											// 	setSearchQuery(e.target.value)
+											// }
+											onValueChange={(value) => {
+												setSearchQuery(value);
+											}}
 											className="pr-10"
 										/>
 									</div>

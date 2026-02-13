@@ -167,12 +167,6 @@ export default function UpdateProductDialog({
 			formData.append("irrPrice", values.irrPrice?.toString());
 		}
 		if (
-			!(mode === "update" && product?.irrPrice === values.irrPrice) &&
-			values.irrPrice
-		) {
-			formData.append("irrPrice", values.irrPrice?.toString());
-		}
-		if (
 			!(
 				mode === "update" &&
 				product?.consumerPrice === values.consumerPrice
