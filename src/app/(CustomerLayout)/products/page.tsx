@@ -34,11 +34,14 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { useEffect } from "react";
+import { useCategoryStore } from "@/store/useCategoryStore";
 
 export default function ProductsPage() {
-	const { products, getProducts } = useProductStore();
+	const { products, fetchProducts } = useProductStore();
+	const { categories, fetchCategories } = useCategoryStore();
+	// const { products, getProducts } = useProductStore();
 	const [searchQuery, setSearchQuery] = useState("");
-	const [selectedCategory, setSelectedCategory] = useState<string>("all");
+	const [selectedCategory, setSelectedCategory] = useState<number>(0);
 	const [priceRange, setPriceRange] = useState<
 		"all" | "low" | "mid" | "high"
 	>("all");
@@ -47,16 +50,14 @@ export default function ProductsPage() {
 	const [sortBy, setSortBy] = useState<string>("newest");
 
 	useEffect(() => {
-		console.log("products", products);
-		getProducts();
+		fetchCategories();
+		fetchProducts();
 	}, []);
-	const categories = [
-		"all",
-		"آرایش صورت",
-		"مراقبت از پوست",
-		"آرایش چشم",
-		"عطر و ادکلن",
-	];
+	const filteredProducts = products.filter(
+		(product: Product) =>
+			Number(product.categoryID) === selectedCategory ||
+			selectedCategory === 0,
+	);
 
 	return (
 		<div className="min-h-screen bg-background">
@@ -134,19 +135,51 @@ export default function ProductsPage() {
 										<div className="space-y-2">
 											{categories.map((cat) => (
 												<button
-													key={cat}
+													key={cat.id}
 													onClick={() =>
-														setSelectedCategory(cat)
+														setSelectedCategory(
+															cat.id,
+														)
 													}
 													className={`w-full text-right px-4 py-2 rounded-lg transition-all ${
-														selectedCategory === cat
+														selectedCategory ===
+														cat.id
 															? "bg-gradient-to-r from-primary-rose to-secondary-plum text-white"
 															: "hover:bg-muted"
 													}`}
 												>
-													{cat === "all"
+													{cat.id === 0
 														? "همه محصولات"
-														: cat}
+														: cat.name}
+												</button>
+											))}
+										</div>
+									</div>
+
+									{/* Brands */}
+									<div className="mb-6">
+										<label className="text-sm font-medium mb-3 block">
+											دسته‌بندی
+										</label>
+										<div className="space-y-2">
+											{categories.map((cat) => (
+												<button
+													key={cat.id}
+													onClick={() =>
+														setSelectedCategory(
+															cat.id,
+														)
+													}
+													className={`w-full text-right px-4 py-2 rounded-lg transition-all ${
+														selectedCategory ===
+														cat.id
+															? "bg-gradient-to-r from-primary-rose to-secondary-plum text-white"
+															: "hover:bg-muted"
+													}`}
+												>
+													{cat.id === 0
+														? "همه محصولات"
+														: cat.name}
 												</button>
 											))}
 										</div>
@@ -202,7 +235,7 @@ export default function ProductsPage() {
 										className="w-full"
 										onClick={() => {
 											setSearchQuery("");
-											setSelectedCategory("all");
+											setSelectedCategory(0);
 											setPriceRange("all");
 										}}
 									>
@@ -295,7 +328,8 @@ export default function ProductsPage() {
 							</div>
 
 							{/* Products */}
-							{products && products?.length === 0 ? (
+							{filteredProducts &&
+							filteredProducts?.length === 0 ? (
 								<div className="text-center py-20">
 									<Package className="w-20 h-20 mx-auto text-muted-foreground mb-4" />
 									<h3 className="text-2xl font-bold mb-2">
@@ -313,8 +347,8 @@ export default function ProductsPage() {
 											: "space-y-6"
 									}
 								>
-									{products &&
-										products?.map((product, i) => (
+									{filteredProducts &&
+										filteredProducts?.map((product, i) => (
 											<motion.div
 												key={i}
 												initial={{ opacity: 0, y: 20 }}

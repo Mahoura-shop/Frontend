@@ -4,25 +4,22 @@ import { persist } from "zustand/middleware";
 
 interface ProductStore {
 	products: Product[];
-	getProducts: () => void;
+	fetchProducts: () => void;
 }
 
 export const useProductStore = create<ProductStore>()(
 	persist(
 		(set) => ({
 			products: [],
-			getProducts: () => {
+			fetchProducts: () => {
 				getData({ endPoint: `/v1/product` }).then((data) => {
 					const products = data?.data ?? [];
-					console.log(products);
-					set({
-						products: products,
-					});
+					set((prev) => ({ ...prev, products }));
 				});
 			},
 		}),
 		{
-			name: "mahoura-store",
+			name: "product-store",
 		},
 	),
 );
