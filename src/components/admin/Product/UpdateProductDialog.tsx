@@ -191,7 +191,7 @@ export default function UpdateProductDialog({
 			) &&
 			values.step2Percent
 		) {
-			formData.append("istep2Percente", values.step2Percent?.toString());
+			formData.append("step2Percente", values.step2Percent?.toString());
 		}
 		if (
 			!(

@@ -26,14 +26,27 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useProductStore } from "@/store/useProductStore";
+import { getData } from "@/services/services";
 
 export default function ProductDetailPage() {
 	const params = useParams();
 	const router = useRouter();
-	const productId = parseInt(params.id as string);
+	const [product, setProduct] = useState<Product | null>(null);
+	const [loading, setLoading] = useState<boolean>(true);
 
 	const { products } = useProductStore();
-	const product = products.find((p) => p.id === productId);
+	// const product = products.find((p) => p.slug === params.slug);
+	const getProduct = () => {
+		setLoading(true);
+		getData({ endPoint: `/v1/product/${params.slug}` })
+			.then((data) => {
+				setProduct(data?.data);
+			})
+			.finally(() => setLoading(false));
+	};
+	useEffect(() => {
+		getProduct();
+	}, []);
 
 	if (!product) {
 		return (

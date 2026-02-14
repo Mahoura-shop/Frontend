@@ -446,7 +446,7 @@ export default function ProductsPage() {
 												<Card className="overflow-hidden group hover:shadow-xl transition-all duration-300 min-h-[400px]">
 													<div className="relative">
 														<Link
-															href={`/products/${product.id}`}
+															href={`/products/${product.slug}`}
 														>
 															<div
 																className={`relative h-60 bg-muted overflow-hidden cursor-pointer flex place-items-center place-content-center`}
