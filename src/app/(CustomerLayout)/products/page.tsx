@@ -443,7 +443,7 @@ export default function ProductsPage() {
 												animate={{ opacity: 1, y: 0 }}
 												transition={{ delay: i * 0.05 }}
 											>
-												<Card className="overflow-hidden group hover:shadow-xl transition-all duration-300 min-h-[400px]">
+												<Card className="overflow-hidden group hover:shadow-xl h-full transition-all duration-300 min-h-[400px]">
 													<div className="relative">
 														<Link
 															href={`/products/${product.slug}`}
@@ -582,7 +582,7 @@ export default function ProductsPage() {
 															</Badge>
 														)}
 
-														<div className="flex place-content-end">
+														<div className="flex place-content-end place-self-end">
 															<div>
 																<motion.span
 																	className="text-2xl font-bold text-primary-rose"
@@ -590,12 +590,16 @@ export default function ProductsPage() {
 																		scale: 1.05,
 																	}}
 																>
-																	{
-																		product.irrPrice
-																	}
+																	{new Intl.NumberFormat(
+																		"fa-IR",
+																	).format(
+																		Number(
+																			product.irrPrice,
+																		),
+																	)}
 																</motion.span>
 																<span className="text-sm text-muted-foreground mr-2">
-																	تومان
+																	ریال
 																</span>
 															</div>
 														</div>
