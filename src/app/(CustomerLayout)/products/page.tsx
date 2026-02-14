@@ -71,7 +71,26 @@ export default function ProductsPage() {
 			(product: Product) =>
 				Number(product.irrPrice) >= priceRange[0] &&
 				Number(product.irrPrice) <= priceRange[1],
-		);
+		)
+		.sort((a: Product, b: Product) => {
+			switch (sortBy) {
+				case "newest":
+					return b.id - a.id;
+
+				case "price-low":
+					return (
+						(Number(a.irrPrice) || 0) - (Number(b.irrPrice) || 0)
+					);
+
+				case "price-high":
+					return (
+						(Number(b.irrPrice) || 0) - (Number(a.irrPrice) || 0)
+					);
+
+				default:
+					return 0;
+			}
+		});
 
 	const handlePriceChange = (values: number[]) => {
 		// Values are now automatically sorted [min, max]
@@ -356,9 +375,9 @@ export default function ProductsPage() {
 												<SelectItem value="newest">
 													جدیدترین
 												</SelectItem>
-												<SelectItem value="popular">
+												{/* <SelectItem value="popular">
 													محبوب‌ترین
-												</SelectItem>
+												</SelectItem> */}
 												<SelectItem value="price-low">
 													ارزان‌ترین
 												</SelectItem>
@@ -572,7 +591,7 @@ export default function ProductsPage() {
 																	}}
 																>
 																	{
-																		product.price
+																		product.irrPrice
 																	}
 																</motion.span>
 																<span className="text-sm text-muted-foreground mr-2">
