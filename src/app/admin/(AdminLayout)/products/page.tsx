@@ -312,7 +312,7 @@ export default function ProductsAdminPage() {
 
 			{/* Toolbar */}
 			<div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-				<div className="flex items-center gap-4 flex-1 max-w-3xl flex-wrap">
+				<div className="flex items-center gap-4 flex-1 flex-wrap">
 					{/* Search */}
 					<div className="relative flex-1 min-w-[200px]">
 						<Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -367,7 +367,7 @@ export default function ProductsAdminPage() {
 					{(filterColumn || searchQuery) && (
 						<Button
 							variant="outline"
-							size="sm"
+							className="h-10"
 							onClick={() => {
 								setSearchQuery("");
 								setFilterColumn("");
