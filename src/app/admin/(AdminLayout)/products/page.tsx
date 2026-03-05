@@ -244,6 +244,28 @@ export default function ProductsAdminPage() {
 		);
 	};
 
+	const TableHeadItem = ({
+		title,
+		column,
+	}: {
+		title: string;
+		column: SortColumn;
+	}) => {
+		return (
+			<TableHead>
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={() => handleSort(column)}
+					className="gap-2 hover:bg-transparent flex place-self-center w-full"
+				>
+					{title}
+					<SortIcon column={column} />
+				</Button>
+			</TableHead>
+		);
+	};
+
 	const getFilterOptions = () => {
 		if (!filterColumn) return [];
 
@@ -375,61 +397,11 @@ export default function ProductsAdminPage() {
 					<Table className="no-scrollbar">
 						<TableHeader>
 							<TableRow>
-								<TableHead>
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() => handleSort("name")}
-										className="gap-2 hover:bg-transparent"
-									>
-										نام محصول
-										<SortIcon column="name" />
-									</Button>
-								</TableHead>
-								<TableHead>
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() => handleSort("brand")}
-										className="gap-2 hover:bg-transparent"
-									>
-										برند
-										<SortIcon column="brand" />
-									</Button>
-								</TableHead>
-								<TableHead>
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() => handleSort("category")}
-										className="gap-2 hover:bg-transparent"
-									>
-										دسته‌بندی
-										<SortIcon column="category" />
-									</Button>
-								</TableHead>
-								<TableHead>
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() => handleSort("price")}
-										className="gap-2 hover:bg-transparent"
-									>
-										قیمت (ریال)
-										<SortIcon column="price" />
-									</Button>
-								</TableHead>
-								<TableHead>
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() => handleSort("quantity")}
-										className="gap-2 hover:bg-transparent"
-									>
-										موجودی
-										<SortIcon column="quantity" />
-									</Button>
-								</TableHead>
+								<TableHeadItem title="نام محصول" column="name" />
+								<TableHeadItem title="برند" column="brand" />
+								<TableHeadItem title="دسته‌بندی" column="category" />
+								<TableHeadItem title="قیمت (ریال)" column="price" />
+								<TableHeadItem title="موجودی" column="quantity" />
 								<TableHead>وضعیت</TableHead>
 								<TableHead className="text-center">
 									عملیات
