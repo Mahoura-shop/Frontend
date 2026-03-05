@@ -41,7 +41,7 @@
 	border-radius: 12px;
 	box-shadow: 0 0 25px -17px hsla(var(--primary-rose), 0.4);
 	outline: none;
-	transition: all 0.25s cubic-bezier(0.19, 1, 0.22, 1);
+	/* transition: all 0.25s cubic-bezier(0.19, 1, 0.22, 1); */
 	cursor: text;
 	z-index: 0;
 	display: flex;
@@ -331,8 +331,10 @@
 
 /* Selection */
 .Input::selection {
-	background-color: hsla(var(--primary-rose), 0.3);
-	color: hsl(var(--foreground));
+	/* @apply gradient-text; */
+	@apply bg-primary-rose text-foreground;
+	/* background-color: var(--primary-rose); */
+	/* color: hsl(var(--foreground)); */
 }
 
 /* Premium Gradient Variant */

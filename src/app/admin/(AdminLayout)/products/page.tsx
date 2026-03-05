@@ -462,7 +462,7 @@ export default function ProductsAdminPage() {
 										{product.category?.name || "-"}
 									</TableCell>
 									<TableCell className="font-bold text-primary-rose">
-										{formatPrice(product.price as number)}
+										{formatPrice(product.irrPrice as number)}
 									</TableCell>
 									<TableCell>
 										<span

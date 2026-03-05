@@ -56,7 +56,7 @@ export const createProductSchema = Yup.object({
 		.max(100, "درصد نمیتواند بیشتر از 100 باشد"),
 	step1Price: Yup.number().optional().min(0, "قیمت نمی‌تواند منفی باشد"),
 	step2Price: Yup.number().optional().min(0, "قیمت نمی‌تواند منفی باشد"),
-	step3Price: Yup.number().optional().min(0, "قیمت نمی‌تواند منفی باشد"),
+	step3Price: Yup.mixed().optional(),
 	// foreign: Yup.boolean(),
 	isNew: Yup.boolean(),
 	priority: Yup.number().min(0, "اولویت نمی‌تواند منفی باشد"),

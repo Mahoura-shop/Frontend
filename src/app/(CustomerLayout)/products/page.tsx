@@ -38,15 +38,18 @@ import { useCategoryStore } from "@/store/useCategoryStore";
 import { useBrandStore } from "@/store/useBrandStore";
 import Input from "@/components/Custom/Input/Input";
 import { Slider } from "@/components/ui/slider";
+import { Pagination } from "@/components/ui/pagination";
 
 export default function ProductsPage() {
 	const { products, fetchProducts } = useProductStore();
 	const { categories, fetchCategories } = useCategoryStore();
 	const { brands, fetchBrands } = useBrandStore();
 	// const { products, getProducts } = useProductStore();
+	const itemsPerPage = 12;
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedCategory, setSelectedCategory] = useState<number>(0);
 	const [selectedBrand, setSelectedBrand] = useState<number>(0);
+	const [currentPage, setCurrentPage] = useState(1);
 	const [priceRange, setPriceRange] = useState<number[]>([1000, 100000]);
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 	const [showFilters, setShowFilters] = useState(false);
@@ -91,7 +94,11 @@ export default function ProductsPage() {
 					return 0;
 			}
 		});
-
+	const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+	const paginatedProducts = filteredProducts.slice(
+		(currentPage - 1) * itemsPerPage,
+		currentPage * itemsPerPage,
+	);
 	const handlePriceChange = (values: number[]) => {
 		// Values are now automatically sorted [min, max]
 		setPriceRange(values);
@@ -113,6 +120,10 @@ export default function ProductsPage() {
 			setPriceRange([Math.min(...prices), Math.max(...prices)]);
 		});
 	}, []);
+
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [searchQuery, sortBy, selectedCategory, selectedBrand, priceRange]);
 
 	return (
 		<div className="min-h-screen bg-background">
@@ -416,8 +427,8 @@ export default function ProductsPage() {
 							</div>
 
 							{/* Products */}
-							{filteredProducts &&
-							filteredProducts?.length === 0 ? (
+							{paginatedProducts &&
+							paginatedProducts?.length === 0 ? (
 								<div className="text-center py-20">
 									<Package className="w-20 h-20 mx-auto text-muted-foreground mb-4" />
 									<h3 className="text-2xl font-bold mb-2">
@@ -435,8 +446,8 @@ export default function ProductsPage() {
 											: "space-y-6"
 									}
 								>
-									{filteredProducts &&
-										filteredProducts?.map((product, i) => (
+									{paginatedProducts &&
+										paginatedProducts?.map((product, i) => (
 											<motion.div
 												key={i}
 												initial={{ opacity: 0, y: 20 }}
@@ -625,6 +636,15 @@ export default function ProductsPage() {
 												</Card>
 											</motion.div>
 										))}
+								</div>
+							)}
+							{totalPages > 1 && (
+								<div className="mt-8">
+									<Pagination
+										currentPage={currentPage}
+										totalPages={totalPages}
+										onPageChange={setCurrentPage}
+									/>
 								</div>
 							)}
 						</div>

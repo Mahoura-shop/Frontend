@@ -29,13 +29,14 @@ import { Badge } from "@/components/ui/badge";
 import { useProductStore } from "@/store/useProductStore";
 import { getData } from "@/services/services";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
+import { useSettingsStore } from "@/store/useSettingsStore";
 
 export default function ProductDetailPage() {
 	const params = useParams();
 	const router = useRouter();
 	const [product, setProduct] = useState<Product | null>(null);
 	const [loading, setLoading] = useState<boolean>(true);
-
+	const { formatPrice } = useSettingsStore();
 	const { products } = useProductStore();
 	// const product = products.find((p) => p.slug === params.slug);
 	const getProduct = () => {
@@ -213,12 +214,6 @@ export default function ProductDetailPage() {
 											url: window.location.href,
 										});
 									}}
-									// onClick={() => {
-									// 	navigator.clipboard.writeText(
-									// 		window.location.href,
-									// 	);
-									// 	CustomToast("لینک کپی شد", "success");
-									// }}
 								>
 									<Share2 className="w-5 h-5" />
 								</Button>
@@ -255,10 +250,10 @@ export default function ProductDetailPage() {
 									animate={{ scale: 1 }}
 									transition={{ type: "spring" }}
 								>
-									{product.price}
+									{formatPrice(Number(product.price))}
 								</motion.span>
 								<span className="text-2xl text-muted-foreground">
-									تومان
+									ریال
 								</span>
 							</div>
 						</div>
