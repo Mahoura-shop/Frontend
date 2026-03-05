@@ -164,7 +164,12 @@ export default function ProductsAdminPage() {
 
 	const handleSort = (column: SortColumn) => {
 		if (sortColumn === column) {
-			setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+			if (sortDirection === "asc") {
+				setSortDirection("desc");
+			} else {
+				setSortColumn(null);
+				setSortDirection("asc");
+			}
 		} else {
 			setSortColumn(column);
 			setSortDirection("asc");
@@ -462,7 +467,9 @@ export default function ProductsAdminPage() {
 										{product.category?.name || "-"}
 									</TableCell>
 									<TableCell className="font-bold text-primary-rose">
-										{formatPrice(product.irrPrice as number)}
+										{formatPrice(
+											product.irrPrice as number,
+										)}
 									</TableCell>
 									<TableCell>
 										<span
