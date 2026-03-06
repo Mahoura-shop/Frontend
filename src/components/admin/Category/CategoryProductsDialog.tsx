@@ -11,6 +11,8 @@ import { getData } from "@/services/services";
 import Button from "@/components/Custom/Button/Button";
 import ProductInfoDialog from "../Product/ProductInfoDialog";
 import Loading from "@/components/Loading/Loading";
+import StickyDialogFooter from "@/components/StickyDialogFooter/StickyDialogFooter";
+import CategoryPriceUpdateDialog from "./CategoryPriceUpdateDialog";
 
 export default function CategoryProductsDialog({
 	category,
@@ -47,29 +49,37 @@ export default function CategoryProductsDialog({
 					مشاهده محصولات
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="py-4">
+			<DialogContent variant="action">
+				<DialogHeader>
+					<DialogTitle>
+						محصولات دسته‌بندی {category?.name}
+					</DialogTitle>
+				</DialogHeader>
 				{loading ? (
 					<Loading />
-				) : (
+				) : categoryProducts && categoryProducts.length > 0 ? (
 					<>
-						<DialogHeader>
-							<DialogTitle>
-								محصولات دسته‌بندی {category?.name}
-							</DialogTitle>
-						</DialogHeader>
-						{categoryProducts && categoryProducts.length > 0 ? (
-							categoryProducts.map((product) => (
-								<ProductInfoDialog
-									product={product}
-									variant="name"
-								/>
-							))
-						) : (
-							<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
-								هیچ محصولی یافت نشد.
-							</div>
-						)}
+						{categoryProducts.map((product, index) => (
+							<ProductInfoDialog
+                                key={index}
+								product={product}
+								variant="name"
+							/>
+						))}
+						<StickyDialogFooter>
+							{/* <Button
+								variant="primary"
+								loading={loading}
+							>
+								تغییر قیمت
+							</Button> */}
+                            <CategoryPriceUpdateDialog category={category} products={categoryProducts} />
+						</StickyDialogFooter>
 					</>
+				) : (
+					<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
+						هیچ محصولی یافت نشد.
+					</div>
 				)}
 			</DialogContent>
 		</Dialog>

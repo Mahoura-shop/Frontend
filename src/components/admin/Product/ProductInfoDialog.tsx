@@ -29,14 +29,17 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 interface ProductInfoDialogProps {
 	product: Product;
 	variant?: "eye" | "name";
+	className?: string;
 }
 
 export default function ProductInfoDialog({
 	product,
+	className,
 	variant = "eye",
 }: ProductInfoDialogProps) {
 	const [open, setOpen] = useState(false);
@@ -108,7 +111,7 @@ export default function ProductInfoDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger asChild>
+			<DialogTrigger asChild className={cn(className)}>
 				{variant === "eye" ? (
 					<Button
 						size="icon"

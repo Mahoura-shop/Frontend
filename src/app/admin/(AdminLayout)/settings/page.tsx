@@ -20,7 +20,6 @@ export default function SettingsPage() {
 
 	const fetchCurrencies = () => {
 		getData({ endPoint: `/v1/currency` }).then((data) => {
-			console.log("data", data?.data);
 			setCurrencies(data?.data);
 		});
 	};
