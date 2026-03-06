@@ -253,10 +253,8 @@ export default function ProductInfoDialog({
 											</p>
 											<p className="text-4xl font-bold gradient-text">
 												{formatPrice(
-													Number(product.price),
-													String(
-														product.currency?.code,
-													),
+													Number(product.irrPrice),
+													"ریال",
 												)}
 											</p>
 										</div>
