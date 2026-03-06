@@ -132,7 +132,7 @@ export default function UpdateCategoryDialog({
 					</Button>
 				)}
 			</DialogTrigger>
-			<DialogContent>
+			<DialogContent variant="action">
 				<Formik
 					initialValues={
 						mode === "create"

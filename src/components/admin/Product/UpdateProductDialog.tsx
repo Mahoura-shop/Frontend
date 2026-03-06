@@ -344,7 +344,7 @@ export default function UpdateProductDialog({
 				)}
 			</DialogTrigger>
 
-			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" variant="action">
 				<Formik
 					initialValues={
 						mode === "create"

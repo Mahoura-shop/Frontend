@@ -23,6 +23,16 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import {
+	Dialog,
+	DialogBody,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
 import { Pagination } from "@/components/ui/pagination";
 import { getData } from "@/services/services";
 import DeleteCategoryDialog from "@/components/admin/Category/DeleteCategoryDialog";
@@ -36,8 +46,8 @@ export default function CategoriesPage() {
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 12;
 
-	// Sample data
 	const [categories, setCategories] = useState<Category[]>([]);
+	const [categoryProducts, setCategoryProducts] = useState<Product[]>([]);
 
 	const filteredCategories = categories.filter((cat) =>
 		cat?.name?.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -54,8 +64,18 @@ export default function CategoriesPage() {
 
 	const fetchCategories = useCallback(() => {
 		getData({ endPoint: `/v1/category` }).then((data) => {
-			setCategories(data.data ?? []);
+			setCategories(data?.data ?? []);
 		});
+	}, []);
+
+	const fetchCategoryProducts = useCallback((categoryID: number) => {
+		getData({ endPoint: `/v1/product/category/${categoryID}` })
+			.then((data) => {
+				setCategoryProducts(data?.data ?? []);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	}, []);
 
 	useEffect(() => {
@@ -216,13 +236,25 @@ export default function CategoriesPage() {
 											<span className="text-muted-foreground">
 												{category.count} محصول
 											</span>
-											<Button
-												variant="ghost"
-												size="sm"
-												className="h-8"
-											>
-												مشاهده محصولات
-											</Button>
+											<Dialog>
+												<DialogTrigger>
+													<Button
+														variant="ghost"
+														size="sm"
+														className="h-8"
+													>
+														مشاهده محصولات
+													</Button>
+												</DialogTrigger>
+												<DialogContent className="py-4">
+													<DialogHeader>
+														<DialogTitle>
+															محصولات دسته‌بندی{" "}
+															{category.name}
+														</DialogTitle>
+													</DialogHeader>
+												</DialogContent>
+											</Dialog>
 										</div>
 									</CardContent>
 								</Card>

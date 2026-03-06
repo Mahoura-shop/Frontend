@@ -135,6 +135,13 @@
 	.ltr {
 		direction: ltr;
 	}
+
+	::selection { 
+		/* @apply gradient-text; */
+		@apply bg-primary-rose text-foreground;
+		/* background-color: var(--primary-rose); */
+		/* color: hsl(var(--foreground)); */
+	}
 }
 
 @layer utilities {
