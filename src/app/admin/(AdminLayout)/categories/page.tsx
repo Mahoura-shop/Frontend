@@ -39,6 +39,7 @@ import DeleteCategoryDialog from "@/components/admin/Category/DeleteCategoryDial
 import UpdateCategoryDialog from "@/components/admin/Category/UpdateCategoryDialog";
 import Button from "@/components/Custom/Button/Button";
 import CategoryInfoDialog from "@/components/admin/Category/CategoryInfoDialog";
+import CategoryProductsDialog from "@/components/admin/Category/CategoryProductsDialog";
 
 export default function CategoriesPage() {
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -47,7 +48,6 @@ export default function CategoriesPage() {
 	const itemsPerPage = 12;
 
 	const [categories, setCategories] = useState<Category[]>([]);
-	const [categoryProducts, setCategoryProducts] = useState<Product[]>([]);
 
 	const filteredCategories = categories.filter((cat) =>
 		cat?.name?.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -66,16 +66,6 @@ export default function CategoriesPage() {
 		getData({ endPoint: `/v1/category` }).then((data) => {
 			setCategories(data?.data ?? []);
 		});
-	}, []);
-
-	const fetchCategoryProducts = useCallback((categoryID: number) => {
-		getData({ endPoint: `/v1/product/category/${categoryID}` })
-			.then((data) => {
-				setCategoryProducts(data?.data ?? []);
-			})
-			.catch((err) => {
-				console.log(err);
-			});
 	}, []);
 
 	useEffect(() => {
@@ -236,25 +226,7 @@ export default function CategoriesPage() {
 											<span className="text-muted-foreground">
 												{category.count} محصول
 											</span>
-											<Dialog>
-												<DialogTrigger>
-													<Button
-														variant="ghost"
-														size="sm"
-														className="h-8"
-													>
-														مشاهده محصولات
-													</Button>
-												</DialogTrigger>
-												<DialogContent className="py-4">
-													<DialogHeader>
-														<DialogTitle>
-															محصولات دسته‌بندی{" "}
-															{category.name}
-														</DialogTitle>
-													</DialogHeader>
-												</DialogContent>
-											</Dialog>
+											<CategoryProductsDialog category={category} />
 										</div>
 									</CardContent>
 								</Card>

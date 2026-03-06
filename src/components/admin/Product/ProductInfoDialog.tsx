@@ -32,9 +32,13 @@ import { Separator } from "@/components/ui/separator";
 
 interface ProductInfoDialogProps {
 	product: Product;
+	variant?: "eye" | "name";
 }
 
-export default function ProductInfoDialog({ product }: ProductInfoDialogProps) {
+export default function ProductInfoDialog({
+	product,
+	variant = "eye",
+}: ProductInfoDialogProps) {
 	const [open, setOpen] = useState(false);
 
 	const containerVariants = {
@@ -105,13 +109,17 @@ export default function ProductInfoDialog({ product }: ProductInfoDialogProps) {
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button
-					size="icon"
-					variant="secondary"
-					className="h-8 w-8 hover:bg-background/80"
-				>
-					<Eye className="w-4 h-4" />
-				</Button>
+				{variant === "eye" ? (
+					<Button
+						size="icon"
+						variant="secondary"
+						className="h-8 w-8 hover:bg-background/80"
+					>
+						<Eye className="w-4 h-4" />
+					</Button>
+				) : (
+					<Button variant="secondary">{product.name}</Button>
+				)}
 			</DialogTrigger>
 
 			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto pb-6">
@@ -131,7 +139,7 @@ export default function ProductInfoDialog({ product }: ProductInfoDialogProps) {
 										className="flex-1"
 									>
 										<div className="flex items-center gap-3 mb-2">
-											<DialogTitle className="text-2xl gradient-text">
+											<DialogTitle className="text-2xl">
 												{product.name}
 											</DialogTitle>
 											{product.isNew && (
@@ -153,41 +161,51 @@ export default function ProductInfoDialog({ product }: ProductInfoDialogProps) {
 									</motion.div>
 
 									{/* Status Badge */}
-									<motion.div
-										variants={itemVariants}
-										whileHover={{ scale: 1.05 }}
-										whileTap={{ scale: 0.95 }}
-										className="flex flex-col gap-2 px-4"
-									>
-										<Badge
-											variant={
-												product.isActive
-													? "available"
-													: "outOfStock"
-											}
-											className="gap-2 px-3 py-1"
+									<div className="flex flex-col gap-2 px-4">
+										<motion.div
+											variants={itemVariants}
+											whileHover={{ scale: 1.05 }}
+											whileTap={{ scale: 0.95 }}
+											// className="flex flex-col gap-2 px-4"
 										>
-											{product.isActive ? (
-												<>
-													<CheckCircle2 className="w-3 h-3" />
-													فعال
-												</>
-											) : (
-												<>
-													<XCircle className="w-3 h-3" />
-													غیرفعال
-												</>
-											)}
-										</Badge>
-										{product.quantity === 0 && (
 											<Badge
-												variant="outOfStock"
-												className="px-3 py-1"
+												variant={
+													product.isActive
+														? "available"
+														: "outOfStock"
+												}
+												className="gap-2 px-3 py-1"
 											>
-												موجودی تمام
+												{product.isActive ? (
+													<>
+														<CheckCircle2 className="w-3 h-3" />
+														فعال
+													</>
+												) : (
+													<>
+														<XCircle className="w-3 h-3" />
+														غیرفعال
+													</>
+												)}
 											</Badge>
+										</motion.div>
+
+										{product.quantity === 0 && (
+											<motion.div
+												variants={itemVariants}
+												whileHover={{ scale: 1.05 }}
+												whileTap={{ scale: 0.95 }}
+												// className="flex flex-col gap-2 px-4"
+											>
+												<Badge
+													variant="outOfStock"
+													className="px-3 py-1"
+												>
+													موجودی تمام
+												</Badge>
+											</motion.div>
 										)}
-									</motion.div>
+									</div>
 								</div>
 							</DialogHeader>
 
