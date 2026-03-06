@@ -76,10 +76,7 @@ export default function CategoryProductsDialog({
                             <CategoryPriceUpdateDialog category={category} products={categoryProducts} />
 						</StickyDialogFooter>
 					</>
-				) : (
-					<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
-						هیچ محصولی یافت نشد.
-					</div>
+				) : (c
 				)}
 			</DialogContent>
 		</Dialog>

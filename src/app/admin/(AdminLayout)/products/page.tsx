@@ -3,14 +3,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-	Plus,
-	Pencil,
-	Trash2,
 	Search,
 	ArrowUpDown,
 	ArrowUp,
 	ArrowDown,
-	Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -41,14 +37,20 @@ import DeleteProductDialog from "@/components/admin/Product/DeleteProductDialog"
 import UpdateProductDialog from "@/components/admin/Product/UpdateProductDialog";
 import ProductInfoDialog from "@/components/admin/Product/ProductInfoDialog";
 
-type SortColumn = "name" | "brand" | "category" | "price" | "quantity" | null;
+type ProductSortColumn =
+	| "name"
+	| "brand"
+	| "category"
+	| "price"
+	| "quantity"
+	| null;
 type SortDirection = "asc" | "desc";
 
 export default function ProductsAdminPage() {
-	const { convertToIRR, formatPrice } = useSettingsStore();
+	const { formatPrice } = useSettingsStore();
 	const [searchQuery, setSearchQuery] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
-	const [sortColumn, setSortColumn] = useState<SortColumn>(null);
+	const [sortColumn, setSortColumn] = useState<ProductSortColumn>(null);
 	const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 	const [filterColumn, setFilterColumn] = useState<string>("");
 	const [filterValue, setFilterValue] = useState<string>("");
@@ -162,7 +164,7 @@ export default function ProductsAdminPage() {
 		});
 	}
 
-	const handleSort = (column: SortColumn) => {
+	const handleSort = (column: ProductSortColumn) => {
 		if (sortColumn === column) {
 			if (sortDirection === "asc") {
 				setSortDirection("desc");
@@ -234,7 +236,7 @@ export default function ProductsAdminPage() {
 	const activeCount = products.filter((p) => p.isActive).length;
 	const inactiveCount = products.filter((p) => !p.isActive).length;
 
-	const SortIcon = ({ column }: { column: SortColumn }) => {
+	const SortIcon = ({ column }: { column: ProductSortColumn }) => {
 		if (sortColumn !== column)
 			return <ArrowUpDown className="w-4 h-4 opacity-50" />;
 		return sortDirection === "asc" ? (
@@ -249,7 +251,7 @@ export default function ProductsAdminPage() {
 		column,
 	}: {
 		title: string;
-		column: SortColumn;
+		column: ProductSortColumn;
 	}) => {
 		return (
 			<TableHead>
@@ -397,15 +399,25 @@ export default function ProductsAdminPage() {
 					<Table className="no-scrollbar">
 						<TableHeader>
 							<TableRow>
-								<TableHeadItem title="نام محصول" column="name" />
+								<TableHeadItem
+									title="نام محصول"
+									column="name"
+								/>
 								<TableHeadItem title="برند" column="brand" />
-								<TableHeadItem title="دسته‌بندی" column="category" />
-								<TableHeadItem title="قیمت (ریال)" column="price" />
-								<TableHeadItem title="موجودی" column="quantity" />
+								<TableHeadItem
+									title="دسته‌بندی"
+									column="category"
+								/>
+								<TableHeadItem
+									title="قیمت (ریال)"
+									column="price"
+								/>
+								<TableHeadItem
+									title="موجودی"
+									column="quantity"
+								/>
 								<TableHead>وضعیت</TableHead>
-								<TableHead className="text-center">
-									عملیات
-								</TableHead>
+								<TableHead>عملیات</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody className="no-scrollbar">

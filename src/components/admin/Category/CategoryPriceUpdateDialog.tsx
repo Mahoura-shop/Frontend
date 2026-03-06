@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -11,43 +11,48 @@ import Button from "@/components/Custom/Button/Button";
 import ProductInfoDialog from "../Product/ProductInfoDialog";
 import StickyDialogFooter from "@/components/StickyDialogFooter/StickyDialogFooter";
 import InputFree from "@/components/Custom/Input/InputFree";
-import { DollarSign } from "lucide-react";
+import { DollarSign, FolderTree } from "lucide-react";
 import CurrencyConvertRatesDialog from "../Currency/CurrencyConvertRatesDialog";
 import { getCurrencies } from "@/services/currency";
+import { getData } from "@/services/services";
+import Loading from "@/components/Loading/Loading";
 
 export default function CategoryPriceUpdateDialog({
 	category,
-	products,
+	variant = "default",
 }: {
 	category: Category;
-	products: Product[];
+	variant?: "default" | "icon";
 }) {
 	const [open, setOpen] = useState<boolean>(false);
+	const [loading, setLoading] = useState<boolean>(true);
 	// const [currencies, setCurrencies] = useState<Currency[]>([]);
-	const [newProducts, setNewProducts] = useState<Product[]>(products);
+	const [newProducts, setNewProducts] = useState<Product[]>([]);
+	const [products, setProducts] = useState<Product[]>([]);
 
 	useEffect(() => {
-		getCurrencies().then((data) => {
-			const currencies = data?.data;
-			// setCurrencies(currencies);
-			setNewProducts((prev) => [
-				...prev.map((product) => ({
-					...product,
-					irrPrice:
-						Number(product.price) *
-						currencies.find(
-							(currency: Currency) =>
-								currency.id === product.currencyID,
-						).convertRate,
-				})),
-			]);
-			// (products) => [...products.map((product) => {...products, irrPrice:
-			// 		Number(product.price) *
-			// 		currencies.find(
-			// 			(currency: Currency) =>
-			// 				currency.id === product.currencyID,
-			// 		).convertRate}])
-		});
+		setLoading(true);
+		getData({ endPoint: `/v1/product/category/${category.id}` }).then(
+			(data) => {
+				setProducts(data?.data ?? []);
+				getCurrencies()
+					.then((res) => {
+						const currencies = res?.data;
+						setNewProducts(
+							data?.data?.map((product: Product) => ({
+								...product,
+								irrPrice:
+									Number(product.price) *
+									currencies.find(
+										(currency: Currency) =>
+											currency.id === product.currencyID,
+									).convertRate,
+							})),
+						);
+					})
+					.finally(() => setLoading(false));
+			},
+		);
 	}, []);
 
 	return (
@@ -58,15 +63,80 @@ export default function CategoryPriceUpdateDialog({
 			}}
 		>
 			<DialogTrigger>
-				<Button variant="primary">تغییر قیمت</Button>
+				{variant === "default" ? (
+					<Button variant="ghost" size="sm" className="h-8">
+						مشاهده محصولات
+					</Button>
+				) : (
+					<Button
+						size="icon"
+						variant="secondary"
+						className="h-8 w-8 hover:bg-background/80"
+					>
+						<FolderTree />
+					</Button>
+				)}
 			</DialogTrigger>
 			<DialogContent variant="action" className="max-w-6xl">
 				<DialogHeader>
 					<DialogTitle>
-						تغییر قیمت محصولات دسته‌بندی {category?.name}
+						محصولات دسته‌بندی {category?.name}
 					</DialogTitle>
 				</DialogHeader>
-				{products.map((product, index) => (
+				{loading ? (
+					<Loading />
+				) : products && products.length > 0 ? (
+					products.map((product, index) => (
+						<div className="grid grid-cols-5 gap-2" key={index}>
+							<ProductInfoDialog
+								product={product}
+								variant="name"
+								className="col-span-2"
+							/>
+							<InputFree
+								label={`قیمت اصلی (${product?.currency?.name})`}
+								containerClassName="col-span-1"
+								value={product.price}
+								icon={DollarSign}
+							/>
+							<InputFree
+								label="قیمت ریالی"
+								containerClassName="col-span-1"
+								value={product.irrPrice}
+								icon={DollarSign}
+							/>
+							<InputFree
+								label="قیمت جدید"
+								type="number"
+								value={newProducts[index]?.irrPrice}
+								onValueChange={(value) => {
+									setNewProducts((prev) => {
+										const updatedProducts = prev.map(
+											(product, i) => {
+												if (i === index) {
+													return {
+														...product,
+														irrPrice: Number(value),
+													};
+												}
+												return product;
+											},
+										);
+
+										return updatedProducts;
+									});
+								}}
+								containerClassName="col-span-1"
+								icon={DollarSign}
+							/>
+						</div>
+					))
+				) : (
+					<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
+						هیچ محصولی یافت نشد.
+					</div>
+				)}
+				{/* {products.map((product, index) => (
 					<div className="grid grid-cols-5 gap-2" key={index}>
 						<ProductInfoDialog
 							product={product}
@@ -74,7 +144,7 @@ export default function CategoryPriceUpdateDialog({
 							className="col-span-2"
 						/>
 						<InputFree
-							label={`قیمت اصلی (${product.currency?.name})`}
+							label={`قیمت اصلی (${product?.currency?.name})`}
 							containerClassName="col-span-1"
 							value={product.price}
 							icon={DollarSign}
@@ -88,12 +158,7 @@ export default function CategoryPriceUpdateDialog({
 						<InputFree
 							label="قیمت جدید"
 							type="number"
-							value={newProducts[index].irrPrice}
-							// onValueChange={(value) => {
-							// 	setNewProducts((prev) =>
-							// 		prev.map((product, index) => {}),
-							// 	);
-							// }}
+							value={newProducts[index]?.irrPrice}
 							onValueChange={(value) => {
 								setNewProducts((prev) => {
 									const updatedProducts = prev.map(
@@ -115,7 +180,7 @@ export default function CategoryPriceUpdateDialog({
 							icon={DollarSign}
 						/>
 					</div>
-				))}
+				))} */}
 				<StickyDialogFooter>
 					<div className="flex gap-4">
 						<CurrencyConvertRatesDialog />

@@ -3,14 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
-	Plus,
-	Pencil,
-	Trash2,
 	Grid3x3,
 	List,
 	Search,
-	Eye,
 	FolderTree,
+	ArrowUpDown,
+	ArrowUp,
+	ArrowDown,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -24,34 +23,81 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import {
-	Dialog,
-	DialogBody,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { Pagination } from "@/components/ui/pagination";
 import { getData } from "@/services/services";
 import DeleteCategoryDialog from "@/components/admin/Category/DeleteCategoryDialog";
 import UpdateCategoryDialog from "@/components/admin/Category/UpdateCategoryDialog";
 import Button from "@/components/Custom/Button/Button";
 import CategoryInfoDialog from "@/components/admin/Category/CategoryInfoDialog";
-import CategoryProductsDialog from "@/components/admin/Category/CategoryProductsDialog";
+import CategoryPriceUpdateDialog from "@/components/admin/Category/CategoryPriceUpdateDialog";
+
+type CategorySortColumn = "name" | "count" | null;
+type SortDirection = "asc" | "desc";
 
 export default function CategoriesPage() {
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 	const [searchQuery, setSearchQuery] = useState("");
+	const [filterValue, setFilterValue] = useState<string>("");
 	const [currentPage, setCurrentPage] = useState(1);
+	const [sortColumn, setSortColumn] = useState<CategorySortColumn>(null);
+	const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 	const itemsPerPage = 12;
 
 	const [categories, setCategories] = useState<Category[]>([]);
 
-	const filteredCategories = categories.filter((cat) =>
+	const getSortValue = (category: Category, column: keyof Category) => {
+		const value = category[column];
+		if (value && typeof value === "object" && "name" in value) {
+			return value.name || "";
+		}
+		if (typeof value === "boolean") {
+			return value ? 1 : 0;
+		}
+		if (value === null || value === undefined) {
+			return "";
+		}
+		return value;
+	};
+
+	let filteredCategories = [...categories];
+	filteredCategories = categories.filter((cat) =>
 		cat?.name?.toLowerCase().includes(searchQuery.toLowerCase()),
 	);
+	if (filterValue) {
+		filteredCategories = filteredCategories.filter(
+			(category) =>
+				(category.isActive === true ? "فعال" : "غیرفعال") ===
+				filterValue,
+		);
+	}
+	if (sortColumn) {
+		filteredCategories.sort((a, b) => {
+			const aVal = getSortValue(a, sortColumn as keyof Category);
+			const bVal = getSortValue(b, sortColumn as keyof Category);
+			if (typeof aVal === "string" && typeof bVal === "string") {
+				return sortDirection === "asc"
+					? aVal.localeCompare(bVal, "fa")
+					: bVal.localeCompare(aVal, "fa");
+			}
+
+			if (typeof aVal === "number" && typeof bVal === "number") {
+				return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
+			}
+
+			const aString = String(aVal);
+			const bString = String(bVal);
+
+			return sortDirection === "asc"
+				? aString.localeCompare(bString, "fa")
+				: bString.localeCompare(aString, "fa");
+		});
+	}
 
 	const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
 	const paginatedCategories = filteredCategories.slice(
@@ -72,6 +118,50 @@ export default function CategoriesPage() {
 		fetchCategories();
 	}, [fetchCategories]);
 
+	const SortIcon = ({ column }: { column: CategorySortColumn }) => {
+		if (sortColumn !== column)
+			return <ArrowUpDown className="w-4 h-4 opacity-50" />;
+		return sortDirection === "asc" ? (
+			<ArrowUp className="w-4 h-4" />
+		) : (
+			<ArrowDown className="w-4 h-4" />
+		);
+	};
+	const handleSort = (column: CategorySortColumn) => {
+		if (sortColumn === column) {
+			if (sortDirection === "asc") {
+				setSortDirection("desc");
+			} else {
+				setSortColumn(null);
+				setSortDirection("asc");
+			}
+		} else {
+			setSortColumn(column);
+			setSortDirection("asc");
+		}
+	};
+
+	const TableHeadItem = ({
+		title,
+		column,
+	}: {
+		title: string;
+		column: CategorySortColumn;
+	}) => {
+		return (
+			<TableHead>
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={() => handleSort(column)}
+					className="gap-2 hover:bg-transparent flex place-self-center w-full"
+				>
+					{title}
+					<SortIcon column={column} />
+				</Button>
+			</TableHead>
+		);
+	};
 	return (
 		<main className="p-6">
 			{/* Header with Counts */}
@@ -101,7 +191,7 @@ export default function CategoriesPage() {
 
 			{/* Toolbar */}
 			<div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-				<div className="flex items-center gap-4 flex-1 max-w-md">
+				<div className="flex items-center gap-4 flex-1">
 					<div className="relative flex-1">
 						<Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
 						<Input
@@ -111,6 +201,25 @@ export default function CategoriesPage() {
 							className="pr-10"
 						/>
 					</div>
+					<Select
+						value={filterValue}
+						onValueChange={(value) => {
+							setFilterValue(value);
+							setCurrentPage(1);
+						}}
+					>
+						<SelectTrigger className="w-[180px]">
+							<SelectValue placeholder="فیلتر وضعیت" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem key="فعال" value="فعال">
+								فعال
+							</SelectItem>
+							<SelectItem key="غیرفعال" value="غیرفعال">
+								غیرفعال
+							</SelectItem>
+						</SelectContent>
+					</Select>
 				</div>
 
 				<div className="flex items-center gap-2">
@@ -128,10 +237,6 @@ export default function CategoriesPage() {
 					>
 						<List className="w-5 h-5" />
 					</Button>
-					{/* <Button className="gap-2">
-						<Plus className="w-4 h-4" />
-						افزودن دسته‌بندی
-					</Button> */}
 					<UpdateCategoryDialog
 						fetchCategories={fetchCategories}
 						mode="create"
@@ -226,7 +331,9 @@ export default function CategoriesPage() {
 											<span className="text-muted-foreground">
 												{category.count} محصول
 											</span>
-											<CategoryProductsDialog category={category} />
+											<CategoryPriceUpdateDialog
+												category={category}
+											/>
 										</div>
 									</CardContent>
 								</Card>
@@ -243,12 +350,18 @@ export default function CategoriesPage() {
 						<Table>
 							<TableHeader>
 								<TableRow>
-									<TableHead>نام دسته‌بندی</TableHead>
-									<TableHead>تعداد محصولات</TableHead>
+									<TableHeadItem
+										title="نام دسته‌بندی"
+										column="name"
+									/>
+									{/* <TableHead>نام دسته‌بندی</TableHead> */}
+									<TableHeadItem
+										title="تعداد محصولات"
+										column="count"
+									/>
+									{/* <TableHead>تعداد محصولات</TableHead> */}
 									<TableHead>وضعیت</TableHead>
-									<TableHead className="text-center">
-										عملیات
-									</TableHead>
+									<TableHead>عملیات</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -295,17 +408,13 @@ export default function CategoriesPage() {
 										</TableCell>
 										<TableCell>
 											<div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+												<CategoryPriceUpdateDialog
+													category={category}
+													variant="icon"
+												/>
 												<CategoryInfoDialog
 													category={category}
 												/>
-												{/* <Button
-													variant="ghost"
-													size="icon"
-													className="h-8 w-8"
-												>
-													<Eye className="w-4 h-4" />
-												</Button> */}
-
 												<UpdateCategoryDialog
 													fetchCategories={
 														fetchCategories
@@ -313,31 +422,12 @@ export default function CategoriesPage() {
 													mode="update"
 													category={category}
 												/>
-												{/* <Button
-													variant="ghost"
-													size="icon"
-													className="h-8 w-8"
-												>
-													<Pencil className="w-4 h-4" />
-												</Button> */}
 												<DeleteCategoryDialog
 													id={category?.id}
 													fetchCategories={
 														fetchCategories
 													}
 												/>
-												{/* <Button
-													variant="ghost"
-													size="icon"
-													className="h-8 w-8 text-red-500"
-													onClick={() =>
-														handleDelete(
-															category.id,
-														)
-													}
-												>
-													<Trash2 className="w-4 h-4" />
-												</Button> */}
 											</div>
 										</TableCell>
 									</motion.tr>
