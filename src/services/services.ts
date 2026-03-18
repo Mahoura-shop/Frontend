@@ -35,7 +35,7 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
 	(response: AxiosResponse) => response,
 	(error) => {
-		console.error(error);
+		// console.error(error);
 		return Promise.reject(error);
 	}
 );
@@ -49,8 +49,8 @@ export const getData = async ({ endPoint, headers, params }: GetParams) => {
 		});
 		return response.data;
 	} catch (error) {
-		console.error("error in getData", error);
-		throw error;
+		console.log("error in getData", (error as any).response?.data);
+		// throw error;
 	}
 };
 
@@ -62,8 +62,8 @@ export const postData = async ({ endPoint, data, headers }: PostParams) => {
 		});
 		return response.data;
 	} catch (error) {
-		console.error("error in postData", error);
-		throw error;
+		console.log("error in postData", (error as any).response?.data);
+		// throw error;
 	}
 };
 
@@ -75,8 +75,8 @@ export const postImageData = async ({ endPoint, data }: PostParams) => {
 		});
 		return response.data;
 	} catch (error) {
-		console.error("error in postImageData", error);
-		throw error;
+		console.log("error in postImageData", (error as any).response?.data);
+		// throw error;
 	}
 };
 
@@ -88,8 +88,8 @@ export const patchData = async ({ endPoint, data, headers }: PatchParams) => {
 		});
 		return response.data;
 	} catch (error) {
-		console.error("error in patchData", error);
-		throw error;
+		console.log("error in patchData", (error as any).response?.data);
+		// throw error;
 	}
 };
 
@@ -99,8 +99,8 @@ export const putData = async ({ endPoint, data }: PutParams) => {
 		const response: AxiosResponse = await apiClient.put(endPoint, data);
 		return response.data;
 	} catch (error) {
-		console.error("error in putData", error);
-		throw error;
+		console.log("error in putData", (error as any).response?.data);
+		// throw error;
 	}
 };
 
@@ -111,8 +111,8 @@ export const putImageData = async ({ endPoint, data }: PutParams) => {
 		});
 		return response.data;
 	} catch (error) {
-		console.error("error in putImageData", error);
-		throw error;
+		console.log("error in putImageData", (error as any).response?.data);
+		// throw error;
 	}
 };
 
@@ -125,7 +125,7 @@ export const deleteData = async ({ endPoint, data, headers }: DeleteParams) => {
 		});
 		return response.data;
 	} catch (error) {
-		console.error("error in deleteData", error);
-		throw error;
+		console.log("error in deleteData", (error as any).response?.data);
+		// throw error;
 	}
 };

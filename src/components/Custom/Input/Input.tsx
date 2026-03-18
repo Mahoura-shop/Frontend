@@ -8,6 +8,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useSettingsStore } from "@/store/useSettingsStore";
 
 interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
 	name?: string;
@@ -51,6 +52,8 @@ export default function Input({
 }: Props) {
 	// const [field, meta] = useField(name as string);
 	// const usingFormik = name ? true : false;
+
+	// const { formatPrice } = useSettingsStore();
 	const usingFormik = !!name;
 	let field: any = {};
 	let meta: any = {};
@@ -75,6 +78,11 @@ export default function Input({
 					{...props}
 					autoFocus={autoFocus}
 					value={actualValue}
+					// value={
+					// 	props.type === "number"
+					// 		? formatPrice(Number(actualValue))
+					// 		: actualValue
+					// }
 					placeholder=" "
 					disabled={loading || props.disabled} // Disable when loading
 					className={cn(

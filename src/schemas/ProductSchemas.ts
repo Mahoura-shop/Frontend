@@ -70,3 +70,8 @@ export const createProductSchema = Yup.object({
 	currencyID: Yup.number().required("واحد پول الزامی است"),
 	productPic: Yup.string().nullable(),
 });
+
+export const updateProductPriceSchema = Yup.object({
+	id: Yup.number().required("شناسه محصول الزامی است"),
+	irrPrice: Yup.number().required("قیمت جدید محصول الزامی است"),
+});

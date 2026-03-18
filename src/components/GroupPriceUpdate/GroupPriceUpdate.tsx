@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -8,51 +8,47 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import Button from "@/components/Custom/Button/Button";
-import ProductInfoDialog from "../Product/ProductInfoDialog";
 import StickyDialogFooter from "@/components/StickyDialogFooter/StickyDialogFooter";
 import InputFree from "@/components/Custom/Input/InputFree";
 import { DollarSign, FolderTree } from "lucide-react";
-import CurrencyConvertRatesDialog from "../Currency/CurrencyConvertRatesDialog";
 import { getCurrencies } from "@/services/currency";
-import { getData } from "@/services/services";
 import Loading from "@/components/Loading/Loading";
+import ProductInfoDialog from "../admin/Product/ProductInfoDialog";
+import CurrencyConvertRatesDialog from "../admin/Currency/CurrencyConvertRatesDialog";
 
-export default function CategoryPriceUpdateDialog({
-	category,
+export default function GroupPriceUpdate({
+	name,
 	variant = "default",
+	products,
 }: {
-	category: Category;
+	name: string;
+	products?: Product[];
 	variant?: "default" | "icon";
 }) {
 	const [open, setOpen] = useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(true);
 	// const [currencies, setCurrencies] = useState<Currency[]>([]);
 	const [newProducts, setNewProducts] = useState<Product[]>([]);
-	const [products, setProducts] = useState<Product[]>([]);
 
 	useEffect(() => {
 		setLoading(true);
-		getData({ endPoint: `/v1/product/category/${category.id}` }).then(
-			(data) => {
-				setProducts(data?.data ?? []);
-				getCurrencies()
-					.then((res) => {
-						const currencies = res?.data;
-						setNewProducts(
-							data?.data?.map((product: Product) => ({
-								...product,
-								irrPrice:
-									Number(product.price) *
-									currencies.find(
-										(currency: Currency) =>
-											currency.id === product.currencyID,
-									).convertRate,
-							})),
-						);
-					})
-					.finally(() => setLoading(false));
-			},
-		);
+		console.log("products", products);
+		getCurrencies()
+			.then((data) => {
+				const currencies = data?.data;
+				setNewProducts(
+					data?.data?.map((product: Product) => ({
+						...product,
+						irrPrice:
+							Number(product.price) *
+							currencies.find(
+								(currency: Currency) =>
+									currency.id === Number(product.currencyID),
+							)?.convertRate,
+					})),
+				);
+			})
+			.finally(() => setLoading(false));
 	}, []);
 
 	return (
@@ -79,9 +75,7 @@ export default function CategoryPriceUpdateDialog({
 			</DialogTrigger>
 			<DialogContent variant="action" className="max-w-6xl">
 				<DialogHeader>
-					<DialogTitle>
-						محصولات دسته‌بندی {category?.name}
-					</DialogTitle>
+					<DialogTitle>محصولات {name}</DialogTitle>
 				</DialogHeader>
 				{loading ? (
 					<Loading />
@@ -136,51 +130,6 @@ export default function CategoryPriceUpdateDialog({
 						هیچ محصولی یافت نشد.
 					</div>
 				)}
-				{/* {products.map((product, index) => (
-					<div className="grid grid-cols-5 gap-2" key={index}>
-						<ProductInfoDialog
-							product={product}
-							variant="name"
-							className="col-span-2"
-						/>
-						<InputFree
-							label={`قیمت اصلی (${product?.currency?.name})`}
-							containerClassName="col-span-1"
-							value={product.price}
-							icon={DollarSign}
-						/>
-						<InputFree
-							label="قیمت ریالی"
-							containerClassName="col-span-1"
-							value={product.irrPrice}
-							icon={DollarSign}
-						/>
-						<InputFree
-							label="قیمت جدید"
-							type="number"
-							value={newProducts[index]?.irrPrice}
-							onValueChange={(value) => {
-								setNewProducts((prev) => {
-									const updatedProducts = prev.map(
-										(product, i) => {
-											if (i === index) {
-												return {
-													...product,
-													irrPrice: Number(value),
-												};
-											}
-											return product;
-										},
-									);
-
-									return updatedProducts;
-								});
-							}}
-							containerClassName="col-span-1"
-							icon={DollarSign}
-						/>
-					</div>
-				))} */}
 				<StickyDialogFooter>
 					<div className="flex gap-4">
 						<CurrencyConvertRatesDialog />

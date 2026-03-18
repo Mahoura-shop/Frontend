@@ -409,7 +409,7 @@ export default function ProductsAdminPage() {
 									column="category"
 								/>
 								<TableHeadItem
-									title="قیمت (ریال)"
+									title="قیمت"
 									column="price"
 								/>
 								<TableHeadItem
@@ -453,7 +453,7 @@ export default function ProductsAdminPage() {
 									<TableCell className="font-bold text-primary-rose">
 										{formatPrice(
 											product.irrPrice as number,
-										)}
+										)} ریال
 									</TableCell>
 									<TableCell>
 										<span
@@ -463,7 +463,7 @@ export default function ProductsAdminPage() {
 													: ""
 											}
 										>
-											{product.quantity}{" "}
+											{formatPrice(product.quantity)}{" "}
 											{product.quantityType}
 										</span>
 									</TableCell>

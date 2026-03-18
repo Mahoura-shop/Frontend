@@ -12,7 +12,6 @@ import Button from "@/components/Custom/Button/Button";
 import ProductInfoDialog from "../Product/ProductInfoDialog";
 import Loading from "@/components/Loading/Loading";
 import StickyDialogFooter from "@/components/StickyDialogFooter/StickyDialogFooter";
-import CategoryPriceUpdateDialog from "./CategoryPriceUpdateDialog";
 
 export default function CategoryProductsDialog({
 	category,
@@ -73,10 +72,10 @@ export default function CategoryProductsDialog({
 							>
 								تغییر قیمت
 							</Button> */}
-                            <CategoryPriceUpdateDialog category={category} products={categoryProducts} />
+                            {/* <CategoryPriceUpdateDialog category={category} products={categoryProducts} /> */}
 						</StickyDialogFooter>
 					</>
-				) : (c
+				) : (
 				)}
 			</DialogContent>
 		</Dialog>

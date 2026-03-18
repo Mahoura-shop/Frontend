@@ -526,7 +526,7 @@ export default function UpdateProductDialog({
 										// }}
 										type="number"
 										icon={Percent}
-										label="درصد پله 1"
+										label="درصد همکار"
 									/>
 									<Input
 										name="step1Price"
@@ -554,7 +554,7 @@ export default function UpdateProductDialog({
 										// }}
 										type="number"
 										icon={Percent}
-										label="درصد پله 2"
+										label="درصد مغازه نقدی"
 									/>
 									<Input
 										name="step2Price"
@@ -593,7 +593,45 @@ export default function UpdateProductDialog({
 										// }}
 										type="number"
 										icon={Percent}
-										label="درصد پله 3"
+										label="درصد مغازه چکی"
+									/>
+									<Input
+										name="step3Price"
+										// value={Math.round(baseStep3Safe) || ""}
+										// onValueChange={(value: string) => {
+										// 	setBaseStep3(Number(value));
+										// 	// handleStep3Price(value);
+										// 	// setBaseStep3(Number(value));
+										// }}
+										type="number"
+										icon={PercentCircle}
+										label="قیمت پله 3"
+									/>
+									<Checkbox
+										checked={step3Origin}
+										onValueChange={(value: boolean) => {
+											setStep3Origin(value);
+											// updateStep3Base(
+											// 	step3Safe.toString(),
+											// 	value,
+											// );
+										}}
+										label="نسبت به قیمت اصلی"
+									/>
+								</div>
+								{/* Step 3 */}
+								<div className="grid grid-cols-3 gap-4">
+									<Input
+										name="step3Percent"
+										// value={step3}
+										// onValueChange={(value: string) => {
+										// 	setStep3(Number(value));
+										// 	// handleStep3Percent(value);
+										// 	// updateStep3Base(value, step3Origin);
+										// }}
+										type="number"
+										icon={Percent}
+										label="درصد تکی"
 									/>
 									<Input
 										name="step3Price"

@@ -2,6 +2,7 @@
 import styles from "./Input.module.css";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSettingsStore } from "@/store/useSettingsStore";
 
 interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
 	children?: React.ReactNode;
@@ -41,6 +42,7 @@ export default function InputFree({
 	onValueChange,
 	...props
 }: Props) {
+	const { formatPrice } = useSettingsStore();
 	const direction =
 		typeof value === "string" ? (isRTL(value) ? "rtl" : "ltr") : "ltr";
 
@@ -53,7 +55,10 @@ export default function InputFree({
 					dir={direction}
 					{...props}
 					autoFocus={autoFocus}
-					value={value}
+					// value={value}
+					value={
+						value
+					}
 					placeholder=" "
 					disabled={loading || props.disabled} // Disable when loading
 					className={cn(

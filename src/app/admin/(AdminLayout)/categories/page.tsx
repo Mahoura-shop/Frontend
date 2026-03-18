@@ -35,15 +35,19 @@ import DeleteCategoryDialog from "@/components/admin/Category/DeleteCategoryDial
 import UpdateCategoryDialog from "@/components/admin/Category/UpdateCategoryDialog";
 import Button from "@/components/Custom/Button/Button";
 import CategoryInfoDialog from "@/components/admin/Category/CategoryInfoDialog";
-import CategoryPriceUpdateDialog from "@/components/admin/Category/CategoryPriceUpdateDialog";
+import GroupPriceUpdate from "@/components/GroupPriceUpdate/GroupPriceUpdate";
+import { useSettingsStore } from "@/store/useSettingsStore";
+import Loading from "@/components/Loading/Loading";
 
 type CategorySortColumn = "name" | "count" | null;
 type SortDirection = "asc" | "desc";
 
 export default function CategoriesPage() {
+	const { formatPrice } = useSettingsStore();
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 	const [searchQuery, setSearchQuery] = useState("");
 	const [filterValue, setFilterValue] = useState<string>("");
+	const [loading, setLoading] = useState<boolean>(true);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [sortColumn, setSortColumn] = useState<CategorySortColumn>(null);
 	const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -100,7 +104,7 @@ export default function CategoriesPage() {
 	}
 
 	const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
-	const paginatedCategories = filteredCategories.slice(
+	let paginatedCategories = filteredCategories.slice(
 		(currentPage - 1) * itemsPerPage,
 		currentPage * itemsPerPage,
 	);
@@ -109,14 +113,33 @@ export default function CategoriesPage() {
 	const inactiveCount = categories.filter((c) => !c.isActive).length;
 
 	const fetchCategories = useCallback(() => {
-		getData({ endPoint: `/v1/category` }).then((data) => {
-			setCategories(data?.data ?? []);
-		});
+		setLoading(true);
+		getData({ endPoint: `/v1/category` })
+			.then((data) => {
+				const fetchedCategories = data?.data ?? [];
+				fetchedCategories.forEach(
+					(category: Category, index: number) => {
+						getData({
+							endPoint: `/v1/product/category/${category?.id}`,
+						}).then((data) => {
+							fetchedCategories[index] = {
+								...category,
+								products: data?.data,
+							};
+						});
+
+						setCategories(fetchedCategories);
+					},
+				);
+				console.log("fetchedCategories", fetchedCategories);
+				setCategories(fetchedCategories);
+			})
+			.finally(() => setLoading(false));
 	}, []);
 
 	useEffect(() => {
 		fetchCategories();
-	}, [fetchCategories]);
+	}, []);
 
 	const SortIcon = ({ column }: { column: CategorySortColumn }) => {
 		if (sortColumn !== column)
@@ -164,7 +187,6 @@ export default function CategoriesPage() {
 	};
 	return (
 		<main className="p-6">
-			{/* Header with Counts */}
 			<div className="mb-6">
 				<h1 className="text-3xl font-bold mb-2">مدیریت دسته‌بندی‌ها</h1>
 				<div className="flex items-center gap-4 text-sm">
@@ -247,98 +269,109 @@ export default function CategoriesPage() {
 			{/* Grid View */}
 			{viewMode === "grid" && (
 				<>
-					{paginatedCategories.length === 0 && (
-						<Card>
-							<CardContent className="p-0">
-								<Table>
-									<TableBody>
-										<TableRow>
-											<TableCell
-												colSpan={100}
-												className="text-center"
-											>
-												<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
-													هیچ دسته‌بندی یافت نشد.
-												</div>
-											</TableCell>
-										</TableRow>
-									</TableBody>
-								</Table>
-							</CardContent>
-						</Card>
+					{loading ? (
+						<div className="h-[50vh] flex place-items-center col-span-4 place-self-center place-content-center">
+							<Loading />
+						</div>
+					) : (
+						paginatedCategories.length === 0 && (
+							<Card>
+								<CardContent className="p-0">
+									<Table>
+										<TableBody>
+											<TableRow>
+												<TableCell
+													colSpan={100}
+													className="text-center"
+												>
+													<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
+														هیچ دسته‌بندی یافت نشد.
+													</div>
+												</TableCell>
+											</TableRow>
+										</TableBody>
+									</Table>
+								</CardContent>
+							</Card>
+						)
 					)}
 					<div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-						{paginatedCategories.map((category, i) => (
-							<motion.div
-								key={category.id}
-								initial={{ opacity: 0, scale: 0.9 }}
-								animate={{ opacity: 1, scale: 1 }}
-								transition={{ delay: i * 0.05 }}
-							>
-								<Card className="overflow-hidden group hover:shadow-xl transition-all">
-									<div className="relative h-48 bg-muted flex items-center justify-center overflow-hidden">
-										{category.categoryPic ? (
-											<img
-												src={category.categoryPic}
-												alt={category.name}
-												className="w-full h-full object-cover"
-											/>
-										) : (
-											<FolderTree className="w-16 h-16 text-muted-foreground" />
-										)}
+						{paginatedCategories &&
+							paginatedCategories.map((category, i) => (
+								<motion.div
+									key={category.id}
+									initial={{ opacity: 0, scale: 0.9 }}
+									animate={{ opacity: 1, scale: 1 }}
+									transition={{ delay: i * 0.05 }}
+								>
+									<Card className="overflow-hidden group hover:shadow-xl transition-all">
+										<div className="relative h-48 bg-muted flex items-center justify-center overflow-hidden">
+											{category.categoryPic ? (
+												<img
+													src={category.categoryPic}
+													alt={category.name}
+													className="w-full h-full object-cover"
+												/>
+											) : (
+												<FolderTree className="w-16 h-16 text-muted-foreground" />
+											)}
 
-										{/* Quick Actions */}
-										<div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-											<CategoryInfoDialog
-												category={category}
-											/>
-											<UpdateCategoryDialog
-												fetchCategories={
-													fetchCategories
-												}
-												mode="update"
-												category={category}
-											/>
-											<DeleteCategoryDialog
-												id={category?.id}
-												fetchCategories={
-													fetchCategories
-												}
-											/>
+											{/* Quick Actions */}
+											<div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+												<CategoryInfoDialog
+													category={category}
+												/>
+												<UpdateCategoryDialog
+													fetchCategories={
+														fetchCategories
+													}
+													mode="update"
+													category={category}
+												/>
+												<DeleteCategoryDialog
+													id={category?.id}
+													fetchCategories={
+														fetchCategories
+													}
+												/>
+											</div>
+
+											{/* Status Badge */}
+											<div className="absolute top-2 right-2">
+												<Badge
+													variant={
+														category.isActive
+															? "available"
+															: "outOfStock"
+													}
+												>
+													{category.isActive
+														? "فعال"
+														: "غیرفعال"}
+												</Badge>
+											</div>
 										</div>
 
-										{/* Status Badge */}
-										<div className="absolute top-2 right-2">
-											<Badge
-												variant={
-													category.isActive
-														? "available"
-														: "outOfStock"
-												}
-											>
-												{category.isActive
-													? "فعال"
-													: "غیرفعال"}
-											</Badge>
-										</div>
-									</div>
-
-									<CardContent className="p-4">
-										<h3 className="font-bold mb-2 text-lg">
-											{category.name}
-										</h3>
-										<div className="flex items-center justify-between text-sm">
-											<span className="text-muted-foreground">
-												{category.count} محصول
-											</span>
-											<CategoryPriceUpdateDialog
-												category={category}
-											/>
-										</div>
-									</CardContent>
-								</Card>
-							</motion.div>
-						))}
+										<CardContent className="p-4">
+											<h3 className="font-bold mb-2 text-lg">
+												{category.name}
+											</h3>
+											<div className="flex items-center justify-between text-sm">
+												<span className="text-muted-foreground">
+													{formatPrice(
+														category.count,
+													)}{" "}
+													محصول
+												</span>
+												<GroupPriceUpdate
+													name={category.name}
+													products={category.products}
+												/>
+											</div>
+										</CardContent>
+									</Card>
+								</motion.div>
+							))}
 					</div>
 				</>
 			)}
@@ -390,7 +423,8 @@ export default function CategoriesPage() {
 										</TableCell>
 										<TableCell>
 											<Badge variant="secondary">
-												{category.count} محصول
+												{formatPrice(category.count)}{" "}
+												محصول
 											</Badge>
 										</TableCell>
 										<TableCell>
@@ -408,8 +442,11 @@ export default function CategoriesPage() {
 										</TableCell>
 										<TableCell>
 											<div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-												<CategoryPriceUpdateDialog
-													category={category}
+												<GroupPriceUpdate
+													name={category?.name}
+													products={
+														category?.products
+													}
 													variant="icon"
 												/>
 												<CategoryInfoDialog

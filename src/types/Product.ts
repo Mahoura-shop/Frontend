@@ -23,6 +23,15 @@ interface Product {
 	quantity: number;
 	quantityType: string;
 	currency?: Currency;
-	currencyID: number;
+	currencyID: string;
 	productPic: string | undefined;
+}
+
+interface ProductPrice {
+	id: number;
+	name: string;
+	price: number;
+	irrPrice: number;
+	currency: Currency;
+	newIrrPrice: number;
 }
