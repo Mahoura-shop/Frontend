@@ -32,7 +32,7 @@ export const useSettingsStore = create<SettingsStore>()(
 
       updateRate: (code, rate) => {
         set((state) => ({
-          currencyRates: state.currencyRates.map((curr) =>
+          currencyRates: state.currencyRates?.map((curr) =>
             curr.code === code ? { ...curr, rate } : curr
           ),
         }));

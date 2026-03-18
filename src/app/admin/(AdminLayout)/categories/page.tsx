@@ -297,7 +297,7 @@ export default function CategoriesPage() {
 					)}
 					<div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 						{paginatedCategories &&
-							paginatedCategories.map((category, i) => (
+							paginatedCategories?.map((category, i) => (
 								<motion.div
 									key={category.id}
 									initial={{ opacity: 0, scale: 0.9 }}
@@ -410,7 +410,7 @@ export default function CategoriesPage() {
 										</TableCell>
 									</TableRow>
 								)}
-								{paginatedCategories.map((category, i) => (
+								{paginatedCategories?.map((category, i) => (
 									<motion.tr
 										key={category.id}
 										initial={{ opacity: 0, x: -20 }}

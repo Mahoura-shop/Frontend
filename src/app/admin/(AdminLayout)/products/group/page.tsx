@@ -36,8 +36,6 @@ import { useCallback } from "react";
 import InputFree from "@/components/Custom/Input/InputFree";
 import { getCurrencies } from "@/services/currency";
 import Loading from "@/components/Loading/Loading";
-import { Formik, Form } from "formik";
-import { updateProductPriceSchema } from "@/schemas/ProductSchemas";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 
 type ProductSortColumn = "name" | "price" | "irrPrice" | "newPrice" | null;
@@ -180,7 +178,7 @@ export default function ProductsAdminPage() {
 			);
 		}
 		const productPricesPayload = {
-			productPrices: filteredProductPrices.map((productPrice) => ({
+			productPrices: filteredProductPrices?.map((productPrice) => ({
 				id: productPrice.id,
 				irrPrice: productPrice.newIrrPrice,
 			})),
@@ -302,7 +300,7 @@ export default function ProductsAdminPage() {
 							<SelectValue placeholder="ارز" />
 						</SelectTrigger>
 						<SelectContent>
-							{currencies.map((currency) => (
+							{currencies?.map((currency) => (
 								<SelectItem
 									key={currency.id}
 									value={String(currency.id)}
@@ -385,7 +383,7 @@ export default function ProductsAdminPage() {
 									</TableCell>
 								</TableRow>
 							)}
-							{paginatedProductPrices.map((productPrice, i) => (
+							{paginatedProductPrices?.map((productPrice, i) => (
 								<motion.tr
 									key={productPrice.id}
 									initial={{ opacity: 0, x: -20 }}

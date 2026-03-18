@@ -34,19 +34,21 @@ export default function AdminLogin() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState("");
 	const { setAccessToken } = useUserStore();
+	const router = useRouter();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError("");
 		setIsLoading(true);
 		postData({
-			endPoint: `/v1/admin/login`,
+			endPoint: `/v1/auth/login`,
 			data: { phone, password },
 		})
 			.then((data) => {
 				CustomToast(data?.message, "success");
-				console.log("setting", data?.data?.accessToken)
+				console.log("setting", data?.data?.accessToken);
 				setAccessToken(data?.data?.accessToken);
+				router.push("/admin/dashboard");
 			})
 			.finally(() => setIsLoading(false));
 	};

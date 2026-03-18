@@ -49,7 +49,7 @@ export default function Footer() {
 					<div>
 						<h4 className="font-bold mb-4">محصولات</h4>
 						<ul className="space-y-2">
-							{footerLinks.products.map((link) => (
+							{footerLinks.products?.map((link) => (
 								<li key={link.href}>
 									<Link
 										href={link.href}
@@ -66,7 +66,7 @@ export default function Footer() {
 					<div>
 						<h4 className="font-bold mb-4">پشتیبانی</h4>
 						<ul className="space-y-2">
-							{footerLinks.support.map((link) => (
+							{footerLinks.support?.map((link) => (
 								<li key={link.href}>
 									<Link
 										href={link.href}

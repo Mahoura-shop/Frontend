@@ -58,7 +58,7 @@ export default function CategoryProductsDialog({
 					<Loading />
 				) : categoryProducts && categoryProducts.length > 0 ? (
 					<>
-						{categoryProducts.map((product, index) => (
+						{categoryProducts?.map((product, index) => (
 							<ProductInfoDialog
                                 key={index}
 								product={product}

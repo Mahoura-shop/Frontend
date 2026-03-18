@@ -276,7 +276,7 @@ export default function ProductsAdminPage() {
 		}
 
 		const uniqueValues = new Set(
-			products.map((p) => {
+			products?.map((p) => {
 				const value = p[filterColumn as keyof Product];
 				return value?.name || value || "بدون مقدار";
 			}),
@@ -357,7 +357,7 @@ export default function ProductsAdminPage() {
 								<SelectValue placeholder="انتخاب مقدار" />
 							</SelectTrigger>
 							<SelectContent>
-								{getFilterOptions().map((option) => (
+								{getFilterOptions()?.map((option) => (
 									<SelectItem key={option} value={option}>
 										{option}
 									</SelectItem>
@@ -433,7 +433,7 @@ export default function ProductsAdminPage() {
 									</TableCell>
 								</TableRow>
 							)}
-							{paginatedProducts.map((product, i) => (
+							{paginatedProducts?.map((product, i) => (
 								<motion.tr
 									key={product.id}
 									initial={{ opacity: 0, x: -20 }}

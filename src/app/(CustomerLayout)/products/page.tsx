@@ -104,7 +104,7 @@ export default function ProductsPage() {
 		setPriceRange(values);
 	};
 
-	const prices = products.map(
+	const prices = products?.map(
 		(product: Product) =>
 			Math.round(Number(product.irrPrice) / 1000) * 1000,
 	);
@@ -113,7 +113,7 @@ export default function ProductsPage() {
 		fetchCategories();
 		fetchBrands();
 		fetchProducts().then((data) => {
-			const prices = data.map(
+			const prices = data?.map(
 				(product: Product) =>
 					Math.round(Number(product.irrPrice) / 1000) * 1000,
 			);

@@ -86,7 +86,7 @@ export default function ContactPage() {
 								</h2>
 							</div>
 							<div className="space-y-6">
-								{contactInfo.map((info, i) => (
+								{contactInfo?.map((info, i) => (
 									<motion.div
 										key={info.title}
 										initial={{ opacity: 0, x: -20 }}

@@ -41,7 +41,7 @@ export default function SettingsPage() {
 
 	const handleRateChange = (id: number, value: string) => {
 		setCurrencies((prev) =>
-			prev.map((currency) =>
+			prev?.map((currency) =>
 				currency.id === id
 					? { ...currency, convertRate: Number(value) }
 					: currency,
@@ -74,7 +74,7 @@ export default function SettingsPage() {
 					</CardHeader>
 					<CardContent>
 						<div className="grid md:grid-cols-2 gap-6">
-							{currencies.map((currency, i) => (
+							{currencies?.map((currency, i) => (
 								<motion.div
 									key={currency.code}
 									initial={{ opacity: 0, x: -20 }}

@@ -80,7 +80,7 @@ export default function GroupPriceUpdate({
 				{loading ? (
 					<Loading />
 				) : products && products.length > 0 ? (
-					products.map((product, index) => (
+					products?.map((product, index) => (
 						<div className="grid grid-cols-5 gap-2" key={index}>
 							<ProductInfoDialog
 								product={product}
@@ -105,7 +105,7 @@ export default function GroupPriceUpdate({
 								value={newProducts[index]?.irrPrice}
 								onValueChange={(value) => {
 									setNewProducts((prev) => {
-										const updatedProducts = prev.map(
+										const updatedProducts = prev?.map(
 											(product, i) => {
 												if (i === index) {
 													return {

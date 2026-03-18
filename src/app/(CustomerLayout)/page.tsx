@@ -343,7 +343,7 @@ export default function LandingPage() {
 						className="w-full"
 					>
 						<CarouselContent>
-							{categories.map((category) => (
+							{categories?.map((category) => (
 								<CarouselItem
 									key={category.id}
 									className="lg:basis-1/3 md:basis-2"
@@ -383,7 +383,7 @@ export default function LandingPage() {
 						className="w-full"
 					>
 						<CarouselContent>
-							{products.map((product) => (
+							{products?.map((product) => (
 								<CarouselItem
 									key={product.id}
 									className="lg:basis-1/3 md:basis-2"
@@ -424,7 +424,7 @@ export default function LandingPage() {
 						className="w-full"
 					>
 						<CarouselContent>
-							{newProducts.map((product) => (
+							{newProducts?.map((product) => (
 								<CarouselItem
 									key={product.id}
 									className="lg:basis-1/3 md:basis-2"

@@ -486,7 +486,7 @@ export default function UpdateProductDialog({
 										name="currencyID"
 										label="واحد پول"
 										icon={DollarSign}
-										options={currencies.map(
+										options={currencies?.map(
 											(currency: Currency) => ({
 												value: currency.id.toString(),
 												label: `${currency.name} (${currency.code})`,

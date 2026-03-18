@@ -152,7 +152,7 @@ export default function BrandsPage() {
 						</Card>
 					)}
 					<div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-						{paginatedBrands.map((brand, i) => (
+						{paginatedBrands?.map((brand, i) => (
 							<motion.div
 								key={brand.id}
 								initial={{ opacity: 0, scale: 0.9 }}
@@ -253,7 +253,7 @@ export default function BrandsPage() {
 										</TableCell>
 									</TableRow>
 								)}
-								{paginatedBrands.map((brand, i) => (
+								{paginatedBrands?.map((brand, i) => (
 									<motion.tr
 										key={brand.id}
 										initial={{ opacity: 0, x: -20 }}
