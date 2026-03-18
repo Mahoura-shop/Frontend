@@ -38,6 +38,7 @@ import { getCurrencies } from "@/services/currency";
 import Loading from "@/components/Loading/Loading";
 import { Formik, Form } from "formik";
 import { updateProductPriceSchema } from "@/schemas/ProductSchemas";
+import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 
 type ProductSortColumn = "name" | "price" | "irrPrice" | "newPrice" | null;
 type SortDirection = "asc" | "desc";
@@ -184,15 +185,14 @@ export default function ProductsAdminPage() {
 				irrPrice: productPrice.newIrrPrice,
 			})),
 		};
-		console.log("productPricesPayload", productPricesPayload);
 		patchData({
 			endPoint: `/v1/product/prices`,
 			data: productPricesPayload,
 		}).then((data) => {
-			console.log(data);
+			CustomToast(data?.message, "success");
 		});
 	};
-	
+
 	// const updateProductPrices = () => {
 	// 	// Prevent sending empty payload if that's causing the 422
 	// 	if (productPrices.length === 0) {
