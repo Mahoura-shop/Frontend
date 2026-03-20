@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 import {
 	Table,
 	TableBody,
@@ -280,7 +280,15 @@ export default function ProductsAdminPage() {
 			<div className="flex items-center justify-between mb-6 flex-wrap gap-4">
 				<div className="flex items-center gap-4 flex-1 flex-wrap">
 					{/* Search */}
-					<div className="relative flex-1 min-w-[200px]">
+					<InputFree
+						// isPriceInput
+						containerClassName="flex-1"
+						icon={Search}
+						label="جستجوی محصول..."
+						value={searchQuery}
+						onValueChange={(val) => setSearchQuery(val)}
+					/>
+					{/* <div className="relative flex-1 min-w-[200px]">
 						<Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
 						<Input
 							placeholder="جستجوی محصول..."
@@ -288,7 +296,7 @@ export default function ProductsAdminPage() {
 							onChange={(e) => setSearchQuery(e.target.value)}
 							className="pr-10"
 						/>
-					</div>
+					</div> */}
 					<Select
 						value={currencyFilter}
 						onValueChange={(value) => {
@@ -407,22 +415,35 @@ export default function ProductsAdminPage() {
 									</TableCell>
 									<TableCell className="font-bold text-primary-rose">
 										<InputFree
-											label=""
-											type="number"
+											label="ریال"
+											isPriceInput
 											value={productPrice.newIrrPrice}
 											onValueChange={(value) => {
 												const newValue = value
 													? value
 													: "";
-												setProductPrices((prev) => [
-													...prev.slice(0, i),
-													{
-														...prev[i],
+												// setProductPrices((prev) => [
+												// 	...prev.slice(0, i),
+												// 	{
+												// 		...prev[i],
+												// 		newIrrPrice:
+												// 			Number(newValue),
+												// 	},
+												// 	...prev.slice(i + 1),
+												// ]);
+												setProductPrices((prev) => {
+													// Create a new array to avoid direct mutation
+													const newProductPrices = [
+														...prev,
+													];
+													// Update the specific item at index 'i'
+													newProductPrices[i] = {
+														...newProductPrices[i], // Copy existing properties
 														newIrrPrice:
-															Number(newValue),
-													},
-													...prev.slice(i + 1, -1),
-												]);
+															Number(newValue), // Update the newIrrPrice
+													};
+													return newProductPrices; // Return the new array
+												});
 											}}
 											icon={DollarSign}
 										/>

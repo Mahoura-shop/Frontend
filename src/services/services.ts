@@ -13,7 +13,6 @@ import type {
 	PutParams,
 } from "../types/apiTypes";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
-import useUserStore from "@/store/userStore/userStore";
 
 export const baseURL = "http://localhost:8080/"; // backend URL
 
