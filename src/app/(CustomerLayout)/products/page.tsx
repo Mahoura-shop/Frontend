@@ -39,6 +39,8 @@ import { useBrandStore } from "@/store/useBrandStore";
 import Input from "@/components/Custom/Input/Input";
 import { Slider } from "@/components/ui/slider";
 import { Pagination } from "@/components/ui/pagination";
+import InputFree from "@/components/Custom/Input/InputFree";
+import SelectFree from "@/components/Custom/Select/SelectFree";
 
 export default function ProductsPage() {
 	const { products, fetchProducts } = useProductStore();
@@ -47,8 +49,10 @@ export default function ProductsPage() {
 	// const { products, getProducts } = useProductStore();
 	const itemsPerPage = 12;
 	const [searchQuery, setSearchQuery] = useState("");
-	const [selectedCategory, setSelectedCategory] = useState<number>(0);
-	const [selectedBrand, setSelectedBrand] = useState<number>(0);
+	const [selectedCategory, setSelectedCategory] = useState<string>("0");
+	// const [selectedCategory, setSelectedCategory] = useState<number>(0);
+	const [selectedBrand, setSelectedBrand] = useState<string>("0");
+	// const [selectedBrand, setSelectedBrand] = useState<number>(0);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [priceRange, setPriceRange] = useState<number[]>([1000, 100000]);
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -58,13 +62,12 @@ export default function ProductsPage() {
 	const filteredProducts = products
 		.filter(
 			(product: Product) =>
-				Number(product.categoryID) === selectedCategory ||
-				selectedCategory === 0,
+				product.categoryID == selectedCategory ||
+				selectedCategory === "0",
 		)
 		.filter(
 			(product: Product) =>
-				Number(product.brandID) === selectedBrand ||
-				selectedBrand === 0,
+				product.brandID == selectedBrand || selectedBrand === "0",
 		)
 		.filter(
 			(product: Product) =>
@@ -194,8 +197,56 @@ export default function ProductsPage() {
 									</div> */}
 
 									{/* Categories */}
-									<div className="">
-										<label className="text-sm font-medium mb-3 block">
+									<div>
+										<SelectFree
+											value={selectedCategory}
+											onValueChange={setSelectedCategory}
+											label="دسته‌بندی"
+											options={[
+												{
+													value: "0",
+													label: "تمام دسته‌بندی‌ها",
+												},
+												...categories.map((cat) => ({
+													value: String(cat.id),
+													label: cat.name,
+												})),
+											]}
+										/>
+										{/* <Select
+											value={selectedCategory}
+											onValueChange={(e) =>
+												setSelectedCategory(e)
+											}
+										>
+											<SelectTrigger className="py-2 border rounded-lg bg-background text-foreground">
+												<SelectValue placeholder="دسته‌بندی" />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectGroup>
+													<SelectLabel>
+														نمایش محصولات دسته‌بندی
+													</SelectLabel>
+													{[
+														{
+															id: 0,
+															name: "تمام دسته‌بندی‌ها",
+														},
+														...categories,
+													].map((cat) => (
+														<SelectItem
+															value={String(
+																cat.id,
+															)}
+															key={cat.id}
+														>
+															{cat.name}
+														</SelectItem>
+													))}
+												</SelectGroup>
+											</SelectContent>
+										</Select> */}
+										{/* <label className="text-sm font-medium mb-3 block">
 											دسته‌بندی
 										</label>
 										<div className="space-y-2">
@@ -223,12 +274,33 @@ export default function ProductsPage() {
 													{cat.name}
 												</button>
 											))}
-										</div>
+										</div> */}
 									</div>
 
 									{/* Brands */}
-									<div className="">
-										<label className="text-sm font-medium mb-3 block">
+									<div>
+										<SelectFree
+											value={selectedBrand}
+											onValueChange={(val) => {
+												setSelectedBrand(val);
+												console.log(
+													"selectedCategory",
+													val,
+												);
+											}}
+											label="برند"
+											options={[
+												{
+													value: "0",
+													label: "تمام برندها",
+												},
+												...brands.map((brand) => ({
+													value: String(brand.id),
+													label: brand.name,
+												})),
+											]}
+										/>
+										{/* <label className="text-sm font-medium mb-3 block">
 											برند
 										</label>
 										<div className="space-y-2">
@@ -253,7 +325,7 @@ export default function ProductsPage() {
 													{brand.name}
 												</button>
 											))}
-										</div>
+										</div> */}
 									</div>
 
 									{/* Price Range */}
@@ -326,7 +398,8 @@ export default function ProductsPage() {
 										className="w-full"
 										onClick={() => {
 											setSearchQuery("");
-											setSelectedCategory(0);
+											setSelectedCategory("0");
+											setSelectedBrand("0");
 											setPriceRange([
 												Math.min(...prices),
 												Math.max(...prices),
@@ -357,7 +430,7 @@ export default function ProductsPage() {
 
 									<div className="relative w-full">
 										<Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-										<Input
+										<InputFree
 											label="نام محصول یا برند..."
 											// placeholder="نام محصول یا برند..."
 											icon={Search}
@@ -368,7 +441,7 @@ export default function ProductsPage() {
 											onValueChange={(value) => {
 												setSearchQuery(value);
 											}}
-											className="pr-10"
+											inputClassName="pr-10"
 										/>
 									</div>
 									<Select

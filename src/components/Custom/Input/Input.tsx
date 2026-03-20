@@ -118,13 +118,6 @@ export default function Input({
 	// This is crucial for updating the input when the value changes externally (e.g., rese
 	// --- Effect to Sync Display Value with Formik's Value ---
 	useEffect(() => {
-		console.log(
-			"useEffect triggered. field.value:",
-			field.value,
-			"isPriceInput:",
-			isPriceInput,
-		);
-
 		let newValue = "";
 		if (isPriceInput) {
 			// Use the potentially updated field.value from Formik
@@ -283,8 +276,7 @@ export default function Input({
 					.replace(/[^\d۰-۹]/g, "")
 					.replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
 
-				valueToUpdateParent = cleanedAsciiDigits; // This is what Formik will receive
-				console.log("Value to Formik:", valueToUpdateParent);
+				valueToUpdateParent = cleanedAsciiDigits; // This is 
 
 				// 2. Format for display using our helper, which correctly handles numbers
 				formattedDisplayValue = formatPrice(valueToUpdateParent); // Pass raw digits here
@@ -332,10 +324,6 @@ export default function Input({
 			} else {
 				// Not a price input, pass through raw value
 				valueToUpdateParent = originalInputValue;
-				console.log(
-					"Value to Formik (non-price):",
-					valueToUpdateParent,
-				);
 				formattedDisplayValue = originalInputValue;
 				setDisplayValue(formattedDisplayValue); // <-- Update state here
 			}

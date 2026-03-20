@@ -21,6 +21,7 @@ interface Props {
 	loading?: boolean;
 	value?: string | number | null | undefined;
 	onValueChange?: (value: string) => void; // Changed value type to string for consistency
+	disabled?: boolean;
 	isPriceInput?: boolean; // <-- این prop جدید اضافه شد
 }
 
@@ -38,6 +39,7 @@ export default function InputFree({
 	label,
 	value,
 	onValueChange,
+	disabled = false,
 	isPriceInput = false, // مقدار پیش‌فرض: false (یعنی حالت جستجو/متن)
 	...props
 }: Props) {
@@ -243,7 +245,7 @@ export default function InputFree({
 					type="text" // Keep as text for better control with mixed characters
 					// Use "decimal" for mobile keyboards that support it well for prices
 					inputMode={isPriceInput ? "decimal" : "text"}
-					disabled={loading || props.disabled}
+					disabled={loading || disabled}
 					className={cn(
 						"font-vazirmatn", // Ensure font is applied
 						styles.Input,

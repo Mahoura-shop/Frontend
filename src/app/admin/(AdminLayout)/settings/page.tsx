@@ -14,6 +14,7 @@ import {
 import { getData, putData } from "@/services/services";
 import Input from "@/components/Custom/Input/Input";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
+import InputFree from "@/components/Custom/Input/InputFree";
 
 export default function SettingsPage() {
 	const [currencies, setCurrencies] = useState<Currency[]>([]);
@@ -86,17 +87,17 @@ export default function SettingsPage() {
 										<span className="text-sm text-muted-foreground whitespace-nowrap">
 											1 {currency.code} =
 										</span>
-										<Input
+										<InputFree
 											label={`${currency.name} (${currency.code})`}
 											icon={DollarSign}
-											id={currency.code}
-											type="number"
+											// id={currency.code}
+											isPriceInput
 											value={currency.convertRate}
 											onValueChange={(v: string) =>
 												handleRateChange(currency.id, v)
 											}
 											disabled={currency.code === "IRR"}
-											className="text-left"
+											inputClassName="text-left"
 										/>
 										<span className="text-sm text-muted-foreground whitespace-nowrap">
 											ریال

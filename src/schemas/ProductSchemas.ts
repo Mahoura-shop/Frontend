@@ -43,20 +43,17 @@ export const createProductSchema = Yup.object({
 	irrPrice: Yup.number().optional().min(0, "قیمت نمی‌تواند منفی باشد"),
 	consumerPrice: Yup.number().optional().min(0, "قیمت نمی‌تواند منفی باشد"),
 	step1Percent: Yup.number()
-		.optional()
-		.min(-100, "درصد نمیتواند کمتر از 100- باشد")
-		.max(100, "درصد نمیتواند بیشتر از 100 باشد"),
+		.optional(),
 	step2Percent: Yup.number()
-		.optional()
-		.min(-100, "درصد نمیتواند کمتر از 100- باشد")
-		.max(100, "درصد نمیتواند بیشتر از 100 باشد"),
+		.optional(),
 	step3Percent: Yup.number()
-		.optional()
-		.min(-100, "درصد نمیتواند کمتر از 100- باشد")
-		.max(100, "درصد نمیتواند بیشتر از 100 باشد"),
+		.optional(),
+	step4Percent: Yup.number()
+		.optional(),
 	step1Price: Yup.number().optional().min(0, "قیمت نمی‌تواند منفی باشد"),
 	step2Price: Yup.number().optional().min(0, "قیمت نمی‌تواند منفی باشد"),
-	step3Price: Yup.mixed().optional(),
+	step3Price: Yup.number().optional().min(0, "قیمت نمی‌تواند منفی باشد"),
+	step4Price: Yup.number().optional().min(0, "قیمت نمی‌تواند منفی باشد"),
 	// foreign: Yup.boolean(),
 	isNew: Yup.boolean(),
 	priority: Yup.number().min(0, "اولویت نمی‌تواند منفی باشد"),
