@@ -478,7 +478,8 @@ export default function UpdateProductDialog({
 										// onValueChange={(value: string) => {
 										// 	setPrice(Number(value));
 										// }}
-										type="number"
+										// type="number"
+										isPriceInput	
 										label="قیمت"
 										icon={DollarSign}
 									/>
@@ -499,7 +500,8 @@ export default function UpdateProductDialog({
 										// onValueChange={(value: string) => {
 										// 	setIrrPrice(Number(value));
 										// }}
-										type="number"
+										// type="number"
+										isPriceInput
 										icon={DollarSign}
 										label="معادل ریالی"
 									/>
@@ -509,7 +511,8 @@ export default function UpdateProductDialog({
 										// onValueChange={(value: string) => {
 										// 	setConsumerPrice(Number(value));
 										// }}
-										type="number"
+										// type="number"
+										isPriceInput
 										label="قیمت مصرف کننده"
 										icon={DollarSign}
 									/>
@@ -524,7 +527,8 @@ export default function UpdateProductDialog({
 										// 	setStep1(Number(value));
 										// 	// handleStep1Percent(value);
 										// }}
-										type="number"
+										// type="number"
+										isPriceInput
 										icon={Percent}
 										label="درصد همکار"
 									/>
@@ -536,7 +540,8 @@ export default function UpdateProductDialog({
 										// 	// handleStep1Price(value);
 										// 	// setBaseStep1(Number(value));
 										// }}
-										type="number"
+										// type="number"
+										isPriceInput
 										icon={PercentCircle}
 										label="قیمت پله 1"
 									/>
@@ -552,7 +557,8 @@ export default function UpdateProductDialog({
 										// 	// handleStep2Percent(value);
 										// 	// updateStep2Base(value, step2Origin);
 										// }}
-										type="number"
+										// type="number"
+										isPriceInput
 										icon={Percent}
 										label="درصد مغازه نقدی"
 									/>
@@ -564,7 +570,8 @@ export default function UpdateProductDialog({
 										// 	// handleStep2Price(value);
 										// 	// setBaseStep2(Number(value));
 										// }}
-										type="number"
+										// type="number"
+										isPriceInput
 										icon={PercentCircle}
 										label="قیمت پله 2"
 									/>
@@ -591,7 +598,8 @@ export default function UpdateProductDialog({
 										// 	// handleStep3Percent(value);
 										// 	// updateStep3Base(value, step3Origin);
 										// }}
-										type="number"
+										// type="number"
+										isPriceInput
 										icon={Percent}
 										label="درصد مغازه چکی"
 									/>
@@ -603,7 +611,8 @@ export default function UpdateProductDialog({
 										// 	// handleStep3Price(value);
 										// 	// setBaseStep3(Number(value));
 										// }}
-										type="number"
+										// type="number"
+										isPriceInput
 										icon={PercentCircle}
 										label="قیمت پله 3"
 									/>
@@ -622,26 +631,28 @@ export default function UpdateProductDialog({
 								{/* Step 3 */}
 								<div className="grid grid-cols-3 gap-4">
 									<Input
-										name="step3Percent"
+										name="step4Percent"
 										// value={step3}
 										// onValueChange={(value: string) => {
 										// 	setStep3(Number(value));
 										// 	// handleStep3Percent(value);
 										// 	// updateStep3Base(value, step3Origin);
 										// }}
-										type="number"
+										// type="number"
+										isPriceInput
 										icon={Percent}
 										label="درصد تکی"
 									/>
 									<Input
-										name="step3Price"
+										name="step4Price"
 										// value={Math.round(baseStep3Safe) || ""}
 										// onValueChange={(value: string) => {
 										// 	setBaseStep3(Number(value));
 										// 	// handleStep3Price(value);
 										// 	// setBaseStep3(Number(value));
 										// }}
-										type="number"
+										// type="number"
+										isPriceInput
 										icon={PercentCircle}
 										label="قیمت پله 3"
 									/>

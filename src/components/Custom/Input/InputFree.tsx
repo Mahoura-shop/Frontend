@@ -4,6 +4,7 @@ import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSettingsStore } from "@/store/useSettingsStore";
 import { useState, useEffect, useCallback, useRef } from "react"; // Added useRef
+import { isRTL } from "@/utils/isRTL";
 
 // --- اضافه شدن isPriceInput به Props ---
 interface Props {
@@ -22,13 +23,6 @@ interface Props {
 	onValueChange?: (value: string) => void; // Changed value type to string for consistency
 	isPriceInput?: boolean; // <-- این prop جدید اضافه شد
 }
-
-const isRTL = (text: string | undefined | null): boolean => {
-	if (!text) return true; // Default to RTL for empty/null input might be safer for Persian context
-	// More comprehensive regex for RTL characters, including Arabic and Hebrew ranges
-	const rtlChars = /[\u0590-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC]/;
-	return rtlChars.test(text);
-};
 
 export default function InputFree({
 	children,
