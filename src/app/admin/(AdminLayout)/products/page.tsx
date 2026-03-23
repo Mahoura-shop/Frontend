@@ -98,6 +98,10 @@ export default function ProductsAdminPage() {
 						product?.step3Percent === 0
 							? undefined
 							: product?.step3Percent,
+					step4Percent:
+						product?.step4Percent === 0
+							? undefined
+							: product?.step4Percent,
 					step1Price:
 						product?.step1Price === 0
 							? undefined
@@ -110,6 +114,10 @@ export default function ProductsAdminPage() {
 						product?.step3Price === 0
 							? undefined
 							: product?.step3Price,
+					step4Price:
+						product?.step4Price === 0
+							? undefined
+							: product?.step4Price,
 				})) ?? [];
 			setProducts(productsList);
 			console.log("products", productsList);

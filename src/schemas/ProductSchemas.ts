@@ -29,7 +29,6 @@ export const createProductInitialValues = {
 	brandID: "",
 	quantity: 0,
 	quantityType: "عدد",
-	// foreign: false,
 	currencyID: "1",
 	productPic: undefined,
 };
