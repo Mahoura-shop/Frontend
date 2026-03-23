@@ -18,6 +18,7 @@ import {
 	Star,
 	Layers,
 	Award,
+	ShoppingBag,
 } from "lucide-react";
 import {
 	Dialog,
@@ -98,15 +99,7 @@ export default function ProductInfoDialog({
 	// Format quantity with type
 	const formatQuantity = (quantity: number, type: string) => {
 		const formatted = new Intl.NumberFormat("fa-IR").format(quantity);
-		const typeLabel =
-			{
-				pieces: "عدد",
-				ml: "میلی‌لیتر",
-				g: "گرم",
-				kg: "کیلوگرم",
-				l: "لیتر",
-			}[type] || type;
-		return `${formatted} ${typeLabel}`;
+		return `${formatted} ${type}`;
 	};
 
 	return (
@@ -204,7 +197,7 @@ export default function ProductInfoDialog({
 													variant="outOfStock"
 													className="px-3 py-1"
 												>
-													موجودی تمام
+													اتمام موجودی
 												</Badge>
 											</motion.div>
 										)}
@@ -256,8 +249,8 @@ export default function ProductInfoDialog({
 											</p>
 											<p className="text-4xl font-bold gradient-text">
 												{formatPrice(
-													Number(product.irrPrice),
-													"ریال",
+													Number(product.price),
+													product.currency.name,
 												)}
 											</p>
 										</div>
@@ -307,6 +300,76 @@ export default function ProductInfoDialog({
 												}
 												label="شناسه محصول"
 												value={`#${product.id}`}
+											/>
+										)}
+
+										{/* IrrPrice */}
+										{product.irrPrice && (
+											<InfoItem
+												icon={
+													<Hash className="w-4 h-4" />
+												}
+												label="قیمت ریالی"
+												value={`${formatPrice(
+													Number(product.irrPrice),
+													"ریال",
+												)}`}
+											/>
+										)}
+
+										{/* Fellow Price */}
+										{product.step1Price && (
+											<InfoItem
+												icon={
+													<Hash className="w-4 h-4" />
+												}
+												label="قیمت همکار"
+												value={`${formatPrice(
+													Number(product.step1Price),
+													"ریال",
+												)}`}
+											/>
+										)}
+
+										{/* ShopKeeper Cash Price */}
+										{product.step2Price && (
+											<InfoItem
+												icon={
+													<Hash className="w-4 h-4" />
+												}
+												label="قیمت مغازه نقدی"
+												value={`${formatPrice(
+													Number(product.step2Price),
+													"ریال",
+												)}`}
+											/>
+										)}
+
+										{/* ShopKeeper Cheque Price */}
+										{product.step3Price && (
+											<InfoItem
+												icon={
+													<Hash className="w-4 h-4" />
+												}
+												label="قیمت مغازه چکی"
+												value={`${formatPrice(
+													Number(product.step3Price),
+													"ریال",
+												)}`}
+											/>
+										)}
+
+										{/* Regular Price */}
+										{product.step4Price && (
+											<InfoItem
+												icon={
+													<Hash className="w-4 h-4" />
+												}
+												label="قیمت تکی"
+												value={`${formatPrice(
+													Number(product.step4Price),
+													"ریال",
+												)}`}
 											/>
 										)}
 
@@ -372,6 +435,20 @@ export default function ProductInfoDialog({
 													).format(product.priority)}
 												/>
 											)}
+
+										{/* Consumer Price */}
+										{product.consumerPrice && (
+											<InfoItem
+												icon={
+													<ShoppingBag className="w-4 h-4" />
+												}
+												label="قیمت مصرف‌کننده"
+												value={formatPrice(
+													product.consumerPrice,
+													"ریال",
+												)}
+											/>
+										)}
 									</div>
 								</motion.div>
 							</div>

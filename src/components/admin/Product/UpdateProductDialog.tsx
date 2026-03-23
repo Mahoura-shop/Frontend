@@ -28,6 +28,7 @@ import {
 	Percent,
 	PercentCircle,
 	TicketPercent,
+	ShoppingBag,
 } from "lucide-react";
 import Input from "@/components/Custom/Input/Input";
 import Textarea from "@/components/Custom/Textarea/Textarea";
@@ -40,6 +41,7 @@ import Button from "@/components/Custom/Button/Button";
 import { translateErrorObject } from "@/utils/translateErrorObject";
 import Select from "@/components/Custom/Select/Select";
 import { roundPrice } from "@/utils/roundPrice";
+import { useCurrencyStore } from "@/store/useCurrencyStore";
 
 interface UpdateProductDialogProps {
 	product?: Product;
@@ -56,46 +58,9 @@ export default function UpdateProductDialog({
 	categories = [],
 	brands = [],
 }: UpdateProductDialogProps) {
+	const { currencies, fetchCurrencies } = useCurrencyStore();
 	const [productDialogOpen, setProductDialogOpen] = useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(false);
-	// const [irrPrice, setIrrPrice] = useState<number | undefined>(undefined);
-	// const [step2Origin, setStep2Origin] = useState<boolean>(false);
-	// const [step3Origin, setStep3Origin] = useState<boolean>(false);
-	const [currencies, setCurrencies] = useState<Currency[]>([]);
-
-	// const [baseStep1, setBaseStep1] = useState<number | undefined>(undefined);
-	// const [baseStep2, setBaseStep2] = useState<number | undefined>(undefined);
-	// const [baseStep3, setBaseStep3] = useState<number | undefined>(undefined);
-	// const [step1, setStep1] = useState<number | undefined>(undefined);
-	// const [step2, setStep2] = useState<number | undefined>(undefined);
-	// const [step3, setStep3] = useState<number | undefined>(undefined);
-
-	// const [price, setPrice] = useState<number | undefined>();
-	// const [consumerPrice, setConsumerPrice] = useState<number | undefined>();
-	// const [irrPrice, setIrrPrice] = useState<number | undefined>();
-
-	// const [step1, setStep1] = useState<number | undefined>();
-	// const [baseStep1, setBaseStep1] = useState<number | undefined>();
-
-	// const [step2, setStep2] = useState<number | undefined>();
-	// const [baseStep2, setBaseStep2] = useState<number | undefined>();
-
-	// const [step3, setStep3] = useState<number | undefined>();
-	// const [baseStep3, setBaseStep3] = useState<number | undefined>();
-
-	// const [step2Origin, setStep2Origin] = useState(false);
-	// const [step3Origin, setStep3Origin] = useState(false);
-
-	// const irrPriceSafe = irrPrice || 0;
-	// const baseStep1Safe = baseStep1 || 0;
-	// const baseStep2Safe = baseStep2 || 0;
-	// const baseStep3Safe = baseStep3 || 0;
-
-	const fetchCurrencies = () => {
-		getData({ endPoint: `/v1/currency` }).then((data) => {
-			setCurrencies(data?.data);
-		});
-	};
 
 	useEffect(() => {
 		fetchCurrencies();
@@ -108,7 +73,6 @@ export default function UpdateProductDialog({
 		setLoading(true);
 		const formData = new FormData();
 
-		// Only append changed fields for update mode
 		if (!(mode === "update" && product?.name === values.name)) {
 			formData.append("name", values.name);
 		}
@@ -126,9 +90,7 @@ export default function UpdateProductDialog({
 		) {
 			formData.append("description", values.description || "");
 		}
-		if (
-			!(mode === "update" && product?.offer === values.offer)
-		) {
+		if (!(mode === "update" && product?.offer === values.offer)) {
 			formData.append("offer", values.offer || "");
 		}
 		formData.append("isActive", values.isActive.toString());
@@ -308,10 +270,6 @@ export default function UpdateProductDialog({
 				fetchProducts();
 			})
 			.catch((error) => {
-				console.log(
-					"error",
-					translateErrorObject(error?.response?.data?.messages),
-				);
 				setErrors(
 					translateErrorObject(error?.response?.data?.messages),
 				);
@@ -319,58 +277,12 @@ export default function UpdateProductDialog({
 			.finally(() => setLoading(false));
 	};
 
-	// // Base rice
-	// useEffect(() => {
-	// 	if (price === undefined) return;
-	// 	setIrrPrice(price * 45000);
-	// }, [price]);
-
-	// // Step 1 Price
-	// useEffect(() => {
-	// 	if (irrPrice === undefined || step1 === undefined) return;
-	// 	setBaseStep1(irrPrice * (1 + Number(step1) / 100));
-	// }, [irrPrice, step1]);
-
-	// // Step 2 Price
-	// useEffect(() => {
-	// 	if (step2Origin) {
-	// 		if (irrPrice === undefined || step2 === undefined) return;
-	// 		setBaseStep2(irrPrice * (1 + Number(step2) / 100));
-	// 	} else {
-	// 		if (baseStep1 === undefined || step2 === undefined) return;
-	// 		setBaseStep2(baseStep1 * (1 + Number(step2) / 100));
-	// 	}
-	// }, [step2Origin, irrPrice, baseStep1, step2]);
-
-	// // Step 3 Price
-	// useEffect(() => {
-	// 	if (step3Origin) {
-	// 		if (irrPrice === undefined || step3 === undefined) return;
-	// 		setBaseStep3(irrPrice * (1 + Number(step3) / 100));
-	// 	} else {
-	// 		if (baseStep2 === undefined || step2 === undefined) return;
-	// 		setBaseStep3(baseStep2 * (1 + Number(step3) / 100));
-	// 	}
-	// }, [step3Origin, irrPrice, baseStep2, step3]);
-
 	return (
 		<Dialog
 			open={productDialogOpen}
 			onOpenChange={(value: boolean) => setProductDialogOpen(value)}
 		>
-			<DialogTrigger
-			// size={mode !== "create" ? "icon" : "default"}
-			// variant={mode !== "create" ? "secondary" : "default"}
-			// className={
-			// 	mode !== "create"
-			// 		? "h-8 w-8 hover:bg-background/80"
-			// 		: "gap-2"
-			// }
-			>
-				{/* <div>
-					<Plus className="w-4 h-4" />
-					<p>افزودن محصول</p>
-				</div> */}
+			<DialogTrigger>
 				{mode === "create" ? (
 					<Button className="gap-2">
 						<Plus className="w-4 h-4" />
@@ -448,12 +360,6 @@ export default function UpdateProductDialog({
 									irrPrice * (1 + Number(step1) / 100),
 								),
 							);
-							// setFieldValue(
-							// 	"step1Price",
-							// 	Math.round(
-							// 		irrPrice * (1 + Number(step1) / 100),
-							// 	),
-							// );
 						}, [irrPrice, step1]);
 
 						// Step 2 Price
@@ -470,12 +376,6 @@ export default function UpdateProductDialog({
 										irrPrice * (1 + Number(step2) / 100),
 									),
 								);
-								// setFieldValue(
-								// 	"step2Price",
-								// 	Math.round(
-								// 		irrPrice * (1 + Number(step2) / 100),
-								// 	),
-								// );
 							} else {
 								if (
 									baseStep1 === undefined ||
@@ -488,12 +388,6 @@ export default function UpdateProductDialog({
 										baseStep1 * (1 + Number(step2) / 100),
 									),
 								);
-								// setFieldValue(
-								// 	"step2Price",
-								// 	Math.round(
-								// 		baseStep1 * (1 + Number(step2) / 100),
-								// 	),
-								// );
 							}
 						}, [step2Origin, irrPrice, baseStep1, step2]);
 
@@ -511,12 +405,6 @@ export default function UpdateProductDialog({
 										irrPrice * (1 + Number(step3) / 100),
 									),
 								);
-								// setFieldValue(
-								// 	"step3Price",
-								// 	Math.round(
-								// 		irrPrice * (1 + Number(step3) / 100),
-								// 	),
-								// );
 							} else {
 								if (
 									baseStep2 === undefined ||
@@ -529,12 +417,6 @@ export default function UpdateProductDialog({
 										baseStep2 * (1 + Number(step3) / 100),
 									),
 								);
-								// setFieldValue(
-								// 	"step3Price",
-								// 	Math.round(
-								// 		baseStep2 * (1 + Number(step3) / 100),
-								// 	),
-								// );
 							}
 						}, [step3Origin, irrPrice, baseStep2, step3]);
 
@@ -552,12 +434,6 @@ export default function UpdateProductDialog({
 										irrPrice * (1 + Number(step4) / 100),
 									),
 								);
-								// setFieldValue(
-								// 	"step4Price",
-								// 	Math.round(
-								// 		irrPrice * (1 + Number(step4) / 100),
-								// 	),
-								// );
 							} else {
 								if (
 									baseStep3 === undefined ||
@@ -570,12 +446,6 @@ export default function UpdateProductDialog({
 										baseStep3 * (1 + Number(step4) / 100),
 									),
 								);
-								// setFieldValue(
-								// 	"step4Price",
-								// 	Math.round(
-								// 		baseStep3 * (1 + Number(step4) / 100),
-								// 	),
-								// );
 							}
 						}, [step4Origin, irrPrice, baseStep3, step4]);
 
@@ -588,8 +458,6 @@ export default function UpdateProductDialog({
 											: "ویرایش محصول"}
 									</DialogTitle>
 								</DialogHeader>
-
-								{/* Name and Slug */}
 								<div className="grid grid-cols-2 gap-4">
 									<Input
 										name="name"
@@ -602,18 +470,10 @@ export default function UpdateProductDialog({
 										label="نام انگلیسی محصول"
 									/>
 								</div>
+
 								<div className="grid grid-cols-4 gap-4">
-									{/* <Checkbox
-									name="foreign"
-									label="محصول خارجی است"
-								/> */}
 									<Input
 										name="price"
-										// value={price}
-										// onValueChange={(value: string) => {
-										// 	setPrice(Number(value));
-										// }}
-										// type="number"
 										isPriceInput
 										label="قیمت"
 										icon={DollarSign}
@@ -631,51 +491,27 @@ export default function UpdateProductDialog({
 									/>
 									<Input
 										name="irrPrice"
-										// value={Math.round(irrPriceSafe) || ""}
-										// onValueChange={(value: string) => {
-										// 	setIrrPrice(Number(value));
-										// }}
-										// type="number"
 										isPriceInput
 										icon={DollarSign}
 										label="معادل ریالی"
 									/>
 									<Input
 										name="consumerPrice"
-										// value={consumerPrice}
-										// onValueChange={(value: string) => {
-										// 	setConsumerPrice(Number(value));
-										// }}
-										// type="number"
 										isPriceInput
 										label="قیمت مصرف کننده"
-										icon={DollarSign}
+										icon={ShoppingBag}
 									/>
 								</div>
 
-								{/* Step 1 */}
 								<div className="grid grid-cols-3 gap-4">
 									<Input
 										name="step1Percent"
-										// value={step1}
-										// onValueChange={(value: string) => {
-										// 	setStep1(Number(value));
-										// 	// handleStep1Percent(value);
-										// }}
-										// type="number"
 										isPriceInput
 										icon={Percent}
 										label="درصد همکار"
 									/>
 									<Input
 										name="step1Price"
-										// value={Math.round(baseStep1Safe) || ""}
-										// onValueChange={(value: string) => {
-										// 	setBaseStep1(Number(value));
-										// 	// handleStep1Price(value);
-										// 	// setBaseStep1(Number(value));
-										// }}
-										// type="number"
 										isPriceInput
 										icon={PercentCircle}
 										label="قیمت همکار"
@@ -686,40 +522,18 @@ export default function UpdateProductDialog({
 								<div className="grid grid-cols-3 gap-4">
 									<Input
 										name="step2Percent"
-										// value={step2}
-										// onValueChange={(value: string) => {
-										// 	setStep2(Number(value));
-										// 	// handleStep2Percent(value);
-										// 	// updateStep2Base(value, step2Origin);
-										// }}
-										// type="number"
 										isPriceInput
 										icon={Percent}
 										label="درصد مغازه نقدی"
 									/>
 									<Input
 										name="step2Price"
-										// value={Math.round(baseStep2Safe) || ""}
-										// onValueChange={(value: string) => {
-										// 	setBaseStep2(Number(value));
-										// 	// handleStep2Price(value);
-										// 	// setBaseStep2(Number(value));
-										// }}
-										// type="number"
 										isPriceInput
 										icon={PercentCircle}
 										label="قیمت مغازه نقدی"
 									/>
 									<Checkbox
 										name="step2Origin"
-										// checked={step2Origin}
-										// onValueChange={(value: boolean) => {
-										// 	setStep2Origin(value);
-										// 	// updateStep2Base(
-										// 	// 	step2Safe.toString(),
-										// 	// 	value,
-										// 	// );
-										// }}
 										label="نسبت به قیمت اصلی"
 									/>
 								</div>
@@ -728,81 +542,37 @@ export default function UpdateProductDialog({
 								<div className="grid grid-cols-3 gap-4">
 									<Input
 										name="step3Percent"
-										// value={step3}
-										// onValueChange={(value: string) => {
-										// 	setStep3(Number(value));
-										// 	// handleStep3Percent(value);
-										// 	// updateStep3Base(value, step3Origin);
-										// }}
-										// type="number"
 										isPriceInput
 										icon={Percent}
 										label="درصد مغازه چکی"
 									/>
 									<Input
 										name="step3Price"
-										// value={Math.round(baseStep3Safe) || ""}
-										// onValueChange={(value: string) => {
-										// 	setBaseStep3(Number(value));
-										// 	// handleStep3Price(value);
-										// 	// setBaseStep3(Number(value));
-										// }}
-										// type="number"
 										isPriceInput
 										icon={PercentCircle}
 										label="قیمت مغازه چکی"
 									/>
 									<Checkbox
 										name="step3Origin"
-										// checked={step3Origin}
-										// onValueChange={(value: boolean) => {
-										// 	setStep3Origin(value);
-										// 	// updateStep3Base(
-										// 	// 	step3Safe.toString(),
-										// 	// 	value,
-										// 	// );
-										// }}
 										label="نسبت به قیمت اصلی"
 									/>
 								</div>
-								{/* Step 3 */}
+
 								<div className="grid grid-cols-3 gap-4">
 									<Input
 										name="step4Percent"
-										// value={step3}
-										// onValueChange={(value: string) => {
-										// 	setStep3(Number(value));
-										// 	// handleStep3Percent(value);
-										// 	// updateStep3Base(value, step3Origin);
-										// }}
-										// type="number"
 										isPriceInput
 										icon={Percent}
 										label="درصد تکی"
 									/>
 									<Input
 										name="step4Price"
-										// value={Math.round(baseStep3Safe) || ""}
-										// onValueChange={(value: string) => {
-										// 	setBaseStep3(Number(value));
-										// 	// handleStep3Price(value);
-										// 	// setBaseStep3(Number(value));
-										// }}
-										// type="number"
 										isPriceInput
 										icon={PercentCircle}
 										label="قیمت تکی"
 									/>
 									<Checkbox
 										name="step4Origin"
-										// checked={step3Origin}
-										// onValueChange={(value: boolean) => {
-										// 	setStep3Origin(value);
-										// 	// updateStep3Base(
-										// 	// 	step3Safe.toString(),
-										// 	// 	value,
-										// 	// );
-										// }}
 										label="نسبت به قیمت اصلی"
 									/>
 								</div>

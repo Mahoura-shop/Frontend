@@ -2,7 +2,7 @@ interface Product {
 	id: number;
 	name: string;
 	slug: string;
-	price?: number;
+	price: number;
 	description?: string;
 	offer?: string;
 	isActive: boolean;
@@ -29,7 +29,7 @@ interface Product {
 	brand?: Brand;
 	quantity: number;
 	quantityType: string;
-	currency?: Currency;
+	currency: Currency;
 	currencyID: string;
 	productPic: string | undefined;
 }
