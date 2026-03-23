@@ -188,6 +188,7 @@ export default function ProductsAdminPage() {
 			data: productPricesPayload,
 		}).then((data) => {
 			CustomToast(data?.message, "success");
+			fetchProductPrices();
 		});
 	};
 

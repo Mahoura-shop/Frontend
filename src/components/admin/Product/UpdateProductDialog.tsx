@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
 	Dialog,
 	DialogContent,
@@ -21,13 +21,13 @@ import {
 	DollarSign,
 	Hash,
 	ShoppingCart,
-	Star,
 	TrendingUp,
 	FolderTree,
 	Tag,
 	Copy,
 	Percent,
 	PercentCircle,
+	TicketPercent,
 } from "lucide-react";
 import Input from "@/components/Custom/Input/Input";
 import Textarea from "@/components/Custom/Textarea/Textarea";
@@ -39,8 +39,7 @@ import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import Button from "@/components/Custom/Button/Button";
 import { translateErrorObject } from "@/utils/translateErrorObject";
 import Select from "@/components/Custom/Select/Select";
-import InputFree from "@/components/Custom/Input/InputFree";
-import CheckboxFree from "@/components/Custom/Checkbox/CheckboxFree";
+import { roundPrice } from "@/utils/roundPrice";
 
 interface UpdateProductDialogProps {
 	product?: Product;
@@ -60,8 +59,8 @@ export default function UpdateProductDialog({
 	const [productDialogOpen, setProductDialogOpen] = useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(false);
 	// const [irrPrice, setIrrPrice] = useState<number | undefined>(undefined);
-	const [step2Origin, setStep2Origin] = useState<boolean>(false);
-	const [step3Origin, setStep3Origin] = useState<boolean>(false);
+	// const [step2Origin, setStep2Origin] = useState<boolean>(false);
+	// const [step3Origin, setStep3Origin] = useState<boolean>(false);
 	const [currencies, setCurrencies] = useState<Currency[]>([]);
 
 	// const [baseStep1, setBaseStep1] = useState<number | undefined>(undefined);
@@ -126,6 +125,11 @@ export default function UpdateProductDialog({
 			!(mode === "update" && product?.description === values.description)
 		) {
 			formData.append("description", values.description || "");
+		}
+		if (
+			!(mode === "update" && product?.offer === values.offer)
+		) {
+			formData.append("offer", values.offer || "");
 		}
 		formData.append("isActive", values.isActive.toString());
 		formData.append("isNew", values.isNew.toString());
@@ -203,6 +207,15 @@ export default function UpdateProductDialog({
 			formData.append("step3Percent", values.step3Percent?.toString());
 		}
 		if (
+			!(
+				mode === "update" &&
+				product?.step4Percent === values.step4Percent
+			) &&
+			values.step4Percent
+		) {
+			formData.append("step4Percent", values.step4Percent?.toString());
+		}
+		if (
 			!(mode === "update" && product?.step1Price === values.step1Price) &&
 			values.step1Price
 		) {
@@ -219,6 +232,44 @@ export default function UpdateProductDialog({
 			values.step3Price
 		) {
 			formData.append("step3Price", values.step3Price?.toString());
+		}
+		if (
+			!(mode === "update" && product?.step4Price === values.step4Price) &&
+			values.step4Price
+		) {
+			formData.append("step4Price", values.step4Price?.toString());
+		}
+		if (
+			!(
+				mode === "update" && product?.step1Origin === values.step1Origin
+			) &&
+			values.step1Origin
+		) {
+			formData.append("step1Origin", values.step1Origin?.toString());
+		}
+		if (
+			!(
+				mode === "update" && product?.step2Origin === values.step2Origin
+			) &&
+			values.step2Origin
+		) {
+			formData.append("step2Origin", values.step2Origin?.toString());
+		}
+		if (
+			!(
+				mode === "update" && product?.step3Origin === values.step3Origin
+			) &&
+			values.step3Origin
+		) {
+			formData.append("step3Origin", values.step3Origin?.toString());
+		}
+		if (
+			!(
+				mode === "update" && product?.step4Origin === values.step4Origin
+			) &&
+			values.step4Origin
+		) {
+			formData.append("step4Origin", values.step4Origin?.toString());
 		}
 
 		// Handle image upload
@@ -344,7 +395,10 @@ export default function UpdateProductDialog({
 				)}
 			</DialogTrigger>
 
-			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" variant="action">
+			<DialogContent
+				className="max-w-4xl max-h-[90vh] overflow-y-auto"
+				variant="action"
+			>
 				<Formik
 					initialValues={
 						mode === "create"
@@ -360,9 +414,15 @@ export default function UpdateProductDialog({
 						const step1 = values["step1Percent"];
 						const step2 = values["step2Percent"];
 						const step3 = values["step3Percent"];
+						const step4 = values["step4Percent"];
 						const baseStep1 = values["step1Price"];
 						const baseStep2 = values["step2Price"];
 						const baseStep3 = values["step3Price"];
+						const baseStep4 = values["step4Price"];
+						const step1Origin = values["step1Origin"];
+						const step2Origin = values["step2Origin"];
+						const step3Origin = values["step3Origin"];
+						const step4Origin = values["step4Origin"];
 						const rate =
 							currencies.find(
 								(currency: Currency) =>
@@ -372,7 +432,10 @@ export default function UpdateProductDialog({
 						// Base rice
 						useEffect(() => {
 							if (price === undefined) return;
-							setFieldValue("irrPrice", Math.round(price * rate));
+							if (mode === "update" && price === product?.price)
+								return;
+							setFieldValue("irrPrice", roundPrice(price * rate));
+							// setFieldValue("irrPrice", Math.round(price * rate));
 						}, [price, rate]);
 
 						// Step 1 Price
@@ -381,10 +444,16 @@ export default function UpdateProductDialog({
 								return;
 							setFieldValue(
 								"step1Price",
-								Math.round(
+								roundPrice(
 									irrPrice * (1 + Number(step1) / 100),
 								),
 							);
+							// setFieldValue(
+							// 	"step1Price",
+							// 	Math.round(
+							// 		irrPrice * (1 + Number(step1) / 100),
+							// 	),
+							// );
 						}, [irrPrice, step1]);
 
 						// Step 2 Price
@@ -397,10 +466,16 @@ export default function UpdateProductDialog({
 									return;
 								setFieldValue(
 									"step2Price",
-									Math.round(
+									roundPrice(
 										irrPrice * (1 + Number(step2) / 100),
 									),
 								);
+								// setFieldValue(
+								// 	"step2Price",
+								// 	Math.round(
+								// 		irrPrice * (1 + Number(step2) / 100),
+								// 	),
+								// );
 							} else {
 								if (
 									baseStep1 === undefined ||
@@ -409,10 +484,16 @@ export default function UpdateProductDialog({
 									return;
 								setFieldValue(
 									"step2Price",
-									Math.round(
+									roundPrice(
 										baseStep1 * (1 + Number(step2) / 100),
 									),
 								);
+								// setFieldValue(
+								// 	"step2Price",
+								// 	Math.round(
+								// 		baseStep1 * (1 + Number(step2) / 100),
+								// 	),
+								// );
 							}
 						}, [step2Origin, irrPrice, baseStep1, step2]);
 
@@ -426,10 +507,16 @@ export default function UpdateProductDialog({
 									return;
 								setFieldValue(
 									"step3Price",
-									Math.round(
+									roundPrice(
 										irrPrice * (1 + Number(step3) / 100),
 									),
 								);
+								// setFieldValue(
+								// 	"step3Price",
+								// 	Math.round(
+								// 		irrPrice * (1 + Number(step3) / 100),
+								// 	),
+								// );
 							} else {
 								if (
 									baseStep2 === undefined ||
@@ -438,12 +525,60 @@ export default function UpdateProductDialog({
 									return;
 								setFieldValue(
 									"step3Price",
-									Math.round(
+									roundPrice(
 										baseStep2 * (1 + Number(step3) / 100),
 									),
 								);
+								// setFieldValue(
+								// 	"step3Price",
+								// 	Math.round(
+								// 		baseStep2 * (1 + Number(step3) / 100),
+								// 	),
+								// );
 							}
 						}, [step3Origin, irrPrice, baseStep2, step3]);
+
+						// Step 4 Price
+						useEffect(() => {
+							if (step4Origin) {
+								if (
+									irrPrice === undefined ||
+									step4 === undefined
+								)
+									return;
+								setFieldValue(
+									"step4Price",
+									roundPrice(
+										irrPrice * (1 + Number(step4) / 100),
+									),
+								);
+								// setFieldValue(
+								// 	"step4Price",
+								// 	Math.round(
+								// 		irrPrice * (1 + Number(step4) / 100),
+								// 	),
+								// );
+							} else {
+								if (
+									baseStep3 === undefined ||
+									step3 === undefined
+								)
+									return;
+								setFieldValue(
+									"step4Price",
+									roundPrice(
+										baseStep3 * (1 + Number(step4) / 100),
+									),
+								);
+								// setFieldValue(
+								// 	"step4Price",
+								// 	Math.round(
+								// 		baseStep3 * (1 + Number(step4) / 100),
+								// 	),
+								// );
+							}
+						}, [step4Origin, irrPrice, baseStep3, step4]);
+
 						return (
 							<Form className="grid gap-4">
 								<DialogHeader>
@@ -479,7 +614,7 @@ export default function UpdateProductDialog({
 										// 	setPrice(Number(value));
 										// }}
 										// type="number"
-										isPriceInput	
+										isPriceInput
 										label="قیمت"
 										icon={DollarSign}
 									/>
@@ -543,7 +678,7 @@ export default function UpdateProductDialog({
 										// type="number"
 										isPriceInput
 										icon={PercentCircle}
-										label="قیمت پله 1"
+										label="قیمت همکار"
 									/>
 								</div>
 
@@ -573,17 +708,18 @@ export default function UpdateProductDialog({
 										// type="number"
 										isPriceInput
 										icon={PercentCircle}
-										label="قیمت پله 2"
+										label="قیمت مغازه نقدی"
 									/>
 									<Checkbox
-										checked={step2Origin}
-										onValueChange={(value: boolean) => {
-											setStep2Origin(value);
-											// updateStep2Base(
-											// 	step2Safe.toString(),
-											// 	value,
-											// );
-										}}
+										name="step2Origin"
+										// checked={step2Origin}
+										// onValueChange={(value: boolean) => {
+										// 	setStep2Origin(value);
+										// 	// updateStep2Base(
+										// 	// 	step2Safe.toString(),
+										// 	// 	value,
+										// 	// );
+										// }}
 										label="نسبت به قیمت اصلی"
 									/>
 								</div>
@@ -614,17 +750,18 @@ export default function UpdateProductDialog({
 										// type="number"
 										isPriceInput
 										icon={PercentCircle}
-										label="قیمت پله 3"
+										label="قیمت مغازه چکی"
 									/>
 									<Checkbox
-										checked={step3Origin}
-										onValueChange={(value: boolean) => {
-											setStep3Origin(value);
-											// updateStep3Base(
-											// 	step3Safe.toString(),
-											// 	value,
-											// );
-										}}
+										name="step3Origin"
+										// checked={step3Origin}
+										// onValueChange={(value: boolean) => {
+										// 	setStep3Origin(value);
+										// 	// updateStep3Base(
+										// 	// 	step3Safe.toString(),
+										// 	// 	value,
+										// 	// );
+										// }}
 										label="نسبت به قیمت اصلی"
 									/>
 								</div>
@@ -654,17 +791,18 @@ export default function UpdateProductDialog({
 										// type="number"
 										isPriceInput
 										icon={PercentCircle}
-										label="قیمت پله 3"
+										label="قیمت تکی"
 									/>
 									<Checkbox
-										checked={step3Origin}
-										onValueChange={(value: boolean) => {
-											setStep3Origin(value);
-											// updateStep3Base(
-											// 	step3Safe.toString(),
-											// 	value,
-											// );
-										}}
+										name="step4Origin"
+										// checked={step3Origin}
+										// onValueChange={(value: boolean) => {
+										// 	setStep3Origin(value);
+										// 	// updateStep3Base(
+										// 	// 	step3Safe.toString(),
+										// 	// 	value,
+										// 	// );
+										// }}
 										label="نسبت به قیمت اصلی"
 									/>
 								</div>
@@ -737,6 +875,14 @@ export default function UpdateProductDialog({
 									label="توضیحات محصول"
 								/>
 
+								{/* Offer */}
+								<div>
+									<Textarea
+										name="offer"
+										icon={TicketPercent}
+										label="آفر"
+									/>
+								</div>
 								{/* Checkboxes */}
 								<div className="flex gap-6">
 									<Checkbox

@@ -118,8 +118,8 @@ export default function InputFree({
 
 			if (isPriceInput) {
 				// 1. Extract and clean digits (Persian and ASCII)
-				const persianDigits = originalValue.replace(/[^\d۰-۹]/g, "");
-				const asciiDigits = originalValue.replace(/[^\d0-9]/g, "");
+				const persianDigits = originalValue.replace(/[^\d۰-۹.]/g, "");
+				const asciiDigits = originalValue.replace(/[^\d0-9.]/g, "");
 
 				let rawDigits = "";
 				if (persianDigits.length > 0) {

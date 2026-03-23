@@ -4,6 +4,7 @@ interface Product {
 	slug: string;
 	price?: number;
 	description?: string;
+	offer?: string;
 	isActive: boolean;
 	isNew: boolean;
 	priority: number;
@@ -15,9 +16,15 @@ interface Product {
 	step1Percent?: number;
 	step2Percent?: number;
 	step3Percent?: number;
+	step4Percent?: number;
 	step1Price?: number;
 	step2Price?: number;
 	step3Price?: number;
+	step4Price?: number;
+	step1Origin?: boolean;
+	step2Origin?: boolean;
+	step3Origin?: boolean;
+	step4Origin?: boolean;
 	brandID?: string;
 	brand?: Brand;
 	quantity: number;
