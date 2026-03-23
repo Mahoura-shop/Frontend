@@ -19,6 +19,11 @@ import {
 	Layers,
 	Award,
 	ShoppingBag,
+	UserStarIcon,
+	HandCoinsIcon,
+	Banknote,
+	UserStar,
+	HandCoins,
 } from "lucide-react";
 import {
 	Dialog,
@@ -307,7 +312,7 @@ export default function ProductInfoDialog({
 										{product.irrPrice && (
 											<InfoItem
 												icon={
-													<Hash className="w-4 h-4" />
+													<DollarSign className="w-4 h-4" />
 												}
 												label="قیمت ریالی"
 												value={`${formatPrice(
@@ -321,7 +326,7 @@ export default function ProductInfoDialog({
 										{product.step1Price && (
 											<InfoItem
 												icon={
-													<Hash className="w-4 h-4" />
+													<UserStar className="w-4 h-4" />
 												}
 												label="قیمت همکار"
 												value={`${formatPrice(
@@ -335,7 +340,7 @@ export default function ProductInfoDialog({
 										{product.step2Price && (
 											<InfoItem
 												icon={
-													<Hash className="w-4 h-4" />
+													<HandCoins className="w-4 h-4" />
 												}
 												label="قیمت مغازه نقدی"
 												value={`${formatPrice(
@@ -349,7 +354,7 @@ export default function ProductInfoDialog({
 										{product.step3Price && (
 											<InfoItem
 												icon={
-													<Hash className="w-4 h-4" />
+													<Banknote className="w-4 h-4" />
 												}
 												label="قیمت مغازه چکی"
 												value={`${formatPrice(
@@ -363,7 +368,7 @@ export default function ProductInfoDialog({
 										{product.step4Price && (
 											<InfoItem
 												icon={
-													<Hash className="w-4 h-4" />
+													<ShoppingBag className="w-4 h-4" />
 												}
 												label="قیمت تکی"
 												value={`${formatPrice(

@@ -29,6 +29,10 @@ import {
 	PercentCircle,
 	TicketPercent,
 	ShoppingBag,
+	UserStarIcon,
+	UserStar,
+	HandCoins,
+	Banknote,
 } from "lucide-react";
 import Input from "@/components/Custom/Input/Input";
 import Textarea from "@/components/Custom/Textarea/Textarea";
@@ -513,7 +517,7 @@ export default function UpdateProductDialog({
 									<Input
 										name="step1Price"
 										isPriceInput
-										icon={PercentCircle}
+										icon={UserStar}
 										label="قیمت همکار"
 									/>
 								</div>
@@ -529,7 +533,7 @@ export default function UpdateProductDialog({
 									<Input
 										name="step2Price"
 										isPriceInput
-										icon={PercentCircle}
+										icon={HandCoins}
 										label="قیمت مغازه نقدی"
 									/>
 									<Checkbox
@@ -549,7 +553,7 @@ export default function UpdateProductDialog({
 									<Input
 										name="step3Price"
 										isPriceInput
-										icon={PercentCircle}
+										icon={Banknote}
 										label="قیمت مغازه چکی"
 									/>
 									<Checkbox
