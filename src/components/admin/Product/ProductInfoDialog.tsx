@@ -5,8 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
 	Package,
 	Globe,
-	Calendar,
-	Image as ImageIcon,
 	CheckCircle2,
 	XCircle,
 	Eye,
@@ -14,16 +12,14 @@ import {
 	DollarSign,
 	ShoppingCart,
 	TrendingUp,
-	Tag,
 	Star,
 	Layers,
 	Award,
 	ShoppingBag,
-	UserStarIcon,
-	HandCoinsIcon,
 	Banknote,
 	UserStar,
 	HandCoins,
+	Image,
 } from "lucide-react";
 import {
 	Dialog,
@@ -237,7 +233,7 @@ export default function ProductInfoDialog({
 											variants={imageVariants}
 											className="w-full max-w-md h-64 rounded-2xl border-2 border-dashed border-muted-foreground/25 flex flex-col items-center justify-center bg-muted/20"
 										>
-											<ImageIcon className="w-16 h-16 text-muted-foreground/50 mb-2" />
+											<Image className="w-16 h-16 text-muted-foreground/50 mb-2" />
 											<p className="text-sm text-muted-foreground">
 												تصویری موجود نیست
 											</p>

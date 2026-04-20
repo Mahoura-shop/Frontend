@@ -29,7 +29,6 @@ import {
 	PercentCircle,
 	TicketPercent,
 	ShoppingBag,
-	UserStarIcon,
 	UserStar,
 	HandCoins,
 	Banknote,
