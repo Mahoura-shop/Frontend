@@ -135,12 +135,14 @@ const StyledWrapper = styled.div`
 		opacity: 1;
 	}
 	.check:hover svg {
-		stroke: #4285f4;
+		stroke: #D4A5A5;
+		// stroke: #4285f4;
 	}
 
 	/* ✅ Generic checked selectors (no hardcoded #mute) */
 	input[type="checkbox"]:checked + .check svg {
-		stroke: #4285f4;
+		stroke: #D4A5A5;
+		// stroke: #4285f4;
 	}
 
 	input[type="checkbox"]:checked + .check svg path {
@@ -152,7 +154,8 @@ const StyledWrapper = styled.div`
 		stroke-dashoffset: 42;
 		transition: all 0.2s linear;
 		transition-delay: 0.15s;
-		stroke: #155dfc;
+		stroke: #D4A5A5;
+		// stroke: #155dfc;
 		animation: mute 0.6s ease;
 	}
 

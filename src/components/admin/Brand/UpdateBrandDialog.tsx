@@ -127,7 +127,7 @@ export default function UpdateBrandDialog({
 					</Button>
 				)}
 			</DialogTrigger>
-			<DialogContent>
+			<DialogContent variant="action">
 				<Formik
 					initialValues={
 						mode === "create"

@@ -14,11 +14,12 @@ import {
 	X,
 	Eye,
 	Package,
+	ImageIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useProductStore } from "@/store/useProductStore";
 import Navbar from "@/components/Navbar";
@@ -33,29 +34,99 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { useEffect } from "react";
+import { useCategoryStore } from "@/store/useCategoryStore";
+import { useBrandStore } from "@/store/useBrandStore";
+import Input from "@/components/Custom/Input/Input";
+import { Slider } from "@/components/ui/slider";
+import { Pagination } from "@/components/ui/pagination";
+import InputFree from "@/components/Custom/Input/InputFree";
+import SelectFree from "@/components/Custom/Select/SelectFree";
 
 export default function ProductsPage() {
-	const { products, getProducts } = useProductStore();
+	const { products, fetchProducts } = useProductStore();
+	const { categories, fetchCategories } = useCategoryStore();
+	const { brands, fetchBrands } = useBrandStore();
+	// const { products, getProducts } = useProductStore();
+	const itemsPerPage = 12;
 	const [searchQuery, setSearchQuery] = useState("");
-	const [selectedCategory, setSelectedCategory] = useState<string>("all");
-	const [priceRange, setPriceRange] = useState<
-		"all" | "low" | "mid" | "high"
-	>("all");
+	const [selectedCategory, setSelectedCategory] = useState<string>("0");
+	// const [selectedCategory, setSelectedCategory] = useState<number>(0);
+	const [selectedBrand, setSelectedBrand] = useState<string>("0");
+	// const [selectedBrand, setSelectedBrand] = useState<number>(0);
+	const [currentPage, setCurrentPage] = useState(1);
+	const [priceRange, setPriceRange] = useState<number[]>([1000, 100000]);
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 	const [showFilters, setShowFilters] = useState(false);
 	const [sortBy, setSortBy] = useState<string>("newest");
 
+	const filteredProducts = products
+		.filter(
+			(product: Product) =>
+				product.categoryID == selectedCategory ||
+				selectedCategory === "0",
+		)
+		.filter(
+			(product: Product) =>
+				product.brandID == selectedBrand || selectedBrand === "0",
+		)
+		.filter(
+			(product: Product) =>
+				product.name.includes(searchQuery) || searchQuery === "",
+		)
+		.filter(
+			(product: Product) =>
+				Number(product.irrPrice) >= priceRange[0] &&
+				Number(product.irrPrice) <= priceRange[1],
+		)
+		.sort((a: Product, b: Product) => {
+			switch (sortBy) {
+				case "newest":
+					return b.id - a.id;
+
+				case "price-low":
+					return (
+						(Number(a.irrPrice) || 0) - (Number(b.irrPrice) || 0)
+					);
+
+				case "price-high":
+					return (
+						(Number(b.irrPrice) || 0) - (Number(a.irrPrice) || 0)
+					);
+
+				default:
+					return 0;
+			}
+		});
+	const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+	const paginatedProducts = filteredProducts.slice(
+		(currentPage - 1) * itemsPerPage,
+		currentPage * itemsPerPage,
+	);
+	const handlePriceChange = (values: number[]) => {
+		// Values are now automatically sorted [min, max]
+		setPriceRange(values);
+	};
+
+	const prices = products?.map(
+		(product: Product) =>
+			Math.round(Number(product.irrPrice) / 1000) * 1000,
+	);
+
 	useEffect(() => {
-		console.log("products", products);
-		getProducts();
+		fetchCategories();
+		fetchBrands();
+		fetchProducts().then((data) => {
+			const prices = data?.map(
+				(product: Product) =>
+					Math.round(Number(product.irrPrice) / 1000) * 1000,
+			);
+			setPriceRange([Math.min(...prices), Math.max(...prices)]);
+		});
 	}, []);
-	const categories = [
-		"all",
-		"آرایش صورت",
-		"مراقبت از پوست",
-		"آرایش چشم",
-		"عطر و ادکلن",
-	];
+
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [searchQuery, sortBy, selectedCategory, selectedBrand, priceRange]);
 
 	return (
 		<div className="min-h-screen bg-background">
@@ -87,8 +158,8 @@ export default function ProductsPage() {
 							className={`lg:w-80 ${showFilters ? "block" : "hidden lg:block"}`}
 						>
 							<Card className="sticky top-24">
-								<CardContent className="p-6">
-									<div className="flex items-center justify-between mb-6">
+								<CardContent className="flex flex-col gap-6 p-6">
+									<div className="flex items-center justify-between">
 										<h3 className="text-xl font-bold flex items-center gap-2">
 											<Filter className="w-5 h-5" />
 											فیلترها
@@ -126,72 +197,198 @@ export default function ProductsPage() {
 									</div> */}
 
 									{/* Categories */}
-									<div className="mb-6">
-										<label className="text-sm font-medium mb-3 block">
+									<div>
+										<SelectFree
+											value={selectedCategory}
+											onValueChange={setSelectedCategory}
+											label="دسته‌بندی"
+											options={[
+												{
+													value: "0",
+													label: "تمام دسته‌بندی‌ها",
+												},
+												...categories.map((cat) => ({
+													value: String(cat.id),
+													label: cat.name,
+												})),
+											]}
+										/>
+										{/* <Select
+											value={selectedCategory}
+											onValueChange={(e) =>
+												setSelectedCategory(e)
+											}
+										>
+											<SelectTrigger className="py-2 border rounded-lg bg-background text-foreground">
+												<SelectValue placeholder="دسته‌بندی" />
+											</SelectTrigger>
+											<SelectContent>
+												<SelectGroup>
+													<SelectLabel>
+														نمایش محصولات دسته‌بندی
+													</SelectLabel>
+													{[
+														{
+															id: 0,
+															name: "تمام دسته‌بندی‌ها",
+														},
+														...categories,
+													].map((cat) => (
+														<SelectItem
+															value={String(
+																cat.id,
+															)}
+															key={cat.id}
+														>
+															{cat.name}
+														</SelectItem>
+													))}
+												</SelectGroup>
+											</SelectContent>
+										</Select> */}
+										{/* <label className="text-sm font-medium mb-3 block">
 											دسته‌بندی
-										</label>
-										<div className="space-y-2">
-											{categories.map((cat) => (
-												<button
-													key={cat}
-													onClick={() =>
-														setSelectedCategory(cat)
-													}
-													className={`w-full text-right px-4 py-2 rounded-lg transition-all ${
-														selectedCategory === cat
-															? "bg-gradient-to-r from-primary-rose to-secondary-plum text-white"
-															: "hover:bg-muted"
-													}`}
-												>
-													{cat === "all"
-														? "همه محصولات"
-														: cat}
-												</button>
-											))}
-										</div>
-									</div>
-
-									{/* Price Range */}
-									<div className="mb-6">
-										<label className="text-sm font-medium mb-3 block">
-											محدوده قیمت
 										</label>
 										<div className="space-y-2">
 											{[
 												{
-													value: "all",
-													label: "همه قیمت‌ها",
+													id: 0,
+													name: "تمام دسته‌بندی‌ها",
 												},
-												{
-													value: "low",
-													label: "زیر ۳۰۰,۰۰۰ تومان",
-												},
-												{
-													value: "mid",
-													label: "۳۰۰,۰۰۰ - ۴۰۰,۰۰۰ تومان",
-												},
-												{
-													value: "high",
-													label: "بالای ۴۰۰,۰۰۰ تومان",
-												},
-											].map((range) => (
+												...categories,
+											].map((cat) => (
 												<button
-													key={range.value}
+													key={cat.id}
 													onClick={() =>
-														setPriceRange(
-															range.value as any,
+														setSelectedCategory(
+															cat.id,
 														)
 													}
-													className={`w-full text-right px-4 py-2 rounded-lg transition-all text-sm ${
-														priceRange ===
-														range.value
-															? "bg-accent-gold text-white"
+													className={`w-full text-right px-4 py-2 rounded-lg transition-all ${
+														selectedCategory ===
+														cat.id
+															? "bg-gradient-to-r from-primary-rose to-secondary-plum text-white"
 															: "hover:bg-muted"
 													}`}
 												>
-													{range.label}
+													{cat.name}
 												</button>
 											))}
+										</div> */}
+									</div>
+
+									{/* Brands */}
+									<div>
+										<SelectFree
+											value={selectedBrand}
+											onValueChange={(val) => {
+												setSelectedBrand(val);
+												console.log(
+													"selectedCategory",
+													val,
+												);
+											}}
+											label="برند"
+											options={[
+												{
+													value: "0",
+													label: "تمام برندها",
+												},
+												...brands.map((brand) => ({
+													value: String(brand.id),
+													label: brand.name,
+												})),
+											]}
+										/>
+										{/* <label className="text-sm font-medium mb-3 block">
+											برند
+										</label>
+										<div className="space-y-2">
+											{[
+												{ id: 0, name: "تمام برندها" },
+												...brands,
+											].map((brand) => (
+												<button
+													key={brand.id}
+													onClick={() =>
+														setSelectedBrand(
+															brand.id,
+														)
+													}
+													className={`w-full text-right px-4 py-2 rounded-lg transition-all ${
+														selectedBrand ===
+														brand.id
+															? "bg-gradient-to-r from-primary-rose to-secondary-plum text-white"
+															: "hover:bg-muted"
+													}`}
+												>
+													{brand.name}
+												</button>
+											))}
+										</div> */}
+									</div>
+
+									{/* Price Range */}
+									{/* <Slider
+										value={priceRange}
+										onValueChange={setPriceRange}
+										max={100000}
+										step={1000}
+										min={0}
+										className="w-full"
+									/> */}
+									<div className="space-y-4">
+										<div className="flex items-center justify-between">
+											<span className="text-sm font-medium">
+												محدوده قیمت
+											</span>
+											{/* <span className="text-sm text-muted-foreground">
+												{new Intl.NumberFormat(
+													"fa-IR",
+												).format(priceRange[1])}{" "}
+												-{" "}
+												{new Intl.NumberFormat(
+													"fa-IR",
+												).format(priceRange[0])}{" "}
+												تومان
+											</span> */}
+										</div>
+
+										<Slider
+											value={priceRange}
+											onValueChange={handlePriceChange}
+											max={Math.max(...prices)}
+											min={Math.min(...prices)}
+											step={1000}
+										/>
+
+										<div className="grid grid-cols-2 gap-4">
+											<div className="p-3 rounded-lg bg-background border text-center">
+												<p className="text-xs text-muted-foreground mb-1">
+													حداکثر
+												</p>
+												<p className="font-bold gradient-text">
+													{new Intl.NumberFormat(
+														"fa-IR",
+													).format(priceRange[1])}
+												</p>
+												<p className="font-bold gradient-text">
+													تومان
+												</p>
+											</div>
+											<div className="p-3 rounded-lg bg-background border text-center">
+												<p className="text-xs text-muted-foreground mb-1">
+													حداقل
+												</p>
+												<p className="font-bold gradient-text">
+													{new Intl.NumberFormat(
+														"fa-IR",
+													).format(priceRange[0])}
+												</p>
+												<p className="font-bold gradient-text">
+													تومان
+												</p>
+											</div>
 										</div>
 									</div>
 
@@ -201,8 +398,12 @@ export default function ProductsPage() {
 										className="w-full"
 										onClick={() => {
 											setSearchQuery("");
-											setSelectedCategory("all");
-											setPriceRange("all");
+											setSelectedCategory("0");
+											setSelectedBrand("0");
+											setPriceRange([
+												Math.min(...prices),
+												Math.max(...prices),
+											]);
 										}}
 									>
 										پاک کردن فیلترها
@@ -229,13 +430,18 @@ export default function ProductsPage() {
 
 									<div className="relative w-full">
 										<Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-										<Input
-											placeholder="نام محصول یا برند..."
+										<InputFree
+											label="نام محصول یا برند..."
+											// placeholder="نام محصول یا برند..."
+											icon={Search}
 											value={searchQuery}
-											onChange={(e) =>
-												setSearchQuery(e.target.value)
-											}
-											className="pr-10"
+											// onChange={(e) =>
+											// 	setSearchQuery(e.target.value)
+											// }
+											onValueChange={(value) => {
+												setSearchQuery(value);
+											}}
+											inputClassName="pr-10"
 										/>
 									</div>
 									<Select
@@ -253,9 +459,9 @@ export default function ProductsPage() {
 												<SelectItem value="newest">
 													جدیدترین
 												</SelectItem>
-												<SelectItem value="popular">
+												{/* <SelectItem value="popular">
 													محبوب‌ترین
-												</SelectItem>
+												</SelectItem> */}
 												<SelectItem value="price-low">
 													ارزان‌ترین
 												</SelectItem>
@@ -294,7 +500,8 @@ export default function ProductsPage() {
 							</div>
 
 							{/* Products */}
-							{products && products?.length === 0 ? (
+							{paginatedProducts &&
+							paginatedProducts?.length === 0 ? (
 								<div className="text-center py-20">
 									<Package className="w-20 h-20 mx-auto text-muted-foreground mb-4" />
 									<h3 className="text-2xl font-bold mb-2">
@@ -312,38 +519,42 @@ export default function ProductsPage() {
 											: "space-y-6"
 									}
 								>
-									{products &&
-										products?.map((product, i) => (
+									{paginatedProducts &&
+										paginatedProducts?.map((product, i) => (
 											<motion.div
 												key={i}
 												initial={{ opacity: 0, y: 20 }}
 												animate={{ opacity: 1, y: 0 }}
 												transition={{ delay: i * 0.05 }}
 											>
-												<Card className="overflow-hidden group hover:shadow-xl transition-all duration-300">
+												<Card className="overflow-hidden group hover:shadow-xl h-full transition-all duration-300 min-h-[400px]">
 													<div className="relative">
 														<Link
-															href={`/products/${product.id}`}
+															href={`/products/${product.slug}`}
 														>
 															<div
-																className={`relative ${viewMode === "grid" ? "h-80" : "h-60 md:h-80"} overflow-hidden cursor-pointer`}
+																className={`relative h-60 bg-muted overflow-hidden cursor-pointer flex place-items-center place-content-center`}
 															>
-																<motion.img
-																	src={
-																		product.productPic
-																	}
-																	alt={
-																		product.name
-																	}
-																	className="w-full h-full object-cover"
-																	whileHover={{
-																		scale: 1.1,
-																	}}
-																	transition={{
-																		duration: 0.4,
-																	}}
-																/>
-																<div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+																{product.productPic ? (
+																	<motion.img
+																		src={
+																			product.productPic
+																		}
+																		alt={
+																			product.name
+																		}
+																		className="w-full h-full object-cover"
+																		whileHover={{
+																			scale: 1.1,
+																		}}
+																		transition={{
+																			duration: 0.3,
+																		}}
+																	/>
+																) : (
+																	<ImageIcon className="w-16 h-16 text-muted-foreground" />
+																)}
+																{/* <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" /> */}
 															</div>
 														</Link>
 
@@ -354,7 +565,8 @@ export default function ProductsPage() {
 																	جدید
 																</Badge>
 															)}
-															{product.quantity == 0 && (
+															{product.quantity ==
+																0 && (
 																<Badge variant="outOfStock">
 																	ناموجود
 																</Badge>
@@ -396,9 +608,12 @@ export default function ProductsPage() {
 													</div> */}
 													</div>
 
-													<CardContent className="p-6">
+													<CardContent className="py-4 px-6">
 														<p className="text-sm text-muted-foreground mb-1">
-															{product.brand?.name}
+															{
+																product.brand
+																	?.name
+															}
 														</p>
 														<Link
 															href={`/products/${product.id}`}
@@ -440,12 +655,18 @@ export default function ProductsPage() {
 															</span>
 														</div>
 													)} */}
+														{product.category
+															?.name && (
+															<Badge className="inline-flex place-content-center place-items-center justify-center">
+																{
+																	product
+																		.category
+																		?.name
+																}
+															</Badge>
+														)}
 
-														<Badge>
-															{product.category?.name}
-														</Badge>
-
-														<div className="flex place-content-end">
+														<div className="flex place-content-end place-self-end">
 															<div>
 																<motion.span
 																	className="text-2xl font-bold text-primary-rose"
@@ -453,12 +674,16 @@ export default function ProductsPage() {
 																		scale: 1.05,
 																	}}
 																>
-																	{
-																		product.price
-																	}
+																	{new Intl.NumberFormat(
+																		"fa-IR",
+																	).format(
+																		Number(
+																			product.irrPrice,
+																		),
+																	)}
 																</motion.span>
 																<span className="text-sm text-muted-foreground mr-2">
-																	تومان
+																	ریال
 																</span>
 															</div>
 														</div>
@@ -484,6 +709,15 @@ export default function ProductsPage() {
 												</Card>
 											</motion.div>
 										))}
+								</div>
+							)}
+							{totalPages > 1 && (
+								<div className="mt-8">
+									<Pagination
+										currentPage={currentPage}
+										totalPages={totalPages}
+										onPageChange={setCurrentPage}
+									/>
 								</div>
 							)}
 						</div>

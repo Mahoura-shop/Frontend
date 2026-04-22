@@ -13,6 +13,7 @@ import {
 	X,
 	Sun,
 	Moon,
+	DollarSign,
 } from "lucide-react";
 import Link from "next/link";
 import logo from "@/assets/logo.png";
@@ -37,13 +38,23 @@ export default function AdminLayout({
 			label: "داشبورد",
 			icon: Home,
 			href: "/admin/dashboard",
+			sub: false,
 			count: null,
 		},
 		{
 			id: "products",
-			label: "محصولات",
+			label: "مدیریت محصولات",
 			icon: Package,
 			href: "/admin/products",
+			sub: false,
+			count: 250,
+		},
+		{
+			id: "productsGroup",
+			label: "تغییر گروهی قیمت",
+			icon: DollarSign,
+			href: "/admin/products/group",
+			sub: true,
 			count: 250,
 		},
 		{
@@ -51,6 +62,7 @@ export default function AdminLayout({
 			label: "دسته‌بندی‌ها",
 			icon: FolderTree,
 			href: "/admin/categories",
+			sub: false,
 			count: 15,
 		},
 		{
@@ -58,6 +70,7 @@ export default function AdminLayout({
 			label: "برندها",
 			icon: Tag,
 			href: "/admin/brands",
+			sub: false,
 			count: 50,
 		},
 		{
@@ -65,6 +78,7 @@ export default function AdminLayout({
 			label: "تنظیمات",
 			icon: Settings,
 			href: "/admin/settings",
+			sub: false,
 			count: null,
 		},
 	];
@@ -109,7 +123,7 @@ export default function AdminLayout({
 
 					{/* Navigation Menu */}
 					<nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-						{menuItems.map((item, i) => {
+						{menuItems?.map((item, i) => {
 							const isActive = pathname === item.href;
 							return (
 								<motion.div
@@ -120,7 +134,7 @@ export default function AdminLayout({
 								>
 									<Link href={item.href}>
 										<button
-											className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+											className={`${item.sub ? "px-8" : "px-4"} w-full flex items-center gap-3  py-3 rounded-lg transition-all ${
 												isActive
 													? "bg-gradient-to-r from-primary-rose to-secondary-plum text-white shadow-lg"
 													: "hover:bg-muted"

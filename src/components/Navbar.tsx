@@ -55,7 +55,7 @@ export default function Navbar() {
 
 					{/* Desktop Menu */}
 					<div className="hidden md:flex items-center gap-8">
-						{menuItems.map((item, i) => (
+						{menuItems?.map((item, i) => (
 							<motion.div
 								key={item.href}
 								initial={{ opacity: 0, y: -20 }}
@@ -141,7 +141,7 @@ export default function Navbar() {
 						exit={{ opacity: 0, height: 0 }}
 						className="md:hidden mt-4 pb-4 border-t border-border pt-4"
 					>
-						{menuItems.map((item) => (
+						{menuItems?.map((item) => (
 							<Link
 								key={item.href}
 								href={item.href}

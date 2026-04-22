@@ -5,8 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
 	Package,
 	Globe,
-	Calendar,
-	Image as ImageIcon,
 	CheckCircle2,
 	XCircle,
 	Eye,
@@ -14,10 +12,14 @@ import {
 	DollarSign,
 	ShoppingCart,
 	TrendingUp,
-	Tag,
 	Star,
 	Layers,
 	Award,
+	ShoppingBag,
+	Banknote,
+	UserStar,
+	HandCoins,
+	Image,
 } from "lucide-react";
 import {
 	Dialog,
@@ -29,12 +31,19 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 interface ProductInfoDialogProps {
 	product: Product;
+	variant?: "eye" | "name";
+	className?: string;
 }
 
-export default function ProductInfoDialog({ product }: ProductInfoDialogProps) {
+export default function ProductInfoDialog({
+	product,
+	className,
+	variant = "eye",
+}: ProductInfoDialogProps) {
 	const [open, setOpen] = useState(false);
 
 	const containerVariants = {
@@ -91,27 +100,23 @@ export default function ProductInfoDialog({ product }: ProductInfoDialogProps) {
 	// Format quantity with type
 	const formatQuantity = (quantity: number, type: string) => {
 		const formatted = new Intl.NumberFormat("fa-IR").format(quantity);
-		const typeLabel =
-			{
-				pieces: "عدد",
-				ml: "میلی‌لیتر",
-				g: "گرم",
-				kg: "کیلوگرم",
-				l: "لیتر",
-			}[type] || type;
-		return `${formatted} ${typeLabel}`;
+		return `${formatted} ${type}`;
 	};
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger asChild>
-				<Button
-					size="icon"
-					variant="secondary"
-					className="h-8 w-8 hover:bg-background/80"
-				>
-					<Eye className="w-4 h-4" />
-				</Button>
+			<DialogTrigger asChild className={cn(className)}>
+				{variant === "eye" ? (
+					<Button
+						size="icon"
+						variant="secondary"
+						className="h-8 w-8 hover:bg-background/80"
+					>
+						<Eye className="w-4 h-4" />
+					</Button>
+				) : (
+					<Button variant="secondary">{product.name}</Button>
+				)}
 			</DialogTrigger>
 
 			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto pb-6">
@@ -131,7 +136,7 @@ export default function ProductInfoDialog({ product }: ProductInfoDialogProps) {
 										className="flex-1"
 									>
 										<div className="flex items-center gap-3 mb-2">
-											<DialogTitle className="text-2xl gradient-text">
+											<DialogTitle className="text-2xl">
 												{product.name}
 											</DialogTitle>
 											{product.isNew && (
@@ -153,41 +158,51 @@ export default function ProductInfoDialog({ product }: ProductInfoDialogProps) {
 									</motion.div>
 
 									{/* Status Badge */}
-									<motion.div
-										variants={itemVariants}
-										whileHover={{ scale: 1.05 }}
-										whileTap={{ scale: 0.95 }}
-										className="flex flex-col gap-2 px-4"
-									>
-										<Badge
-											variant={
-												product.isActive
-													? "available"
-													: "outOfStock"
-											}
-											className="gap-2 px-3 py-1"
+									<div className="flex flex-col gap-2 px-4">
+										<motion.div
+											variants={itemVariants}
+											whileHover={{ scale: 1.05 }}
+											whileTap={{ scale: 0.95 }}
+											// className="flex flex-col gap-2 px-4"
 										>
-											{product.isActive ? (
-												<>
-													<CheckCircle2 className="w-3 h-3" />
-													فعال
-												</>
-											) : (
-												<>
-													<XCircle className="w-3 h-3" />
-													غیرفعال
-												</>
-											)}
-										</Badge>
-										{product.quantity === 0 && (
 											<Badge
-												variant="outOfStock"
-												className="px-3 py-1"
+												variant={
+													product.isActive
+														? "available"
+														: "outOfStock"
+												}
+												className="gap-2 px-3 py-1"
 											>
-												موجودی تمام
+												{product.isActive ? (
+													<>
+														<CheckCircle2 className="w-3 h-3" />
+														فعال
+													</>
+												) : (
+													<>
+														<XCircle className="w-3 h-3" />
+														غیرفعال
+													</>
+												)}
 											</Badge>
+										</motion.div>
+
+										{product.quantity === 0 && (
+											<motion.div
+												variants={itemVariants}
+												whileHover={{ scale: 1.05 }}
+												whileTap={{ scale: 0.95 }}
+												// className="flex flex-col gap-2 px-4"
+											>
+												<Badge
+													variant="outOfStock"
+													className="px-3 py-1"
+												>
+													اتمام موجودی
+												</Badge>
+											</motion.div>
 										)}
-									</motion.div>
+									</div>
 								</div>
 							</DialogHeader>
 
@@ -218,7 +233,7 @@ export default function ProductInfoDialog({ product }: ProductInfoDialogProps) {
 											variants={imageVariants}
 											className="w-full max-w-md h-64 rounded-2xl border-2 border-dashed border-muted-foreground/25 flex flex-col items-center justify-center bg-muted/20"
 										>
-											<ImageIcon className="w-16 h-16 text-muted-foreground/50 mb-2" />
+											<Image className="w-16 h-16 text-muted-foreground/50 mb-2" />
 											<p className="text-sm text-muted-foreground">
 												تصویری موجود نیست
 											</p>
@@ -235,8 +250,8 @@ export default function ProductInfoDialog({ product }: ProductInfoDialogProps) {
 											</p>
 											<p className="text-4xl font-bold gradient-text">
 												{formatPrice(
-													product.price,
-													product.currencyCode,
+													Number(product.price),
+													product.currency.name,
 												)}
 											</p>
 										</div>
@@ -286,6 +301,76 @@ export default function ProductInfoDialog({ product }: ProductInfoDialogProps) {
 												}
 												label="شناسه محصول"
 												value={`#${product.id}`}
+											/>
+										)}
+
+										{/* IrrPrice */}
+										{product.irrPrice && (
+											<InfoItem
+												icon={
+													<DollarSign className="w-4 h-4" />
+												}
+												label="قیمت ریالی"
+												value={`${formatPrice(
+													Number(product.irrPrice),
+													"ریال",
+												)}`}
+											/>
+										)}
+
+										{/* Fellow Price */}
+										{product.step1Price && (
+											<InfoItem
+												icon={
+													<UserStar className="w-4 h-4" />
+												}
+												label="قیمت همکار"
+												value={`${formatPrice(
+													Number(product.step1Price),
+													"ریال",
+												)}`}
+											/>
+										)}
+
+										{/* ShopKeeper Cash Price */}
+										{product.step2Price && (
+											<InfoItem
+												icon={
+													<HandCoins className="w-4 h-4" />
+												}
+												label="قیمت مغازه نقدی"
+												value={`${formatPrice(
+													Number(product.step2Price),
+													"ریال",
+												)}`}
+											/>
+										)}
+
+										{/* ShopKeeper Cheque Price */}
+										{product.step3Price && (
+											<InfoItem
+												icon={
+													<Banknote className="w-4 h-4" />
+												}
+												label="قیمت مغازه چکی"
+												value={`${formatPrice(
+													Number(product.step3Price),
+													"ریال",
+												)}`}
+											/>
+										)}
+
+										{/* Regular Price */}
+										{product.step4Price && (
+											<InfoItem
+												icon={
+													<ShoppingBag className="w-4 h-4" />
+												}
+												label="قیمت تکی"
+												value={`${formatPrice(
+													Number(product.step4Price),
+													"ریال",
+												)}`}
 											/>
 										)}
 
@@ -352,29 +437,17 @@ export default function ProductInfoDialog({ product }: ProductInfoDialogProps) {
 												/>
 											)}
 
-										{/* Created Date */}
-										{product.createdAt && (
+										{/* Consumer Price */}
+										{product.consumerPrice && (
 											<InfoItem
 												icon={
-													<Calendar className="w-4 h-4" />
+													<ShoppingBag className="w-4 h-4" />
 												}
-												label="تاریخ ایجاد"
-												value={new Date(
-													product.createdAt,
-												).toLocaleDateString("fa-IR")}
-											/>
-										)}
-
-										{/* Updated Date */}
-										{product.updatedAt && (
-											<InfoItem
-												icon={
-													<Calendar className="w-4 h-4" />
-												}
-												label="آخرین بروزرسانی"
-												value={new Date(
-													product.updatedAt,
-												).toLocaleDateString("fa-IR")}
+												label="قیمت مصرف‌کننده"
+												value={formatPrice(
+													product.consumerPrice,
+													"ریال",
+												)}
 											/>
 										)}
 									</div>

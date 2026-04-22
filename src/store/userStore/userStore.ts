@@ -4,16 +4,19 @@ import { persist, createJSONStorage } from "zustand/middleware";
 const useUserStore = create<UserState>()(
 	persist(
 		(set) => ({
-			username: null,
+			username: undefined,
+			accessToken: undefined,
 
 			setUsername: (username: string) =>
 				set((prev) => ({ ...prev, username })),
+			setAccessToken: (accessToken: string) =>
+				set((prev) => ({ ...prev, accessToken })),
 		}),
 		{
-			name: "profile-storage",
-			storage: createJSONStorage(() => sessionStorage),
-		}
-	)
+			name: "user-storage",
+			storage: createJSONStorage(() => localStorage),
+		},
+	),
 );
 
 export default useUserStore;

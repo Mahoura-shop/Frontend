@@ -62,7 +62,7 @@ export default function Select({
 		? "rtl"
 		: "ltr";
 
-	const safeOptions = options.map((opt) => ({
+	const safeOptions = options?.map((opt) => ({
 		...opt,
 		value: opt.value === "" ? "empty_value" : opt.value,
 	}));
@@ -94,7 +94,7 @@ export default function Select({
 
 				<SelectContent>
 					<SelectGroup>
-						{safeOptions.map((option) => (
+						{safeOptions?.map((option) => (
 							<SelectItem key={option.value} value={option.value}>
 								{option.label}
 							</SelectItem>

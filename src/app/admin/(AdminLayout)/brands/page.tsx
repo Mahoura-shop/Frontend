@@ -152,7 +152,7 @@ export default function BrandsPage() {
 						</Card>
 					)}
 					<div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-						{paginatedBrands.map((brand, i) => (
+						{paginatedBrands?.map((brand, i) => (
 							<motion.div
 								key={brand.id}
 								initial={{ opacity: 0, scale: 0.9 }}
@@ -253,7 +253,7 @@ export default function BrandsPage() {
 										</TableCell>
 									</TableRow>
 								)}
-								{paginatedBrands.map((brand, i) => (
+								{paginatedBrands?.map((brand, i) => (
 									<motion.tr
 										key={brand.id}
 										initial={{ opacity: 0, x: -20 }}
@@ -296,30 +296,6 @@ export default function BrandsPage() {
 													id={brand?.id}
 													fetchBrands={fetchBrands}
 												/>
-												{/* <Button
-													variant="ghost"
-													size="icon"
-													className="h-8 w-8"
-												>
-													<Eye className="w-4 h-4" />
-												</Button>
-												<Button
-													variant="ghost"
-													size="icon"
-													className="h-8 w-8"
-												>
-													<Pencil className="w-4 h-4" />
-												</Button>
-												<Button
-													variant="ghost"
-													size="icon"
-													className="h-8 w-8 text-red-500"
-													onClick={() =>
-														handleDelete(brand.id)
-													}
-												>
-													<Trash2 className="w-4 h-4" />
-												</Button> */}
 											</div>
 										</TableCell>
 									</motion.tr>

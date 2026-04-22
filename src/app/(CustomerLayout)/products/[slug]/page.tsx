@@ -18,6 +18,8 @@ import {
 	Sparkles,
 	Shield,
 	Truck,
+	ImageIcon,
+	Copy,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -25,20 +27,29 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useProductStore } from "@/store/useProductStore";
+import { getData } from "@/services/services";
+import CustomToast from "@/components/Custom/CustomToast/CustomToast";
+import { useSettingsStore } from "@/store/useSettingsStore";
 
 export default function ProductDetailPage() {
 	const params = useParams();
 	const router = useRouter();
-	const productId = parseInt(params.id as string);
-
+	const [product, setProduct] = useState<Product | null>(null);
+	const [loading, setLoading] = useState<boolean>(true);
+	const { formatPrice } = useSettingsStore();
 	const { products } = useProductStore();
-	const product = products.find((p) => p.id === productId);
-
-	const [selectedImage, setSelectedImage] = useState(0);
-	const [quantity, setQuantity] = useState(1);
-	const [selectedSize, setSelectedSize] = useState<string | null>(null);
-	const [selectedColor, setSelectedColor] = useState<string | null>(null);
-	const [addedToCart, setAddedToCart] = useState(false);
+	// const product = products.find((p) => p.slug === params.slug);
+	const getProduct = () => {
+		setLoading(true);
+		getData({ endPoint: `/v1/product/${params.slug}` })
+			.then((data) => {
+				setProduct(data?.data);
+			})
+			.finally(() => setLoading(false));
+	};
+	useEffect(() => {
+		getProduct();
+	}, []);
 
 	if (!product) {
 		return (
@@ -90,18 +101,22 @@ export default function ProductDetailPage() {
 						animate={{ opacity: 1, x: 0 }}
 					>
 						{/* Main Image */}
-						<div className="relative mb-4 rounded-2xl overflow-hidden shadow-2xl group">
+						<div className="relative mb-4 rounded-2xl overflow-hidden shadow-2xl group min-h-[70vh] flex place-items-center place-content-center">
 							<AnimatePresence mode="wait">
-								<motion.img
-									key={selectedImage}
-									src={images[selectedImage]}
-									alt={product.name}
-									className="w-full h-[500px] object-cover"
-									initial={{ opacity: 0 }}
-									animate={{ opacity: 1 }}
-									exit={{ opacity: 0 }}
-									transition={{ duration: 0.3 }}
-								/>
+								{product?.productPic ? (
+									<motion.img
+										key={product.productPic}
+										src={product.productPic}
+										alt={product.name}
+										className="w-full h-[500px] object-cover"
+										initial={{ opacity: 0 }}
+										animate={{ opacity: 1 }}
+										exit={{ opacity: 0 }}
+										transition={{ duration: 0.3 }}
+									/>
+								) : (
+									<ImageIcon className="w-16 h-16 text-muted-foreground" />
+								)}
 							</AnimatePresence>
 
 							{product.isNew && (
@@ -160,27 +175,49 @@ export default function ProductDetailPage() {
 						animate={{ opacity: 1, x: 0 }}
 						className="space-y-6"
 					>
-						<div className="flex justify-between">
+						<div className="flex justify-between border-b">
 							<div>
 								<p className="text-muted-foreground mb-2">
-									{product.brand.name}
+									{product?.brand?.name}
 								</p>
 								<h1 className="text-4xl font-bold mb-2">
 									{product.name}
 								</h1>
 								{product.slug && (
 									<p className="text-lg text-muted-foreground">
-										{product.category.name}
+										{product?.category?.name}
 									</p>
 								)}
 							</div>
-							<Button
-								variant="outline"
-								size="icon"
-								className="w-12 h-12"
-							>
-								<Share2 className="w-5 h-5" />
-							</Button>
+							<div className="flex gap-2">
+								<Button
+									variant="outline"
+									size="icon"
+									className="w-12 h-12"
+									onClick={() => {
+										navigator.clipboard.writeText(
+											window.location.href,
+										);
+										CustomToast("لینک کپی شد", "success");
+									}}
+								>
+									<Copy className="w-5 h-5" />
+								</Button>
+								<Button
+									variant="outline"
+									size="icon"
+									className="w-12 h-12"
+									onClick={async () => {
+										await navigator.share({
+											title: document.title,
+											text: "این محصول را ببینید:",
+											url: window.location.href,
+										});
+									}}
+								>
+									<Share2 className="w-5 h-5" />
+								</Button>
+							</div>
 						</div>
 
 						{/* Rating */}
@@ -205,7 +242,7 @@ export default function ProductDetailPage() {
 						)} */}
 
 						{/* Price */}
-						<div className="py-6 border-y">
+						<div className="py-6 border-b">
 							<div className="flex items-baseline gap-3">
 								<motion.span
 									className="text-5xl font-bold text-primary-rose"
@@ -213,24 +250,25 @@ export default function ProductDetailPage() {
 									animate={{ scale: 1 }}
 									transition={{ type: "spring" }}
 								>
-									{product.price}
+									{formatPrice(Number(product.price))}
 								</motion.span>
 								<span className="text-2xl text-muted-foreground">
-									تومان
+									ریال
 								</span>
 							</div>
 						</div>
 
 						{/* Description */}
-						<div>
-							<h3 className="text-xl font-bold mb-3">
-								توضیحات محصول
-							</h3>
-							<p className="text-muted-foreground leading-relaxed">
-								{product.description}
-							</p>
-						</div>
-
+						{product?.description && (
+							<div>
+								<h3 className="text-xl font-bold mb-3">
+									توضیحات محصول
+								</h3>
+								<p className="text-muted-foreground leading-relaxed">
+									{product.description}
+								</p>
+							</div>
+						)}
 						{/* Sizes */}
 						{/* {product.sizes && product.sizes.length > 0 && (
 							<div>

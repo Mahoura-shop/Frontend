@@ -35,7 +35,7 @@ export default function AboutPage() {
               ارزش‌های ما
             </motion.h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {values.map((value, i) => (
+              {values?.map((value, i) => (
                 <motion.div key={value.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
                   <Card className="h-full hover:shadow-xl transition-shadow">
                     <CardContent className="p-6 text-center">

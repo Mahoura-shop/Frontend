@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
 	ShoppingBag,
@@ -11,6 +11,7 @@ import {
 	ChevronLeft,
 	ChevronRight,
 	ArrowLeft,
+	FolderTree,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -26,97 +27,130 @@ import {
 	CarouselNext,
 	CarouselPrevious,
 } from "@/components/ui/carousel";
+import { getData } from "@/services/services";
+import { useCategoryStore } from "@/store/useCategoryStore";
 
 export default function LandingPage() {
 	const { products } = useProductStore();
+	const { categories, fetchCategories } = useCategoryStore();
 	const [categoryIndices, setCategoryIndices] = useState([0, 1, 2]);
 	const [featuredIndices, setFeaturedIndices] = useState([0, 1, 2]);
 	const [newIndices, setNewIndices] = useState([0, 1, 2]);
 
-	const categories = [
-		{
-			id: 1,
-			name: "آرایش صورت",
-			image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=600&fit=crop",
-			count: 120,
-			description: "محصولات آرایشی حرفه‌ای",
-		},
-		{
-			id: 2,
-			name: "مراقبت از پوست",
-			image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&h=600&fit=crop",
-			count: 85,
-			description: "مراقبت تخصصی از پوست",
-		},
-		{
-			id: 3,
-			name: "آرایش چشم",
-			image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=800&h=600&fit=crop",
-			count: 65,
-			description: "محصولات آرایش چشم",
-		},
-		{
-			id: 4,
-			name: "عطر و ادکلن",
-			image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=800&h=600&fit=crop",
-			count: 45,
-			description: "عطرهای لوکس و ماندگار",
-		},
-		{
-			id: 5,
-			name: "عطر و ادکلن 2",
-			image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=600&fit=crop",
-			count: 45,
-			description: "عطرهای لوکس و ماندگار",
-		},
-		{
-			id: 6,
-			name: "عطر و ادکلن 3",
-			image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=600&fit=crop",
-			count: 41,
-			description: "عطرهای لوکس و ماندگار اووووو",
-		},
-		{
-			id: 7,
-			name: "عطر و ادکلن 4",
-			image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=600&fit=crop",
-			count: 450,
-			description: "عطرهای لوکس و ماندگار مییو",
-		},
-	];
+	const [brandsCount, setBrandsCount] = useState<number>(0);
+	const [categoriesCount, setCategoriesCount] = useState<number>(0);
+	const [productsCount, setProductsCount] = useState<number>(0);
+	const fetchSiteData = () => {
+		getData({ endPoint: `/v1/admin/dashboard` }).then((data) => {
+			setProductsCount(data?.data?.productsCount);
+			setBrandsCount(data?.data?.brandsCount);
+			setCategoriesCount(data?.data?.categoriesCount);
+		});
+	};
+	useEffect(() => {
+		fetchSiteData();
+		fetchCategories();
+	}, []);
+
+	// const categories = [
+	// 	{
+	// 		id: 1,
+	// 		name: "آرایش صورت",
+	// 		image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=600&fit=crop",
+	// 		count: 120,
+	// 		description: "محصولات آرایشی حرفه‌ای",
+	// 	},
+	// 	{
+	// 		id: 2,
+	// 		name: "مراقبت از پوست",
+	// 		image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800&h=600&fit=crop",
+	// 		count: 85,
+	// 		description: "مراقبت تخصصی از پوست",
+	// 	},
+	// 	{
+	// 		id: 3,
+	// 		name: "آرایش چشم",
+	// 		image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=800&h=600&fit=crop",
+	// 		count: 65,
+	// 		description: "محصولات آرایش چشم",
+	// 	},
+	// 	{
+	// 		id: 4,
+	// 		name: "عطر و ادکلن",
+	// 		image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=800&h=600&fit=crop",
+	// 		count: 45,
+	// 		description: "عطرهای لوکس و ماندگار",
+	// 	},
+	// 	{
+	// 		id: 5,
+	// 		name: "عطر و ادکلن 2",
+	// 		image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=600&fit=crop",
+	// 		count: 45,
+	// 		description: "عطرهای لوکس و ماندگار",
+	// 	},
+	// 	{
+	// 		id: 6,
+	// 		name: "عطر و ادکلن 3",
+	// 		image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=600&fit=crop",
+	// 		count: 41,
+	// 		description: "عطرهای لوکس و ماندگار اووووو",
+	// 	},
+	// 	{
+	// 		id: 7,
+	// 		name: "عطر و ادکلن 4",
+	// 		image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=600&fit=crop",
+	// 		count: 450,
+	// 		description: "عطرهای لوکس و ماندگار مییو",
+	// 	},
+	// ];
 
 	const newProducts = products.filter((p) => p.isNew).slice(0, 6);
 
-	const CategoryCard = ({ category }: { category: any }) => (
-		<Link href={`/categories/${category.id}`}>
+	const CategoryCard = ({ category }: { category: Category }) => (
+		<Link href={`/products`}>
 			<Card
 				className={`group overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300`}
 			>
-				<div className="relative h-80 overflow-hidden">
+				<div className="relative h-80 bg-muted flex items-center justify-center overflow-hidden">
+				{/* <div className="relative h-80 overflow-hidden"> */}
+					{category.categoryPic ? (
+						<img
+							src={category.categoryPic}
+							alt={category.name}
+							className="w-full h-full object-cover"
+						/>
+					) : (
+						<FolderTree className="w-16 h-16 text-muted-foreground" />
+					)}
 					{/* <img
-						src={category.}
+						src={category.categoryPic}
 						alt={category.name}
 						className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
 					/> */}
-					<div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/0 to-transparent" />
+					<div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/0 to-transparent" />
 					<div className="absolute inset-0 bg-primary-rose/0 group-hover:bg-primary-rose/10 transition-colors duration-300" />
 
 					<div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-						<h3 className="text-2xl font-bold mb-2">
-							{category.name}
-						</h3>
-						<p className="text-white/90 mb-3">
-							{category.description}
-						</p>
-						<div className="flex items-center justify-between">
+						<div className="flex items-end justify-between">
+							<div>
+								<h3 className="text-2xl font-bold mb-2">
+									{category.name}
+								</h3>
+								<p className="text-white/90 mb-3">
+									{category.description}
+								</p>
+							</div>
+							<ArrowLeft className="w-5 h-5 transform group-hover:translate-x-[-8px] transition-transform" />
+						</div>
+						{/* <div className="flex items-end justify-between">
 							<Badge
 								variant="secondary"
 								className="bg-white/20 text-white"
 							>
-								{category.name} محصول
+								{category.name}
 							</Badge>
 							<ArrowLeft className="w-5 h-5 transform group-hover:translate-x-[-8px] transition-transform" />
-						</div>
+						</div> */}
 					</div>
 				</div>
 			</Card>
@@ -236,9 +270,19 @@ export default function LandingPage() {
 							className="grid grid-cols-3 gap-8 mt-16 max-w-2xl mx-auto"
 						>
 							{[
-								{ value: "۲۵۰+", label: "محصول" },
-								{ value: "۵۰+", label: "برند" },
-								{ value: "۱۰۰۰+", label: "مشتری راضی" },
+								{
+									value: new Intl.NumberFormat(
+										"fa-IR",
+									).format(productsCount),
+									label: "محصول",
+								},
+								{
+									value: new Intl.NumberFormat(
+										"fa-IR",
+									).format(brandsCount),
+									label: "برند",
+								},
+								{ value: "۱۰۰+", label: "مشتری راضی" },
 							].map((stat, i) => (
 								<motion.div
 									key={stat.label}
@@ -299,7 +343,7 @@ export default function LandingPage() {
 						className="w-full"
 					>
 						<CarouselContent>
-							{categories.map((category) => (
+							{categories?.map((category) => (
 								<CarouselItem
 									key={category.id}
 									className="lg:basis-1/3 md:basis-2"
@@ -339,7 +383,7 @@ export default function LandingPage() {
 						className="w-full"
 					>
 						<CarouselContent>
-							{products.map((product) => (
+							{products?.map((product) => (
 								<CarouselItem
 									key={product.id}
 									className="lg:basis-1/3 md:basis-2"
@@ -380,7 +424,7 @@ export default function LandingPage() {
 						className="w-full"
 					>
 						<CarouselContent>
-							{newProducts.map((product) => (
+							{newProducts?.map((product) => (
 								<CarouselItem
 									key={product.id}
 									className="lg:basis-1/3 md:basis-2"

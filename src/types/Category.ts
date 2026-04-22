@@ -6,4 +6,5 @@ interface Category {
 	categoryPic: string | null;
 	count: number;
 	isActive: boolean;
+	products?: Product[];
 }

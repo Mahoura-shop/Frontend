@@ -63,7 +63,7 @@ export function LandingPage() {
 					</div>
 
 					<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-						{featuredProducts.map((product) => (
+						{featuredProducts?.map((product) => (
 							<Card
 								key={product.id}
 								className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg"

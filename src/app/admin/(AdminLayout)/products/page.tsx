@@ -3,14 +3,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-	Plus,
-	Pencil,
-	Trash2,
 	Search,
 	ArrowUpDown,
 	ArrowUp,
 	ArrowDown,
-	Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -41,14 +37,20 @@ import DeleteProductDialog from "@/components/admin/Product/DeleteProductDialog"
 import UpdateProductDialog from "@/components/admin/Product/UpdateProductDialog";
 import ProductInfoDialog from "@/components/admin/Product/ProductInfoDialog";
 
-type SortColumn = "name" | "brand" | "category" | "price" | "quantity" | null;
+type ProductSortColumn =
+	| "name"
+	| "brand"
+	| "category"
+	| "price"
+	| "quantity"
+	| null;
 type SortDirection = "asc" | "desc";
 
 export default function ProductsAdminPage() {
-	const { convertToIRR, formatPrice } = useSettingsStore();
+	const { formatPrice } = useSettingsStore();
 	const [searchQuery, setSearchQuery] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
-	const [sortColumn, setSortColumn] = useState<SortColumn>(null);
+	const [sortColumn, setSortColumn] = useState<ProductSortColumn>(null);
 	const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 	const [filterColumn, setFilterColumn] = useState<string>("");
 	const [filterValue, setFilterValue] = useState<string>("");
@@ -72,35 +74,51 @@ export default function ProductsAdminPage() {
 	}, []);
 	const fetchProducts = useCallback(() => {
 		getData({ endPoint: `/v1/product` }).then((data) => {
-			const productsList = data?.data?.map((product: Product) => ({
-				...product,
-				categoryID: product?.categoryID?.toString(),
-				brandID: product?.brandID?.toString(),
-				irrPrice:
-					product?.irrPrice === 0 ? undefined : product?.irrPrice,
-				consumerPrice:
-					product?.consumerPrice === 0
-						? undefined
-						: product?.consumerPrice,
-				step1Percent:
-					product?.step1Percent === 0
-						? undefined
-						: product?.step1Percent,
-				step2Percent:
-					product?.step2Percent === 0
-						? undefined
-						: product?.step2Percent,
-				step3Percent:
-					product?.step3Percent === 0
-						? undefined
-						: product?.step3Percent,
-				step1Price:
-					product?.step1Price === 0 ? undefined : product?.step1Price,
-				step2Price:
-					product?.step2Price === 0 ? undefined : product?.step2Price,
-				step3Price:
-					product?.step3Price === 0 ? undefined : product?.step3Price,
-			})) ?? [];
+			const productsList =
+				data?.data?.map((product: Product) => ({
+					...product,
+					categoryID: product?.categoryID?.toString(),
+					brandID: product?.brandID?.toString(),
+					currencyID: product?.currencyID?.toString(),
+					irrPrice:
+						product?.irrPrice === 0 ? undefined : product?.irrPrice,
+					consumerPrice:
+						product?.consumerPrice === 0
+							? undefined
+							: product?.consumerPrice,
+					step1Percent:
+						product?.step1Percent === 0
+							? undefined
+							: product?.step1Percent,
+					step2Percent:
+						product?.step2Percent === 0
+							? undefined
+							: product?.step2Percent,
+					step3Percent:
+						product?.step3Percent === 0
+							? undefined
+							: product?.step3Percent,
+					step4Percent:
+						product?.step4Percent === 0
+							? undefined
+							: product?.step4Percent,
+					step1Price:
+						product?.step1Price === 0
+							? undefined
+							: product?.step1Price,
+					step2Price:
+						product?.step2Price === 0
+							? undefined
+							: product?.step2Price,
+					step3Price:
+						product?.step3Price === 0
+							? undefined
+							: product?.step3Price,
+					step4Price:
+						product?.step4Price === 0
+							? undefined
+							: product?.step4Price,
+				})) ?? [];
 			setProducts(productsList);
 			console.log("products", productsList);
 		});
@@ -154,9 +172,14 @@ export default function ProductsAdminPage() {
 		});
 	}
 
-	const handleSort = (column: SortColumn) => {
+	const handleSort = (column: ProductSortColumn) => {
 		if (sortColumn === column) {
-			setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+			if (sortDirection === "asc") {
+				setSortDirection("desc");
+			} else {
+				setSortColumn(null);
+				setSortDirection("asc");
+			}
 		} else {
 			setSortColumn(column);
 			setSortDirection("asc");
@@ -221,13 +244,35 @@ export default function ProductsAdminPage() {
 	const activeCount = products.filter((p) => p.isActive).length;
 	const inactiveCount = products.filter((p) => !p.isActive).length;
 
-	const SortIcon = ({ column }: { column: SortColumn }) => {
+	const SortIcon = ({ column }: { column: ProductSortColumn }) => {
 		if (sortColumn !== column)
 			return <ArrowUpDown className="w-4 h-4 opacity-50" />;
 		return sortDirection === "asc" ? (
 			<ArrowUp className="w-4 h-4" />
 		) : (
 			<ArrowDown className="w-4 h-4" />
+		);
+	};
+
+	const TableHeadItem = ({
+		title,
+		column,
+	}: {
+		title: string;
+		column: ProductSortColumn;
+	}) => {
+		return (
+			<TableHead>
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={() => handleSort(column)}
+					className="gap-2 hover:bg-transparent flex place-self-center w-full"
+				>
+					{title}
+					<SortIcon column={column} />
+				</Button>
+			</TableHead>
 		);
 	};
 
@@ -239,7 +284,7 @@ export default function ProductsAdminPage() {
 		}
 
 		const uniqueValues = new Set(
-			products.map((p) => {
+			products?.map((p) => {
 				const value = p[filterColumn as keyof Product];
 				return value?.name || value || "بدون مقدار";
 			}),
@@ -277,7 +322,7 @@ export default function ProductsAdminPage() {
 
 			{/* Toolbar */}
 			<div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-				<div className="flex items-center gap-4 flex-1 max-w-3xl flex-wrap">
+				<div className="flex items-center gap-4 flex-1 flex-wrap">
 					{/* Search */}
 					<div className="relative flex-1 min-w-[200px]">
 						<Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -320,7 +365,7 @@ export default function ProductsAdminPage() {
 								<SelectValue placeholder="انتخاب مقدار" />
 							</SelectTrigger>
 							<SelectContent>
-								{getFilterOptions().map((option) => (
+								{getFilterOptions()?.map((option) => (
 									<SelectItem key={option} value={option}>
 										{option}
 									</SelectItem>
@@ -332,7 +377,7 @@ export default function ProductsAdminPage() {
 					{(filterColumn || searchQuery) && (
 						<Button
 							variant="outline"
-							size="sm"
+							className="h-10"
 							onClick={() => {
 								setSearchQuery("");
 								setFilterColumn("");
@@ -362,65 +407,25 @@ export default function ProductsAdminPage() {
 					<Table className="no-scrollbar">
 						<TableHeader>
 							<TableRow>
-								<TableHead>
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() => handleSort("name")}
-										className="gap-2 hover:bg-transparent"
-									>
-										نام محصول
-										<SortIcon column="name" />
-									</Button>
-								</TableHead>
-								<TableHead>
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() => handleSort("brand")}
-										className="gap-2 hover:bg-transparent"
-									>
-										برند
-										<SortIcon column="brand" />
-									</Button>
-								</TableHead>
-								<TableHead>
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() => handleSort("category")}
-										className="gap-2 hover:bg-transparent"
-									>
-										دسته‌بندی
-										<SortIcon column="category" />
-									</Button>
-								</TableHead>
-								<TableHead>
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() => handleSort("price")}
-										className="gap-2 hover:bg-transparent"
-									>
-										قیمت (ریال)
-										<SortIcon column="price" />
-									</Button>
-								</TableHead>
-								<TableHead>
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() => handleSort("quantity")}
-										className="gap-2 hover:bg-transparent"
-									>
-										موجودی
-										<SortIcon column="quantity" />
-									</Button>
-								</TableHead>
+								<TableHeadItem
+									title="نام محصول"
+									column="name"
+								/>
+								<TableHeadItem title="برند" column="brand" />
+								<TableHeadItem
+									title="دسته‌بندی"
+									column="category"
+								/>
+								<TableHeadItem
+									title="قیمت"
+									column="price"
+								/>
+								<TableHeadItem
+									title="موجودی"
+									column="quantity"
+								/>
 								<TableHead>وضعیت</TableHead>
-								<TableHead className="text-center">
-									عملیات
-								</TableHead>
+								<TableHead>عملیات</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody className="no-scrollbar">
@@ -436,7 +441,7 @@ export default function ProductsAdminPage() {
 									</TableCell>
 								</TableRow>
 							)}
-							{paginatedProducts.map((product, i) => (
+							{paginatedProducts?.map((product, i) => (
 								<motion.tr
 									key={product.id}
 									initial={{ opacity: 0, x: -20 }}
@@ -454,7 +459,9 @@ export default function ProductsAdminPage() {
 										{product.category?.name || "-"}
 									</TableCell>
 									<TableCell className="font-bold text-primary-rose">
-										{formatPrice(product.price as number)}
+										{formatPrice(
+											product.irrPrice as number,
+										)} ریال
 									</TableCell>
 									<TableCell>
 										<span
@@ -464,7 +471,7 @@ export default function ProductsAdminPage() {
 													: ""
 											}
 										>
-											{product.quantity}{" "}
+											{formatPrice(product.quantity)}{" "}
 											{product.quantityType}
 										</span>
 									</TableCell>

@@ -12,6 +12,7 @@ import type {
 	PostParams,
 	PutParams,
 } from "../types/apiTypes";
+import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 
 export const baseURL = "http://localhost:8080/"; // backend URL
 
@@ -25,19 +26,28 @@ const apiClient: AxiosInstance = axios.create({
 
 apiClient.interceptors.request.use(
 	(config: InternalAxiosRequestConfig) => {
-		// const token = getTokenFromStore();
-		// if (token) config.headers.Authorization = `Bearer ${token}`;
+		const userDataString = localStorage.getItem("user-storage");
+		if (userDataString) {
+			const userData = JSON.parse(userDataString);
+			const accessToken =
+				userData?.state?.accessToken;
+			// const accessToken =
+			// 	"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzY5NjY5MjgsImlhdCI6MTc3NDM3NDkyOCwic3ViIjo2fQ.uVFSTGGrx4AZi8PuwlGiNEjswbzD4EbqG589uBqiLnhtXMEjz17BA-5bjWZxiIhrQgaqJM0HD8zEpyQAo23vf2fNDDchvzE9niXbco8Zr9uvOhpbEitaNe3lMKPj_Kc4KdfrzA_aYr-IbG8eeLvQKaYvPCDsy91-Fo0L2IHpKvdEMhG10Z-hiVS4x_CJIWrHK7lnQNeiz-86aLvZjKzBZwqO5iB3RaMaVYy-Cy-U4xpRrJ2lUamqig_HyUQwQby6O8UPrytFHGhkXcV2_yXOuq6g6kZkJgBA08ebYZcbSyh8CvtNj3Rdmm09xTMmq1JlN2vFgAxBrEvlN0w3vC-fnQ";
+			if (accessToken && typeof accessToken === "string") {
+				config.headers.Authorization = `Bearer ${accessToken}`;
+			}
+		}
 		return config;
 	},
-	(error) => Promise.reject(error)
+	(error) => Promise.reject(error),
 );
 
 apiClient.interceptors.response.use(
 	(response: AxiosResponse) => response,
 	(error) => {
-		console.error(error);
+		// console.error(error);
 		return Promise.reject(error);
-	}
+	},
 );
 
 // ✅ GET
@@ -49,7 +59,10 @@ export const getData = async ({ endPoint, headers, params }: GetParams) => {
 		});
 		return response.data;
 	} catch (error) {
-		console.error("error in getData", error);
+		console.log("error in getData", (error as any).response?.data);
+		if ((error as any).response?.data?.message) {
+			CustomToast((error as any).response?.data?.message, "error");
+		}
 		throw error;
 	}
 };
@@ -62,7 +75,10 @@ export const postData = async ({ endPoint, data, headers }: PostParams) => {
 		});
 		return response.data;
 	} catch (error) {
-		console.error("error in postData", error);
+		console.log("error in postData", (error as any).response?.data);
+		if ((error as any).response?.data?.message) {
+			CustomToast((error as any).response?.data?.message, "error");
+		}
 		throw error;
 	}
 };
@@ -75,7 +91,10 @@ export const postImageData = async ({ endPoint, data }: PostParams) => {
 		});
 		return response.data;
 	} catch (error) {
-		console.error("error in postImageData", error);
+		console.log("error in postImageData", (error as any).response?.data);
+		if ((error as any).response?.data?.message) {
+			CustomToast((error as any).response?.data?.message, "error");
+		}
 		throw error;
 	}
 };
@@ -88,7 +107,10 @@ export const patchData = async ({ endPoint, data, headers }: PatchParams) => {
 		});
 		return response.data;
 	} catch (error) {
-		console.error("error in patchData", error);
+		console.log("error in patchData", (error as any).response?.data);
+		if ((error as any).response?.data?.message) {
+			CustomToast((error as any).response?.data?.message, "error");
+		}
 		throw error;
 	}
 };
@@ -99,7 +121,10 @@ export const putData = async ({ endPoint, data }: PutParams) => {
 		const response: AxiosResponse = await apiClient.put(endPoint, data);
 		return response.data;
 	} catch (error) {
-		console.error("error in putData", error);
+		console.log("error in putData", (error as any).response?.data);
+		if ((error as any).response?.data?.message) {
+			CustomToast((error as any).response?.data?.message, "error");
+		}
 		throw error;
 	}
 };
@@ -111,7 +136,10 @@ export const putImageData = async ({ endPoint, data }: PutParams) => {
 		});
 		return response.data;
 	} catch (error) {
-		console.error("error in putImageData", error);
+		console.log("error in putImageData", (error as any).response?.data);
+		if ((error as any).response?.data?.message) {
+			CustomToast((error as any).response?.data?.message, "error");
+		}
 		throw error;
 	}
 };
@@ -125,7 +153,10 @@ export const deleteData = async ({ endPoint, data, headers }: DeleteParams) => {
 		});
 		return response.data;
 	} catch (error) {
-		console.error("error in deleteData", error);
+		console.log("error in deleteData", (error as any).response?.data);
+		if ((error as any).response?.data?.message) {
+			CustomToast((error as any).response?.data?.message, "error");
+		}
 		throw error;
 	}
 };

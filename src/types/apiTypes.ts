@@ -9,7 +9,7 @@ export interface GetParams extends BaseParams {
 }
 
 export interface PostParams extends BaseParams {
-	data: any;
+	data?: any;
 }
 
 export type PatchParams = PostParams;

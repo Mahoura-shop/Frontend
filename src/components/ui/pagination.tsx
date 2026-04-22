@@ -70,7 +70,7 @@ export function Pagination({
       </Button>
 
       {/* Page Numbers */}
-      {pages.map((page, index) => {
+      {pages?.map((page, index) => {
         if (typeof page === 'string') {
           return (
             <div

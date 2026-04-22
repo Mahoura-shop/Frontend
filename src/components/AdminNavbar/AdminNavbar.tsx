@@ -61,7 +61,7 @@ export default function AdminNavbar() {
 	const pathname = usePathname();
 	return (
 		<nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-			{menuItems.map((item, i) => {
+			{menuItems?.map((item, i) => {
 				const isActive = pathname === item.href;
 				return (
 					<motion.div

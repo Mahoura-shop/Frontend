@@ -2,9 +2,18 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff, Shield, Loader } from "lucide-react";
+import {
+	Mail,
+	Lock,
+	Eye,
+	EyeOff,
+	Shield,
+	Loader,
+	Phone,
+	Unlock,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input";
 import {
 	Card,
 	CardContent,
@@ -13,29 +22,35 @@ import {
 	CardDescription,
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
+import { postData } from "@/services/services";
+import InputFree from "@/components/Custom/Input/InputFree";
+import CustomToast from "@/components/Custom/CustomToast/CustomToast";
+import useUserStore from "@/store/userStore/userStore";
 
 export default function AdminLogin() {
-	const [email, setEmail] = useState("");
+	const [phone, setPhone] = useState("");
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState("");
+	const { setAccessToken } = useUserStore();
 	const router = useRouter();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError("");
 		setIsLoading(true);
-
-		// Simulate API call
-		setTimeout(() => {
-			if (email === "admin@mahoura.com" && password === "admin123") {
+		postData({
+			endPoint: `/v1/auth/login`,
+			data: { phone, password },
+		})
+			.then((data) => {
+				CustomToast(data?.message, "success");
+				console.log("setting", data?.data?.accessToken);
+				setAccessToken(data?.data?.accessToken);
 				router.push("/admin/dashboard");
-			} else {
-				setError("ایمیل یا رمز عبور اشتباه است");
-				setIsLoading(false);
-			}
-		}, 1500);
+			})
+			.finally(() => setIsLoading(false));
 	};
 
 	return (
@@ -164,21 +179,28 @@ export default function AdminLogin() {
 										transition={{ delay: 0.5 }}
 										className="space-y-2"
 									>
-										<label className="text-sm font-medium">
+										{/* <label className="text-sm font-medium">
 											ایمیل
-										</label>
+										</label> */}
 										<div className="relative">
-											<Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-											<Input
-												type="email"
-												placeholder="admin@mahoura.com"
-												value={email}
+											{/* <Phone className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" /> */}
+											<InputFree
+												label="شماره تلفن"
+												icon={Phone}
+												value={phone}
+												onValueChange={(val) => {
+													setPhone(val);
+												}}
+											/>
+											{/* <Input
+												placeholder="09123456789"
+												value={phone}
 												onChange={(e) =>
-													setEmail(e.target.value)
+													setPhone(e.target.value)
 												}
 												className="pr-10 h-12"
 												required
-											/>
+											/> */}
 										</div>
 									</motion.div>
 
@@ -188,12 +210,32 @@ export default function AdminLogin() {
 										transition={{ delay: 0.6 }}
 										className="space-y-2"
 									>
-										<label className="text-sm font-medium">
+										{/* <label className="text-sm font-medium">
 											رمز عبور
-										</label>
+										</label> */}
 										<div className="relative">
-											<Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-											<Input
+											{/* <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" /> */}
+											<InputFree
+												label="رمز عبور"
+												type={
+													showPassword
+														? "text"
+														: "password"
+												}
+												icon={
+													showPassword ? Unlock : Lock
+												}
+												value={password}
+												onValueChange={(val) => {
+													setPassword(val);
+												}}
+												onIconClick={() =>
+													setShowPassword(
+														!showPassword,
+													)
+												}
+											/>
+											{/* <Input
 												type={
 													showPassword
 														? "text"
@@ -206,22 +248,22 @@ export default function AdminLogin() {
 												}
 												className="pr-10 pl-10 h-12"
 												required
-											/>
-											<button
+											/> */}
+											{/* <button
 												type="button"
 												onClick={() =>
 													setShowPassword(
 														!showPassword,
 													)
 												}
-												className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+												className={`absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors`}
 											>
 												{showPassword ? (
 													<EyeOff className="w-5 h-5" />
 												) : (
 													<Eye className="w-5 h-5" />
 												)}
-											</button>
+											</button> */}
 										</div>
 									</motion.div>
 

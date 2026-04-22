@@ -4,25 +4,22 @@ import { persist } from "zustand/middleware";
 
 interface ProductStore {
 	products: Product[];
-	getProducts: () => void;
+	fetchProducts: () => Promise<Product[]>;
 }
 
 export const useProductStore = create<ProductStore>()(
 	persist(
 		(set) => ({
 			products: [],
-			getProducts: () => {
-				getData({ endPoint: `/v1/product` }).then((data) => {
-					const products = data?.data ?? [];
-					console.log(products);
-					set({
-						products: products,
-					});
-				});
+			fetchProducts: async () => {
+				const data = await getData({ endPoint: `/v1/product` });
+				const products = data?.data ?? [];
+				set({ products });
+				return products;
 			},
 		}),
 		{
-			name: "mahoura-store",
+			name: "product-store",
 		},
 	),
 );
