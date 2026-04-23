@@ -12,12 +12,15 @@ import {
 	CheckCircle2,
 	Truck,
 	Star,
+    Wallet,
+    Calendar,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { translateNumber } from "@/utils/translateNumber";
 
 // Mock data
 const MOCK_STATS = {
@@ -90,7 +93,7 @@ export default function DashboardPage() {
 	return (
 		<div className="space-y-6">
 			{/* Welcome Section */}
-			<motion.div
+			{/* <motion.div
 				initial={{ opacity: 0, y: -20 }}
 				animate={{ opacity: 1, y: 0 }}
 			>
@@ -100,10 +103,10 @@ export default function DashboardPage() {
 				<p className="text-muted-foreground">
 					خلاصه‌ای از فعالیت‌های شما در ماهورا
 				</p>
-			</motion.div>
+			</motion.div> */}
 
 			{/* Stats Grid */}
-			<div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+			{/* <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
@@ -200,7 +203,60 @@ export default function DashboardPage() {
 						</CardContent>
 					</Card>
 				</motion.div>
-			</div>
+			</div> */}
+
+			{/* Quick Actions */}
+			<motion.div
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ delay: 0.6 }}
+				className="grid md:grid-cols-3 gap-4"
+			>
+				<Link href="/products">
+					<Card className="hover:shadow-lg transition-all hover:border-primary-rose cursor-pointer">
+						<CardContent className="p-6 text-center">
+							<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary-rose/20 to-accent-gold/20 flex items-center justify-center">
+								<Wallet className="w-8 h-8 text-primary-rose" />
+							</div>
+							<h3 className="font-bold mb-2">کیف پول</h3>
+							<p className="text-sm text-muted-foreground">
+                                موجودی {formatPrice(100000)} ریال
+							</p>
+						</CardContent>
+					</Card>
+				</Link>
+
+				<Link href="/dashboard/wishlist">
+					<Card className="hover:shadow-lg transition-all hover:border-primary-rose cursor-pointer">
+						<CardContent className="p-6 text-center">
+							<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-500/20 to-pink-500/20 flex items-center justify-center">
+								<Heart className="w-8 h-8 text-red-600" />
+							</div>
+							<h3 className="font-bold mb-2">علاقه‌مندی‌ها</h3>
+							<p className="text-sm text-muted-foreground">
+								{new Intl.NumberFormat("fa-IR").format(
+									MOCK_STATS.wishlistItems,
+								)}{" "}
+								محصول ذخیره شده
+							</p>
+						</CardContent>
+					</Card>
+				</Link>
+
+				<div>
+					<Card className="hover:shadow-lg transition-all hover:border-primary-rose cursor-pointer">
+						<CardContent className="p-6 text-center">
+							<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center">
+								<Calendar className="w-8 h-8 text-amber-600" />
+							</div>
+							<h3 className="font-bold mb-2">تاریخ عضویت</h3>
+							<p className="text-sm text-muted-foreground">
+                                {translateNumber("1404/1/27")}
+							</p>
+						</CardContent>
+					</Card>
+				</div>
+			</motion.div>
 
 			{/* Recent Orders */}
 			<motion.div
@@ -278,62 +334,6 @@ export default function DashboardPage() {
 						</div>
 					</CardContent>
 				</Card>
-			</motion.div>
-
-			{/* Quick Actions */}
-			<motion.div
-				initial={{ opacity: 0, y: 20 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ delay: 0.6 }}
-				className="grid md:grid-cols-3 gap-4"
-			>
-				<Link href="/products">
-					<Card className="hover:shadow-lg transition-all hover:border-primary-rose cursor-pointer">
-						<CardContent className="p-6 text-center">
-							<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary-rose/20 to-accent-gold/20 flex items-center justify-center">
-								<ShoppingBag className="w-8 h-8 text-primary-rose" />
-							</div>
-							<h3 className="font-bold mb-2">ادامه خرید</h3>
-							<p className="text-sm text-muted-foreground">
-								مشاهده محصولات جدید
-							</p>
-						</CardContent>
-					</Card>
-				</Link>
-
-				<Link href="/dashboard/wishlist">
-					<Card className="hover:shadow-lg transition-all hover:border-primary-rose cursor-pointer">
-						<CardContent className="p-6 text-center">
-							<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-500/20 to-pink-500/20 flex items-center justify-center">
-								<Heart className="w-8 h-8 text-red-600" />
-							</div>
-							<h3 className="font-bold mb-2">علاقه‌مندی‌ها</h3>
-							<p className="text-sm text-muted-foreground">
-								{new Intl.NumberFormat("fa-IR").format(
-									MOCK_STATS.wishlistItems,
-								)}{" "}
-								محصول ذخیره شده
-							</p>
-						</CardContent>
-					</Card>
-				</Link>
-
-				<Link href="/dashboard/rewards">
-					<Card className="hover:shadow-lg transition-all hover:border-primary-rose cursor-pointer">
-						<CardContent className="p-6 text-center">
-							<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center">
-								<Star className="w-8 h-8 text-amber-600" />
-							</div>
-							<h3 className="font-bold mb-2">امتیازات شما</h3>
-							<p className="text-sm text-muted-foreground">
-								{new Intl.NumberFormat("fa-IR").format(
-									MOCK_STATS.loyaltyPoints,
-								)}{" "}
-								امتیاز
-							</p>
-						</CardContent>
-					</Card>
-				</Link>
 			</motion.div>
 		</div>
 	);
