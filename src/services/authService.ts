@@ -1,9 +1,6 @@
-// src/services/authService.ts
-
 import type { LoginPayload, LoginResponse } from "../types/authTypes";
 import { postData } from "./services";
 
-// Login function
 export const login = async (
 	credentials: LoginPayload
 ): Promise<LoginResponse> => {
@@ -12,3 +9,9 @@ export const login = async (
 		data: credentials,
 	});
 };
+
+export const sendOTP = (phone: string) =>
+	postData({ endPoint: "/v1/auth", data: { phone } });
+
+export const verifyOTP = (phone: string, otp: string) =>
+	postData({ endPoint: "/v1/auth/verify", data: { phone, otp } });

@@ -30,9 +30,8 @@ import { Badge } from "@/components/ui/badge";
 import Input from "@/components/Custom/Input/Input";
 import Textarea from "@/components/Custom/Textarea/Textarea";
 import Select from "@/components/Custom/Select/Select";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
+import { formatPrice } from "@/utils/formatPrice";
 
 // Mock cart data
 const MOCK_CART_ITEMS = [
@@ -102,10 +101,6 @@ export default function CheckoutPage() {
 	const tax = subtotal * 0.09;
 	const total = subtotal + shipping + tax;
 
-	const formatPrice = (price: number) => {
-		return new Intl.NumberFormat("fa-IR").format(price);
-	};
-
 	const handleSubmit = async (values: typeof initialValues) => {
 		setLoading(true);
 
@@ -124,7 +119,6 @@ export default function CheckoutPage() {
 
 	return (
 		<div className="min-h-screen bg-background">
-			<Navbar />
 
 			<div className="container mx-auto px-4 py-8">
 				{/* Header */}
@@ -589,7 +583,6 @@ export default function CheckoutPage() {
 				</Formik>
 			</div>
 
-			<Footer />
 		</div>
 	);
 }

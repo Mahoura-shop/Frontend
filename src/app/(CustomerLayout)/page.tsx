@@ -17,8 +17,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { useProductStore } from "@/store/useProductStore";
 import {
 	Carousel,
@@ -206,7 +204,6 @@ export default function LandingPage() {
 
 	return (
 		<div className="min-h-screen bg-background">
-			<Navbar />
 
 			{/* Hero Section */}
 			<section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">

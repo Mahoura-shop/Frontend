@@ -21,8 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useProductStore } from "@/store/useProductStore";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { useCartStore } from "@/store/useCartStore";
 import {
 	Select,
 	SelectContent,
@@ -45,6 +44,8 @@ export default function ProductsPage() {
 	const { products, fetchProducts } = useProductStore();
 	const { categories, fetchCategories } = useCategoryStore();
 	const { brands, fetchBrands } = useBrandStore();
+	const { addItem } = useCartStore();
+	const [addingId, setAddingId] = useState<number | null>(null);
 	const itemsPerPage = 12;
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedCategory, setSelectedCategory] = useState<string>("0");
@@ -54,6 +55,16 @@ export default function ProductsPage() {
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 	const [showFilters, setShowFilters] = useState(false);
 	const [sortBy, setSortBy] = useState<string>("newest");
+
+	const handleAddToCart = async (e: React.MouseEvent, productId: number) => {
+		e.preventDefault();
+		setAddingId(productId);
+		try {
+			await addItem(productId);
+		} finally {
+			setAddingId(null);
+		}
+	};
 
 	const filteredProducts = products
 		.filter(
@@ -125,18 +136,17 @@ export default function ProductsPage() {
 
 	return (
 		<div className="min-h-screen bg-background">
-			<Navbar />
 
 			<div className="pt-16 md:pt-20">
 				{/* Header */}
-				<div className="bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/20 py-16">
+				<div className="bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/20 py-8 md:py-16">
 					<div className="container mx-auto px-4">
 						<motion.div
 							initial={{ opacity: 0, y: 30 }}
 							animate={{ opacity: 1, y: 0 }}
 							className="text-center"
 						>
-							<h1 className="text-5xl font-bold gradient-text mb-4">
+							<h1 className="text-3xl md:text-5xl font-bold gradient-text mb-4">
 								تمامی محصولات
 							</h1>
 							<p className="text-muted-foreground text-lg">
@@ -146,15 +156,19 @@ export default function ProductsPage() {
 					</div>
 				</div>
 
-				<div className="container mx-auto px-4 py-12">
+				<div className="container mx-auto px-4 py-6 md:py-12">
 					<div className="flex flex-col lg:flex-row gap-8">
 						{/* Filters Sidebar - STICKY */}
 						<motion.aside
 							initial={{ opacity: 0, x: 50 }}
 							animate={{ opacity: 1, x: 0 }}
+							onClick={() => showFilters && setShowFilters(false)}
 							className={`lg:w-80 ${showFilters ? "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm lg:relative lg:bg-transparent" : "hidden lg:block"}`}
 						>
-							<div className={`${showFilters ? "fixed top-0 right-0 bottom-0 w-80 bg-background overflow-y-auto" : "sticky top-24"}`}>
+							<div
+								onClick={(e) => e.stopPropagation()}
+								className={`${showFilters ? "fixed top-0 right-0 bottom-0 w-80 bg-background overflow-y-auto" : "sticky top-24"}`}
+							>
 								<Card className={showFilters ? "h-full rounded-none" : ""}>
 									<CardContent className="flex flex-col gap-6 p-6">
 										<div className="flex items-center justify-between">
@@ -284,20 +298,17 @@ export default function ProductsPage() {
 						{/* Products Grid */}
 						<div className="flex-1">
 							{/* Toolbar */}
-							<div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-								<div className="flex items-center gap-4 justify-between w-full">
-									{/* Mobile Filter Button */}
+							<div className="flex flex-col gap-3 mb-8">
+								<div className="flex items-center gap-3">
 									<Button
 										variant="outline"
-										className="lg:hidden gap-2"
+										className="lg:hidden gap-2 shrink-0"
 										onClick={() => setShowFilters(true)}
 									>
 										<SlidersHorizontal className="w-5 h-5" />
 										فیلترها
 									</Button>
-
-									<div className="relative flex-1 lg:flex-initial lg:w-96">
-										<Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+									<div className="hidden lg:block flex-1">
 										<InputFree
 											label="نام محصول یا برند..."
 											icon={Search}
@@ -312,7 +323,7 @@ export default function ProductsPage() {
 										value={sortBy}
 										onValueChange={(e) => setSortBy(e)}
 									>
-										<SelectTrigger className="py-2 border rounded-lg bg-background text-foreground w-48">
+										<SelectTrigger className="flex-1 lg:flex-none lg:w-48 py-2 border rounded-lg bg-background text-foreground">
 											<SelectValue placeholder="مرتب سازی" />
 										</SelectTrigger>
 										<SelectContent>
@@ -333,6 +344,17 @@ export default function ProductsPage() {
 										</SelectContent>
 									</Select>
 								</div>
+								<div className="lg:hidden">
+									<InputFree
+										label="نام محصول یا برند..."
+										icon={Search}
+										value={searchQuery}
+										onValueChange={(value) => {
+											setSearchQuery(value);
+										}}
+										inputClassName="pr-10"
+									/>
+								</div>
 							</div>
 
 							{/* Products */}
@@ -351,7 +373,7 @@ export default function ProductsPage() {
 								<div
 									className={
 										viewMode === "grid"
-											? "grid md:grid-cols-2 xl:grid-cols-3 gap-6"
+											? "grid sm:grid-cols-2 xl:grid-cols-3 gap-6"
 											: "space-y-6"
 									}
 								>
@@ -363,7 +385,7 @@ export default function ProductsPage() {
 												animate={{ opacity: 1, y: 0 }}
 												transition={{ delay: i * 0.05 }}
 											>
-												<Card className="overflow-hidden group hover:shadow-xl h-full transition-all duration-300 min-h-[400px]">
+												<Card className="overflow-hidden group hover:shadow-xl h-full transition-all duration-300 min-h-[360px] sm:min-h-[400px]">
 													<div className="relative">
 														<Link
 															href={`/products/${product.slug}`}
@@ -455,6 +477,38 @@ export default function ProductsPage() {
 																</span>
 															</div>
 														</div>
+
+														<Button
+															variant="luxury"
+															size="sm"
+															className="w-full mt-3 gap-2"
+															disabled={
+																addingId === product.id ||
+																product.quantity === 0
+															}
+															onClick={(e) =>
+																handleAddToCart(e, product.id)
+															}
+														>
+															{addingId === product.id ? (
+																<motion.div
+																	animate={{ rotate: 360 }}
+																	transition={{
+																		repeat: Infinity,
+																		duration: 0.8,
+																		ease: "linear",
+																	}}
+																	className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+																/>
+															) : (
+																<ShoppingBag className="w-4 h-4" />
+															)}
+															{product.quantity === 0
+																? "ناموجود"
+																: addingId === product.id
+																? "در حال افزودن..."
+																: "افزودن به سبد"}
+														</Button>
 													</CardContent>
 												</Card>
 											</motion.div>
@@ -475,7 +529,6 @@ export default function ProductsPage() {
 				</div>
 			</div>
 
-			<Footer />
 		</div>
 	);
 }

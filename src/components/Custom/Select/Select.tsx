@@ -13,6 +13,7 @@ import {
 import { AlertCircle, LucideIcon } from "lucide-react";
 import styles from "./Select.module.css";
 import { cn } from "@/lib/utils";
+import { isRTL } from "@/utils/isRTL";
 import {
 	Tooltip,
 	TooltipContent,
@@ -56,11 +57,7 @@ export default function Select({
 	const hasError = meta.touched && meta.error;
 	const hasValue = field.value !== "" && field.value !== "0" && field.value;
 
-	const direction = /[\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC]/.test(
-		field.value || "",
-	)
-		? "rtl"
-		: "ltr";
+	const direction = isRTL(field.value || "") ? "rtl" : "ltr";
 
 	const safeOptions = options?.map((opt) => ({
 		...opt,

@@ -21,6 +21,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { translateNumber } from "@/utils/translateNumber";
+import { formatPrice } from "@/utils/formatPrice";
 
 // Mock data
 const MOCK_STATS = {
@@ -60,10 +61,6 @@ const MOCK_RECENT_ORDERS = [
 ];
 
 export default function DashboardPage() {
-	const formatPrice = (price: number) => {
-		return new Intl.NumberFormat("fa-IR").format(price);
-	};
-
 	const getStatusBadge = (status: string) => {
 		switch (status) {
 			case "delivered":

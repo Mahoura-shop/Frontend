@@ -30,13 +30,17 @@ import { useProductStore } from "@/store/useProductStore";
 import { getData } from "@/services/services";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import { useSettingsStore } from "@/store/useSettingsStore";
+import { useCartStore } from "@/store/useCartStore";
 
 export default function ProductDetailPage() {
 	const params = useParams();
 	const router = useRouter();
 	const [product, setProduct] = useState<Product | null>(null);
 	const [loading, setLoading] = useState<boolean>(true);
+	const [adding, setAdding] = useState(false);
+	const [added, setAdded] = useState(false);
 	const { formatPrice } = useSettingsStore();
+	const { addItem } = useCartStore();
 	const { products } = useProductStore();
 	// const product = products.find((p) => p.slug === params.slug);
 	const getProduct = () => {
@@ -47,6 +51,18 @@ export default function ProductDetailPage() {
 			})
 			.finally(() => setLoading(false));
 	};
+	const handleAddToCart = async () => {
+		if (!product) return;
+		setAdding(true);
+		try {
+			await addItem(product.id);
+			setAdded(true);
+			setTimeout(() => setAdded(false), 2000);
+		} finally {
+			setAdding(false);
+		}
+	};
+
 	useEffect(() => {
 		getProduct();
 	}, []);
@@ -343,60 +359,54 @@ export default function ProductDetailPage() {
             </div> */}
 
 						{/* Actions */}
-						{/* <div className="flex gap-4">
+						<div className="flex gap-4">
 							<Button
-                variant="luxury"
-                size="lg"
-                className="flex-1"
-                disabled={!product.available}
-                onClick={handleAddToCart}
-              >
-                <AnimatePresence mode="wait">
-                  {addedToCart ? (
-                    <motion.div
-                      key="added"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      className="flex items-center gap-2"
-                    >
-                      <Check className="w-5 h-5" />
-                      اضافه شد!
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="add"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      className="flex items-center gap-2"
-                    >
-                      <ShoppingBag className="w-5 h-5" />
-                      افزودن به سبد خرید
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </Button>
-
-              <Button
-                variant={isInWishlist ? 'default' : 'outline'}
-                size="icon"
-                className="w-12 h-12"
-                onClick={() => toggleWishlist(product.id)}
-              >
-                <Heart
-                  className={`w-5 h-5 ${isInWishlist ? 'fill-current' : ''}`}
-                />
-              </Button>
-
-							<Button
-								variant="outline"
-								size="icon"
-								className="w-12 h-12"
+								variant="luxury"
+								size="lg"
+								className="flex-1 gap-2"
+								disabled={adding || product.quantity === 0}
+								onClick={handleAddToCart}
 							>
-								<Share2 className="w-5 h-5" />
+								<AnimatePresence mode="wait">
+									{added ? (
+										<motion.div
+											key="added"
+											initial={{ scale: 0 }}
+											animate={{ scale: 1 }}
+											exit={{ scale: 0 }}
+											className="flex items-center gap-2"
+										>
+											<Check className="w-5 h-5" />
+											اضافه شد!
+										</motion.div>
+									) : adding ? (
+										<motion.div
+											key="loading"
+											animate={{ rotate: 360 }}
+											transition={{
+												repeat: Infinity,
+												duration: 0.8,
+												ease: "linear",
+											}}
+											className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+										/>
+									) : (
+										<motion.div
+											key="add"
+											initial={{ scale: 0 }}
+											animate={{ scale: 1 }}
+											exit={{ scale: 0 }}
+											className="flex items-center gap-2"
+										>
+											<ShoppingBag className="w-5 h-5" />
+											{product.quantity === 0
+												? "ناموجود"
+												: "افزودن به سبد خرید"}
+										</motion.div>
+									)}
+								</AnimatePresence>
 							</Button>
-						</div> */}
+						</div>
 
 						{/* Features */}
 						{/* <div className="grid grid-cols-3 gap-4 pt-6">

@@ -4,6 +4,7 @@ import { AlertCircle, LucideIcon } from "lucide-react";
 
 import { useField } from "formik";
 import { cn } from "@/lib/utils";
+import { isRTL } from "@/utils/isRTL";
 import {
 	Tooltip,
 	TooltipContent,
@@ -25,12 +26,6 @@ interface Props extends React.InputHTMLAttributes<HTMLTextAreaElement> {
 	label: string;
 	loading?: boolean; // Add loading prop
 }
-
-const isRTL = (text: string | undefined): boolean => {
-	if (!text) return true;
-	const rtlChars = /[\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC]/;
-	return rtlChars.test(text);
-};
 
 export default function Textarea({
 	name,

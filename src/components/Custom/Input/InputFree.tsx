@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useSettingsStore } from "@/store/useSettingsStore";
 import { useState, useEffect, useCallback, useRef } from "react"; // Added useRef
 import { isRTL } from "@/utils/isRTL";
+import { persianToAscii } from "@/utils/translateNumber";
 
 // --- اضافه شدن isPriceInput به Props ---
 interface Props {
@@ -62,9 +63,7 @@ export default function InputFree({
 			// Note: The original logic used /[^\d.]/g. If your formatPriceFromStore handles decimals, keep '.', otherwise remove it.
 			// For Persian numbers, we might want to handle them more explicitly.
 			// Let's assume formatPriceFromStore expects ASCII digits.
-			let asciiValue = stringValue.replace(/[۰-۹]/g, (d) =>
-				"۰۱۲۳۴۵۶۷۸۹".indexOf(d),
-			);
+			let asciiValue = persianToAscii(stringValue);
 			let numericString = asciiValue.replace(/[^\d.]/g, ""); // Keep dot if decimals are supported
 
 			if (numericString === "" || numericString === ".") return "";
@@ -124,9 +123,7 @@ export default function InputFree({
 				let rawDigits = "";
 				if (persianDigits.length > 0) {
 					// Prioritize Persian digits, convert to ASCII for processing
-					rawDigits = persianDigits.replace(/[۰-۹]/g, (d) =>
-						"۰۱۲۳۴۵۶۷۸۹".indexOf(d),
-					);
+					rawDigits = persianToAscii(persianDigits);
 				} else {
 					// Use ASCII digits if no Persian digits are found
 					rawDigits = asciiDigits;

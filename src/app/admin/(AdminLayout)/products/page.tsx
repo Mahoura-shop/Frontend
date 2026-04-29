@@ -286,7 +286,7 @@ export default function ProductsAdminPage() {
 		const uniqueValues = new Set(
 			products?.map((p) => {
 				const value = p[filterColumn as keyof Product];
-				return value?.name || value || "بدون مقدار";
+				return (value && typeof value === "object" && "name" in value ? value.name : value) || "بدون مقدار";
 			}),
 		);
 

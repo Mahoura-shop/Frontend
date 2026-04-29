@@ -9,7 +9,7 @@ export default function RootLayout({
 	return (
 		<>
 			<Navbar />
-			<div className="pt-[70px]">{children}</div>
+			<div className="pt-[70px] pb-24 md:pb-0">{children}</div>
 			<Footer />
 		</>
 	);

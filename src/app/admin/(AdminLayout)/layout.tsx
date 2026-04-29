@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
 	Home,
@@ -28,9 +28,12 @@ export default function AdminLayout({
 	children: React.ReactNode;
 }) {
 	const [sidebarOpen, setSidebarOpen] = useState(true);
+	const [mounted, setMounted] = useState(false);
 	const pathname = usePathname();
 	const router = useRouter();
 	const { theme, setTheme } = useTheme();
+
+	useEffect(() => setMounted(true), []);
 
 	const menuItems = [
 		{
@@ -205,7 +208,7 @@ export default function AdminLayout({
 									)
 								}
 							>
-								{theme === "dark" ? (
+								{mounted && theme === "dark" ? (
 									<Sun className="w-5 h-5" />
 								) : (
 									<Moon className="w-5 h-5" />

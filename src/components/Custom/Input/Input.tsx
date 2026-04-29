@@ -9,7 +9,9 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useSettingsStore } from "@/store/useSettingsStore";
-import { useCallback, useRef, useState, useEffect } from "react"; // Added useEffect
+import { isRTL } from "@/utils/isRTL";
+import { persianToAscii } from "@/utils/translateNumber";
+import { useCallback, useRef, useState, useEffect } from "react";
 
 interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
 	name: string;
@@ -28,12 +30,6 @@ interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
 	onValueChange?: (value: string) => void;
 	isPriceInput?: boolean;
 }
-
-const isRTL = (text: string | undefined): boolean => {
-	if (!text) return true;
-	const rtlChars = /[\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC]/;
-	return rtlChars.test(text);
-};
 
 export default function Input({
 	name,
@@ -71,12 +67,7 @@ export default function Input({
 			const stringValue = String(priceValue);
 
 			// 1. استخراج اعداد خام (Persian و ASCII)
-			let asciiDigits = stringValue
-				.replace(/[^\d۰-۹]/g, "") // فقط اعداد و ارقام فارسی را نگه دار
-				.replace(
-					/[۰-۹]/g,
-					(d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d), // تبدیل ارقام فارسی به ASCII
-				);
+			let asciiDigits = persianToAscii(stringValue.replace(/[^\d۰-۹]/g, ""));
 
 			if (asciiDigits === "") return ""; // اگر بعد از پاکسازی چیزی نماند، خالی برگردان
 
@@ -171,7 +162,7 @@ export default function Input({
 	// 			// 1. Extract and clean to get raw ASCII digits
 	// 			const cleanedAsciiDigits = originalInputValue
 	// 				.replace(/[^\d۰-۹]/g, "")
-	// 				.replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
+	// 				;
 
 	// 			valueToUpdateParent = cleanedAsciiDigits; // This is what Formik will receive
 	// 			console.log("Value to Formik:", valueToUpdateParent); // <--- Add this line
@@ -272,9 +263,7 @@ export default function Input({
 
 			if (isPriceInput) {
 				// 1. Extract and clean to get raw ASCII digits
-				const cleanedAsciiDigits = originalInputValue
-					.replace(/[^\d۰-۹]/g, "")
-					.replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
+				const cleanedAsciiDigits = persianToAscii(originalInputValue.replace(/[^\d۰-۹]/g, ""));
 
 				valueToUpdateParent = cleanedAsciiDigits; // This is 
 
