@@ -1,16 +1,17 @@
-export function translateNumber(number: number | string): string {
-	// Persian digits mapping from 0 to 9
-	const persianDigits = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
+const persianDigits = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
 
-	// Convert the input number to a string
+export function translateNumber(number: number | string): string {
 	const numberStr = number?.toString();
 
-	// Replace each digit with its Persian equivalent
 	return numberStr
-		?.split("") // Split the number into individual characters
+		?.split("")
 		?.map((digit) => {
 			const num = parseInt(digit, 10);
 			return isNaN(num) ? digit : persianDigits[num];
 		})
-		?.join(""); // Join the array of Persian characters back into a string
+		?.join("");
+}
+
+export function persianToAscii(str: string): string {
+	return str.replace(/[۰-۹]/g, (d) => String(persianDigits.indexOf(d)));
 }

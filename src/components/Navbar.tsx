@@ -1,170 +1,373 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Moon, Sun, Menu, X, Globe } from "lucide-react";
+import { useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Moon, Sun, Home, ShoppingBag, User, ShoppingCart, Search, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import logo from "@/assets/logo.png";
+import { useCartStore } from "@/store/useCartStore";
+import useUserStore from "@/store/userStore/userStore";
+import {
+	DropdownMenu,
+	DropdownMenuTrigger,
+	DropdownMenuContent,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+
+const menuItems = [
+	{ label: "محصولات", href: "/products" },
+	{ label: "درباره ما", href: "/about" },
+	{ label: "تماس با ما", href: "/contact" },
+];
+
+const bottomNavItems = [
+	{ label: "خانه", icon: Home, href: "/" },
+	{ label: "محصولات", icon: ShoppingBag, href: "/products" },
+	{ label: "سبد خرید", icon: ShoppingCart, href: "/cart" },
+	{ label: "حساب من", icon: User, href: "/dashboard" },
+];
 
 export default function Navbar() {
-	const [isOpen, setIsOpen] = useState(false);
 	const { theme, setTheme } = useTheme();
-	const [language, setLanguage] = useState<"fa" | "en">("fa");
 	const pathname = usePathname();
+	const router = useRouter();
+	const { accessToken, firstName, lastName, logout } = useUserStore();
+	const { fetchCart, getItemCount } = useCartStore();
+	const itemCount = getItemCount();
 
-	const menuItems = [
-		{ label: "محصولات", labelEn: "Products", href: "/products" },
-		{ label: "درباره ما", labelEn: "About Us", href: "/about" },
-		{ label: "تماس با ما", labelEn: "Contact Us", href: "/contact" },
-	];
+	useEffect(() => {
+		if (accessToken) {
+			fetchCart();
+		}
+	}, [accessToken]);
 
-	const toggleLanguage = () => {
-		setLanguage(language === "fa" ? "en" : "fa");
+	const handleLogout = () => {
+		logout();
+		router.push("/");
+	};
+
+	const isActive = (href: string) => {
+		if (href === "/") return pathname === href;
+		return pathname?.startsWith(href);
 	};
 
 	return (
-		<motion.nav
-			initial={{ y: -100 }}
-			animate={{ y: 0 }}
-			className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border shadow-sm"
-		>
-			<div className="container mx-auto px-4 py-4">
-				<div className="flex items-center justify-between">
-					{/* Logo */}
-					<Link href="/">
+		<>
+			<motion.nav
+				initial={{ y: -100, opacity: 0 }}
+				animate={{ y: 0, opacity: 1 }}
+				transition={{ type: "spring", stiffness: 300, damping: 30 }}
+				className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border hidden md:block"
+			>
+				<div className="w-full max-w-7xl mx-auto px-6 py-4">
+					<div className="flex items-center justify-between">
+						<Link href="/">
+							<motion.div
+								whileHover={{ scale: 1.05 }}
+								whileTap={{ scale: 0.95 }}
+								className="flex items-center gap-3 cursor-pointer"
+							>
+								<Image src={logo} alt="Mahoura" className="w-11 h-11 dark:invert" />
+							</motion.div>
+						</Link>
+
+						<div className="flex items-center gap-8">
+							{menuItems.map((item, i) => (
+								<motion.div
+									key={item.href}
+									initial={{ opacity: 0, y: -20 }}
+									animate={{ opacity: 1, y: 0 }}
+									transition={{ delay: 0.1 + i * 0.08 }}
+								>
+									<Link
+										href={item.href}
+										className={`relative text-sm font-medium transition-colors group ${
+											pathname === item.href
+												? "text-primary-rose"
+												: "text-foreground hover:text-primary-rose"
+										}`}
+									>
+										{item.label}
+										<span
+											className={`absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-primary-rose to-accent-gold transition-all duration-300 ${
+												pathname === item.href ? "w-full" : "w-0 group-hover:w-full"
+											}`}
+										/>
+									</Link>
+								</motion.div>
+							))}
+						</div>
+
 						<motion.div
 							initial={{ opacity: 0, scale: 0.8 }}
 							animate={{ opacity: 1, scale: 1 }}
-							transition={{ delay: 0.2, type: "spring" }}
-							className="text-3xl font-bold gradient-text cursor-pointer"
+							transition={{ delay: 0.4 }}
+							className="flex items-center gap-3"
 						>
-							<div className="flex gap-4 place-items-center">
-								<Image
-									src={logo}
-									alt="Mahoura"
-									className="w-12 h-12 dark:invert"
-								/>
-								{/* <p>Mahoura</p> */}
-							</div>
+							<Button
+								variant="ghost"
+								size="icon"
+								onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+								className="rounded-full"
+							>
+								<AnimatePresence mode="wait">
+									{theme === "dark" ? (
+										<motion.div
+											key="sun"
+											initial={{ rotate: -90, opacity: 0 }}
+											animate={{ rotate: 0, opacity: 1 }}
+											exit={{ rotate: 90, opacity: 0 }}
+											transition={{ duration: 0.2 }}
+										>
+											<Sun className="w-5 h-5" />
+										</motion.div>
+									) : (
+										<motion.div
+											key="moon"
+											initial={{ rotate: 90, opacity: 0 }}
+											animate={{ rotate: 0, opacity: 1 }}
+											exit={{ rotate: -90, opacity: 0 }}
+											transition={{ duration: 0.2 }}
+										>
+											<Moon className="w-5 h-5" />
+										</motion.div>
+									)}
+								</AnimatePresence>
+							</Button>
+
+							{!accessToken ? (
+								<motion.div
+									initial={{ opacity: 0, x: 20 }}
+									animate={{ opacity: 1, x: 0 }}
+									transition={{ delay: 0.5 }}
+								>
+									<Link href="/signin">
+										<Button className="bg-gradient-to-r from-secondary-plum to-primary-rose hover:opacity-90 transition-opacity">
+											ورود / ثبت‌نام
+										</Button>
+									</Link>
+								</motion.div>
+							) : (
+								<motion.div
+									initial={{ opacity: 0, scale: 0.8 }}
+									animate={{ opacity: 1, scale: 1 }}
+									transition={{ delay: 0.5 }}
+								>
+									<DropdownMenu>
+										<DropdownMenuTrigger asChild>
+											<button className="w-10 h-10 rounded-full bg-gradient-to-r from-secondary-plum to-primary-rose flex items-center justify-center text-white hover:shadow-lg transition-shadow">
+												<User className="w-5 h-5" />
+											</button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent align="center" className="w-48">
+											<DropdownMenuLabel className="text-right">
+												{firstName || lastName ? `${firstName} ${lastName}`.trim() : "مستخدم"}
+											</DropdownMenuLabel>
+											<DropdownMenuSeparator />
+											<DropdownMenuItem asChild>
+												<Link href="/dashboard" className="flex items-center justify-end gap-2 cursor-pointer">
+													<User className="w-4 h-4" />
+													حساب من
+												</Link>
+											</DropdownMenuItem>
+											<DropdownMenuItem asChild>
+												<Link href="/cart" className="flex items-center justify-end gap-2 cursor-pointer">
+													<ShoppingCart className="w-4 h-4" />
+													سبد خرید
+												</Link>
+											</DropdownMenuItem>
+											<DropdownMenuSeparator />
+											<DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10 flex justify-end items-center gap-2">
+												<LogOut className="w-4 h-4" />
+												خروج
+											</DropdownMenuItem>
+										</DropdownMenuContent>
+									</DropdownMenu>
+								</motion.div>
+							)}
 						</motion.div>
+					</div>
+				</div>
+			</motion.nav>
+
+			<motion.div
+				initial={{ y: -60, opacity: 0 }}
+				animate={{ y: 0, opacity: 1 }}
+				transition={{ type: "spring", stiffness: 300, damping: 30 }}
+				className="fixed top-0 left-0 right-0 z-50 bg-background/85 backdrop-blur-lg border-b border-border md:hidden"
+			>
+				<div className="px-4 py-3 flex items-center justify-between">
+					<Link href="/">
+						<div className="flex items-center gap-2">
+							<Image src={logo} alt="Mahoura" className="w-9 h-9 dark:invert" />
+							<span className="text-lg font-bold gradient-text">ماهورا</span>
+						</div>
 					</Link>
 
-					{/* Desktop Menu */}
-					<div className="hidden md:flex items-center gap-8">
-						{menuItems?.map((item, i) => (
-							<motion.div
-								key={item.href}
-								initial={{ opacity: 0, y: -20 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ delay: 0.3 + i * 0.1 }}
-							>
-								<Link
-									href={item.href}
-									className={`text-foreground hover:text-primary transition-colors relative group ${
-										pathname === item.href
-											? "text-primary"
-											: ""
-									}`}
-								>
-									{language === "fa"
-										? item.label
-										: item.labelEn}
-									<span
-										className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-primary-rose to-accent-gold transition-all ${
-											pathname === item.href
-												? "w-full"
-												: "w-0 group-hover:w-full"
-										}`}
-									/>
-								</Link>
-							</motion.div>
-						))}
-					</div>
-
-					{/* Actions */}
-					<motion.div
-						initial={{ opacity: 0, scale: 0.8 }}
-						animate={{ opacity: 1, scale: 1 }}
-						transition={{ delay: 0.6 }}
-						className="flex items-center gap-3"
-					>
-						{/* Language Toggle */}
-						{/* <Button
-							variant="ghost"
-							size="icon"
-							onClick={toggleLanguage}
-							className="hidden md:flex"
-						>
-							<Globe className="w-5 h-5" />
-						</Button> */}
-
-						{/* Theme Toggle */}
+					<div className="flex items-center gap-1">
+						<Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
+							<Search className="w-4 h-4" />
+						</Button>
 						<Button
 							variant="ghost"
 							size="icon"
-							onClick={() =>
-								setTheme(theme === "dark" ? "light" : "dark")
-							}
+							className="h-9 w-9 rounded-full"
+							onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
 						>
-							{theme === "dark" ? (
-								<Sun className="w-5 h-5" />
-							) : (
-								<Moon className="w-5 h-5" />
-							)}
+							<AnimatePresence mode="wait">
+								{theme === "dark" ? (
+									<motion.div
+										key="sun"
+										initial={{ rotate: -90, opacity: 0 }}
+										animate={{ rotate: 0, opacity: 1 }}
+										exit={{ rotate: 90, opacity: 0 }}
+										transition={{ duration: 0.15 }}
+									>
+										<Sun className="w-4 h-4" />
+									</motion.div>
+								) : (
+									<motion.div
+										key="moon"
+										initial={{ rotate: 90, opacity: 0 }}
+										animate={{ rotate: 0, opacity: 1 }}
+										exit={{ rotate: -90, opacity: 0 }}
+										transition={{ duration: 0.15 }}
+									>
+										<Moon className="w-4 h-4" />
+									</motion.div>
+								)}
+							</AnimatePresence>
 						</Button>
-
-						{/* Mobile Menu Button */}
-						<Button
-							variant="ghost"
-							size="icon"
-							className="md:hidden"
-							onClick={() => setIsOpen(!isOpen)}
-						>
-							{isOpen ? (
-								<X className="w-5 h-5" />
-							) : (
-								<Menu className="w-5 h-5" />
-							)}
-						</Button>
-					</motion.div>
-				</div>
-
-				{/* Mobile Menu */}
-				{isOpen && (
-					<motion.div
-						initial={{ opacity: 0, height: 0 }}
-						animate={{ opacity: 1, height: "auto" }}
-						exit={{ opacity: 0, height: 0 }}
-						className="md:hidden mt-4 pb-4 border-t border-border pt-4"
-					>
-						{menuItems?.map((item) => (
-							<Link
-								key={item.href}
-								href={item.href}
-								onClick={() => setIsOpen(false)}
-								className={`block py-3 text-foreground hover:text-primary transition-colors ${
-									pathname === item.href
-										? "text-primary font-bold"
-										: ""
-								}`}
-							>
-								{language === "fa" ? item.label : item.labelEn}
+						{!accessToken ? (
+							<Link href="/signin" className="mr-2">
+								<Button size="sm" className="bg-gradient-to-r from-secondary-plum to-primary-rose hover:opacity-90 transition-opacity text-xs h-8 px-3">
+									ورود
+								</Button>
 							</Link>
-						))}
-						<Button
-							variant="ghost"
-							onClick={toggleLanguage}
-							className="w-full justify-start mt-2"
-						>
-							<Globe className="w-5 h-5 ml-2" />
-							{language === "fa" ? "English" : "فارسی"}
-						</Button>
-					</motion.div>
-				)}
+						) : (
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<Button
+										variant="ghost"
+										size="icon"
+										className="h-9 w-9 rounded-full ml-2 bg-gradient-to-r from-secondary-plum/20 to-primary-rose/20"
+									>
+										<User className="w-4 h-4" />
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="center" className="w-48">
+									<DropdownMenuLabel className="text-right">
+										{firstName || lastName ? `${firstName} ${lastName}`.trim() : "مستخدم"}
+									</DropdownMenuLabel>
+									<DropdownMenuSeparator />
+									<DropdownMenuItem asChild>
+										<Link href="/dashboard" className="cursor-pointer justify-end flex items-center gap-2">
+											<User className="w-4 h-4" />
+											حساب من
+										</Link>
+									</DropdownMenuItem>
+									<DropdownMenuItem asChild>
+										<Link href="/cart" className="cursor-pointer justify-end flex items-center gap-2">
+											<ShoppingCart className="w-4 h-4" />
+											سبد خرید
+										</Link>
+									</DropdownMenuItem>
+									<DropdownMenuSeparator />
+									<DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10 justify-end flex items-center gap-2">
+										<LogOut className="w-4 h-4" />
+										خروج
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						)}
+					</div>
+				</div>
+			</motion.div>
+
+			<BottomNav isActive={isActive} cartCount={itemCount} />
+		</>
+	);
+}
+
+function BottomNav({
+	isActive,
+	cartCount,
+}: {
+	isActive: (href: string) => boolean;
+	cartCount: number;
+}) {
+	return (
+		<motion.nav
+			initial={{ y: 100, opacity: 0 }}
+			animate={{ y: 0, opacity: 1 }}
+			transition={{ type: "spring", stiffness: 260, damping: 28, delay: 0.1 }}
+			className="fixed bottom-0 inset-x-0 z-50 md:hidden px-3 pb-3"
+			style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
+		>
+			<div className="w-full bg-background/90 backdrop-blur-xl border border-border/60 rounded-2xl shadow-2xl shadow-black/20">
+				<div className="flex items-center justify-around px-2 py-2">
+					{bottomNavItems.map((item) => {
+						const active = isActive(item.href);
+
+						return (
+							<Link key={item.href} href={item.href} className="flex-1">
+								<div className="relative flex flex-col items-center justify-center py-1">
+									{active && (
+										<motion.div
+											layoutId="bottom-nav-pill"
+											className="absolute inset-0 bg-gradient-to-br from-primary-rose/20 via-accent-gold/10 to-secondary-plum/10 rounded-xl"
+											transition={{ type: "spring", stiffness: 400, damping: 35 }}
+										/>
+									)}
+
+									<motion.div
+										animate={active ? { scale: 1.15, y: -2 } : { scale: 1, y: 0 }}
+										transition={{ type: "spring", stiffness: 400, damping: 25 }}
+										whileTap={{ scale: 0.85 }}
+										className="relative flex flex-col items-center gap-1 py-1.5 px-3"
+									>
+										<div className="relative">
+											<item.icon
+												className={`w-5 h-5 transition-colors duration-200 ${
+													active ? "text-primary-rose" : "text-muted-foreground"
+												}`}
+											/>
+											{item.href === "/cart" && cartCount > 0 && (
+												<span className="absolute -top-2 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-primary-rose text-white text-[10px] font-bold flex items-center justify-center leading-none">
+													{cartCount > 99 ? "99+" : cartCount}
+												</span>
+											)}
+										</div>
+
+										<motion.span
+											animate={active ? { opacity: 1 } : { opacity: 0.5 }}
+											className={`text-[10px] font-medium transition-colors duration-200 ${
+												active ? "text-primary-rose" : "text-muted-foreground"
+											}`}
+										>
+											{item.label}
+										</motion.span>
+
+										{active && (
+											<motion.div
+												layoutId="bottom-nav-dot"
+												className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-primary-rose"
+												transition={{ type: "spring", stiffness: 400, damping: 35 }}
+											/>
+										)}
+									</motion.div>
+								</div>
+							</Link>
+						);
+					})}
+				</div>
 			</div>
 		</motion.nav>
 	);

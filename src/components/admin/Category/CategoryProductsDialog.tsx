@@ -75,8 +75,7 @@ export default function CategoryProductsDialog({
                             {/* <CategoryPriceUpdateDialog category={category} products={categoryProducts} /> */}
 						</StickyDialogFooter>
 					</>
-				) : (
-				)}
+				) : null}
 			</DialogContent>
 		</Dialog>
 	);

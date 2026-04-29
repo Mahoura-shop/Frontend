@@ -28,8 +28,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
 // Mock user data
 const MOCK_USER = {
@@ -82,30 +80,30 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 			icon: Wallet,
 			badge: null,
 		},
-		{
-			title: "کارت‌های بانکی",
-			href: "/dashboard/cards",
-			icon: CreditCard,
-			badge: null,
-		},
-		{
-			title: "امتیازات و پاداش",
-			href: "/dashboard/rewards",
-			icon: Gift,
-			badge: MOCK_USER.loyaltyPoints,
-		},
+		// {
+		// 	title: "کارت‌های بانکی",
+		// 	href: "/dashboard/cards",
+		// 	icon: CreditCard,
+		// 	badge: null,
+		// },
+		// {
+		// 	title: "امتیازات و پاداش",
+		// 	href: "/dashboard/rewards",
+		// 	icon: Gift,
+		// 	badge: MOCK_USER.loyaltyPoints,
+		// },
 		{
 			title: "نظرات من",
 			href: "/dashboard/reviews",
-			icon: Star,
-			badge: null,
-		},
-		{
-			title: "پیام‌ها",
-			href: "/dashboard/messages",
 			icon: MessageSquare,
 			badge: 2,
 		},
+		// {
+		// 	title: "پیام‌ها",
+		// 	href: "/dashboard/messages",
+		// 	icon: MessageSquare,
+		// 	badge: 2,
+		// },
 		{
 			title: "اعلان‌ها",
 			href: "/dashboard/notifications",
@@ -127,10 +125,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 		},
 	];
 
-	const formatPrice = (price: number) => {
-		return new Intl.NumberFormat("fa-IR").format(price);
-	};
-
 	const isActive = (href: string) => {
 		if (href === "/dashboard") {
 			return pathname === href;
@@ -140,7 +134,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
 	return (
 		<div className="min-h-screen bg-background">
-			<Navbar />
 
 			<div className="container mx-auto px-4 py-8">
 				<div className="grid lg:grid-cols-4 gap-6">
@@ -191,7 +184,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 									}}
 									className="lg:col-span-1 fixed lg:sticky top-0 right-0 h-screen lg:h-auto lg:top-24 z-50 lg:z-0 w-80 lg:w-auto"
 								>
-									<div className="h-full overflow-y-auto bg-background lg:bg-transparent p-4 lg:p-0 space-y-4">
+									<div className="h-full overflow-y-auto bg-background lg:bg-transparent p-4 lg:p-0 flex flex-col gap-4">
 										{/* Close Button (Mobile) */}
 										<div className="lg:hidden flex items-center justify-between mb-4">
 											<h2 className="text-xl font-bold">
@@ -277,9 +270,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 														<motion.div
 															whileHover={{
 																x: -5,
+                                                                scale: 0.97,
 															}}
 															whileTap={{
-																scale: 0.98,
+																scale: 0.94,
 															}}
 															className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
 																isActive(
@@ -425,8 +419,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 					</div>
 				</div>
 			</div>
-
-			<Footer />
 		</div>
 	);
 }

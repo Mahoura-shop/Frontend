@@ -1,0 +1,178 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { motion } from "framer-motion"
+import {
+	Package,
+	ShoppingBag,
+	Clock,
+	CheckCircle2,
+	Truck,
+	XCircle,
+	CreditCard,
+	ChevronLeft,
+} from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { formatPrice } from "@/utils/formatPrice"
+import { getMyOrders } from "@/services/orderService"
+
+interface Order {
+	id: number
+	status: number
+	paymentMethod: number
+	totalAmount: number
+	shippingCost: number
+	refundFlag: boolean
+	createdAt: string
+	items: { id: number; count: number; priceSnapshot: number; product: { name: string; productPic: string } }[]
+}
+
+const STATUS_MAP: Record<number, { label: string; variant: "available" | "new" | "outOfStock" | "default" | "secondary"; icon: React.ElementType }> = {
+	1: { label: "در انتظار پرداخت", variant: "outOfStock", icon: Clock },
+	2: { label: "پرداخت شده", variant: "new", icon: CreditCard },
+	3: { label: "ارسال شده", variant: "new", icon: Truck },
+	4: { label: "تحویل داده شده", variant: "available", icon: CheckCircle2 },
+	5: { label: "لغو شده", variant: "secondary", icon: XCircle },
+}
+
+const PAYMENT_METHOD_MAP: Record<number, string> = {
+	1: "نقدی",
+	2: "اقساطی",
+	3: "آنلاین",
+	4: "کیف پول",
+}
+
+export default function OrdersPage() {
+	const [orders, setOrders] = useState<Order[]>([])
+	const [loading, setLoading] = useState(true)
+
+	useEffect(() => {
+		const fetch = async () => {
+			try {
+				const res = await getMyOrders()
+				setOrders(res?.data ?? [])
+			} catch {
+				setOrders([])
+			} finally {
+				setLoading(false)
+			}
+		}
+		fetch()
+	}, [])
+
+	if (loading) {
+		return (
+			<div className="flex items-center justify-center py-20">
+				<motion.div
+					animate={{ rotate: 360 }}
+					transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+					className="w-10 h-10 border-4 border-primary-rose border-t-transparent rounded-full"
+				/>
+			</div>
+		)
+	}
+
+	if (orders.length === 0) {
+		return (
+			<motion.div
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				className="text-center py-20"
+			>
+				<div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20 rounded-full flex items-center justify-center">
+					<ShoppingBag className="w-12 h-12 text-muted-foreground" />
+				</div>
+				<h2 className="text-2xl font-bold mb-3">هنوز سفارشی ندارید</h2>
+				<p className="text-muted-foreground mb-6">اولین سفارش خود را ثبت کنید!</p>
+				<Link href="/products">
+					<Button variant="luxury" className="gap-2">
+						<ShoppingBag className="w-5 h-5" />
+						مشاهده محصولات
+					</Button>
+				</Link>
+			</motion.div>
+		)
+	}
+
+	return (
+		<div className="space-y-4">
+			<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+				<h1 className="text-2xl font-bold gradient-text mb-1">سفارش‌های من</h1>
+				<p className="text-sm text-muted-foreground">
+					{new Intl.NumberFormat("fa-IR").format(orders.length)} سفارش
+				</p>
+			</motion.div>
+
+			<div className="space-y-3">
+				{orders.map((order, index) => {
+					const status = STATUS_MAP[order.status] ?? STATUS_MAP[1]
+					const StatusIcon = status.icon
+					const firstItem = order.items?.[0]
+					const itemCount = order.items?.reduce((s, i) => s + i.count, 0) ?? 0
+
+					return (
+						<motion.div
+							key={order.id}
+							initial={{ opacity: 0, y: 20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: index * 0.05 }}
+						>
+							<Card className="hover:shadow-md transition-shadow">
+								<CardContent className="p-4">
+									<div className="flex items-center gap-4">
+										{/* Product thumbnail */}
+										<div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20 flex items-center justify-center">
+											{firstItem?.product?.productPic ? (
+												<img
+													src={firstItem.product.productPic}
+													alt={firstItem.product.name}
+													className="w-full h-full object-cover"
+												/>
+											) : (
+												<Package className="w-8 h-8 text-muted-foreground" />
+											)}
+										</div>
+
+										{/* Details */}
+										<div className="flex-1 min-w-0">
+											<div className="flex items-center gap-2 mb-1">
+												<p className="font-semibold">
+													سفارش #{new Intl.NumberFormat("fa-IR").format(order.id)}
+												</p>
+												<Badge variant={status.variant} className="text-xs">
+													{status.label}
+												</Badge>
+											</div>
+											<p className="text-sm text-muted-foreground mb-1">
+												{new Date(order.createdAt).toLocaleDateString("fa-IR")} •{" "}
+												{new Intl.NumberFormat("fa-IR").format(itemCount)} محصول •{" "}
+												{PAYMENT_METHOD_MAP[order.paymentMethod] ?? "—"}
+											</p>
+											<p className="text-lg font-bold gradient-text">
+												{formatPrice(order.totalAmount)} تومان
+											</p>
+										</div>
+
+										{/* Status icon + detail link */}
+										<div className="flex items-center gap-3 flex-shrink-0">
+											<StatusIcon className="w-5 h-5 text-muted-foreground" />
+											<Link href={`/dashboard/orders/${order.id}`}>
+												<Button variant="outline" size="sm" className="gap-1">
+													جزئیات
+													<ChevronLeft className="w-3 h-3" />
+												</Button>
+											</Link>
+										</div>
+									</div>
+								</CardContent>
+							</Card>
+						</motion.div>
+					)
+				})}
+			</div>
+		</div>
+	)
+}

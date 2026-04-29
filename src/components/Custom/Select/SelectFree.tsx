@@ -11,6 +11,7 @@ import {
 import { AlertCircle, LucideIcon } from "lucide-react";
 import styles from "./Select.module.css";
 import { cn } from "@/lib/utils";
+import { isRTL } from "@/utils/isRTL";
 
 interface SelectOption {
 	value: string;
@@ -43,11 +44,7 @@ export default function SelectFree({
 	onIconClick,
 }: SelectProps) {
 	const hasValue = value !== "" && value;
-	const direction = /[\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC]/.test(
-		value || "",
-	)
-		? "rtl"
-		: "ltr";
+	const direction = isRTL(value || "") ? "rtl" : "ltr";
 
 	const safeOptions = options?.map((opt) => ({
 		...opt,

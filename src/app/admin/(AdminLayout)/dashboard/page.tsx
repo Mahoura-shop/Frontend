@@ -36,11 +36,13 @@ export default function AdminDashboard() {
 	const [categoriesCount, setCategoriesCount] = useState<number>(0);
 	const [productsCount, setProductsCount] = useState<number>(0);
 	const fetchDashboardData = () => {
-		getData({ endPoint: `/v1/admin/dashboard` }).then((data) => {
-			setProductsCount(data?.data?.productsCount);
-			setBrandsCount(data?.data?.brandsCount);
-			setCategoriesCount(data?.data?.categoriesCount);
-		});
+		getData({ endPoint: `/v1/admin/dashboard` })
+			.then((data) => {
+				setProductsCount(data?.data?.productsCount);
+				setBrandsCount(data?.data?.brandsCount);
+				setCategoriesCount(data?.data?.categoriesCount);
+			})
+			.catch(() => {});
 	};
 	useEffect(() => {
 		fetchDashboardData();

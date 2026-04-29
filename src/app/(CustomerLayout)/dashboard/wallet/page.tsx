@@ -28,9 +28,8 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import Input from "@/components/Custom/Input/Input";
 import Select from "@/components/Custom/Select/Select";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
+import { formatPrice } from "@/utils/formatPrice";
 import {
 	Dialog,
 	DialogContent,
@@ -132,10 +131,6 @@ export default function WalletPage() {
 	const [depositDialogOpen, setDepositDialogOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
 
-	const formatPrice = (price: number) => {
-		return new Intl.NumberFormat("fa-IR").format(price);
-	};
-
 	const getTransactionIcon = (type: string) => {
 		switch (type) {
 			case "deposit":
@@ -189,7 +184,6 @@ export default function WalletPage() {
 
 	return (
 		<div className="min-h-screen bg-background">
-			<Navbar />
 
 			<div className="container mx-auto px-4 py-8">
 				{/* Header */}

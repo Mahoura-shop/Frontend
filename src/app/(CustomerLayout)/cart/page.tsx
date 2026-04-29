@@ -1,8 +1,7 @@
-// src/app/cart/page.tsx
-"use client";
+"use client"
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import {
 	ShoppingCart,
 	Trash2,
@@ -14,114 +13,69 @@ import {
 	Percent,
 	Tag,
 	CreditCard,
-} from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+	Package,
+} from "lucide-react"
+import Link from "next/link"
+import { formatPrice } from "@/utils/formatPrice"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
+import { useCartStore } from "@/store/useCartStore"
 
-// Mock cart data
-const MOCK_CART_ITEMS = [
-	{
-		id: 1,
-		name: "رژ لب مات مخملی",
-		slug: "matte-velvet-lipstick",
-		price: 450000,
-		image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400&h=400&fit=crop",
-		brand: "Mahoura",
-		quantity: 2,
-		isNew: true,
-	},
-	{
-		id: 2,
-		name: "سرم ویتامین C درخشان کننده",
-		slug: "vitamin-c-serum",
-		price: 680000,
-		image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=400&fit=crop",
-		brand: "Mahoura Care",
-		quantity: 1,
-		isNew: false,
-	},
-	{
-		id: 3,
-		name: "پالت سایه چشم گلدن گلو",
-		slug: "golden-glow-eyeshadow",
-		price: 890000,
-		image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=400&h=400&fit=crop",
-		brand: "Mahoura Pro",
-		quantity: 1,
-		isNew: true,
-	},
-];
+const VALID_COUPONS: Record<string, number> = {
+	welcome10: 10,
+	save20: 20,
+	vip30: 30,
+}
 
 export default function CartPage() {
-	const [items, setItems] = useState(MOCK_CART_ITEMS);
-	const [couponCode, setCouponCode] = useState("");
+	const { items, loading, fetchCart, addItem, removeItem, removeAllOfItem, clearCart } =
+		useCartStore()
+
+	const [couponCode, setCouponCode] = useState("")
 	const [appliedCoupon, setAppliedCoupon] = useState<{
-		code: string;
-		discount: number;
-	} | null>(null);
+		code: string
+		discount: number
+	} | null>(null)
 
-	// Cart operations
-	const removeItem = (id: number) => {
-		setItems(items.filter((item) => item.id !== id));
-	};
-
-	const updateQuantity = (id: number, quantity: number) => {
-		if (quantity < 1) return;
-		setItems(
-			items.map((item) =>
-				item.id === id ? { ...item, quantity } : item
-			)
-		);
-	};
-
-	const clearCart = () => {
-		setItems([]);
-	};
-
-	// Calculate totals
-	const subtotal = items.reduce(
-		(sum, item) => sum + item.price * item.quantity,
-		0
-	);
-	const shipping = subtotal > 0 ? (subtotal > 500000 ? 0 : 50000) : 0;
-	const discount = appliedCoupon ? (subtotal * appliedCoupon.discount) / 100 : 0;
-	const tax = (subtotal - discount) * 0.09; // 9% tax
-	const total = subtotal - discount + shipping + tax;
+	useEffect(() => {
+		fetchCart()
+	}, [])
 
 	const handleApplyCoupon = () => {
-		// Mock coupon validation
-		const validCoupons = {
-			welcome10: 10,
-			save20: 20,
-			vip30: 30,
-		};
-
-		const lowerCode = couponCode.toLowerCase();
-		if (lowerCode in validCoupons) {
-			setAppliedCoupon({
-				code: couponCode,
-				discount: validCoupons[lowerCode as keyof typeof validCoupons],
-			});
-			alert(`کد تخفیف ${validCoupons[lowerCode as keyof typeof validCoupons]}% اعمال شد!`);
+		const lower = couponCode.toLowerCase()
+		if (lower in VALID_COUPONS) {
+			setAppliedCoupon({ code: couponCode, discount: VALID_COUPONS[lower] })
 		} else {
-			alert("کد تخفیف نامعتبر است");
+			alert("کد تخفیف نامعتبر است")
 		}
-	};
+	}
 
-	const formatPrice = (price: number) => {
-		return new Intl.NumberFormat("fa-IR").format(price);
-	};
+	const subtotal = items.reduce(
+		(sum, item) => sum + (item.product.irrPrice ?? 0) * item.count,
+		0
+	)
+	const shipping = subtotal > 0 ? (subtotal > 500000 ? 0 : 50000) : 0
+	const discount = appliedCoupon ? (subtotal * appliedCoupon.discount) / 100 : 0
+	const tax = (subtotal - discount) * 0.09
+	const total = subtotal - discount + shipping + tax
 
-	// Empty cart state
-	if (items.length === 0) {
+	if (loading && items.length === 0) {
+		return (
+			<div className="min-h-screen bg-background flex items-center justify-center">
+				<motion.div
+					animate={{ rotate: 360 }}
+					transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+					className="w-10 h-10 border-4 border-primary-rose border-t-transparent rounded-full"
+				/>
+			</div>
+		)
+	}
+
+	if (!loading && items.length === 0) {
 		return (
 			<div className="min-h-screen bg-background">
-				<Navbar />
 				<div className="container mx-auto px-4 py-20">
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
@@ -143,30 +97,23 @@ export default function CartPage() {
 						</Link>
 					</motion.div>
 				</div>
-				<Footer />
 			</div>
-		);
+		)
 	}
 
 	return (
 		<div className="min-h-screen bg-background">
-			<Navbar />
-
 			<div className="container mx-auto px-4 py-8">
-				{/* Header */}
 				<motion.div
 					initial={{ opacity: 0, y: -20 }}
 					animate={{ opacity: 1, y: 0 }}
 					className="mb-8"
 				>
 					<h1 className="text-4xl font-bold gradient-text mb-2">سبد خرید</h1>
-					<p className="text-muted-foreground">
-						{items.length} محصول در سبد خرید شما
-					</p>
+					<p className="text-muted-foreground">{items.length} محصول در سبد خرید شما</p>
 				</motion.div>
 
 				<div className="grid lg:grid-cols-3 gap-8">
-					{/* Cart Items */}
 					<div className="lg:col-span-2 space-y-4">
 						<AnimatePresence mode="popLayout">
 							{items.map((item) => (
@@ -181,14 +128,19 @@ export default function CartPage() {
 									<Card className="overflow-hidden hover:shadow-lg transition-shadow">
 										<CardContent className="p-4">
 											<div className="flex gap-4">
-												{/* Product Image */}
 												<div className="relative w-24 h-24 flex-shrink-0">
-													<img
-														src={item.image}
-														alt={item.name}
-														className="w-full h-full object-cover rounded-lg"
-													/>
-													{item.isNew && (
+													{item.product.productPic ? (
+														<img
+															src={item.product.productPic}
+															alt={item.product.name}
+															className="w-full h-full object-cover rounded-lg"
+														/>
+													) : (
+														<div className="w-full h-full rounded-lg bg-gradient-to-br from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20 flex items-center justify-center">
+															<Package className="w-8 h-8 text-muted-foreground" />
+														</div>
+													)}
+													{item.product.isNew && (
 														<Badge
 															variant="new"
 															className="absolute top-1 right-1 text-xs"
@@ -198,43 +150,36 @@ export default function CartPage() {
 													)}
 												</div>
 
-												{/* Product Info */}
 												<div className="flex-1 min-w-0">
 													<h3 className="font-semibold text-lg mb-1 truncate">
-														{item.name}
+														{item.product.name}
 													</h3>
-													<p className="text-sm text-muted-foreground mb-2">
-														{item.brand}
-													</p>
+													{item.product.brand && (
+														<p className="text-sm text-muted-foreground mb-2">
+															{item.product.brand.name}
+														</p>
+													)}
 
-													{/* Quantity Controls */}
 													<div className="flex items-center gap-3">
 														<div className="flex items-center gap-2 border rounded-lg p-1">
 															<Button
 																variant="ghost"
 																size="icon"
 																className="h-8 w-8"
-																onClick={() =>
-																	updateQuantity(
-																		item.id,
-																		Math.max(1, item.quantity - 1)
-																	)
-																}
+																disabled={loading}
+																onClick={() => removeItem(item.product.id)}
 															>
 																<Minus className="w-4 h-4" />
 															</Button>
 															<span className="w-8 text-center font-medium">
-																{new Intl.NumberFormat("fa-IR").format(
-																	item.quantity
-																)}
+																{new Intl.NumberFormat("fa-IR").format(item.count)}
 															</span>
 															<Button
 																variant="ghost"
 																size="icon"
 																className="h-8 w-8"
-																onClick={() =>
-																	updateQuantity(item.id, item.quantity + 1)
-																}
+																disabled={loading}
+																onClick={() => addItem(item.product.id)}
 															>
 																<Plus className="w-4 h-4" />
 															</Button>
@@ -244,22 +189,25 @@ export default function CartPage() {
 															variant="ghost"
 															size="icon"
 															className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-															onClick={() => removeItem(item.id)}
+															disabled={loading}
+															onClick={() =>
+																removeAllOfItem(item.product.id, item.count)
+															}
 														>
 															<Trash2 className="w-4 h-4" />
 														</Button>
 													</div>
 												</div>
 
-												{/* Price */}
 												<div className="text-left">
 													<p className="text-2xl font-bold gradient-text">
-														{formatPrice(item.price * item.quantity)}
+														{formatPrice((item.product.irrPrice ?? 0) * item.count)}
 													</p>
 													<p className="text-sm text-muted-foreground">تومان</p>
-													{item.quantity > 1 && (
+													{item.count > 1 && (
 														<p className="text-xs text-muted-foreground mt-1">
-															{formatPrice(item.price)} × {item.quantity}
+															{formatPrice(item.product.irrPrice ?? 0)} ×{" "}
+															{item.count}
 														</p>
 													)}
 												</div>
@@ -270,7 +218,6 @@ export default function CartPage() {
 							))}
 						</AnimatePresence>
 
-						{/* Clear Cart Button */}
 						<motion.div
 							initial={{ opacity: 0 }}
 							animate={{ opacity: 1 }}
@@ -279,6 +226,7 @@ export default function CartPage() {
 							<Button
 								variant="outline"
 								className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+								disabled={loading}
 								onClick={clearCart}
 							>
 								<Trash2 className="w-4 h-4" />
@@ -287,7 +235,6 @@ export default function CartPage() {
 						</motion.div>
 					</div>
 
-					{/* Order Summary */}
 					<div className="lg:col-span-1">
 						<motion.div
 							initial={{ opacity: 0, x: 20 }}
@@ -303,7 +250,6 @@ export default function CartPage() {
 								</div>
 
 								<CardContent className="p-6 space-y-4">
-									{/* Coupon Code */}
 									<div className="space-y-2">
 										<label className="text-sm font-medium flex items-center gap-2">
 											<Tag className="w-4 h-4" />
@@ -335,28 +281,22 @@ export default function CartPage() {
 													size="icon"
 													className="h-6 w-6"
 													onClick={() => {
-														setAppliedCoupon(null);
-														setCouponCode("");
+														setAppliedCoupon(null)
+														setCouponCode("")
 													}}
 												>
 													<Trash2 className="w-3 h-3" />
 												</Button>
 											</div>
 										)}
-										<p className="text-xs text-muted-foreground">
-											کدهای تخفیف: WELCOME10, SAVE20, VIP30
-										</p>
 									</div>
 
 									<Separator />
 
-									{/* Price Breakdown */}
 									<div className="space-y-3">
 										<div className="flex items-center justify-between">
 											<span className="text-muted-foreground">جمع کل</span>
-											<span className="font-medium">
-												{formatPrice(subtotal)} تومان
-											</span>
+											<span className="font-medium">{formatPrice(subtotal)} تومان</span>
 										</div>
 
 										{appliedCoupon && (
@@ -365,9 +305,7 @@ export default function CartPage() {
 													<Percent className="w-4 h-4" />
 													تخفیف ({appliedCoupon.discount}%)
 												</span>
-												<span className="font-medium">
-													-{formatPrice(discount)} تومان
-												</span>
+												<span className="font-medium">-{formatPrice(discount)} تومان</span>
 											</div>
 										)}
 
@@ -386,21 +324,17 @@ export default function CartPage() {
 
 										<div className="flex items-center justify-between">
 											<span className="text-muted-foreground">مالیات (۹٪)</span>
-											<span className="font-medium">
-												{formatPrice(tax)} تومان
-											</span>
+											<span className="font-medium">{formatPrice(tax)} تومان</span>
 										</div>
 									</div>
 
 									<Separator />
 
-									{/* Total */}
 									<div className="flex items-center justify-between text-xl font-bold">
 										<span>مجموع نهایی</span>
 										<span className="gradient-text">{formatPrice(total)}</span>
 									</div>
 
-									{/* Free Shipping Notice */}
 									{shipping > 0 && (
 										<div className="p-3 bg-accent-gold/10 border border-accent-gold/20 rounded-lg">
 											<p className="text-sm text-center">
@@ -413,15 +347,13 @@ export default function CartPage() {
 										</div>
 									)}
 
-									{/* Checkout Button */}
-									<Link href="/checkout">
+									<Link href="/order">
 										<Button variant="luxury" className="w-full gap-2" size="lg">
 											<CreditCard className="w-5 h-5" />
 											ادامه و تکمیل خرید
 										</Button>
 									</Link>
 
-									{/* Continue Shopping */}
 									<Link href="/products">
 										<Button variant="outline" className="w-full gap-2">
 											<ArrowLeft className="w-4 h-4" />
@@ -431,7 +363,6 @@ export default function CartPage() {
 								</CardContent>
 							</Card>
 
-							{/* Trust Badges */}
 							<Card className="p-4">
 								<div className="space-y-3">
 									<div className="flex items-center gap-3">
@@ -440,9 +371,7 @@ export default function CartPage() {
 										</div>
 										<div className="flex-1">
 											<p className="font-medium text-sm">ضمانت بازگشت وجه</p>
-											<p className="text-xs text-muted-foreground">
-												تا ۷ روز پس از خرید
-											</p>
+											<p className="text-xs text-muted-foreground">تا ۷ روز پس از خرید</p>
 										</div>
 									</div>
 									<Separator />
@@ -452,9 +381,7 @@ export default function CartPage() {
 										</div>
 										<div className="flex-1">
 											<p className="font-medium text-sm">ارسال سریع</p>
-											<p className="text-xs text-muted-foreground">
-												ارسال به سراسر کشور
-											</p>
+											<p className="text-xs text-muted-foreground">ارسال به سراسر کشور</p>
 										</div>
 									</div>
 								</div>
@@ -464,5 +391,5 @@ export default function CartPage() {
 				</div>
 			</div>
 		</div>
-	);
+	)
 }

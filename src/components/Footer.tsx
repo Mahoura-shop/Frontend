@@ -83,10 +83,10 @@ export default function Footer() {
 					<div>
 						<h4 className="font-bold mb-4">تماس با ما</h4>
 						<div className="space-y-3">
-							<p className="flex items-center gap-2 text-white/80">
+							<div className="flex items-center gap-2 text-white/80">
 								<Phone className="w-4 h-4" />
 								<p className="ltr">+989173362580</p>
-							</p>
+							</div>
 							{/* <p className="flex items-center gap-2 text-white/80">
                 <Mail className="w-4 h-4" />
                 info@mahoura.com
