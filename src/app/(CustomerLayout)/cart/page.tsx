@@ -347,7 +347,7 @@ export default function CartPage() {
 										</div>
 									)}
 
-									<Link href="/checkout">
+									<Link href="/order">
 										<Button variant="luxury" className="w-full gap-2" size="lg">
 											<CreditCard className="w-5 h-5" />
 											ادامه و تکمیل خرید

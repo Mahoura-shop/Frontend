@@ -2,15 +2,24 @@
 
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Moon, Sun, Home, ShoppingBag, User, ShoppingCart, Search } from "lucide-react";
+import { Moon, Sun, Home, ShoppingBag, User, ShoppingCart, Search, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import logo from "@/assets/logo.png";
 import { useCartStore } from "@/store/useCartStore";
 import useUserStore from "@/store/userStore/userStore";
+import {
+	DropdownMenu,
+	DropdownMenuTrigger,
+	DropdownMenuContent,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 const menuItems = [
 	{ label: "محصولات", href: "/products" },
@@ -28,7 +37,8 @@ const bottomNavItems = [
 export default function Navbar() {
 	const { theme, setTheme } = useTheme();
 	const pathname = usePathname();
-	const { accessToken } = useUserStore();
+	const router = useRouter();
+	const { accessToken, firstName, lastName, logout } = useUserStore();
 	const { fetchCart, getItemCount } = useCartStore();
 	const itemCount = getItemCount();
 
@@ -37,6 +47,11 @@ export default function Navbar() {
 			fetchCart();
 		}
 	}, [accessToken]);
+
+	const handleLogout = () => {
+		logout();
+		router.push("/");
+	};
 
 	const isActive = (href: string) => {
 		if (href === "/") return pathname === href;
@@ -94,7 +109,7 @@ export default function Navbar() {
 							initial={{ opacity: 0, scale: 0.8 }}
 							animate={{ opacity: 1, scale: 1 }}
 							transition={{ delay: 0.4 }}
-							className="flex items-center gap-2"
+							className="flex items-center gap-3"
 						>
 							<Button
 								variant="ghost"
@@ -126,6 +141,57 @@ export default function Navbar() {
 									)}
 								</AnimatePresence>
 							</Button>
+
+							{!accessToken ? (
+								<motion.div
+									initial={{ opacity: 0, x: 20 }}
+									animate={{ opacity: 1, x: 0 }}
+									transition={{ delay: 0.5 }}
+								>
+									<Link href="/signin">
+										<Button className="bg-gradient-to-r from-secondary-plum to-primary-rose hover:opacity-90 transition-opacity">
+											ورود / ثبت‌نام
+										</Button>
+									</Link>
+								</motion.div>
+							) : (
+								<motion.div
+									initial={{ opacity: 0, scale: 0.8 }}
+									animate={{ opacity: 1, scale: 1 }}
+									transition={{ delay: 0.5 }}
+								>
+									<DropdownMenu>
+										<DropdownMenuTrigger asChild>
+											<button className="w-10 h-10 rounded-full bg-gradient-to-r from-secondary-plum to-primary-rose flex items-center justify-center text-white hover:shadow-lg transition-shadow">
+												<User className="w-5 h-5" />
+											</button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent align="center" className="w-48">
+											<DropdownMenuLabel className="text-right">
+												{firstName || lastName ? `${firstName} ${lastName}`.trim() : "مستخدم"}
+											</DropdownMenuLabel>
+											<DropdownMenuSeparator />
+											<DropdownMenuItem asChild>
+												<Link href="/dashboard" className="flex items-center justify-end gap-2 cursor-pointer">
+													<User className="w-4 h-4" />
+													حساب من
+												</Link>
+											</DropdownMenuItem>
+											<DropdownMenuItem asChild>
+												<Link href="/cart" className="flex items-center justify-end gap-2 cursor-pointer">
+													<ShoppingCart className="w-4 h-4" />
+													سبد خرید
+												</Link>
+											</DropdownMenuItem>
+											<DropdownMenuSeparator />
+											<DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10 flex justify-end items-center gap-2">
+												<LogOut className="w-4 h-4" />
+												خروج
+											</DropdownMenuItem>
+										</DropdownMenuContent>
+									</DropdownMenu>
+								</motion.div>
+							)}
 						</motion.div>
 					</div>
 				</div>
@@ -179,6 +245,48 @@ export default function Navbar() {
 								)}
 							</AnimatePresence>
 						</Button>
+						{!accessToken ? (
+							<Link href="/signin" className="mr-2">
+								<Button size="sm" className="bg-gradient-to-r from-secondary-plum to-primary-rose hover:opacity-90 transition-opacity text-xs h-8 px-3">
+									ورود
+								</Button>
+							</Link>
+						) : (
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<Button
+										variant="ghost"
+										size="icon"
+										className="h-9 w-9 rounded-full ml-2 bg-gradient-to-r from-secondary-plum/20 to-primary-rose/20"
+									>
+										<User className="w-4 h-4" />
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="center" className="w-48">
+									<DropdownMenuLabel className="text-right">
+										{firstName || lastName ? `${firstName} ${lastName}`.trim() : "مستخدم"}
+									</DropdownMenuLabel>
+									<DropdownMenuSeparator />
+									<DropdownMenuItem asChild>
+										<Link href="/dashboard" className="cursor-pointer justify-end flex items-center gap-2">
+											<User className="w-4 h-4" />
+											حساب من
+										</Link>
+									</DropdownMenuItem>
+									<DropdownMenuItem asChild>
+										<Link href="/cart" className="cursor-pointer justify-end flex items-center gap-2">
+											<ShoppingCart className="w-4 h-4" />
+											سبد خرید
+										</Link>
+									</DropdownMenuItem>
+									<DropdownMenuSeparator />
+									<DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10 justify-end flex items-center gap-2">
+										<LogOut className="w-4 h-4" />
+										خروج
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						)}
 					</div>
 				</div>
 			</motion.div>

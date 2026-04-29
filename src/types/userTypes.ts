@@ -9,4 +9,5 @@ interface UserState {
 	setRefreshToken: (refreshToken: string) => void;
 	setFirstName: (firstName: string) => void;
 	setLastName: (lastName: string) => void;
+	logout: () => void;
 }

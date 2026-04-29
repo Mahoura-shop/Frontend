@@ -1,19 +1,20 @@
 // src/app/dashboard/page.tsx
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
 	ShoppingBag,
 	Package,
-	TrendingUp,
-	Heart,
-	Gift,
 	Clock,
 	CheckCircle2,
 	Truck,
 	Star,
-    Wallet,
-    Calendar,
+	Wallet,
+	Calendar,
+	CreditCard,
+	XCircle,
+	Heart,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -22,70 +23,34 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { translateNumber } from "@/utils/translateNumber";
 import { formatPrice } from "@/utils/formatPrice";
+import { getMyOrders } from "@/services/orderService";
 
-// Mock data
-const MOCK_STATS = {
-	totalOrders: 12,
-	completedOrders: 10,
-	pendingOrders: 2,
-	totalSpent: 15420000,
-	wishlistItems: 5,
-	loyaltyPoints: 2500,
+interface Order {
+	id: number;
+	status: number;
+	totalAmount: number;
+	createdAt: string;
+	items: { id: number; count: number; product: { name: string; productPic: string } }[];
+}
+
+const STATUS_MAP: Record<number, { label: string; variant: "available" | "new" | "outOfStock" | "secondary"; icon: React.ElementType }> = {
+	1: { label: "در انتظار پرداخت", variant: "outOfStock", icon: Clock },
+	2: { label: "پرداخت شده", variant: "new", icon: CreditCard },
+	3: { label: "ارسال شده", variant: "new", icon: Truck },
+	4: { label: "تحویل داده شده", variant: "available", icon: CheckCircle2 },
+	5: { label: "لغو شده", variant: "secondary", icon: XCircle },
 };
 
-const MOCK_RECENT_ORDERS = [
-	{
-		id: 1234,
-		date: "۱۴۰۳/۰۲/۲۵",
-		status: "delivered",
-		total: 890000,
-		items: 2,
-		image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=100&h=100&fit=crop",
-	},
-	{
-		id: 1233,
-		date: "۱۴۰۳/۰۲/۲۰",
-		status: "shipping",
-		total: 680000,
-		items: 1,
-		image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=100&h=100&fit=crop",
-	},
-	{
-		id: 1232,
-		date: "۱۴۰۳/۰۲/۱۵",
-		status: "processing",
-		total: 1200000,
-		items: 3,
-		image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=100&h=100&fit=crop",
-	},
-];
+const MOCK_STATS = { wishlistItems: 5 };
 
 export default function DashboardPage() {
-	const getStatusBadge = (status: string) => {
-		switch (status) {
-			case "delivered":
-				return <Badge variant="available">تحویل داده شده</Badge>;
-			case "shipping":
-				return <Badge variant="new">در حال ارسال</Badge>;
-			case "processing":
-				return <Badge variant="outOfStock">در حال پردازش</Badge>;
-			default:
-				return <Badge>{status}</Badge>;
-		}
-	};
+	const [recentOrders, setRecentOrders] = useState<Order[]>([]);
 
-	const getStatusIcon = (status: string) => {
-		switch (status) {
-			case "delivered":
-				return <CheckCircle2 className="w-5 h-5 text-green-600" />;
-			case "shipping":
-				return <Truck className="w-5 h-5 text-blue-600" />;
-			case "processing":
-				return <Clock className="w-5 h-5 text-amber-600" />;
-			default:
-				return <Package className="w-5 h-5" />;
-		}
-	};
+	useEffect(() => {
+		getMyOrders()
+			.then((res) => setRecentOrders((res?.data ?? []).slice(0, 3)))
+			.catch(() => setRecentOrders([]));
+	}, []);
 
 	return (
 		<div className="space-y-6">
@@ -278,56 +243,55 @@ export default function DashboardPage() {
 
 					<CardContent className="p-0">
 						<div className="divide-y">
-							{MOCK_RECENT_ORDERS.map((order) => (
-								<div
-									key={order.id}
-									className="p-4 hover:bg-muted/50 transition-colors"
-								>
-									<div className="flex items-center gap-4">
-										<img
-											src={order.image}
-											alt="محصول"
-											className="w-16 h-16 object-cover rounded-lg"
-										/>
-
-										<div className="flex-1 min-w-0">
-											<div className="flex items-center gap-2 mb-1">
-												<p className="font-semibold">
-													سفارش #
-													{new Intl.NumberFormat(
-														"fa-IR",
-													).format(order.id)}
-												</p>
-												{getStatusBadge(order.status)}
-											</div>
-											<p className="text-sm text-muted-foreground mb-1">
-												{order.date} •{" "}
-												{new Intl.NumberFormat(
-													"fa-IR",
-												).format(order.items)}{" "}
-												محصول
-											</p>
-											<p className="text-lg font-bold gradient-text">
-												{formatPrice(order.total)} تومان
-											</p>
-										</div>
-
-										<div className="flex items-center gap-3">
-											{getStatusIcon(order.status)}
-											<Link
-												href={`/dashboard/orders/${order.id}`}
-											>
-												<Button
-													variant="outline"
-													size="sm"
-												>
-													جزئیات
-												</Button>
-											</Link>
-										</div>
-									</div>
+							{recentOrders.length === 0 ? (
+								<div className="p-8 text-center text-muted-foreground text-sm">
+									هنوز سفارشی ندارید
 								</div>
-							))}
+							) : (
+								recentOrders.map((order) => {
+									const s = STATUS_MAP[order.status] ?? STATUS_MAP[1];
+									const StatusIcon = s.icon;
+									const firstItem = order.items?.[0];
+									const itemCount = order.items?.reduce((sum, i) => sum + i.count, 0) ?? 0;
+									return (
+										<div
+											key={order.id}
+											className="p-4 hover:bg-muted/50 transition-colors"
+										>
+											<div className="flex items-center gap-4">
+												<div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20 flex items-center justify-center">
+													{firstItem?.product?.productPic ? (
+														<img src={firstItem.product.productPic} alt={firstItem.product.name} className="w-full h-full object-cover" />
+													) : (
+														<Package className="w-8 h-8 text-muted-foreground" />
+													)}
+												</div>
+												<div className="flex-1 min-w-0">
+													<div className="flex items-center gap-2 mb-1">
+														<p className="font-semibold">
+															سفارش #{new Intl.NumberFormat("fa-IR").format(order.id)}
+														</p>
+														<Badge variant={s.variant} className="text-xs">{s.label}</Badge>
+													</div>
+													<p className="text-sm text-muted-foreground mb-1">
+														{new Date(order.createdAt).toLocaleDateString("fa-IR")} •{" "}
+														{new Intl.NumberFormat("fa-IR").format(itemCount)} محصول
+													</p>
+													<p className="text-lg font-bold gradient-text">
+														{formatPrice(order.totalAmount)} تومان
+													</p>
+												</div>
+												<div className="flex items-center gap-3">
+													<StatusIcon className="w-5 h-5 text-muted-foreground" />
+													<Link href={`/dashboard/orders/${order.id}`}>
+														<Button variant="outline" size="sm">جزئیات</Button>
+													</Link>
+												</div>
+											</div>
+										</div>
+									);
+								})
+							)}
 						</div>
 					</CardContent>
 				</Card>

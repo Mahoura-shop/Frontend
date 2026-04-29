@@ -20,6 +20,14 @@ const useUserStore = create<UserState>()(
 				set((prev) => ({ ...prev, firstName })),
 			setLastName: (lastName: string) =>
 				set((prev) => ({ ...prev, lastName })),
+			logout: () =>
+				set(() => ({
+					username: undefined,
+					accessToken: undefined,
+					refreshToken: undefined,
+					firstName: undefined,
+					lastName: undefined,
+				})),
 		}),
 		{
 			name: "user-storage",
