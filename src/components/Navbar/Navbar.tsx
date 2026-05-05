@@ -1,8 +1,18 @@
 "use client";
 
+import styles from "./Navbar.module.css";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Moon, Sun, Home, ShoppingBag, User, ShoppingCart, Search, LogOut } from "lucide-react";
+import {
+	Moon,
+	Sun,
+	Home,
+	ShoppingBag,
+	User,
+	ShoppingCart,
+	Search,
+	LogOut,
+} from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
@@ -20,6 +30,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import Magnet from "../utils/Magnet";
 
 const menuItems = [
 	{ label: "محصولات", href: "/products" },
@@ -110,11 +121,9 @@ export default function Navbar() {
 				initial={{ y: -100, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ type: "spring", stiffness: 300, damping: 30 }}
-				className={`fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg hidden md:block transition-colors duration-300 ${
-					scrolled ? "border-b border-primary-rose/10" : "border-b border-border"
-				}`}
+				className={`${styles.nav} ${scrolled ? styles.scrolled : ""}`}
 			>
-				<div className="w-full max-w-7xl mx-auto px-6 py-4">
+				<div className="w-full max-w-7xl mx-auto">
 					<div className="flex items-center justify-between">
 						<Link href="/">
 							<motion.div
@@ -122,40 +131,34 @@ export default function Navbar() {
 								whileTap={{ scale: 0.95 }}
 								className="flex items-center gap-3 cursor-pointer"
 							>
-								<Image src={logo} alt="Mahoura" className="w-11 h-11 dark:invert" />
+								<Image
+									src={logo}
+									alt="Mahoura"
+									className="w-11 h-11 dark:invert"
+								/>
 							</motion.div>
 						</Link>
 
 						<div className="flex items-center gap-8">
-							{menuItems.map((item, i) => {
-								// eslint-disable-next-line react-hooks/rules-of-hooks
-								const { ref, offset } = useMagneticNav();
-								return (
-									<motion.div
-										key={item.href}
-										ref={ref as any}
-										initial={{ opacity: 0, y: -20 }}
-										animate={{ opacity: 1, y: 0, x: offset.x, y: offset.y }}
-										transition={{ delay: 0.1 + i * 0.08, x: { duration: 0.3 }, y: { duration: 0.3 } }}
-									>
-										<Link
-											href={item.href}
-											className={`relative text-sm font-medium transition-colors group ${
-												pathname === item.href
-													? "text-primary-rose"
-													: "text-foreground hover:text-primary-rose"
-											}`}
-										>
-											{item.label}
-											<span
-												className={`absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-primary-rose to-accent-gold transition-all duration-300 ${
-													pathname === item.href ? "w-full" : "w-0 group-hover:w-full"
-												}`}
-											/>
-										</Link>
-									</motion.div>
-								);
-							})}
+							{menuItems.map((item, i) => (
+								<Link
+									href={item.href}
+									className={`relative text-sm font-medium transition-colors group ${
+										pathname === item.href
+											? "text-primary-rose"
+											: "text-foreground hover:text-primary-rose"
+									}`}
+								>
+									{item.label}
+									<span
+										className={`absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-primary-rose to-accent-gold transition-all duration-300 ${
+											pathname === item.href
+												? "w-full"
+												: "w-0 group-hover:w-full"
+										}`}
+									/>
+								</Link>
+							))}
 						</div>
 
 						<motion.div
@@ -167,14 +170,21 @@ export default function Navbar() {
 							<Button
 								variant="ghost"
 								size="icon"
-								onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+								onClick={() =>
+									setTheme(
+										theme === "dark" ? "light" : "dark",
+									)
+								}
 								className="rounded-full"
 							>
 								<AnimatePresence mode="wait">
 									{theme === "dark" ? (
 										<motion.div
 											key="sun"
-											initial={{ rotate: -90, opacity: 0 }}
+											initial={{
+												rotate: -90,
+												opacity: 0,
+											}}
 											animate={{ rotate: 0, opacity: 1 }}
 											exit={{ rotate: 90, opacity: 0 }}
 											transition={{ duration: 0.2 }}
@@ -196,25 +206,13 @@ export default function Navbar() {
 							</Button>
 
 							{!accessToken ? (
-								(() => {
-									// eslint-disable-next-line react-hooks/rules-of-hooks
-									const { ref, offset } = useMagneticNav();
-									return (
-										<motion.div
-											ref={ref as any}
-											initial={{ opacity: 0, x: 20 }}
-											animate={{ opacity: 1, x: 0, offsetX: offset.x, offsetY: offset.y }}
-											transition={{ delay: 0.5, offsetX: { duration: 0.3 }, offsetY: { duration: 0.3 } }}
-											style={{ x: offset.x, y: offset.y }}
-										>
-											<Link href="/signin">
-												<Button className="bg-gradient-to-r from-secondary-plum to-primary-rose hover:opacity-90 transition-opacity">
-													ورود / ثبت‌نام
-												</Button>
-											</Link>
-										</motion.div>
-									);
-								})()
+								<Magnet padding={5}>
+									<Link href="/signin">
+										<Button className={`bg-accent-gold hover:bg-accent-gold rounded-full hover:opacity-90 transition-opacity ${styles.navbarCta}`}>
+											ورود / ثبت‌نام
+										</Button>
+									</Link>
+								</Magnet>
 							) : (
 								<motion.div
 									initial={{ opacity: 0, scale: 0.8 }}
@@ -227,25 +225,39 @@ export default function Navbar() {
 												<User className="w-5 h-5" />
 											</button>
 										</DropdownMenuTrigger>
-										<DropdownMenuContent align="center" className="w-48">
+										<DropdownMenuContent
+											align="center"
+											className="w-48"
+										>
 											<DropdownMenuLabel className="text-right">
-												{firstName || lastName ? `${firstName} ${lastName}`.trim() : "مستخدم"}
+												{firstName || lastName
+													? `${firstName} ${lastName}`.trim()
+													: "مستخدم"}
 											</DropdownMenuLabel>
 											<DropdownMenuSeparator />
 											<DropdownMenuItem asChild>
-												<Link href="/dashboard" className="flex items-center justify-end gap-2 cursor-pointer">
+												<Link
+													href="/dashboard"
+													className="flex items-center justify-end gap-2 cursor-pointer"
+												>
 													<User className="w-4 h-4" />
 													حساب من
 												</Link>
 											</DropdownMenuItem>
 											<DropdownMenuItem asChild>
-												<Link href="/cart" className="flex items-center justify-end gap-2 cursor-pointer">
+												<Link
+													href="/cart"
+													className="flex items-center justify-end gap-2 cursor-pointer"
+												>
 													<ShoppingCart className="w-4 h-4" />
 													سبد خرید
 												</Link>
 											</DropdownMenuItem>
 											<DropdownMenuSeparator />
-											<DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10 flex justify-end items-center gap-2">
+											<DropdownMenuItem
+												onClick={handleLogout}
+												className="text-destructive focus:text-destructive focus:bg-destructive/10 flex justify-end items-center gap-2"
+											>
 												<LogOut className="w-4 h-4" />
 												خروج
 											</DropdownMenuItem>
@@ -258,7 +270,7 @@ export default function Navbar() {
 				</div>
 			</motion.nav>
 
-			<motion.div
+			{/* <motion.div
 				initial={{ y: -60, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -267,20 +279,32 @@ export default function Navbar() {
 				<div className="px-4 py-3 flex items-center justify-between">
 					<Link href="/">
 						<div className="flex items-center gap-2">
-							<Image src={logo} alt="Mahoura" className="w-9 h-9 dark:invert" />
-							<span className="text-lg font-bold gradient-text">ماهورا</span>
+							<Image
+								src={logo}
+								alt="Mahoura"
+								className="w-9 h-9 dark:invert"
+							/>
+							<span className="text-lg font-bold gradient-text">
+								ماهورا
+							</span>
 						</div>
 					</Link>
 
 					<div className="flex items-center gap-1">
-						<Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-9 w-9 rounded-full"
+						>
 							<Search className="w-4 h-4" />
 						</Button>
 						<Button
 							variant="ghost"
 							size="icon"
 							className="h-9 w-9 rounded-full"
-							onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+							onClick={() =>
+								setTheme(theme === "dark" ? "light" : "dark")
+							}
 						>
 							<AnimatePresence mode="wait">
 								{theme === "dark" ? (
@@ -308,7 +332,10 @@ export default function Navbar() {
 						</Button>
 						{!accessToken ? (
 							<Link href="/signin" className="mr-2">
-								<Button size="sm" className="bg-gradient-to-r from-secondary-plum to-primary-rose hover:opacity-90 transition-opacity text-xs h-8 px-3">
+								<Button
+									size="sm"
+									className="bg-gradient-to-r from-secondary-plum to-primary-rose hover:opacity-90 transition-opacity text-xs h-8 px-3"
+								>
 									ورود
 								</Button>
 							</Link>
@@ -323,25 +350,39 @@ export default function Navbar() {
 										<User className="w-4 h-4" />
 									</Button>
 								</DropdownMenuTrigger>
-								<DropdownMenuContent align="center" className="w-48">
+								<DropdownMenuContent
+									align="center"
+									className="w-48"
+								>
 									<DropdownMenuLabel className="text-right">
-										{firstName || lastName ? `${firstName} ${lastName}`.trim() : "مستخدم"}
+										{firstName || lastName
+											? `${firstName} ${lastName}`.trim()
+											: "مستخدم"}
 									</DropdownMenuLabel>
 									<DropdownMenuSeparator />
 									<DropdownMenuItem asChild>
-										<Link href="/dashboard" className="cursor-pointer justify-end flex items-center gap-2">
+										<Link
+											href="/dashboard"
+											className="cursor-pointer justify-end flex items-center gap-2"
+										>
 											<User className="w-4 h-4" />
 											حساب من
 										</Link>
 									</DropdownMenuItem>
 									<DropdownMenuItem asChild>
-										<Link href="/cart" className="cursor-pointer justify-end flex items-center gap-2">
+										<Link
+											href="/cart"
+											className="cursor-pointer justify-end flex items-center gap-2"
+										>
 											<ShoppingCart className="w-4 h-4" />
 											سبد خرید
 										</Link>
 									</DropdownMenuItem>
 									<DropdownMenuSeparator />
-									<DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10 justify-end flex items-center gap-2">
+									<DropdownMenuItem
+										onClick={handleLogout}
+										className="text-destructive focus:text-destructive focus:bg-destructive/10 justify-end flex items-center gap-2"
+									>
 										<LogOut className="w-4 h-4" />
 										خروج
 									</DropdownMenuItem>
@@ -350,7 +391,7 @@ export default function Navbar() {
 						)}
 					</div>
 				</div>
-			</motion.div>
+			</motion.div> */}
 
 			<BottomNav isActive={isActive} cartCount={itemCount} />
 		</>
@@ -368,9 +409,16 @@ function BottomNav({
 		<motion.nav
 			initial={{ y: 100, opacity: 0 }}
 			animate={{ y: 0, opacity: 1 }}
-			transition={{ type: "spring", stiffness: 260, damping: 28, delay: 0.1 }}
+			transition={{
+				type: "spring",
+				stiffness: 260,
+				damping: 28,
+				delay: 0.1,
+			}}
 			className="fixed bottom-0 inset-x-0 z-50 md:hidden px-3 pb-3"
-			style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
+			style={{
+				paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)",
+			}}
 		>
 			<div className="w-full bg-background/90 backdrop-blur-xl border border-border/60 rounded-2xl shadow-2xl shadow-black/20">
 				<div className="flex items-center justify-around px-2 py-2">
@@ -378,39 +426,66 @@ function BottomNav({
 						const active = isActive(item.href);
 
 						return (
-							<Link key={item.href} href={item.href} className="flex-1">
+							<Link
+								key={item.href}
+								href={item.href}
+								className="flex-1"
+							>
 								<div className="relative flex flex-col items-center justify-center py-1">
 									{active && (
 										<motion.div
 											layoutId="bottom-nav-pill"
 											className="absolute inset-0 bg-gradient-to-br from-primary-rose/20 via-accent-gold/10 to-secondary-plum/10 rounded-xl"
-											transition={{ type: "spring", stiffness: 400, damping: 35 }}
+											transition={{
+												type: "spring",
+												stiffness: 400,
+												damping: 35,
+											}}
 										/>
 									)}
 
 									<motion.div
-										animate={active ? { scale: 1.15, y: -2 } : { scale: 1, y: 0 }}
-										transition={{ type: "spring", stiffness: 400, damping: 25 }}
+										animate={
+											active
+												? { scale: 1.15, y: -2 }
+												: { scale: 1, y: 0 }
+										}
+										transition={{
+											type: "spring",
+											stiffness: 400,
+											damping: 25,
+										}}
 										whileTap={{ scale: 0.85 }}
 										className="relative flex flex-col items-center gap-1 py-1.5 px-3"
 									>
 										<div className="relative">
 											<item.icon
 												className={`w-5 h-5 transition-colors duration-200 ${
-													active ? "text-primary-rose" : "text-muted-foreground"
+													active
+														? "text-primary-rose"
+														: "text-muted-foreground"
 												}`}
 											/>
-											{item.href === "/cart" && cartCount > 0 && (
-												<span className="absolute -top-2 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-primary-rose text-white text-[10px] font-bold flex items-center justify-center leading-none">
-													{cartCount > 99 ? "99+" : cartCount}
-												</span>
-											)}
+											{item.href === "/cart" &&
+												cartCount > 0 && (
+													<span className="absolute -top-2 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-primary-rose text-white text-[10px] font-bold flex items-center justify-center leading-none">
+														{cartCount > 99
+															? "99+"
+															: cartCount}
+													</span>
+												)}
 										</div>
 
 										<motion.span
-											animate={active ? { opacity: 1 } : { opacity: 0.5 }}
+											animate={
+												active
+													? { opacity: 1 }
+													: { opacity: 0.5 }
+											}
 											className={`text-[10px] font-medium transition-colors duration-200 ${
-												active ? "text-primary-rose" : "text-muted-foreground"
+												active
+													? "text-primary-rose"
+													: "text-muted-foreground"
 											}`}
 										>
 											{item.label}
@@ -420,7 +495,11 @@ function BottomNav({
 											<motion.div
 												layoutId="bottom-nav-dot"
 												className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-primary-rose"
-												transition={{ type: "spring", stiffness: 400, damping: 35 }}
+												transition={{
+													type: "spring",
+													stiffness: 400,
+													damping: 35,
+												}}
 											/>
 										)}
 									</motion.div>

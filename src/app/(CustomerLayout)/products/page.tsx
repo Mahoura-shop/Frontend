@@ -136,11 +136,10 @@ export default function ProductsPage() {
 
 	return (
 		<div className="min-h-screen bg-background">
-
-			<div className="pt-16 md:pt-20">
+			<div>
 				{/* Header */}
 				<div className="bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/20 py-8 md:py-16">
-					<div className="container mx-auto px-4">
+					<div className="container mx-auto px-4 pt-8">
 						<motion.div
 							initial={{ opacity: 0, y: 30 }}
 							animate={{ opacity: 1, y: 0 }}
