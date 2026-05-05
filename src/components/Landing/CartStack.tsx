@@ -78,11 +78,11 @@ const SLOT_CONFIGS = [
 	{ cardKey: "card1", zIndex: 3 },
 ];
 
-// Staggered on swap: back departs first, new front pops in last with bounce
+// Snappy rotation: all cards animate in sync, no delay
 const SLOT_TRANSITIONS = [
-	{ type: "spring" as const, stiffness: 380, damping: 32, delay: 0 },
-	{ type: "spring" as const, stiffness: 290, damping: 26, delay: 0.05 },
-	{ type: "spring" as const, stiffness: 250, damping: 14, delay: 0.1 },
+	{ type: "spring" as const, stiffness: 400, damping: 28, delay: 0 },
+	{ type: "spring" as const, stiffness: 400, damping: 28, delay: 0 },
+	{ type: "spring" as const, stiffness: 400, damping: 28, delay: 0 },
 ];
 
 const DEFAULT_TRANSITION = {
@@ -108,7 +108,7 @@ const CardStack: React.FC = () => {
 		if (isTransitioning) return;
 		setIsTransitioning(true);
 		setRotation((r) => (r + 1) % 3);
-		setTimeout(() => setIsTransitioning(false), 700);
+		setTimeout(() => setIsTransitioning(false), 300);
 	};
 
 	return (
