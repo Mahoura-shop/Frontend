@@ -1,13 +1,11 @@
-// src/app/wallet/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
 	Wallet,
 	Plus,
 	TrendingUp,
-	TrendingDown,
 	CreditCard,
 	ArrowUpRight,
 	ArrowDownLeft,
@@ -37,86 +35,8 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import { getWalletBalance, depositWallet } from "@/services/walletService";
 
-// Mock wallet data
-const MOCK_BALANCE = 2500000; // تومان
-const MOCK_PENDING = 150000; // تومان
-
-// Mock transactions
-const MOCK_TRANSACTIONS = [
-	{
-		id: 1,
-		type: "deposit",
-		amount: 500000,
-		description: "واریز به کیف پول",
-		date: "۱۴۰۳/۰۲/۲۵",
-		time: "۱۴:۳۰",
-		status: "completed",
-		reference: "TRX-20240225-001",
-	},
-	{
-		id: 2,
-		type: "withdrawal",
-		amount: 350000,
-		description: "پرداخت سفارش #۱۲۳۴",
-		date: "۱۴۰۳/۰۲/۲۴",
-		time: "۱۰:۱۵",
-		status: "completed",
-		reference: "TRX-20240224-002",
-	},
-	{
-		id: 3,
-		type: "deposit",
-		amount: 1200000,
-		description: "شارژ کیف پول از کارت بانکی",
-		date: "۱۴۰۳/۰۲/۲۳",
-		time: "۱۶:۴۵",
-		status: "completed",
-		reference: "TRX-20240223-003",
-	},
-	{
-		id: 4,
-		type: "withdrawal",
-		amount: 890000,
-		description: "خرید محصول - پالت سایه",
-		date: "۱۴۰۳/۰۲/۲۲",
-		time: "۱۱:۲۰",
-		status: "completed",
-		reference: "TRX-20240222-004",
-	},
-	{
-		id: 5,
-		type: "refund",
-		amount: 450000,
-		description: "بازگشت وجه سفارش لغو شده",
-		date: "۱۴۰۳/۰۲/۲۱",
-		time: "۰۹:۰۰",
-		status: "completed",
-		reference: "TRX-20240221-005",
-	},
-	{
-		id: 6,
-		type: "bonus",
-		amount: 100000,
-		description: "پاداش خرید",
-		date: "۱۴۰۳/۰۲/۲۰",
-		time: "۱۸:۳۰",
-		status: "completed",
-		reference: "TRX-20240220-006",
-	},
-	{
-		id: 7,
-		type: "withdrawal",
-		amount: 680000,
-		description: "پرداخت سفارش #۱۲۳۳",
-		date: "۱۴۰۳/۰۲/۱۹",
-		time: "۱۵:۱۰",
-		status: "pending",
-		reference: "TRX-20240219-007",
-	},
-];
-
-// Validation schema for deposit
 const depositSchema = Yup.object({
 	amount: Yup.number()
 		.min(10000, "حداقل مبلغ واریز ۱۰,۰۰۰ تومان است")
@@ -125,11 +45,26 @@ const depositSchema = Yup.object({
 	paymentMethod: Yup.string().required("روش پرداخت را انتخاب کنید"),
 });
 
+const MOCK_TRANSACTIONS = [
+	{ id: 1, type: "deposit", amount: 500000, description: "واریز به کیف پول", date: "۱۴۰۳/۰۲/۲۵", time: "۱۴:۳۰", status: "completed", reference: "TRX-20240225-001" },
+	{ id: 2, type: "withdrawal", amount: 350000, description: "پرداخت سفارش #۱۲۳۴", date: "۱۴۰۳/۰۲/۲۴", time: "۱۰:۱۵", status: "completed", reference: "TRX-20240224-002" },
+	{ id: 3, type: "deposit", amount: 1200000, description: "شارژ کیف پول از کارت بانکی", date: "۱۴۰۳/۰۲/۲۳", time: "۱۶:۴۵", status: "completed", reference: "TRX-20240223-003" },
+	{ id: 4, type: "withdrawal", amount: 890000, description: "خرید محصول - پالت سایه", date: "۱۴۰۳/۰۲/۲۲", time: "۱۱:۲۰", status: "completed", reference: "TRX-20240222-004" },
+	{ id: 5, type: "refund", amount: 450000, description: "بازگشت وجه سفارش لغو شده", date: "۱۴۰۳/۰۲/۲۱", time: "۰۹:۰۰", status: "completed", reference: "TRX-20240221-005" },
+];
+
 export default function WalletPage() {
+	const [balance, setBalance] = useState<number | null>(null);
 	const [showBalance, setShowBalance] = useState(true);
 	const [filterType, setFilterType] = useState("all");
 	const [depositDialogOpen, setDepositDialogOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
+
+	useEffect(() => {
+		getWalletBalance()
+			.then((res) => setBalance(res?.data?.balance ?? 0))
+			.catch(() => setBalance(0));
+	}, []);
 
 	const getTransactionIcon = (type: string) => {
 		switch (type) {
@@ -166,20 +101,17 @@ export default function WalletPage() {
 			? MOCK_TRANSACTIONS
 			: MOCK_TRANSACTIONS.filter((t) => t.type === filterType);
 
-	const handleDeposit = async (values: {
-		amount: string;
-		paymentMethod: string;
-	}) => {
+	const handleDeposit = async (values: { amount: string; paymentMethod: string }) => {
 		setLoading(true);
-
-		// Mock API call
-		console.log("Deposit:", values);
-
-		await new Promise((resolve) => setTimeout(resolve, 2000));
-
-		setLoading(false);
-		CustomToast("درخواست شارژ کیف پول ثبت شد", "success");
-		setDepositDialogOpen(false);
+		try {
+			const res = await depositWallet(Number(values.amount));
+			setBalance(res?.data?.balance ?? balance);
+			CustomToast("کیف پول با موفقیت شارژ شد", "success");
+			setDepositDialogOpen(false);
+		} catch {
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	return (
@@ -243,7 +175,7 @@ export default function WalletPage() {
 									<div className="space-y-2">
 										<p className="text-3xl font-bold gradient-text">
 											{showBalance
-												? formatPrice(MOCK_BALANCE)
+												? (balance === null ? "..." : formatPrice(balance))
 												: "••••••"}
 										</p>
 										<p className="text-sm text-muted-foreground">
@@ -277,9 +209,7 @@ export default function WalletPage() {
 									</div>
 									<div className="space-y-2">
 										<p className="text-2xl font-bold text-amber-600">
-											{showBalance
-												? formatPrice(MOCK_PENDING)
-												: "••••••"}
+											{showBalance ? "۰" : "••••••"}
 										</p>
 										<p className="text-sm text-muted-foreground">
 											تومان
@@ -313,10 +243,7 @@ export default function WalletPage() {
 									<div className="space-y-2">
 										<p className="text-2xl font-bold text-green-600">
 											{showBalance
-												? formatPrice(
-														MOCK_BALANCE +
-															MOCK_PENDING,
-													)
+												? (balance === null ? "..." : formatPrice(balance))
 												: "••••••"}
 										</p>
 										<p className="text-sm text-muted-foreground">

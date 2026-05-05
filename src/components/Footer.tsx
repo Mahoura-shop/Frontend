@@ -38,7 +38,7 @@ export default function Footer() {
 						<Image
 							src={logo}
 							alt="Mahoura"
-							className="w-32 h-32 place-self-center dark:invert"
+							className="w-20 h-20 place-self-center dark:invert"
 						/>
 						<p className="text-white/80">
 							تجربه زیبایی بی‌نظیر با محصولات لوکس ماهورا

@@ -24,6 +24,7 @@ import { Separator } from "@/components/ui/separator";
 import { translateNumber } from "@/utils/translateNumber";
 import { formatPrice } from "@/utils/formatPrice";
 import { getMyOrders } from "@/services/orderService";
+import { getWalletBalance } from "@/services/walletService";
 
 interface Order {
 	id: number;
@@ -45,11 +46,15 @@ const MOCK_STATS = { wishlistItems: 5 };
 
 export default function DashboardPage() {
 	const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+	const [walletBalance, setWalletBalance] = useState<number | null>(null);
 
 	useEffect(() => {
 		getMyOrders()
 			.then((res) => setRecentOrders((res?.data ?? []).slice(0, 3)))
 			.catch(() => setRecentOrders([]));
+		getWalletBalance()
+			.then((res) => setWalletBalance(res?.data?.balance ?? 0))
+			.catch(() => setWalletBalance(0));
 	}, []);
 
 	return (
@@ -174,7 +179,7 @@ export default function DashboardPage() {
 				transition={{ delay: 0.6 }}
 				className="grid md:grid-cols-3 gap-4"
 			>
-				<Link href="/products">
+				<Link href="/dashboard/wallet">
 					<Card className="hover:shadow-lg transition-all hover:border-primary-rose cursor-pointer">
 						<CardContent className="p-6 text-center">
 							<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary-rose/20 to-accent-gold/20 flex items-center justify-center">
@@ -182,7 +187,7 @@ export default function DashboardPage() {
 							</div>
 							<h3 className="font-bold mb-2">کیف پول</h3>
 							<p className="text-sm text-muted-foreground">
-                                موجودی {formatPrice(100000)} ریال
+								موجودی {walletBalance === null ? "..." : formatPrice(walletBalance)} تومان
 							</p>
 						</CardContent>
 					</Card>

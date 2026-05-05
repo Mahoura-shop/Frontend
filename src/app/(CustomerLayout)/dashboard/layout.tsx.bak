@@ -79,12 +79,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 			href: "/dashboard/wallet",
 			icon: Wallet,
 			badge: null,
-	},
-	{
-		title: "درخواست ارتقاء",
-		href: "/dashboard/upgrade-request",
-		icon: ShoppingBag,
-		badge: null,
 		},
 		// {
 		// 	title: "کارت‌های بانکی",

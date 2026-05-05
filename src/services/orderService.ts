@@ -17,3 +17,6 @@ export const getMyOrders = () => getData({ endPoint: "v1/order" })
 
 export const getOrderDetail = (orderID: number) =>
 	getData({ endPoint: `v1/order/${orderID}` })
+
+export const getOrderInstalments = (orderID: number) =>
+	getData({ endPoint: `v1/order/${orderID}/instalments` })

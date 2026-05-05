@@ -12,6 +12,7 @@ import {
 	CreditCard,
 	MapPin,
 	Wallet,
+	Calendar,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -20,7 +21,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { formatPrice } from "@/utils/formatPrice"
-import { getOrderDetail, payByWallet, initiatePayment } from "@/services/orderService"
+import { getOrderDetail, payByWallet, initiatePayment, getOrderInstalments } from "@/services/orderService"
 import CustomToast from "@/components/Custom/CustomToast/CustomToast"
 
 interface StatusHistory {
@@ -41,6 +42,15 @@ interface OrderItem {
 		productPic: string
 		brand: { name: string } | null
 	}
+}
+
+interface Instalment {
+	id: number
+	number: number
+	amount: number
+	dueDate: string
+	status: number
+	paidAt: string | null
 }
 
 interface Order {
@@ -77,9 +87,16 @@ const STATUS_STEPS = [
 	{ status: 4, label: "تحویل داده شده" },
 ]
 
+const INSTALMENT_STATUS_MAP: Record<number, { label: string; color: string }> = {
+	1: { label: "در انتظار", color: "text-amber-600" },
+	2: { label: "پرداخت شده", color: "text-green-600" },
+	3: { label: "سررسید گذشته", color: "text-red-600" },
+}
+
 export default function OrderDetailPage() {
 	const { orderID } = useParams<{ orderID: string }>()
 	const [order, setOrder] = useState<Order | null>(null)
+	const [instalments, setInstalments] = useState<Instalment[]>([])
 	const [loading, setLoading] = useState(true)
 	const [paying, setPaying] = useState(false)
 
@@ -88,8 +105,11 @@ export default function OrderDetailPage() {
 			try {
 				const res = await getOrderDetail(Number(orderID))
 				setOrder(res?.data ?? null)
+				const instRes = await getOrderInstalments(Number(orderID))
+				setInstalments(instRes?.data ?? [])
 			} catch {
 				setOrder(null)
+				setInstalments([])
 			} finally {
 				setLoading(false)
 			}
@@ -343,6 +363,40 @@ export default function OrderDetailPage() {
 														{new Date(h.createdAt).toLocaleDateString("fa-IR")}
 													</p>
 												</div>
+											</div>
+										)
+									})}
+								</div>
+							</CardContent>
+						</Card>
+					)}
+
+					{/* Instalments */}
+					{instalments && instalments.length > 0 && (
+						<Card>
+							<CardContent className="p-4 space-y-3">
+								<h2 className="font-bold text-sm flex items-center gap-2">
+									<Calendar className="w-4 h-4" />
+									اقساط ({new Intl.NumberFormat("fa-IR").format(instalments.length)})
+								</h2>
+								<div className="space-y-2">
+									{instalments.map((inst, i) => {
+										const status = INSTALMENT_STATUS_MAP[inst.status]
+										return (
+											<div key={i} className="p-2 border rounded-lg space-y-1">
+												<div className="flex items-center justify-between">
+													<span className="text-xs font-semibold">قسط {new Intl.NumberFormat("fa-IR").format(inst.number)}</span>
+													<span className={`text-xs font-medium ${status?.color}`}>{status?.label ?? "—"}</span>
+												</div>
+												<div className="flex items-center justify-between text-xs text-muted-foreground">
+													<span>مبلغ: {formatPrice(inst.amount)} تومان</span>
+													<span>تاریخ سررسید: {new Date(inst.dueDate).toLocaleDateString("fa-IR")}</span>
+												</div>
+												{inst.paidAt && (
+													<p className="text-xs text-green-600">
+														پرداخت شده: {new Date(inst.paidAt).toLocaleDateString("fa-IR")}
+													</p>
+												)}
 											</div>
 										)
 									})}

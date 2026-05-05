@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Moon, Sun, Home, ShoppingBag, User, ShoppingCart, Search, LogOut } from "lucide-react";
 import Link from "next/link";
@@ -34,6 +34,43 @@ const bottomNavItems = [
 	{ label: "حساب من", icon: User, href: "/dashboard" },
 ];
 
+const useMagneticNav = () => {
+	const [offset, setOffset] = useState({ x: 0, y: 0 });
+	const ref = useRef<HTMLElement>(null);
+
+	useEffect(() => {
+		const handleMouseMove = (e: MouseEvent) => {
+			if (!ref.current) return;
+
+			const rect = ref.current.getBoundingClientRect();
+			const centerX = rect.left + rect.width / 2;
+			const centerY = rect.top + rect.height / 2;
+
+			const distX = e.clientX - centerX;
+			const distY = e.clientY - centerY;
+			const distance = Math.sqrt(distX * distX + distY * distY);
+			const maxDistance = 100;
+
+			if (distance < maxDistance) {
+				const strength = 1 - distance / maxDistance;
+				const angle = Math.atan2(distY, distX);
+				const pullDistance = strength * 25;
+				setOffset({
+					x: Math.cos(angle) * pullDistance,
+					y: Math.sin(angle) * pullDistance,
+				});
+			} else {
+				setOffset({ x: 0, y: 0 });
+			}
+		};
+
+		window.addEventListener("mousemove", handleMouseMove);
+		return () => window.removeEventListener("mousemove", handleMouseMove);
+	}, []);
+
+	return { ref, offset };
+};
+
 export default function Navbar() {
 	const { theme, setTheme } = useTheme();
 	const pathname = usePathname();
@@ -41,6 +78,15 @@ export default function Navbar() {
 	const { accessToken, firstName, lastName, logout } = useUserStore();
 	const { fetchCart, getItemCount } = useCartStore();
 	const itemCount = getItemCount();
+	const [scrolled, setScrolled] = useState(false);
+
+	useEffect(() => {
+		const handleScroll = () => {
+			setScrolled(window.scrollY > 10);
+		};
+		window.addEventListener("scroll", handleScroll);
+		return () => window.removeEventListener("scroll", handleScroll);
+	}, []);
 
 	useEffect(() => {
 		if (accessToken) {
@@ -64,7 +110,9 @@ export default function Navbar() {
 				initial={{ y: -100, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ type: "spring", stiffness: 300, damping: 30 }}
-				className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border hidden md:block"
+				className={`fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg hidden md:block transition-colors duration-300 ${
+					scrolled ? "border-b border-primary-rose/10" : "border-b border-border"
+				}`}
 			>
 				<div className="w-full max-w-7xl mx-auto px-6 py-4">
 					<div className="flex items-center justify-between">
@@ -79,30 +127,35 @@ export default function Navbar() {
 						</Link>
 
 						<div className="flex items-center gap-8">
-							{menuItems.map((item, i) => (
-								<motion.div
-									key={item.href}
-									initial={{ opacity: 0, y: -20 }}
-									animate={{ opacity: 1, y: 0 }}
-									transition={{ delay: 0.1 + i * 0.08 }}
-								>
-									<Link
-										href={item.href}
-										className={`relative text-sm font-medium transition-colors group ${
-											pathname === item.href
-												? "text-primary-rose"
-												: "text-foreground hover:text-primary-rose"
-										}`}
+							{menuItems.map((item, i) => {
+								// eslint-disable-next-line react-hooks/rules-of-hooks
+								const { ref, offset } = useMagneticNav();
+								return (
+									<motion.div
+										key={item.href}
+										ref={ref as any}
+										initial={{ opacity: 0, y: -20 }}
+										animate={{ opacity: 1, y: 0, x: offset.x, y: offset.y }}
+										transition={{ delay: 0.1 + i * 0.08, x: { duration: 0.3 }, y: { duration: 0.3 } }}
 									>
-										{item.label}
-										<span
-											className={`absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-primary-rose to-accent-gold transition-all duration-300 ${
-												pathname === item.href ? "w-full" : "w-0 group-hover:w-full"
+										<Link
+											href={item.href}
+											className={`relative text-sm font-medium transition-colors group ${
+												pathname === item.href
+													? "text-primary-rose"
+													: "text-foreground hover:text-primary-rose"
 											}`}
-										/>
-									</Link>
-								</motion.div>
-							))}
+										>
+											{item.label}
+											<span
+												className={`absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-primary-rose to-accent-gold transition-all duration-300 ${
+													pathname === item.href ? "w-full" : "w-0 group-hover:w-full"
+												}`}
+											/>
+										</Link>
+									</motion.div>
+								);
+							})}
 						</div>
 
 						<motion.div
@@ -143,17 +196,25 @@ export default function Navbar() {
 							</Button>
 
 							{!accessToken ? (
-								<motion.div
-									initial={{ opacity: 0, x: 20 }}
-									animate={{ opacity: 1, x: 0 }}
-									transition={{ delay: 0.5 }}
-								>
-									<Link href="/signin">
-										<Button className="bg-gradient-to-r from-secondary-plum to-primary-rose hover:opacity-90 transition-opacity">
-											ورود / ثبت‌نام
-										</Button>
-									</Link>
-								</motion.div>
+								(() => {
+									// eslint-disable-next-line react-hooks/rules-of-hooks
+									const { ref, offset } = useMagneticNav();
+									return (
+										<motion.div
+											ref={ref as any}
+											initial={{ opacity: 0, x: 20 }}
+											animate={{ opacity: 1, x: 0, offsetX: offset.x, offsetY: offset.y }}
+											transition={{ delay: 0.5, offsetX: { duration: 0.3 }, offsetY: { duration: 0.3 } }}
+											style={{ x: offset.x, y: offset.y }}
+										>
+											<Link href="/signin">
+												<Button className="bg-gradient-to-r from-secondary-plum to-primary-rose hover:opacity-90 transition-opacity">
+													ورود / ثبت‌نام
+												</Button>
+											</Link>
+										</motion.div>
+									);
+								})()
 							) : (
 								<motion.div
 									initial={{ opacity: 0, scale: 0.8 }}

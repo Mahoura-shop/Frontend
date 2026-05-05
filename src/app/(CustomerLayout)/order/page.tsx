@@ -10,6 +10,8 @@ import {
 	ArrowRight,
 	Wallet,
 	Package,
+	MapPin,
+	Plus,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -20,9 +22,20 @@ import CustomToast from "@/components/Custom/CustomToast/CustomToast"
 import { formatPrice } from "@/utils/formatPrice"
 import { useCartStore } from "@/store/useCartStore"
 import { createOrder, payByWallet, initiatePayment } from "@/services/orderService"
+import { getAddresses } from "@/services/addressService"
 
 const PAYMENT_METHOD_ONLINE = 3
 const PAYMENT_METHOD_WALLET = 4
+
+interface Address {
+	id: number
+	province: string
+	city: string
+	streetAddress: string
+	postalCode: string
+	houseNumber: string
+	unit: number
+}
 
 export default function OrderPage() {
 	const router = useRouter()
@@ -30,9 +43,18 @@ export default function OrderPage() {
 	const [paymentMethod, setPaymentMethod] = useState<number>(PAYMENT_METHOD_ONLINE)
 	const [submitting, setSubmitting] = useState(false)
 	const [done, setDone] = useState(false)
+	const [addresses, setAddresses] = useState<Address[]>([])
+	const [selectedAddressID, setSelectedAddressID] = useState<number | null>(null)
 
 	useEffect(() => {
 		fetchCart()
+		getAddresses()
+			.then((res) => {
+				const list: Address[] = res?.data ?? []
+				setAddresses(list)
+				if (list.length > 0) setSelectedAddressID(list[0].id)
+			})
+			.catch(() => setAddresses([]))
 	}, [])
 
 	const subtotal = items.reduce(
@@ -44,7 +66,10 @@ export default function OrderPage() {
 		if (items.length === 0) return
 		setSubmitting(true)
 		try {
-			const res = await createOrder({ paymentMethod })
+			const res = await createOrder({
+				paymentMethod,
+				...(selectedAddressID ? { addressID: selectedAddressID } : {}),
+			})
 			const orderID: number = res?.data?.orderID
 
 			if (!orderID) {
@@ -67,7 +92,6 @@ export default function OrderPage() {
 				}
 			}
 		} catch {
-			// errors already toasted by the service layer
 		} finally {
 			setSubmitting(false)
 		}
@@ -98,12 +122,20 @@ export default function OrderPage() {
 					</div>
 					<h2 className="text-3xl font-bold gradient-text mb-3">سفارش ثبت شد!</h2>
 					<p className="text-muted-foreground mb-6">سفارش شما با موفقیت پرداخت و ثبت شد.</p>
-					<Link href="/products">
-						<Button variant="luxury" className="gap-2">
-							<ShoppingBag className="w-5 h-5" />
-							ادامه خرید
-						</Button>
-					</Link>
+					<div className="flex gap-3 justify-center">
+						<Link href="/dashboard/orders">
+							<Button variant="outline" className="gap-2">
+								<Package className="w-4 h-4" />
+								پیگیری سفارش
+							</Button>
+						</Link>
+						<Link href="/products">
+							<Button variant="luxury" className="gap-2">
+								<ShoppingBag className="w-5 h-5" />
+								ادامه خرید
+							</Button>
+						</Link>
+					</div>
 				</motion.div>
 			</div>
 		)
@@ -148,12 +180,80 @@ export default function OrderPage() {
 						بازگشت به سبد خرید
 					</Link>
 					<h1 className="text-4xl font-bold gradient-text mb-2">تکمیل خرید</h1>
-					<p className="text-muted-foreground">روش پرداخت را انتخاب کنید و سفارش را نهایی کنید</p>
+					<p className="text-muted-foreground">آدرس تحویل و روش پرداخت را انتخاب کنید</p>
 				</motion.div>
 
 				<div className="grid lg:grid-cols-3 gap-8">
-					{/* Payment Method */}
-					<div className="lg:col-span-2">
+					<div className="lg:col-span-2 space-y-6">
+						{/* Address Selection */}
+						<motion.div
+							initial={{ opacity: 0, y: 20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: 0.05 }}
+						>
+							<Card>
+								<div className="bg-gradient-to-r from-primary-rose/10 via-accent-gold/10 to-secondary-plum/10 p-4 border-b">
+									<h2 className="text-xl font-bold flex items-center gap-2">
+										<MapPin className="w-5 h-5" />
+										آدرس تحویل
+									</h2>
+								</div>
+								<CardContent className="p-4">
+									{addresses.length === 0 ? (
+										<div className="flex items-center justify-between gap-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+											<p className="text-sm text-amber-700 dark:text-amber-400">
+												هنوز آدرسی ندارید. برای تحویل سفارش، یک آدرس اضافه کنید.
+											</p>
+											<Link href="/dashboard/addresses">
+												<Button variant="outline" size="sm" className="gap-1 flex-shrink-0">
+													<Plus className="w-3 h-3" />
+													افزودن آدرس
+												</Button>
+											</Link>
+										</div>
+									) : (
+										<div className="space-y-3">
+											{addresses.map((address) => (
+												<label
+													key={address.id}
+													className={`flex items-start gap-4 p-4 border-2 rounded-lg cursor-pointer transition-all ${
+														selectedAddressID === address.id
+															? "border-primary-rose bg-primary-rose/5"
+															: "border-border hover:border-primary-rose/50"
+													}`}
+												>
+													<input
+														type="radio"
+														name="address"
+														checked={selectedAddressID === address.id}
+														onChange={() => setSelectedAddressID(address.id)}
+														className="w-5 h-5 accent-primary-rose mt-0.5"
+													/>
+													<div className="flex-1">
+														<p className="font-semibold text-sm">
+															{address.province}، {address.city}
+														</p>
+														<p className="text-xs text-muted-foreground mt-1">
+															{address.streetAddress}، پلاک {address.houseNumber}
+															{address.unit > 0 && `، واحد ${address.unit}`}
+														</p>
+														<p className="text-xs text-muted-foreground">
+															کد پستی: {address.postalCode}
+														</p>
+													</div>
+												</label>
+											))}
+											<Link href="/dashboard/addresses" className="text-xs text-primary-rose hover:underline flex items-center gap-1 mt-2">
+												<Plus className="w-3 h-3" />
+												افزودن آدرس جدید
+											</Link>
+										</div>
+									)}
+								</CardContent>
+							</Card>
+						</motion.div>
+
+						{/* Payment Method */}
 						<motion.div
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
