@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, TargetAndTransition } from "framer-motion";
 
 // --- Types ---
@@ -48,7 +48,7 @@ const PRODUCTS: CardData[] = [
 		id: 1,
 		emoji: "✨",
 		badge: "ویژه ماهورا",
-		name: "سرم روشن‌کننده Capture",
+		name: "سرم روشن‌کننده",
 		price: "۴۵۰,۰۰۰ تومان",
 		gradient: "linear-gradient(160deg, #2e2420, #1c1410)",
 		borderColor: "rgba(201,168,117,.15)",
@@ -59,7 +59,7 @@ const PRODUCTS: CardData[] = [
 // width/height/bottom live in idle so they always animate on slot change
 const cardVariants: Record<string, SlotVariants> = {
 	card3: {
-		idle: { x: "-50%", rotate: -8, y: 12, bottom: -12, width: 240, height: 320 },
+		idle: { x: "-50%", rotate: -8, y: 12, bottom: -12, width: 260, height: 320 },
 		hover: { x: "calc(-50% - 100px)", rotate: -14, y: -50 },
 	},
 	card2: {
@@ -67,8 +67,8 @@ const cardVariants: Record<string, SlotVariants> = {
 		hover: { x: "calc(-50% + 100px)", rotate: 10, y: -50 },
 	},
 	card1: {
-		idle: { x: "-50%", rotate: 0, y: 0, scale: 1, bottom: 0, width: 280, height: 400 },
-		hover: { x: "-50%", rotate: -2, y: -30, scale: 1.03 },
+		idle: { x: "-50%", rotate: 0, y: 0, scale: 1, bottom: 0, width: 260, height: 400 },
+		hover: { x: "-50%", rotate: 0, y: -30,  },
 	},
 };
 
@@ -77,12 +77,14 @@ const SLOT_CONFIGS = [
 	{ cardKey: "card2", zIndex: 2 },
 	{ cardKey: "card1", zIndex: 3 },
 ];
-
+const x = 80;
+const y = 400;
+const m = 0;
 // Snappy rotation: all cards animate in sync, no delay
 const SLOT_TRANSITIONS = [
-	{ type: "spring" as const, stiffness: 400, damping: 28, delay: 0 },
-	{ type: "spring" as const, stiffness: 400, damping: 28, delay: 0 },
-	{ type: "spring" as const, stiffness: 400, damping: 28, delay: 0 },
+	{ type: "spring" as const, stiffness: y, damping: x, delay: m },
+	{ type: "spring" as const, stiffness: y, damping: x, delay: m },
+	{ type: "spring" as const, stiffness: y, damping: x, delay: m },
 ];
 
 const DEFAULT_TRANSITION = {
@@ -104,27 +106,31 @@ const CardStack: React.FC = () => {
 		PRODUCTS[rotation % 3],
 	];
 
-	const handleClick = () => {
-		if (isTransitioning) return;
-		setIsTransitioning(true);
-		setRotation((r) => (r + 1) % 3);
-		setTimeout(() => setIsTransitioning(false), 300);
-	};
+	useEffect(() => {
+		if (!isHovered) return;
+
+		const interval = setInterval(() => {
+			setIsTransitioning(true);
+			setRotation((r) => (r + 1) % 3);
+			setTimeout(() => setIsTransitioning(false), 25000);
+		}, 1600);
+
+		return () => clearInterval(interval);
+	}, [isHovered]);
 
 	return (
 		<section className="relative w-full h-[600px] flex items-end justify-center overflow-visible py-20">
 			<motion.div
-				className="relative w-[280px] h-full cursor-pointer"
+				className="relative w-[280px] h-full"
 				onHoverStart={() => setIsHovered(true)}
 				onHoverEnd={() => setIsHovered(false)}
-				onClick={handleClick}
 			>
 				{orderedProducts.map((product, index) => {
 					const slot = SLOT_CONFIGS[index];
 					const variantSet = cardVariants[slot.cardKey];
-					// Merge idle into hover so width/height/bottom always animate correctly
+					// On hover: apply transforms but lock size to current slot's idle size
 					const animateTarget = isHovered
-						? { ...variantSet.idle, ...variantSet.hover }
+						? { ...variantSet.idle, ...variantSet.hover, width: variantSet.idle.width, height: variantSet.idle.height }
 						: variantSet.idle;
 					const transition = isTransitioning
 						? SLOT_TRANSITIONS[index]
