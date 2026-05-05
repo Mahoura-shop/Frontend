@@ -1,5 +1,5 @@
-import React from "react";
-import { motion, Variants } from "framer-motion";
+import React, { useState } from "react";
+import { motion, TargetAndTransition } from "framer-motion";
 
 // --- Types ---
 interface CardData {
@@ -12,11 +12,16 @@ interface CardData {
 	borderColor: string;
 }
 
+interface SlotVariants {
+	idle: TargetAndTransition;
+	hover: TargetAndTransition;
+}
+
 interface CardItemProps extends CardData {
-	variants: Variants;
+	initial: TargetAndTransition;
+	animate: TargetAndTransition;
+	transition: object;
 	zIndex: number;
-	width: number;
-	height: number;
 }
 
 // --- Component Data ---
@@ -51,54 +56,88 @@ const PRODUCTS: CardData[] = [
 ];
 
 // --- Animation Variants ---
-const cardVariants: Record<string, Variants> = {
+// width/height/bottom live in idle so they always animate on slot change
+const cardVariants: Record<string, SlotVariants> = {
 	card3: {
-		idle: { x: "-50%", rotate: -8, y: 12, bottom: -12 },
+		idle: { x: "-50%", rotate: -8, y: 12, bottom: -12, width: 240, height: 320 },
 		hover: { x: "calc(-50% - 100px)", rotate: -14, y: -50 },
 	},
 	card2: {
-		idle: { x: "-50%", rotate: -3, y: 6, bottom: -6 },
+		idle: { x: "-50%", rotate: -3, y: 6, bottom: -6, width: 260, height: 360 },
 		hover: { x: "calc(-50% + 100px)", rotate: 10, y: -50 },
 	},
 	card1: {
-		idle: { x: "-50%", rotate: 0, y: 0, scale: 1 },
+		idle: { x: "-50%", rotate: 0, y: 0, scale: 1, bottom: 0, width: 280, height: 400 },
 		hover: { x: "-50%", rotate: -2, y: -30, scale: 1.03 },
 	},
 };
 
+const SLOT_CONFIGS = [
+	{ cardKey: "card3", zIndex: 1 },
+	{ cardKey: "card2", zIndex: 2 },
+	{ cardKey: "card1", zIndex: 3 },
+];
+
+// Staggered on swap: back departs first, new front pops in last with bounce
+const SLOT_TRANSITIONS = [
+	{ type: "spring" as const, stiffness: 380, damping: 32, delay: 0 },
+	{ type: "spring" as const, stiffness: 290, damping: 26, delay: 0.05 },
+	{ type: "spring" as const, stiffness: 250, damping: 14, delay: 0.1 },
+];
+
+const DEFAULT_TRANSITION = {
+	type: "spring" as const,
+	stiffness: 260,
+	damping: 20,
+	mass: 1,
+};
+
 // --- Main Component ---
 const CardStack: React.FC = () => {
+	const [rotation, setRotation] = useState(0);
+	const [isHovered, setIsHovered] = useState(false);
+	const [isTransitioning, setIsTransitioning] = useState(false);
+
+	const orderedProducts = [
+		PRODUCTS[(rotation + 2) % 3],
+		PRODUCTS[(rotation + 1) % 3],
+		PRODUCTS[rotation % 3],
+	];
+
+	const handleClick = () => {
+		if (isTransitioning) return;
+		setIsTransitioning(true);
+		setRotation((r) => (r + 1) % 3);
+		setTimeout(() => setIsTransitioning(false), 700);
+	};
+
 	return (
 		<section className="relative w-full h-[600px] flex items-end justify-center overflow-visible py-20">
-			{/* Container that triggers the hover state for all children */}
 			<motion.div
 				className="relative w-[280px] h-full cursor-pointer"
-				initial="idle"
-				whileHover="hover"
+				onHoverStart={() => setIsHovered(true)}
+				onHoverEnd={() => setIsHovered(false)}
+				onClick={handleClick}
 			>
-				{PRODUCTS.map((product, index) => {
-					// Logic to assign correct variant and dimensions based on order
-					const cardKey = `card${product.id}`;
-					const zIndex = 3 - index; // Card 1 is top (3), Card 3 is bottom (1)
-
-					// Match the HTML dimensions
-					const dimensions =
-						product.id === 1
-							? { w: 280, h: 400 }
-							: product.id === 2
-								? { w: 260, h: 360 }
-								: { w: 240, h: 320 };
+				{orderedProducts.map((product, index) => {
+					const slot = SLOT_CONFIGS[index];
+					const variantSet = cardVariants[slot.cardKey];
+					// Merge idle into hover so width/height/bottom always animate correctly
+					const animateTarget = isHovered
+						? { ...variantSet.idle, ...variantSet.hover }
+						: variantSet.idle;
+					const transition = isTransitioning
+						? SLOT_TRANSITIONS[index]
+						: DEFAULT_TRANSITION;
 
 					return (
 						<CardItem
 							key={product.id}
 							{...product}
-							variants={cardVariants[cardKey]}
-							zIndex={
-								product.id === 1 ? 3 : product.id === 2 ? 2 : 1
-							}
-							width={dimensions.w}
-							height={dimensions.h}
+							initial={variantSet.idle}
+							animate={animateTarget}
+							transition={transition}
+							zIndex={slot.zIndex}
 						/>
 					);
 				})}
@@ -109,10 +148,10 @@ const CardStack: React.FC = () => {
 
 // --- Sub-Component ---
 const CardItem: React.FC<CardItemProps> = ({
-	variants,
+	initial,
+	animate,
+	transition,
 	zIndex,
-	width,
-	height,
 	emoji,
 	badge,
 	name,
@@ -122,21 +161,15 @@ const CardItem: React.FC<CardItemProps> = ({
 }) => {
 	return (
 		<motion.div
-			variants={variants}
-			transition={{
-				type: "spring",
-				stiffness: 260,
-				damping: 20,
-				mass: 1,
-			}}
+			initial={initial}
+			animate={animate}
+			transition={transition}
 			className="absolute left-1/2 rounded-[24px] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.5),0_8px_24px_rgba(0,0,0,0.3)]"
 			style={{
-				width: `${width}px`,
-				height: `${height}px`,
 				background: gradient,
 				border: `1px solid ${borderColor}`,
-				zIndex: zIndex,
-				bottom: 0, // Cards align to the bottom of the parent motion.div
+				zIndex,
+				bottom: 0,
 			}}
 		>
 			<div className="relative w-full h-full flex flex-col items-center justify-center p-6 gap-3 text-white">
