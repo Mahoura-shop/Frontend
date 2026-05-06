@@ -34,6 +34,8 @@ const Magnet: React.FC<MagnetProps> = ({
 		y: 0,
 	});
 	const magnetRef = useRef<HTMLDivElement>(null);
+	const frameRef = useRef<number | null>(null);
+	const lastPosRef = useRef({ x: 0, y: 0 });
 
 	useEffect(() => {
 		if (disabled) {
@@ -42,30 +44,41 @@ const Magnet: React.FC<MagnetProps> = ({
 		}
 
 		const handleMouseMove = (e: MouseEvent) => {
-			if (!magnetRef.current) return;
+			lastPosRef.current = { x: e.clientX, y: e.clientY };
 
-			const { left, top, width, height } =
-				magnetRef.current.getBoundingClientRect();
-			const centerX = left + width / 2;
-			const centerY = top + height / 2;
+			if (frameRef.current) return;
 
-			const distX = Math.abs(centerX - e.clientX);
-			const distY = Math.abs(centerY - e.clientY);
+			frameRef.current = requestAnimationFrame(() => {
+				if (!magnetRef.current) {
+					frameRef.current = null;
+					return;
+				}
 
-			if (distX < width / 2 + padding && distY < height / 2 + padding) {
-				setIsActive(true);
-				const offsetX = (e.clientX - centerX) / magnetStrength;
-				const offsetY = (e.clientY - centerY) / magnetStrength;
-				setPosition({ x: offsetX, y: offsetY });
-			} else {
-				setIsActive(false);
-				setPosition({ x: 0, y: 0 });
-			}
+				const { left, top, width, height } =
+					magnetRef.current.getBoundingClientRect();
+				const centerX = left + width / 2;
+				const centerY = top + height / 2;
+
+				const distX = Math.abs(centerX - lastPosRef.current.x);
+				const distY = Math.abs(centerY - lastPosRef.current.y);
+
+				if (distX < width / 2 + padding && distY < height / 2 + padding) {
+					setIsActive(true);
+					const offsetX = (lastPosRef.current.x - centerX) / magnetStrength;
+					const offsetY = (lastPosRef.current.y - centerY) / magnetStrength;
+					setPosition({ x: offsetX, y: offsetY });
+				} else {
+					setIsActive(false);
+					setPosition({ x: 0, y: 0 });
+				}
+				frameRef.current = null;
+			});
 		};
 
-		window.addEventListener("mousemove", handleMouseMove);
+		window.addEventListener("mousemove", handleMouseMove, { passive: true });
 		return () => {
 			window.removeEventListener("mousemove", handleMouseMove);
+			if (frameRef.current) cancelAnimationFrame(frameRef.current);
 		};
 	}, [padding, disabled, magnetStrength]);
 

@@ -18,33 +18,50 @@ export default function MagneticButton({
 }) {
 	const ref = useRef<HTMLAnchorElement>(null);
 	const [offset, setOffset] = useState({ x: 0, y: 0 });
+	const frameRef = useRef<number | null>(null);
+	const lastPosRef = useRef({ x: 0, y: 0 });
 
 	const variantClass = variant === "ghost" ? styles.ghostMagnetic : styles.primaryMagnetic;
 
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {
-			if (!ref.current) return;
+			lastPosRef.current = { x: e.clientX, y: e.clientY };
 
-			const rect = ref.current.getBoundingClientRect();
-			const x = (e.clientX - rect.left - rect.width / 2) * 0.35;
-			const y = (e.clientY - rect.top - rect.height / 2) * 0.35;
+			if (frameRef.current) return;
 
-			setOffset({ x, y });
+			frameRef.current = requestAnimationFrame(() => {
+				if (!ref.current) {
+					frameRef.current = null;
+					return;
+				}
+
+				const rect = ref.current.getBoundingClientRect();
+				const x = (lastPosRef.current.x - rect.left - rect.width / 2) * 0.35;
+				const y = (lastPosRef.current.y - rect.top - rect.height / 2) * 0.35;
+
+				setOffset({ x, y });
+				frameRef.current = null;
+			});
 		};
 
 		const handleMouseLeave = () => {
 			setOffset({ x: 0, y: 0 });
+			if (frameRef.current) {
+				cancelAnimationFrame(frameRef.current);
+				frameRef.current = null;
+			}
 		};
 
 		const btn = ref.current;
 		if (!btn) return;
 
-		btn.addEventListener("mousemove", handleMouseMove);
+		btn.addEventListener("mousemove", handleMouseMove, { passive: true });
 		btn.addEventListener("mouseleave", handleMouseLeave);
 
 		return () => {
 			btn.removeEventListener("mousemove", handleMouseMove);
 			btn.removeEventListener("mouseleave", handleMouseLeave);
+			if (frameRef.current) cancelAnimationFrame(frameRef.current);
 		};
 	}, []);
 

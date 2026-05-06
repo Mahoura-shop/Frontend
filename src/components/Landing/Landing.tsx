@@ -2,118 +2,17 @@
 import styles from "./Landing.module.css";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import {
-	ShoppingBag,
-	Heart,
-	ArrowLeft,
-	Truck,
-	ShieldCheck,
-	RefreshCcw,
-	Headphones,
-} from "lucide-react";
+import { ShoppingBag, ArrowLeft, Stars } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useProductStore } from "@/store/useProductStore";
-import {
-	Carousel,
-	CarouselContent,
-	CarouselItem,
-	CarouselNext,
-	CarouselPrevious,
-} from "@/components/ui/carousel";
 import { getData } from "@/services/services";
 import { useCategoryStore } from "@/store/useCategoryStore";
 import MagneticButton from "@/components/Custom/Button/MagneticButton";
 import Magnet from "../utils/Magnet";
-import CardStack from "./CartStack";
-
-const useMagnetic = () => {
-	const [offset, setOffset] = useState({ x: 0, y: 0 });
-	const ref = useRef<HTMLElement>(null);
-
-	useEffect(() => {
-		const handleMouseMove = (e: MouseEvent) => {
-			if (!ref.current) return;
-
-			const rect = ref.current.getBoundingClientRect();
-			const centerX = rect.left + rect.width / 2;
-			const centerY = rect.top + rect.height / 2;
-
-			const distX = e.clientX - centerX;
-			const distY = e.clientY - centerY;
-			const distance = Math.sqrt(distX * distX + distY * distY);
-			const maxDistance = 120;
-
-			if (distance < maxDistance) {
-				const strength = 1 - distance / maxDistance;
-				const angle = Math.atan2(distY, distX);
-				const pullDistance = strength * 40;
-				setOffset({
-					x: Math.cos(angle) * pullDistance,
-					y: Math.sin(angle) * pullDistance,
-				});
-			} else {
-				setOffset({ x: 0, y: 0 });
-			}
-		};
-
-		window.addEventListener("mousemove", handleMouseMove);
-		return () => window.removeEventListener("mousemove", handleMouseMove);
-	}, []);
-
-	return { ref, offset };
-};
-
-// const MagneticButton = ({ children, href, className = "", ...props }: any) => {
-// 	const ref = useRef<HTMLDivElement>(null);
-// 	const [offset, setOffset] = useState({ x: 0, y: 0 });
-
-// 	useEffect(() => {
-// 		const handleMouseMove = (e: MouseEvent) => {
-// 			if (!ref.current) return;
-
-// 			const rect = ref.current.getBoundingClientRect();
-// 			const centerX = rect.left + rect.width / 2;
-// 			const centerY = rect.top + rect.height / 2;
-
-// 			const distX = e.clientX - centerX;
-// 			const distY = e.clientY - centerY;
-// 			const distance = Math.sqrt(distX * distX + distY * distY);
-// 			const maxDistance = 120;
-
-// 			if (distance < maxDistance) {
-// 				const strength = 1 - distance / maxDistance;
-// 				const angle = Math.atan2(distY, distX);
-// 				const pullDistance = strength * 40;
-// 				setOffset({
-// 					x: Math.cos(angle) * pullDistance,
-// 					y: Math.sin(angle) * pullDistance,
-// 				});
-// 			} else {
-// 				setOffset({ x: 0, y: 0 });
-// 			}
-// 		};
-
-// 		window.addEventListener("mousemove", handleMouseMove);
-// 		return () => window.removeEventListener("mousemove", handleMouseMove);
-// 	}, []);
-
-// 	return (
-// 		<Link href={href}>
-// 			<motion.div
-// 				ref={ref}
-// 				animate={{ x: offset.x, y: offset.y }}
-// 				transition={{ duration: 0.4, ease: "easeOut" }}
-// 				className={className}
-// 				{...props}
-// 			>
-// 				{children}
-// 			</motion.div>
-// 		</Link>
-// 	);
-// };
+import CardStack from "./CardStack/CardStack";
+import TrustBar from "./TrustBar/TrustBar";
 
 export default function LandingPage() {
 	const { products } = useProductStore();
@@ -141,7 +40,7 @@ export default function LandingPage() {
 	return (
 		<div>
 			{/* Hero Section */}
-			<section className="relative min-h-screen items-center justify-center overflow-hidden pt-32">
+			<section className="relative min-h-screen items-center justify-center overflow-hidden pt-32 will-change-transform">
 				{/* Mesh gradient background */}
 				<div>
 					<div className="absolute inset-0">
@@ -149,9 +48,9 @@ export default function LandingPage() {
 							className="absolute inset-0"
 							style={{
 								background: `
-								radial-gradient(ellipse 70% 55% at 15% 30%, rgba(212,165,165,.18) 0%, transparent 65%),
-								radial-gradient(ellipse 50% 60% at 85% 20%, rgba(107,78,113,.22) 0%, transparent 60%),
-								radial-gradient(ellipse 60% 40% at 50% 90%, rgba(201,168,117,.10) 0%, transparent 55%)
+								radial-gradient(ellipse 70% 55% at 15% 30%, var(--gradient-1) 0%, transparent 65%),
+								radial-gradient(ellipse 50% 60% at 85% 20%, var(--gradient-2) 0%, transparent 60%),
+								radial-gradient(ellipse 60% 40% at 50% 90%, var(--gradient-3) 0%, transparent 55%)
 							`,
 								animation:
 									"meshmove 12s ease-in-out infinite alternate",
@@ -185,7 +84,7 @@ export default function LandingPage() {
 									className="flex items-center gap-3 mb-7"
 								>
 									<div className="w-8 h-px bg-[#C9A875]" />
-									<p className="text-xs font-bold tracking-[0.28em] text-[#C9A875] uppercase">
+									<p className="text-xs font-bold tracking-[0.28em] text-[#C9A875] no-select">
 										محصولات لوکس آرایشی
 									</p>
 								</motion.div>
@@ -199,7 +98,7 @@ export default function LandingPage() {
 										type: "spring",
 										stiffness: 40,
 									}}
-									className="font-bold mb-8 leading-[1.00]"
+									className="font-bold mb-8 leading-[1.00] no-select"
 									style={{
 										fontSize: "clamp(6rem, 11vw, 10.5rem)",
 										background:
@@ -216,7 +115,7 @@ export default function LandingPage() {
 									initial={{ opacity: 0, y: 16 }}
 									animate={{ opacity: 1, y: 0 }}
 									transition={{ delay: 0.55, duration: 0.7 }}
-									className="text-base text-white/45 max-w-sm mb-11 leading-[1.75]"
+									className="text-base text-white/45 max-w-sm mb-11 leading-[1.75] no-select"
 								>
 									تجربه زیبایی بی‌نظیر
 								</motion.p>
@@ -227,18 +126,18 @@ export default function LandingPage() {
 									transition={{ delay: 0.7, duration: 0.7 }}
 									className="flex gap-3 mb-12 flex-wrap"
 								>
-									<Magnet>
+									<Magnet className="z-30">
 										<Link href="/products">
-											<Button className="rounded-full h-16 w-48">
+											<Button className="rounded-full h-16 w-48 bg-foreground hover:bg-foreground">
 												<ShoppingBag className="w-5 h-5" />
 												<p>مشاهده محصولات</p>
 											</Button>
 										</Link>
 									</Magnet>
-									<Magnet>
+									<Magnet className="z-20">
 										<Link href="/about">
 											<Button
-												className={`rounded-full h-16 w-48 ${styles.ghost}`}
+												className={`rounded-full h-16 w-48 hover:bg-transparent`}
 												variant="ghost"
 											>
 												<p>درباره ماهورا</p>
@@ -247,58 +146,6 @@ export default function LandingPage() {
 										</Link>
 									</Magnet>
 								</motion.div>
-
-								{/* <motion.div
-								initial={{ opacity: 0, y: 16 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ delay: 0.9, duration: 0.7 }}
-								className="border-t border-white/7 pt-12 flex gap-0"
-							>
-								{[
-									{
-										value: new Intl.NumberFormat(
-											"fa-IR",
-										).format(productsCount),
-										label: "محصول",
-									},
-									{
-										value: new Intl.NumberFormat(
-											"fa-IR",
-										).format(brandsCount),
-										label: "برند",
-									},
-									{ value: "۱۰۰+", label: "مشتری راضی" },
-								].map((stat, i) => (
-									<motion.div
-										key={stat.label}
-										initial={{ scale: 0 }}
-										animate={{ scale: 1 }}
-										transition={{
-											delay: 1.0 + i * 0.1,
-											type: "spring",
-											stiffness: 50,
-										}}
-										className="flex-1 pr-9"
-									>
-										<div
-											className="text-5xl font-bold mb-1 leading-none"
-											style={{
-												background:
-													"linear-gradient(90deg, #D4A5A5, #C9A875)",
-												WebkitBackgroundClip: "text",
-												WebkitTextFillColor:
-													"transparent",
-												backgroundClip: "text",
-											}}
-										>
-											{stat.value}
-										</div>
-										<div className="text-xs text-white/35">
-											{stat.label}
-										</div>
-									</motion.div>
-								))}
-							</motion.div> */}
 							</motion.div>
 
 							{/* Left Column - Visual (hidden on mobile) */}
@@ -309,113 +156,14 @@ export default function LandingPage() {
 								className="relative hidden md:block h-[540px]"
 							>
 								<div className="relative w-full h-full flex items-center justify-center">
-                                    <CardStack />
-									{/* <motion.div
-										className="absolute bottom-16 bg-red-600 left-1/2 -translate-x-1/2 w-[280px]"
-										whileHover="hover"
-										initial="idle"
-										variants={{
-											idle: {},
-											hover: {},
-										}}
-									>
-										<motion.div
-											className="absolute w-60 h-80 rounded-2xl overflow-hidden shadow-2xl"
-											style={{
-												bottom: "-12px",
-												left: "50%",
-												background:
-													"linear-gradient(160deg, #2a1f2e, #1a1218)",
-												border: "1px solid rgba(107,78,113,.3)",
-												zIndex: 1,
-											}}
-											initial={{
-												transform:
-													"translateX(-50%) rotate(-8deg) translateY(12px)",
-											}}
-											variants={{
-												idle: {
-													transform:
-														"translateX(-50%) rotate(-8deg) translateY(12px)",
-												},
-												hover: {
-													transform:
-														"translateX(calc(-50% - 100px)) rotate(-14deg) translateY(-20px)",
-												},
-											}}
-											transition={{ duration: 0.3 }}
-										/>
-
-										<motion.div
-											className="absolute w-[260px] h-[360px] rounded-2xl overflow-hidden shadow-2xl"
-											style={{
-												bottom: "-6px",
-												left: "50%",
-												background:
-													"linear-gradient(160deg, #281e1a, #1a1210)",
-												border: "1px solid rgba(212,165,165,.2)",
-												zIndex: 2,
-											}}
-											initial={{
-												transform:
-													"translateX(-50%) rotate(-3deg) translateY(6px)",
-											}}
-											variants={{
-												idle: {
-													transform:
-														"translateX(-50%) rotate(-3deg) translateY(6px)",
-												},
-												hover: {
-													transform:
-														"translateX(calc(-50% + 100px)) rotate(10deg) translateY(-10px)",
-												},
-											}}
-											transition={{ duration: 0.3 }}
-										/>
-
-										<motion.div
-											className="absolute w-[280px] h-[400px] rounded-2xl overflow-hidden shadow-2xl"
-											style={{
-												bottom: 0,
-												left: "50%",
-												background:
-													"linear-gradient(160deg, #2e2420, #1c1410)",
-												border: "1px solid rgba(201,168,117,.15)",
-												zIndex: 3,
-											}}
-											initial={{
-												transform:
-													"translateX(-50%) rotate(0deg)",
-											}}
-											variants={{
-												idle: {
-													transform:
-														"translateX(-50%) rotate(0deg)",
-												},
-												hover: {
-													transform:
-														"translateX(-50%) rotate(-2deg) translateY(-30px) scale(1.03)",
-												},
-											}}
-											transition={{ duration: 0.3 }}
-										>
-											<img
-												src={
-													products[0]?.productPic ||
-													"https://via.placeholder.com/280x400"
-												}
-												alt="Featured Product"
-												className="w-full h-full object-cover"
-											/>
-										</motion.div>
-									</motion.div> */}
+									<CardStack />
 
 									{/* Floating pills */}
 									<motion.div
 										initial={{ opacity: 0, y: 20 }}
 										animate={{ opacity: 1, y: 0 }}
 										transition={{ delay: 1.0 }}
-										className={`absolute top-0 flex place-items-center gap-2 right-0 place-self-end text-sm font-semibold text-white px-4 py-2 rounded-full backdrop-blur-lg border border-white/12 bg-white/8 whitespace-nowrap animate-float ${styles.pill}`}
+										className={`absolute top-0 flex no-select border-pill-border bg-pill-bg place-items-center gap-2 right-0 place-self-end text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-lg border border-white/12 bg-white/8 whitespace-nowrap animate-float ${styles.pill}`}
 										style={{ animationDelay: "-4.8s" }}
 									>
 										<div className={styles.pillDot} />
@@ -426,7 +174,7 @@ export default function LandingPage() {
 										initial={{ opacity: 0, y: 20 }}
 										animate={{ opacity: 1, y: 0 }}
 										transition={{ delay: 1.0 }}
-										className={`absolute top-28 -left-10 flex place-items-center gap-2 text-sm font-semibold text-white px-4 py-2 rounded-full backdrop-blur-lg border border-white/12 bg-white/8 whitespace-nowrap animate-float ${styles.pill}`}
+										className={`absolute top-24 -left-10 no-select border-pill-border bg-pill-bg flex place-items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-lg border border-white/12 bg-white/8 whitespace-nowrap animate-float ${styles.pill}`}
 										style={{ animationDelay: "-2.5s" }}
 									>
 										<div
@@ -439,7 +187,7 @@ export default function LandingPage() {
 										initial={{ opacity: 0, y: 20 }}
 										animate={{ opacity: 1, y: 0 }}
 										transition={{ delay: 1.0 }}
-										className={`absolute bottom-[120px] -right-10 flex place-items-center gap-2 text-sm font-semibold text-white px-4 py-2 rounded-full backdrop-blur-lg border border-white/12 bg-white/8 whitespace-nowrap animate-float ${styles.pill}`}
+										className={`absolute bottom-[120px] no-select border-pill-border bg-pill-bg -right-10 flex place-items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-lg border border-white/12 bg-white/8 whitespace-nowrap animate-float ${styles.pill}`}
 										style={{ animationDelay: "-1.1s" }}
 									>
 										<div
@@ -517,89 +265,56 @@ export default function LandingPage() {
 				</motion.div>
 			</section>
 
-			{/* <motion.div
-				initial={{ opacity: 0, y: 16 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ delay: 0.9, duration: 0.7 }}
-				className="border-t border-white/7 py-12 flex gap-0 bg-transparent"
-			>
-				{[
-					{
-						value: new Intl.NumberFormat("fa-IR").format(
-							productsCount,
-						),
-						label: "محصول",
-					},
-					{
-						value: new Intl.NumberFormat("fa-IR").format(
-							brandsCount,
-						),
-						label: "برند",
-					},
-					{ value: "۱۰۰+", label: "مشتری راضی" },
-				].map((stat, i) => (
-					<motion.div
-						key={stat.label}
-						initial={{ scale: 0 }}
-						animate={{ scale: 1 }}
-						transition={{
-							delay: 1.0 + i * 0.1,
-							type: "spring",
-							stiffness: 50,
-						}}
-						className="flex-1 pr-9 place-items-center"
-					>
-						<div
-							className="text-5xl font-bold mb-1 leading-none"
-							style={{
-								background:
-									"linear-gradient(90deg, #D4A5A5, #C9A875)",
-								WebkitBackgroundClip: "text",
-								WebkitTextFillColor: "transparent",
-								backgroundClip: "text",
-							}}
-						>
-							{stat.value}
-						</div>
-						<div className="text-xs text-white/35">
-							{stat.label}
-						</div>
-					</motion.div>
-				))}
-			</motion.div> */}
-
-			{/* Marquee */}
-			<div className="bg-[#C9A875] overflow-hidden py-4.5 px-14">
+			{/* Marquee Container */}
+			<div className="bg-accent-gold overflow-hidden py-5 flex items-center no-select">
 				<motion.div
-					initial={{ x: 0 }}
-					animate={{ x: "-50%" }}
+					initial={{ x: "50%" }}
+					// We move to -50% to pull the "hidden" second batch into view from the right
+					animate={{ x: "0%" }}
 					transition={{
-						duration: 24,
+						duration: 15,
 						repeat: Infinity,
 						ease: "linear",
 					}}
-					className="flex gap-8 whitespace-nowrap"
+					// Force LTR on the motion div so the X-axis math works correctly
+					// 'flex-row-reverse' ensures the Persian text sequence stays logical (Right to Left)
+					className="flex flex-row-reverse whitespace-nowrap ltr w-fit"
 				>
-					{[...Array(2)].map((_, batch) =>
-						["بهترین کیفیت", "ارسال رایگان", "ضمانت اصالت"].map(
-							(item, i) => (
-								<span
+					{[...Array(2)].map((_, batch) => (
+						<div
+							key={batch}
+							className="flex flex-row-reverse items-center"
+						>
+							{[
+								"ماهورا",
+								"بهترین کیفیت",
+								"ضمانت اصالت",
+								"تجربه‌ی زیبایی لوکس",
+								"زیبایی بی‌نظیر",
+								"آبرسانی عمیق",
+								"شادابی پوست",
+								"ترمیم پیشرفته",
+								"برترین برندهای جهانی",
+								"تقویت سد دفاعی پوست",
+								"پوستی لطیف",
+							].map((item, i) => (
+								<div
 									key={`${batch}-${i}`}
-									className="text-[#0D0B0A] text-sm font-bold tracking-wider uppercase flex items-center gap-4"
+									className="flex flex-row-reverse items-center gap-8 px-4 text-[#0D0B0A] text-sm font-bold tracking-wider"
 								>
-									{item}
+									<p>{item}</p>
 									<span className="w-1 h-1 bg-[#0D0B0A] rounded-full opacity-40" />
-								</span>
-							),
-						),
-					)}
+								</div>
+							))}
+						</div>
+					))}
 				</motion.div>
 			</div>
 
 			{/* Trust Bar */}
-			<section className="bg-[#F8F6F4] py-20 px-14">
+			{/* <section className="bg-[#F8F6F4] py-20 px-14">
 				<div className="max-w-[1300px] mx-auto">
-					<div className="grid grid-cols-4 gap-0.5">
+					<div className="grid grid-cols-4 w-full ">
 						{[
 							{
 								icon: ShoppingBag,
@@ -634,12 +349,9 @@ export default function LandingPage() {
 										ease: "easeOut",
 										delay: i * 0.1,
 									}}
-									className="px-8 py-9 border-l border-[#0D0B0A]/8 flex flex-col gap-3.5"
+									className="py-9 border-l px-8 flex flex-col gap-3.5 place-self-center w-full"
 									style={{
-										borderLeftColor:
-											i === 0
-												? "transparent"
-												: "rgba(13,11,10,.08)",
+										borderLeftColor: "rgba(13,11,10,.08)",
 									}}
 								>
 									<div className="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[rgba(212,165,165,.25)] to-[rgba(201,168,117,.15)] flex items-center justify-center text-[#6B4E71]">
@@ -656,10 +368,11 @@ export default function LandingPage() {
 						})}
 					</div>
 				</div>
-			</section>
+			</section> */}
+			<TrustBar />
 
 			{/* Categories Masonry */}
-			<section className="bg-[#F8F6F4] py-24 px-14">
+			<section className="bg-landing-background py-24 px-14">
 				<div className="max-w-[1300px] mx-auto">
 					<motion.div
 						initial={{ opacity: 0, y: 30 }}
@@ -746,7 +459,8 @@ export default function LandingPage() {
 			</section>
 
 			{/* Products Grid */}
-			<section className="bg-[#0D0B0A] py-24 px-14">
+			{/* <section className="bg-[#0D0B0A] py-24 px-14"> */}
+			<section className="bg-landing-background py-24 px-14">
 				<div className="max-w-[1300px] mx-auto">
 					<motion.div
 						initial={{ opacity: 0, y: 30 }}
@@ -854,7 +568,8 @@ export default function LandingPage() {
 			</section>
 
 			{/* Statement Section */}
-			<section className="bg-[#0D0B0A] py-32 px-14 relative overflow-hidden">
+			{/* <section className="bg-[#0D0B0A] py-32 px-14 relative overflow-hidden"> */}
+			<section className="bg-landing-background py-32 px-14 relative overflow-hidden">
 				<div
 					className="absolute inset-0 opacity-20"
 					style={{
@@ -895,25 +610,37 @@ export default function LandingPage() {
 							زیبایی یک هنر است
 						</h2>
 
-						<p className="text-lg text-white/50 mb-12 max-w-[580px] mx-auto leading-[1.85]">
+						<p className="text-lg mb-12 max-w-[580px] mx-auto leading-[1.85]">
 							ماهورا با انتخاب بهترین محصولات آرایشی و بهداشتی،
 							تجربه‌ای منحصربه‌فرد از زیبایی را برای شما به ارمغان
 							می‌آورد
 						</p>
 
-						<MagneticButton
+						<Magnet>
+							<Link href="/products">
+								<Button
+									className={`rounded-full h-16 w-48 hover:bg-transparent`}
+									variant="ghost"
+								>
+									<p>کشف کنید</p>
+                                    <Stars className="fill-foreground" />
+								</Button>
+							</Link>
+						</Magnet>
+						{/* <MagneticButton
 							href="/products"
 							className="bg-[#C9A875] text-[#0D0B0A] font-bold px-11 py-4.5 hover:scale-[1.06] hover:shadow-[0_14px_40px_rgba(201,168,117,.4)] transition-all"
 						>
 							کشف کنید
-						</MagneticButton>
+						</MagneticButton> */}
 					</motion.div>
 				</div>
 			</section>
 
 			{/* New Products - Horizontal Scroll */}
 			{newProducts.length > 0 && (
-				<section className="bg-[#F8F6F4] py-24 px-14 overflow-hidden">
+				// <section className="bg-[#F8F6F4] py-24 px-14 overflow-hidden">
+				<section className="bg-landing-background py-24 px-14 overflow-hidden">
 					<div className="max-w-[1300px] mx-auto">
 						<motion.div
 							initial={{ opacity: 0, y: 30 }}

@@ -52,6 +52,20 @@
 
 		--delete: #dc2626;
 		--delete-hover: rgb(220 38 38 / 0.8);
+		--ghost-border: rgba(107, 78, 113, 0.4);
+		--landing-background: rgba(230, 224, 230, 0.5);
+		--gradient-1: rgba(212, 165, 165, 0.15); /* Soft Rose */
+		--gradient-2: rgba(107, 78, 113, 0.18); /* Soft Plum */
+		--gradient-3: rgba(201, 168, 117, 0.08); /* Soft Gold */
+		--pill-bg: rgba(0, 0, 0, 0.05);
+		--pill-border: rgba(0, 0, 0, 0.1);
+		--card-bg-lightness: 98%;
+		--card-bg-lightness-alt: 92%;
+		--card-saturation: 25%;
+		--card-bg-l-top: 98%;
+		--card-bg-l-bottom: 94%;
+		--card-text: hsl(200 20% 20%);
+		--card-border-opacity: 0.2;
 	}
 
 	.dark {
@@ -97,6 +111,20 @@
 
 		--delete: #dc2626;
 		--delete-hover: rgb(220 38 38 / 0.8);
+		--ghost-border: rgba(255, 255, 255, 0.5);
+		--landing-background: rgba(107, 78, 113, 0.22);
+		--gradient-1: rgba(212, 165, 165, 0.18);
+		--gradient-2: rgba(107, 78, 113, 0.22);
+		--gradient-3: rgba(201, 168, 117, 0.1);
+		--pill-bg: rgba(255, 255, 255, 0.08);
+		--pill-border: rgba(255, 255, 255, 0.12);
+		--card-bg-lightness: 12%;
+		--card-bg-lightness-alt: 7%;
+		--card-saturation: 15%;
+		--card-bg-l-top: 12%;
+		--card-bg-l-bottom: 6%;
+		--card-text: hsl(0 0% 100%);
+		--card-border-opacity: 0.15;
 	}
 }
 
@@ -128,10 +156,14 @@
 	html {
 		scroll-behavior: smooth;
 		overflow-x: hidden;
+		scroll-padding-top: 0;
 	}
 
 	body {
 		overflow-x: hidden;
+		-webkit-font-smoothing: antialiased;
+		-webkit-backface-visibility: hidden;
+		backface-visibility: hidden;
 	}
 
 	.rtl {
@@ -151,6 +183,26 @@
 
 @layer utilities {
 	/* Glassmorphism effect */
+
+	/* Hardware acceleration for smoother scrolling */
+	section {
+		transform: translate3d(0, 0, 0);
+	}
+
+	.no-select {
+		-webkit-user-select: none; /* Safari */
+		-moz-user-select: none; /* Firefox */
+		-ms-user-select: none; /* IE10+/Edge */
+		user-select: none; /* Standard syntax */
+
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	/* Optimize for scroll performance */
+	main,
+	[role="main"] {
+		transform: translate3d(0, 0, 0);
+	}
 
 	.no-scrollbar::-webkit-scrollbar {
 		display: none;
@@ -199,6 +251,19 @@
 
 	.card-3d:hover {
 		transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) scale(1.02);
+	}
+
+	/* Scroll performance optimizations */
+	/* Reduce paint operations during scroll */
+	[data-scroll] {
+		contain: layout style paint;
+	}
+
+	/* Optimize animations for scroll jank */
+	@supports (scroll-behavior: smooth) {
+		html {
+			scroll-behavior: smooth;
+		}
 	}
 }
 

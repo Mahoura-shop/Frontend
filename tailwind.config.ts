@@ -2,10 +2,7 @@ import type { Config } from "tailwindcss";
 
 const config = {
 	darkMode: ["class"],
-	content: [
-		"./src/components/**/*.{ts,tsx}",
-		"./src/app/**/*.{ts,tsx}",
-	],
+	content: ["./src/components/**/*.{ts,tsx}", "./src/app/**/*.{ts,tsx}"],
 	prefix: "",
 	theme: {
 		container: {
@@ -64,6 +61,13 @@ const config = {
 					DEFAULT: "#dc2626",
 					hover: "rgb(220 38 38 / 0.8)",
 				},
+				"ghost-border": "var(--ghost-border)",
+			},
+			backgroundColor: {
+				"pill-bg": "var(--pill-bg)",
+			},
+			borderColor: {
+				"pill-border": "var(--pill-border)",
 			},
 			borderRadius: {
 				lg: "var(--radius)",

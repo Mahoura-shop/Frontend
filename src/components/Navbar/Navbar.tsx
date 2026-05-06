@@ -45,43 +45,6 @@ const bottomNavItems = [
 	{ label: "حساب من", icon: User, href: "/dashboard" },
 ];
 
-const useMagneticNav = () => {
-	const [offset, setOffset] = useState({ x: 0, y: 0 });
-	const ref = useRef<HTMLElement>(null);
-
-	useEffect(() => {
-		const handleMouseMove = (e: MouseEvent) => {
-			if (!ref.current) return;
-
-			const rect = ref.current.getBoundingClientRect();
-			const centerX = rect.left + rect.width / 2;
-			const centerY = rect.top + rect.height / 2;
-
-			const distX = e.clientX - centerX;
-			const distY = e.clientY - centerY;
-			const distance = Math.sqrt(distX * distX + distY * distY);
-			const maxDistance = 100;
-
-			if (distance < maxDistance) {
-				const strength = 1 - distance / maxDistance;
-				const angle = Math.atan2(distY, distX);
-				const pullDistance = strength * 25;
-				setOffset({
-					x: Math.cos(angle) * pullDistance,
-					y: Math.sin(angle) * pullDistance,
-				});
-			} else {
-				setOffset({ x: 0, y: 0 });
-			}
-		};
-
-		window.addEventListener("mousemove", handleMouseMove);
-		return () => window.removeEventListener("mousemove", handleMouseMove);
-	}, []);
-
-	return { ref, offset };
-};
-
 export default function Navbar() {
 	const { theme, setTheme } = useTheme();
 	const pathname = usePathname();

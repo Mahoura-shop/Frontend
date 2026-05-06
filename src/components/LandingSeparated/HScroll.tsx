@@ -17,6 +17,8 @@ export default function HScroll() {
     let isDown = false;
     let startX = 0;
     let scrollLeft = 0;
+    let frameId: number | null = null;
+    let lastX = 0;
 
     const down = (e: MouseEvent) => {
       isDown = true;
@@ -30,22 +32,28 @@ export default function HScroll() {
     };
     const move = (e: MouseEvent) => {
       if (!isDown) return;
-      e.preventDefault();
-      const x = e.pageX - track.offsetLeft;
-      // RTL: invert delta so drag direction feels natural
-      track.scrollLeft = scrollLeft - (x - startX) * 2;
+      lastX = e.pageX - track.offsetLeft;
+
+      if (frameId) return;
+
+      frameId = requestAnimationFrame(() => {
+        const x = lastX;
+        track.scrollLeft = scrollLeft - (x - startX) * 2;
+        frameId = null;
+      });
     };
 
     track.addEventListener('mousedown', down);
     track.addEventListener('mouseleave', up);
     track.addEventListener('mouseup', up);
-    track.addEventListener('mousemove', move);
+    track.addEventListener('mousemove', move, { passive: true });
 
     return () => {
       track.removeEventListener('mousedown', down);
       track.removeEventListener('mouseleave', up);
       track.removeEventListener('mouseup', up);
       track.removeEventListener('mousemove', move);
+      if (frameId) cancelAnimationFrame(frameId);
     };
   }, []);
 

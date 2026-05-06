@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export function useCustomCursor() {
   useEffect(() => {
@@ -7,14 +7,25 @@ export function useCustomCursor() {
 
     if (!cursor || !cursorRing) return;
 
+    let frameId: number | null = null;
+    let lastPos = { x: 0, y: 0 };
+
     const handleMouseMove = (e: MouseEvent) => {
-      cursor.style.left = e.clientX + 'px';
-      cursor.style.top = e.clientY + 'px';
-      cursorRing.style.left = e.clientX + 'px';
-      cursorRing.style.top = e.clientY + 'px';
+      lastPos = { x: e.clientX, y: e.clientY };
+
+      if (frameId) return;
+
+      frameId = requestAnimationFrame(() => {
+        cursor.style.transform = `translate(${lastPos.x}px, ${lastPos.y}px)`;
+        cursorRing.style.transform = `translate(${lastPos.x}px, ${lastPos.y}px)`;
+        frameId = null;
+      });
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (frameId) cancelAnimationFrame(frameId);
+    };
   }, []);
 }
