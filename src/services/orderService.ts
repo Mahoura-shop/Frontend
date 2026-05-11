@@ -20,3 +20,20 @@ export const getOrderDetail = (orderID: number) =>
 
 export const getOrderInstalments = (orderID: number) =>
 	getData({ endPoint: `v1/order/${orderID}/instalments` })
+
+export const getAllOrders = (status?: string) => {
+	const endpoint = status ? `v1/admin/orders?status=${status}` : "v1/admin/orders"
+	return getData({ endPoint: endpoint })
+}
+
+export const getAdminOrderDetail = (orderID: number) =>
+	getData({ endPoint: `v1/admin/orders/${orderID}` })
+
+export const updateOrderStatus = (orderID: number, data: { status: number; note: string }) =>
+	postData({ endPoint: `v1/admin/orders/${orderID}/status`, data })
+
+export const cancelOrder = (orderID: number) =>
+	postData({ endPoint: `v1/admin/orders/${orderID}/cancel`, data: {} })
+
+export const flagOrderRefund = (orderID: number) =>
+	postData({ endPoint: `v1/admin/orders/${orderID}/refund-flag`, data: {} })

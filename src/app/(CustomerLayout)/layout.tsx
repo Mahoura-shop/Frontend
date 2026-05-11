@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar/Navbar";
 import Footer from "@/components/Footer";
+import PageTransition from "@/components/PageTransition";
 
 export default function RootLayout({
 	children,
@@ -9,8 +10,9 @@ export default function RootLayout({
 	return (
 		<>
 			<Navbar />
-			<div>{children}</div>
-			{/* <div className="pt-[70px] pb-24 md:pb-0">{children}</div> */}
+			<PageTransition>
+				<div>{children}</div>
+			</PageTransition>
 			<Footer />
 		</>
 	);

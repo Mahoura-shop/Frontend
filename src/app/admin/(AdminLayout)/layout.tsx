@@ -14,6 +14,10 @@ import {
 	Sun,
 	Moon,
 	DollarSign,
+	ShoppingBag,
+	Users,
+	ClipboardList,
+	Shield,
 } from "lucide-react";
 import Link from "next/link";
 import logo from "@/assets/logo.png";
@@ -75,6 +79,38 @@ export default function AdminLayout({
 			href: "/admin/brands",
 			sub: false,
 			count: 50,
+		},
+		{
+			id: "orders",
+			label: "سفارش‌ها",
+			icon: ShoppingBag,
+			href: "/admin/orders",
+			sub: false,
+			count: null,
+		},
+		{
+			id: "users",
+			label: "کاربران",
+			icon: Users,
+			href: "/admin/users",
+			sub: false,
+			count: null,
+		},
+		{
+			id: "upgrade-requests",
+			label: "درخواست‌های ارتقاء",
+			icon: ClipboardList,
+			href: "/admin/upgrade-requests",
+			sub: false,
+			count: null,
+		},
+		{
+			id: "roles",
+			label: "نقش‌ها و دسترسی‌ها",
+			icon: Shield,
+			href: "/admin/roles",
+			sub: false,
+			count: null,
 		},
 		{
 			id: "settings",

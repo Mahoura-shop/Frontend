@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { ProductGridSkeleton } from "@/components/ui/product-card-skeleton";
 import { motion } from "framer-motion";
 import {
 	Heart,
@@ -41,20 +42,22 @@ import InputFree from "@/components/Custom/Input/InputFree";
 import SelectFree from "@/components/Custom/Select/SelectFree";
 
 export default function ProductsPage() {
-	const { products, fetchProducts } = useProductStore();
+	const { products, totalCount, fetchProducts } = useProductStore();
 	const { categories, fetchCategories } = useCategoryStore();
 	const { brands, fetchBrands } = useBrandStore();
 	const { addItem } = useCartStore();
 	const [addingId, setAddingId] = useState<number | null>(null);
 	const itemsPerPage = 12;
 	const [searchQuery, setSearchQuery] = useState("");
+	const [debouncedSearch, setDebouncedSearch] = useState("");
 	const [selectedCategory, setSelectedCategory] = useState<string>("0");
 	const [selectedBrand, setSelectedBrand] = useState<string>("0");
 	const [currentPage, setCurrentPage] = useState(1);
-	const [priceRange, setPriceRange] = useState<number[]>([1000, 100000]);
+	const [priceRange, setPriceRange] = useState<number[]>([0, 100000]);
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 	const [showFilters, setShowFilters] = useState(false);
 	const [sortBy, setSortBy] = useState<string>("newest");
+	const [isLoading, setIsLoading] = useState(false);
 
 	const handleAddToCart = async (e: React.MouseEvent, productId: number) => {
 		e.preventDefault();
@@ -66,73 +69,59 @@ export default function ProductsPage() {
 		}
 	};
 
-	const filteredProducts = products
-		.filter(
-			(product: Product) =>
-				product.categoryID == selectedCategory ||
-				selectedCategory === "0",
-		)
-		.filter(
-			(product: Product) =>
-				product.brandID == selectedBrand || selectedBrand === "0",
-		)
-		.filter(
-			(product: Product) =>
-				product.name.includes(searchQuery) || searchQuery === "",
-		)
-		.filter(
-			(product: Product) =>
-				Number(product.irrPrice) >= priceRange[0] &&
-				Number(product.irrPrice) <= priceRange[1],
-		)
-		.sort((a: Product, b: Product) => {
-			switch (sortBy) {
-				case "newest":
-					return b.id - a.id;
+	const totalPages = Math.ceil(totalCount / itemsPerPage);
+	const paginatedProducts = products;
 
-				case "price-low":
-					return (
-						(Number(a.irrPrice) || 0) - (Number(b.irrPrice) || 0)
-					);
-
-				case "price-high":
-					return (
-						(Number(b.irrPrice) || 0) - (Number(a.irrPrice) || 0)
-					);
-
-				default:
-					return 0;
-			}
-		});
-	const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-	const paginatedProducts = filteredProducts.slice(
-		(currentPage - 1) * itemsPerPage,
-		currentPage * itemsPerPage,
-	);
 	const handlePriceChange = (values: number[]) => {
 		setPriceRange(values);
+		setCurrentPage(1);
 	};
 
-	const prices = products?.map(
-		(product: Product) =>
-			Math.round(Number(product.irrPrice) / 1000) * 1000,
-	);
+	const mapSortByToBackend = (sort: string): string => {
+		switch (sort) {
+			case "price-low":
+				return "price_asc";
+			case "price-high":
+				return "price_desc";
+			case "newest":
+			default:
+				return "newest";
+		}
+	};
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setDebouncedSearch(searchQuery);
+			setCurrentPage(1);
+		}, 300);
+		return () => clearTimeout(timer);
+	}, [searchQuery]);
 
 	useEffect(() => {
 		fetchCategories();
 		fetchBrands();
-		fetchProducts().then((data) => {
-			const prices = data?.map(
-				(product: Product) =>
-					Math.round(Number(product.irrPrice) / 1000) * 1000,
-			);
-			setPriceRange([Math.min(...prices), Math.max(...prices)]);
-		});
 	}, []);
 
 	useEffect(() => {
-		setCurrentPage(1);
-	}, [searchQuery, sortBy, selectedCategory, selectedBrand, priceRange]);
+		const loadProducts = async () => {
+			setIsLoading(true);
+			try {
+				await fetchProducts({
+					q: debouncedSearch,
+					categoryID: selectedCategory !== "0" ? Number(selectedCategory) : undefined,
+					brandID: selectedBrand !== "0" ? Number(selectedBrand) : undefined,
+					minPrice: priceRange[0] > 0 ? priceRange[0] : undefined,
+					maxPrice: priceRange[1] < 100000 ? priceRange[1] : undefined,
+					sortBy: mapSortByToBackend(sortBy),
+					limit: itemsPerPage,
+					offset: (currentPage - 1) * itemsPerPage,
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		};
+		loadProducts();
+	}, [debouncedSearch, selectedCategory, selectedBrand, priceRange, sortBy, currentPage]);
 
 	return (
 		<div className="min-h-screen bg-background">
@@ -238,9 +227,9 @@ export default function ProductsPage() {
 											<Slider
 												value={priceRange}
 												onValueChange={handlePriceChange}
-												max={Math.max(...prices)}
-												min={Math.min(...prices)}
-												step={1000}
+												max={5000000}
+												min={0}
+												step={10000}
 											/>
 
 											<div className="grid grid-cols-2 gap-4">
@@ -281,10 +270,7 @@ export default function ProductsPage() {
 												setSearchQuery("");
 												setSelectedCategory("0");
 												setSelectedBrand("0");
-												setPriceRange([
-													Math.min(...prices),
-													Math.max(...prices),
-												]);
+												setPriceRange([0, 5000000]);
 											}}
 										>
 											پاک کردن فیلترها
@@ -357,7 +343,9 @@ export default function ProductsPage() {
 							</div>
 
 							{/* Products */}
-							{paginatedProducts &&
+							{isLoading ? (
+								<ProductGridSkeleton count={12} />
+							) : paginatedProducts &&
 							paginatedProducts?.length === 0 ? (
 								<div className="text-center py-20">
 									<Package className="w-20 h-20 mx-auto text-muted-foreground mb-4" />
@@ -467,7 +455,7 @@ export default function ProductsPage() {
 																		"fa-IR",
 																	).format(
 																		Number(
-																			product.irrPrice,
+																			product.resolvedPrice || product.irrPrice,
 																		),
 																	)}
 																</motion.span>

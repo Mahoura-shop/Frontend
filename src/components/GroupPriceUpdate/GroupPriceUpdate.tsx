@@ -15,6 +15,7 @@ import { getCurrencies } from "@/services/currency";
 import Loading from "@/components/Loading/Loading";
 import ProductInfoDialog from "../admin/Product/ProductInfoDialog";
 import CurrencyConvertRatesDialog from "../admin/Currency/CurrencyConvertRatesDialog";
+import { productService } from "@/services/productService";
 
 export default function GroupPriceUpdate({
 	name,
@@ -27,6 +28,7 @@ export default function GroupPriceUpdate({
 }) {
 	const [open, setOpen] = useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(true);
+	const [saving, setSaving] = useState<boolean>(false);
 	// const [currencies, setCurrencies] = useState<Currency[]>([]);
 	const [newProducts, setNewProducts] = useState<Product[]>([]);
 
@@ -37,7 +39,7 @@ export default function GroupPriceUpdate({
 			.then((data) => {
 				const currencies = data?.data;
 				setNewProducts(
-					data?.data?.map((product: Product) => ({
+					products?.map((product: Product) => ({
 						...product,
 						irrPrice:
 							Number(product.price) *
@@ -45,11 +47,27 @@ export default function GroupPriceUpdate({
 								(currency: Currency) =>
 									currency.id === Number(product.currencyID),
 							)?.convertRate,
-					})),
+					})) ?? [],
 				);
 			})
 			.finally(() => setLoading(false));
-	}, []);
+	}, [products]);
+
+	const handleSaveChanges = async () => {
+		setSaving(true);
+		try {
+			const productPrices = newProducts.map((product) => ({
+				id: product.id,
+				irrPrice: product.irrPrice,
+			}));
+			await productService.updateProductPrices(productPrices);
+			setOpen(false);
+		} catch (error) {
+			console.error("Failed to update prices:", error);
+		} finally {
+			setSaving(false);
+		}
+	};
 
 	return (
 		<Dialog
@@ -133,7 +151,13 @@ export default function GroupPriceUpdate({
 				<StickyDialogFooter>
 					<div className="flex gap-4">
 						<CurrencyConvertRatesDialog />
-						<Button variant="primary">ثبت تغییرات</Button>
+						<Button
+							variant="primary"
+							onClick={handleSaveChanges}
+							disabled={saving}
+						>
+							{saving ? "درحال ذخیره..." : "ثبت تغییرات"}
+						</Button>
 					</div>
 				</StickyDialogFooter>
 			</DialogContent>

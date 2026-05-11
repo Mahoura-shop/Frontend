@@ -1,21 +1,22 @@
-import { getData } from "@/services/services";
+import { productService, type ProductSearchParams } from "@/services/productService";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface ProductStore {
 	products: Product[];
-	fetchProducts: () => Promise<Product[]>;
+	totalCount: number;
+	fetchProducts: (params?: ProductSearchParams) => Promise<Product[]>;
 }
 
 export const useProductStore = create<ProductStore>()(
 	persist(
 		(set) => ({
 			products: [],
-			fetchProducts: async () => {
-				const data = await getData({ endPoint: `/v1/product` });
-				const products = data?.data ?? [];
-				set({ products });
-				return products;
+			totalCount: 0,
+			fetchProducts: async (params?: ProductSearchParams) => {
+				const response = await productService.searchProducts(params || {});
+				set({ products: response.products, totalCount: response.totalCount });
+				return response.products;
 			},
 		}),
 		{

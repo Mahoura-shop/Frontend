@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { MapPin, Plus, Trash2, Home, CheckCircle2 } from "lucide-react"
+import { MapPin, Plus, Home } from "lucide-react"
 import { Formik, Form } from "formik"
 import * as Yup from "yup"
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,7 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog"
 import Input from "@/components/Custom/Input/Input"
+import ProvinceCityPicker from "@/components/Custom/ProvinceCityPicker/ProvinceCityPicker"
 import CustomToast from "@/components/Custom/CustomToast/CustomToast"
 import { getAddresses, createAddress } from "@/services/addressService"
 
@@ -30,8 +31,8 @@ interface Address {
 }
 
 const schema = Yup.object({
-	provinceID: Yup.number().min(1, "شماره استان الزامی است").required("شماره استان الزامی است"),
-	cityID: Yup.number().min(1, "شماره شهر الزامی است").required("شماره شهر الزامی است"),
+	provinceID: Yup.string().required("استان را انتخاب کنید"),
+	cityID: Yup.string().required("شهر را انتخاب کنید"),
 	streetAddress: Yup.string().min(5, "آدرس کوتاه است").required("آدرس الزامی است"),
 	postalCode: Yup.string().length(10, "کد پستی باید ۱۰ رقم باشد").required("کد پستی الزامی است"),
 	houseNumber: Yup.string().required("پلاک الزامی است"),
@@ -136,25 +137,7 @@ export default function AddressesPage() {
 							onSubmit={handleCreate}
 						>
 							<Form className="space-y-4">
-								<div className="grid grid-cols-2 gap-3">
-									<Input
-										name="provinceID"
-										type="number"
-										label="شناسه استان"
-										placeholder="مثال: ۵"
-										icon={MapPin}
-									/>
-									<Input
-										name="cityID"
-										type="number"
-										label="شناسه شهر"
-										placeholder="مثال: ۴۲"
-										icon={MapPin}
-									/>
-								</div>
-								<div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-xs text-amber-700 dark:text-amber-400">
-									برای یافتن شناسه استان و شهر، با پشتیبانی تماس بگیرید
-								</div>
+								<ProvinceCityPicker />
 								<Input
 									name="streetAddress"
 									label="آدرس خیابان"

@@ -1,7 +1,7 @@
 // src/app/dashboard/layout.tsx
 "use client";
 
-import { useState, ReactNode } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
 	User,
@@ -15,9 +15,6 @@ import {
 	Menu,
 	X,
 	ChevronLeft,
-	Package,
-	CreditCard,
-	Gift,
 	MessageSquare,
 	Star,
 	Home,
@@ -28,18 +25,15 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { getMyProfile } from "@/services/userService";
 
-// Mock user data
-const MOCK_USER = {
-	name: "سارا احمدی",
-	email: "sara.ahmadi@example.com",
-	avatar: "https://ui-avatars.com/api/?name=Sara+Ahmadi&background=D4A5A5&color=fff&size=200",
-	memberSince: "۱۴۰۲/۰۵/۱۵",
-	totalOrders: 12,
-	totalSpent: 15420000,
-	loyaltyPoints: 2500,
-	notifications: 3,
-};
+interface Profile {
+	firstName: string
+	lastName: string
+	phone: string
+	email: string
+	type: string
+}
 
 interface DashboardLayoutProps {
 	children: ReactNode;
@@ -47,7 +41,14 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
+	const [profile, setProfile] = useState<Profile | null>(null);
 	const pathname = usePathname();
+
+	useEffect(() => {
+		getMyProfile()
+			.then((res) => setProfile(res?.data ?? null))
+			.catch(() => {})
+	}, []);
 
 	const navigationItems = [
 		{
@@ -60,13 +61,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 			title: "سفارش‌های من",
 			href: "/dashboard/orders",
 			icon: ShoppingBag,
-			badge: MOCK_USER.totalOrders,
+			badge: null,
 		},
 		{
 			title: "علاقه‌مندی‌ها",
 			href: "/dashboard/wishlist",
 			icon: Heart,
-			badge: 5,
+			badge: null,
 		},
 		{
 			title: "آدرس‌های من",
@@ -80,12 +81,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 			icon: Wallet,
 			badge: null,
 	},
-	{
-		title: "درخواست ارتقاء",
-		href: "/dashboard/upgrade-request",
-		icon: ShoppingBag,
-		badge: null,
-		},
 		// {
 		// 	title: "کارت‌های بانکی",
 		// 	href: "/dashboard/cards",
@@ -102,19 +97,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 			title: "نظرات من",
 			href: "/dashboard/reviews",
 			icon: MessageSquare,
-			badge: 2,
+			badge: null,
 		},
-		// {
-		// 	title: "پیام‌ها",
-		// 	href: "/dashboard/messages",
-		// 	icon: MessageSquare,
-		// 	badge: 2,
-		// },
 		{
 			title: "اعلان‌ها",
 			href: "/dashboard/notifications",
 			icon: Bell,
-			badge: MOCK_USER.notifications,
+			badge: null,
 		},
 	];
 
@@ -141,7 +130,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 	return (
 		<div className="min-h-screen bg-background">
 
-			<div className="container mx-auto px-4 py-8">
+			<div className="container mx-auto px-4 pt-24 pb-8">
 				<div className="grid lg:grid-cols-4 gap-6">
 					{/* Mobile Sidebar Toggle */}
 					<div className="lg:hidden">
@@ -209,53 +198,28 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
 										{/* User Profile Card */}
 										<Card className="overflow-hidden">
-											<div className="relative h-24 bg-gradient-to-br from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20" />
+											<div className="relative h-20 bg-gradient-to-br from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20" />
 											<div className="relative px-6 pb-6">
-												<div className="absolute -top-12 right-6">
-													<div className="w-24 h-24 rounded-full border-4 border-background overflow-hidden">
-														<img
-															src={
-																MOCK_USER.avatar
-															}
-															alt={MOCK_USER.name}
-															className="w-full h-full object-cover"
-														/>
+												<div className="absolute -top-10 right-6">
+													<div className="w-20 h-20 rounded-full border-4 border-background bg-gradient-to-br from-primary-rose to-secondary-plum flex items-center justify-center overflow-hidden">
+														<User className="w-9 h-9 text-white" />
 													</div>
 												</div>
-												<div className="pt-14 space-y-3">
+												<div className="pt-12 space-y-2">
 													<div>
-														<h3 className="text-lg font-bold">
-															{MOCK_USER.name}
+														<h3 className="text-base font-bold leading-tight">
+															{profile
+																? [profile.firstName, profile.lastName].filter(Boolean).join(" ") || "بدون نام"
+																: "در حال بارگذاری..."}
 														</h3>
-														<p className="text-sm text-muted-foreground">
-															{MOCK_USER.email}
+														<p className="text-sm text-muted-foreground truncate">
+															{profile?.email || profile?.phone || "—"}
 														</p>
 													</div>
-
 													<Separator />
-
-													<div className="grid grid-cols-2 gap-3 text-center">
-														<div>
-															<p className="text-2xl font-bold gradient-text">
-																{
-																	MOCK_USER.totalOrders
-																}
-															</p>
-															<p className="text-xs text-muted-foreground">
-																سفارش
-															</p>
-														</div>
-														<div>
-															<p className="text-2xl font-bold gradient-text">
-																{
-																	MOCK_USER.loyaltyPoints
-																}
-															</p>
-															<p className="text-xs text-muted-foreground">
-																امتیاز
-															</p>
-														</div>
-													</div>
+													<p className="text-xs text-muted-foreground">
+														{profile?.phone && <span dir="ltr">{profile.phone}</span>}
+													</p>
 												</div>
 											</div>
 										</Card>
@@ -399,8 +363,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 													<p className="text-sm font-semibold">
 														عضویت از
 													</p>
-													<p className="text-xs text-muted-foreground">
-														{MOCK_USER.memberSince}
+													<p className="text-xs text-muted-foreground" dir="ltr">
+														{profile?.phone ?? "—"}
 													</p>
 												</div>
 											</div>

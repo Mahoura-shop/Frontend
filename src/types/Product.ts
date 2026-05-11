@@ -32,6 +32,8 @@ interface Product {
 	currency: Currency;
 	currencyID: string;
 	productPic: string | undefined;
+	images?: string[];
+	resolvedPrice?: number;
 }
 
 interface ProductPrice {

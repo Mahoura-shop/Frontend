@@ -12,6 +12,8 @@ import {
 	X,
 	Sun,
 	Moon,
+	Users,
+	ShieldCheck,
 } from "lucide-react";
 
 import { motion } from "framer-motion";
@@ -47,6 +49,20 @@ const menuItems = [
 		icon: Tag,
 		href: "/admin/brands",
 		count: 50,
+	},
+	{
+		id: "users",
+		label: "کاربران",
+		icon: Users,
+		href: "/admin/users",
+		count: null,
+	},
+	{
+		id: "roles",
+		label: "نقش‌ها",
+		icon: ShieldCheck,
+		href: "/admin/roles",
+		count: null,
 	},
 	{
 		id: "settings",

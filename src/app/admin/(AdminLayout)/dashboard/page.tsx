@@ -9,8 +9,7 @@ import {
 	TrendingUp,
 	TrendingDown,
 	Eye,
-	Pencil,
-	Trash2,
+	AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,19 +30,40 @@ import {
 } from "@/components/ui/table";
 import { getData } from "@/services/services";
 
+interface DashboardData {
+	productsCount: number;
+	categoriesCount: number;
+	brandsCount: number;
+	revenuePerTier: Array<{ tier: string; revenue: number }>;
+	ordersPerDay: Array<{ date: string; count: number }>;
+	lowStockProducts: Array<{
+		id: number;
+		name: string;
+		quantity: number;
+		minOrder: number;
+	}>;
+	topProducts: Array<{
+		id: number;
+		name: string;
+		quantity: number;
+		revenue: number;
+	}>;
+}
+
 export default function AdminDashboard() {
-	const [brandsCount, setBrandsCount] = useState<number>(0);
-	const [categoriesCount, setCategoriesCount] = useState<number>(0);
-	const [productsCount, setProductsCount] = useState<number>(0);
+	const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+	const [loading, setLoading] = useState(true);
+
 	const fetchDashboardData = () => {
+		setLoading(true);
 		getData({ endPoint: `/v1/admin/dashboard` })
 			.then((data) => {
-				setProductsCount(data?.data?.productsCount);
-				setBrandsCount(data?.data?.brandsCount);
-				setCategoriesCount(data?.data?.categoriesCount);
+				setDashboardData(data?.data);
 			})
-			.catch(() => {});
+			.catch(() => {})
+			.finally(() => setLoading(false));
 	};
+
 	useEffect(() => {
 		fetchDashboardData();
 	}, []);
@@ -51,64 +71,26 @@ export default function AdminDashboard() {
 		() => [
 			{
 				title: "مجموع محصولات",
-				value: productsCount,
+				value: dashboardData?.productsCount || 0,
 				icon: Package,
 				color: "from-blue-500 to-blue-600",
 			},
 			{
 				title: "دسته‌بندی‌ها",
-				value: categoriesCount,
+				value: dashboardData?.categoriesCount || 0,
 				icon: FolderTree,
 				color: "from-purple-500 to-purple-600",
 			},
 			{
 				title: "برندها",
-				value: brandsCount,
+				value: dashboardData?.brandsCount || 0,
 				icon: Tag,
 				color: "from-amber-500 to-amber-600",
 			},
 		],
-		[productsCount, categoriesCount, brandsCount],
+		[dashboardData],
 	);
 
-	const recentProducts = [
-		{
-			id: 1,
-			name: "رژ لب مات شماره ۱",
-			brand: "Mahoura",
-			category: "آرایش",
-			stock: "موجود",
-			price: "۲۹۹,۰۰۰",
-			image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=100",
-		},
-		{
-			id: 2,
-			name: "سرم ویتامین C",
-			brand: "Mahoura Care",
-			category: "مراقبت",
-			stock: "موجود",
-			price: "۴۵۰,۰۰۰",
-			image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=100",
-		},
-		{
-			id: 3,
-			name: "پالت سایه چشم",
-			brand: "Mahoura Pro",
-			category: "آرایش",
-			stock: "ناموجود",
-			price: "۳۵۰,۰۰۰",
-			image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=100",
-		},
-		{
-			id: 4,
-			name: "کرم ضد آفتاب",
-			brand: "Mahoura Care",
-			category: "مراقبت",
-			stock: "موجود",
-			price: "۳۸۰,۰۰۰",
-			image: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=100",
-		},
-	];
 
 	return (
 		<main className="p-6">
@@ -165,79 +147,190 @@ export default function AdminDashboard() {
 				))}
 			</div>
 
-			{/* Recent Products Table */}
-			{/* <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>آخرین محصولات</CardTitle>
-                <CardDescription>محصولات اخیراً اضافه شده</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>تصویر</TableHead>
-                  <TableHead>نام محصول</TableHead>
-                  <TableHead>برند</TableHead>
-                  <TableHead>دسته</TableHead>
-                  <TableHead>قیمت</TableHead>
-                  <TableHead>وضعیت</TableHead>
-                  <TableHead className="text-center">عملیات</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentProducts.map((product, i) => (
-                  <motion.tr
-                    key={product.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 + i * 0.05 }}
-                    className="group hover:bg-muted/50 transition-colors"
-                  >
-                    <TableCell>
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-12 h-12 rounded-lg object-cover"
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium">{product.name}</TableCell>
-                    <TableCell>{product.brand}</TableCell>
-                    <TableCell>{product.category}</TableCell>
-                    <TableCell className="font-bold text-primary-rose">{product.price} تومان</TableCell>
-                    <TableCell>
-                      <Badge variant={product.stock === 'موجود' ? 'available' : 'outOfStock'}>
-                        {product.stock}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </motion.tr>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </motion.div> */}
+			{/* Revenue Per Tier */}
+			{dashboardData?.revenuePerTier && dashboardData.revenuePerTier.length > 0 && (
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.3 }}
+					className="mb-8"
+				>
+					<Card>
+						<CardHeader>
+							<CardTitle>درآمد بر اساس سطح</CardTitle>
+							<CardDescription>
+								خلاصه درآمد برای هر سطح کاربری
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+								{dashboardData.revenuePerTier.map((item) => (
+									<div
+										key={item.tier}
+										className="p-4 rounded-lg bg-muted/50 border border-border"
+									>
+										<p className="text-sm text-muted-foreground mb-1 capitalize">
+											{item.tier}
+										</p>
+										<p className="text-2xl font-bold text-primary-rose">
+											{(item.revenue / 1000000).toFixed(1)}M
+										</p>
+									</div>
+								))}
+							</div>
+						</CardContent>
+					</Card>
+				</motion.div>
+			)}
+
+			{/* Orders Per Day Chart */}
+			{dashboardData?.ordersPerDay && dashboardData.ordersPerDay.length > 0 && (
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.4 }}
+					className="mb-8"
+				>
+					<Card>
+						<CardHeader>
+							<CardTitle>سفارشات در 7 روز اخیر</CardTitle>
+							<CardDescription>تعداد سفارشات به تفکیک روز</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<div className="space-y-4">
+								{dashboardData.ordersPerDay.map((item) => (
+									<div
+										key={item.date}
+										className="flex items-center justify-between"
+									>
+										<span className="text-sm text-muted-foreground min-w-20">
+											{item.date}
+										</span>
+										<div className="flex-1 mx-4 h-8 bg-muted rounded overflow-hidden">
+											<div
+												className="h-full bg-gradient-to-r from-primary-rose to-primary-rose/70 transition-all"
+												style={{
+													width: `${
+														((item.count || 0) /
+															Math.max(
+																...(dashboardData.ordersPerDay.map(
+																	(o) => o.count,
+																) || [1]),
+															)) *
+														100
+													}%`,
+												}}
+											/>
+										</div>
+										<span className="font-bold min-w-12 text-right">
+											{item.count}
+										</span>
+									</div>
+								))}
+							</div>
+						</CardContent>
+					</Card>
+				</motion.div>
+			)}
+
+			{/* Low Stock Products */}
+			{dashboardData?.lowStockProducts && dashboardData.lowStockProducts.length > 0 && (
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.5 }}
+					className="mb-8"
+				>
+					<Card className="border-amber-200 bg-amber-50/50">
+						<CardHeader>
+							<div className="flex items-center gap-2">
+								<AlertCircle className="w-5 h-5 text-amber-600" />
+								<div>
+									<CardTitle>محصولات کم موجودی</CardTitle>
+									<CardDescription>
+										محصولاتی که موجودی آنها کمتر از حد نصاب است
+									</CardDescription>
+								</div>
+							</div>
+						</CardHeader>
+						<CardContent>
+							<Table>
+								<TableHeader>
+									<TableRow>
+										<TableHead>نام محصول</TableHead>
+										<TableHead>موجودی</TableHead>
+										<TableHead>حد نصاب</TableHead>
+										<TableHead>وضعیت</TableHead>
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{dashboardData.lowStockProducts.map((product) => (
+										<TableRow key={product.id}>
+											<TableCell className="font-medium">
+												{product.name}
+											</TableCell>
+											<TableCell>{product.quantity}</TableCell>
+											<TableCell>{product.minOrder}</TableCell>
+											<TableCell>
+												<Badge variant="destructive">
+													کم موجود
+												</Badge>
+											</TableCell>
+										</TableRow>
+									))}
+								</TableBody>
+							</Table>
+						</CardContent>
+					</Card>
+				</motion.div>
+			)}
+
+			{/* Top Products */}
+			{dashboardData?.topProducts && dashboardData.topProducts.length > 0 && (
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.6 }}
+				>
+					<Card>
+						<CardHeader>
+							<CardTitle>محصولات پرفروش</CardTitle>
+							<CardDescription>
+								محصولات با بیشترین تعداد فروش
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<Table>
+								<TableHeader>
+									<TableRow>
+										<TableHead>نام محصول</TableHead>
+										<TableHead>تعداد فروخته شده</TableHead>
+										<TableHead>درآمد</TableHead>
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{dashboardData.topProducts.map((product) => (
+										<TableRow key={product.id}>
+											<TableCell className="font-medium">
+												{product.name}
+											</TableCell>
+											<TableCell>
+												<div className="flex items-center gap-2">
+													<TrendingUp className="w-4 h-4 text-green-600" />
+													{product.quantity}
+												</div>
+											</TableCell>
+											<TableCell className="font-bold text-primary-rose">
+												{(product.revenue / 1000000).toFixed(1)}M
+											</TableCell>
+										</TableRow>
+									))}
+								</TableBody>
+							</Table>
+						</CardContent>
+					</Card>
+				</motion.div>
+			)}
 		</main>
 	);
 }

@@ -349,10 +349,10 @@ export default function Input({
 			<div className={styles.inputWrapper}>
 				<input
 					ref={inputRef}
-					dir={currentDirection} // Use calculated direction
+					dir={currentDirection} 
 					{...props}
 					autoFocus={autoFocus}
-					value={displayValue} // <-- Use displayValue from state
+					value={displayValue}
 					placeholder=" "
 					disabled={loading || props.disabled}
 					className={cn(
@@ -366,7 +366,6 @@ export default function Input({
 						inputClassName,
 					)}
 					onChange={handleChange}
-					// Do NOT spread {...field} here, as we are manually controlling value and onChange
 				/>
 
 				{label && (
