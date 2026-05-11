@@ -116,23 +116,25 @@ export default function CategoriesPage() {
 		setLoading(true);
 		getData({ endPoint: `/v1/category` })
 			.then((data) => {
-				const fetchedCategories = data?.data ?? [];
+				console.log("fetchedCategories", data);
+				const fetchedCategories: Category[] = data?.data ?? [];
+				setCategories([...fetchedCategories]);
 				fetchedCategories.forEach(
 					(category: Category, index: number) => {
 						getData({
 							endPoint: `/v1/product/category/${category?.id}`,
-						}).then((data) => {
-							fetchedCategories[index] = {
-								...category,
-								products: data?.data,
-							};
+						}).then((productData) => {
+							setCategories((prev) => {
+								const updated = [...prev];
+								updated[index] = {
+									...updated[index],
+									products: productData?.data,
+								};
+								return updated;
+							});
 						});
-
-						setCategories(fetchedCategories);
 					},
 				);
-				console.log("fetchedCategories", fetchedCategories);
-				setCategories(fetchedCategories);
 			})
 			.finally(() => setLoading(false));
 	}, []);

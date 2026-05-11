@@ -1,0 +1,22 @@
+{
+	"name": "ماهورا",
+	"short_name": "ماهورا",
+	"description": "فروشگاه لوازم آرایشی و بهداشتی ماهورا",
+	"start_url": "/",
+	"display": "standalone",
+	"background_color": "#0f0f0f",
+	"theme_color": "#C8536A",
+	"orientation": "portrait",
+	"icons": [
+		{
+			"src": "/favicon.ico",
+			"sizes": "any",
+			"type": "image/x-icon"
+		},
+		{
+			"src": "/favicon2.ico",
+			"sizes": "any",
+			"type": "image/x-icon"
+		}
+	]
+}

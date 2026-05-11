@@ -9,6 +9,7 @@ const useUserStore = create<UserState>()(
 			refreshToken: undefined,
 			firstName: undefined,
 			lastName: undefined,
+			isAdmin: false,
 
 			setUsername: (username: string) =>
 				set((prev) => ({ ...prev, username })),
@@ -20,6 +21,8 @@ const useUserStore = create<UserState>()(
 				set((prev) => ({ ...prev, firstName })),
 			setLastName: (lastName: string) =>
 				set((prev) => ({ ...prev, lastName })),
+			setIsAdmin: (value: boolean) =>
+				set((prev) => ({ ...prev, isAdmin: value })),
 			logout: () =>
 				set(() => ({
 					username: undefined,
@@ -27,6 +30,7 @@ const useUserStore = create<UserState>()(
 					refreshToken: undefined,
 					firstName: undefined,
 					lastName: undefined,
+					isAdmin: false,
 				})),
 		}),
 		{

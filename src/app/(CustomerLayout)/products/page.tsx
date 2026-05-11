@@ -1,23 +1,22 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { formatPrice } from "@/utils/formatPrice";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ProductGridSkeleton } from "@/components/ui/product-card-skeleton";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-	Heart,
 	ShoppingBag,
 	Star,
 	Filter,
 	Search,
-	Grid3x3,
-	List,
 	SlidersHorizontal,
 	X,
-	Eye,
 	Package,
 	ImageIcon,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -32,10 +31,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { useEffect } from "react";
 import { useCategoryStore } from "@/store/useCategoryStore";
 import { useBrandStore } from "@/store/useBrandStore";
-import Input from "@/components/Custom/Input/Input";
 import { Slider } from "@/components/ui/slider";
 import { Pagination } from "@/components/ui/pagination";
 import InputFree from "@/components/Custom/Input/InputFree";
@@ -46,17 +43,20 @@ export default function ProductsPage() {
 	const { categories, fetchCategories } = useCategoryStore();
 	const { brands, fetchBrands } = useBrandStore();
 	const { addItem } = useCartStore();
+	const searchParams = useSearchParams();
+	const router = useRouter();
+	const pathname = usePathname();
 	const [addingId, setAddingId] = useState<number | null>(null);
 	const itemsPerPage = 12;
-	const [searchQuery, setSearchQuery] = useState("");
-	const [debouncedSearch, setDebouncedSearch] = useState("");
-	const [selectedCategory, setSelectedCategory] = useState<string>("0");
-	const [selectedBrand, setSelectedBrand] = useState<string>("0");
-	const [currentPage, setCurrentPage] = useState(1);
+	const [searchQuery, setSearchQuery] = useState(() => searchParams.get("q") ?? "");
+	const [debouncedSearch, setDebouncedSearch] = useState(() => searchParams.get("q") ?? "");
+	const [selectedCategory, setSelectedCategory] = useState<string>(() => searchParams.get("category") ?? "0");
+	const [selectedBrand, setSelectedBrand] = useState<string>(() => searchParams.get("brand") ?? "0");
+	const [currentPage, setCurrentPage] = useState(() => Number(searchParams.get("page") ?? "1"));
 	const [priceRange, setPriceRange] = useState<number[]>([0, 100000]);
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 	const [showFilters, setShowFilters] = useState(false);
-	const [sortBy, setSortBy] = useState<string>("newest");
+	const [sortBy, setSortBy] = useState<string>(() => searchParams.get("sort") ?? "newest");
 	const [isLoading, setIsLoading] = useState(false);
 
 	const handleAddToCart = async (e: React.MouseEvent, productId: number) => {
@@ -103,6 +103,16 @@ export default function ProductsPage() {
 	}, []);
 
 	useEffect(() => {
+		const params = new URLSearchParams();
+		if (debouncedSearch) params.set("q", debouncedSearch);
+		if (selectedCategory !== "0") params.set("category", selectedCategory);
+		if (selectedBrand !== "0") params.set("brand", selectedBrand);
+		if (currentPage > 1) params.set("page", String(currentPage));
+		if (sortBy !== "newest") params.set("sort", sortBy);
+		router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+	}, [debouncedSearch, selectedCategory, selectedBrand, currentPage, sortBy]);
+
+	useEffect(() => {
 		const loadProducts = async () => {
 			setIsLoading(true);
 			try {
@@ -146,35 +156,16 @@ export default function ProductsPage() {
 
 				<div className="container mx-auto px-4 py-6 md:py-12">
 					<div className="flex flex-col lg:flex-row gap-8">
-						{/* Filters Sidebar - STICKY */}
-						<motion.aside
-							initial={{ opacity: 0, x: 50 }}
-							animate={{ opacity: 1, x: 0 }}
-							onClick={() => showFilters && setShowFilters(false)}
-							className={`lg:w-80 ${showFilters ? "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm lg:relative lg:bg-transparent" : "hidden lg:block"}`}
-						>
-							<div
-								onClick={(e) => e.stopPropagation()}
-								className={`${showFilters ? "fixed top-0 right-0 bottom-0 w-80 bg-background overflow-y-auto" : "sticky top-24"}`}
-							>
-								<Card className={showFilters ? "h-full rounded-none" : ""}>
+						{/* Filters Sidebar - STICKY (desktop) / Bottom Sheet (mobile) */}
+						{/* Desktop sidebar */}
+						<aside className="hidden lg:block lg:w-80">
+							<div className="sticky top-24">
+								<Card>
 									<CardContent className="flex flex-col gap-6 p-6">
-										<div className="flex items-center justify-between">
-											<h3 className="text-xl font-bold flex items-center gap-2">
-												<Filter className="w-5 h-5" />
-												فیلترها
-											</h3>
-											<Button
-												variant="ghost"
-												size="icon"
-												onClick={() =>
-													setShowFilters(false)
-												}
-												className="lg:hidden"
-											>
-												<X className="w-5 h-5" />
-											</Button>
-										</div>
+										<h3 className="text-xl font-bold flex items-center gap-2">
+											<Filter className="w-5 h-5" />
+											فیلترها
+										</h3>
 
 										{/* Categories */}
 										<div>
@@ -238,9 +229,7 @@ export default function ProductsPage() {
 														حداکثر
 													</p>
 													<p className="font-bold gradient-text">
-														{new Intl.NumberFormat(
-															"fa-IR",
-														).format(priceRange[1])}
+														{formatPrice(priceRange[1])}
 													</p>
 													<p className="font-bold gradient-text">
 														تومان
@@ -251,9 +240,7 @@ export default function ProductsPage() {
 														حداقل
 													</p>
 													<p className="font-bold gradient-text">
-														{new Intl.NumberFormat(
-															"fa-IR",
-														).format(priceRange[0])}
+														{formatPrice(priceRange[0])}
 													</p>
 													<p className="font-bold gradient-text">
 														تومان
@@ -278,7 +265,83 @@ export default function ProductsPage() {
 									</CardContent>
 								</Card>
 							</div>
-						</motion.aside>
+						</aside>
+
+						{/* Mobile filter bottom sheet */}
+						<AnimatePresence>
+							{showFilters && (
+								<motion.div
+									key="filter-backdrop"
+									initial={{ opacity: 0 }}
+									animate={{ opacity: 1 }}
+									exit={{ opacity: 0 }}
+									className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm lg:hidden"
+									onClick={() => setShowFilters(false)}
+								>
+									<motion.div
+										initial={{ y: "100%" }}
+										animate={{ y: 0 }}
+										exit={{ y: "100%" }}
+										transition={{ type: "spring", damping: 30, stiffness: 300 }}
+										className="absolute bottom-0 inset-x-0 glass-panel rounded-t-2xl max-h-[85vh] overflow-y-auto"
+										onClick={(e) => e.stopPropagation()}
+									>
+										{/* Drag handle */}
+										<div className="flex justify-center pt-3 pb-1">
+											<div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+										</div>
+										<div className="flex flex-col gap-6 p-6">
+											<div className="flex items-center justify-between">
+												<h3 className="text-xl font-bold flex items-center gap-2">
+													<Filter className="w-5 h-5" />
+													فیلترها
+												</h3>
+												<Button variant="ghost" size="icon" onClick={() => setShowFilters(false)}>
+													<X className="w-5 h-5" />
+												</Button>
+											</div>
+											<SelectFree
+												value={selectedCategory}
+												onValueChange={setSelectedCategory}
+												label="دسته‌بندی"
+												options={[
+													{ value: "0", label: "تمام دسته‌بندی‌ها" },
+													...categories.map((cat) => ({ value: String(cat.id), label: cat.name })),
+												]}
+											/>
+											<SelectFree
+												value={selectedBrand}
+												onValueChange={setSelectedBrand}
+												label="برند"
+												options={[
+													{ value: "0", label: "تمام برندها" },
+													...brands.map((brand) => ({ value: String(brand.id), label: brand.name })),
+												]}
+											/>
+											<div className="space-y-4">
+												<span className="text-sm font-medium">محدوده قیمت</span>
+												<Slider value={priceRange} onValueChange={handlePriceChange} max={5000000} min={0} step={10000} />
+												<div className="grid grid-cols-2 gap-4">
+													<div className="p-3 rounded-lg bg-background border text-center">
+														<p className="text-xs text-muted-foreground mb-1">حداکثر</p>
+														<p className="font-bold gradient-text">{formatPrice(priceRange[1])}</p>
+														<p className="font-bold gradient-text">تومان</p>
+													</div>
+													<div className="p-3 rounded-lg bg-background border text-center">
+														<p className="text-xs text-muted-foreground mb-1">حداقل</p>
+														<p className="font-bold gradient-text">{formatPrice(priceRange[0])}</p>
+														<p className="font-bold gradient-text">تومان</p>
+													</div>
+												</div>
+											</div>
+											<Button variant="outline" className="w-full" onClick={() => { setSearchQuery(""); setSelectedCategory("0"); setSelectedBrand("0"); setPriceRange([0, 5000000]); setShowFilters(false); }}>
+												پاک کردن فیلترها
+											</Button>
+										</div>
+									</motion.div>
+								</motion.div>
+							)}
+						</AnimatePresence>
 
 						{/* Products Grid */}
 						<div className="flex-1">
@@ -372,132 +435,76 @@ export default function ProductsPage() {
 												animate={{ opacity: 1, y: 0 }}
 												transition={{ delay: i * 0.05 }}
 											>
-												<Card className="overflow-hidden group hover:shadow-xl h-full transition-all duration-300 min-h-[360px] sm:min-h-[400px]">
-													<div className="relative">
-														<Link
-															href={`/products/${product.slug}`}
-														>
-															<div
-																className={`relative h-60 bg-muted overflow-hidden cursor-pointer flex place-items-center place-content-center`}
-															>
-																{product.productPic ? (
-																	<motion.img
-																		src={
-																			product.productPic
-																		}
-																		alt={
-																			product.name
-																		}
-																		className="w-full h-full object-cover"
-																		whileHover={{
-																			scale: 1.1,
-																		}}
-																		transition={{
-																			duration: 0.3,
-																		}}
-																	/>
-																) : (
-																	<ImageIcon className="w-16 h-16 text-muted-foreground" />
-																)}
+												<div className="relative rounded-[20px] overflow-hidden cursor-pointer group aspect-[3/4] bg-muted shadow-sm hover:shadow-2xl transition-shadow duration-500">
+													{/* Image */}
+													<Link href={`/products/${product.slug}`}>
+														{product.productPic ? (
+															<img
+																src={product.productPic}
+																alt={product.name}
+																className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
+															/>
+														) : (
+															<div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-rose/10 to-accent-gold/10">
+																<ImageIcon className="w-16 h-16 text-muted-foreground" />
 															</div>
-														</Link>
+														)}
+													</Link>
 
-														<div className="absolute top-4 right-4 flex flex-col gap-2">
-															{product.isNew && (
-																<Badge variant="new">
-																	<Star className="w-3 h-3 ml-1" />
-																	جدید
-																</Badge>
-															)}
-															{product.quantity ==
-																0 && (
-																<Badge variant="outOfStock">
-																	ناموجود
-																</Badge>
-															)}
-														</div>
-													</div>
-
-													<CardContent className="py-4 px-6">
-														<p className="text-sm text-muted-foreground mb-1">
-															{
-																product.brand
-																	?.name
-															}
-														</p>
-														<Link
-															href={`/products/${product.id}`}
-														>
-															<h3 className="text-xl font-bold mb-2 transition-colors cursor-pointer text-foreground">
-																{product?.name}
-															</h3>
-														</Link>
-														{product.category
-															?.name && (
-															<Badge className="inline-flex place-content-center place-items-center justify-center">
-																{
-																	product
-																		.category
-																		?.name
-																}
+													{/* Badges */}
+													<div className="absolute top-3 right-3 flex flex-col gap-1.5 z-10">
+														{product.isNew && (
+															<Badge variant="new">
+																<Star className="w-3 h-3 ml-1" />
+																جدید
 															</Badge>
 														)}
+														{product.quantity === 0 && (
+															<Badge variant="outOfStock">ناموجود</Badge>
+														)}
+													</div>
 
-														<div className="flex place-content-end place-self-end">
-															<div>
-																<motion.span
-																	className="text-2xl font-bold text-primary-rose"
-																	whileHover={{
-																		scale: 1.05,
-																	}}
-																>
-																	{new Intl.NumberFormat(
-																		"fa-IR",
-																	).format(
-																		Number(
-																			product.resolvedPrice || product.irrPrice,
-																		),
-																	)}
-																</motion.span>
-																<span className="text-sm text-muted-foreground mr-2">
-																	ریال
-																</span>
-															</div>
+													{/* Static bottom info — always visible */}
+													<div className="absolute bottom-0 inset-x-0 z-10 p-4 bg-gradient-to-t from-black/70 via-black/30 to-transparent">
+														<p className="text-[11px] font-bold text-white/60 mb-0.5">{product.brand?.name}</p>
+														<p className="text-sm font-bold text-white leading-tight line-clamp-1">{product.name}</p>
+													</div>
+
+													{/* Hover reveal — slides up over the static info */}
+													<motion.div
+														initial={{ y: "100%" }}
+														whileHover={{ y: 0 }}
+														transition={{ duration: 0.35, ease: "easeOut" }}
+														className="absolute bottom-0 inset-x-0 z-20 bg-black/80 backdrop-blur-sm p-4 flex items-center justify-between gap-3"
+													>
+														<div className="min-w-0">
+															<p className="text-[11px] font-bold text-white/50 mb-0.5">{product.brand?.name}</p>
+															<p className="text-sm font-bold text-white leading-tight line-clamp-1 mb-1">{product.name}</p>
+															<p className="text-base font-bold text-primary-rose">
+																{formatPrice(Number(product.resolvedPrice || product.irrPrice))}
+																<span className="text-xs text-white/40 mr-1">ریال</span>
+															</p>
 														</div>
-
 														<Button
 															variant="luxury"
 															size="sm"
-															className="w-full mt-3 gap-2"
-															disabled={
-																addingId === product.id ||
-																product.quantity === 0
-															}
-															onClick={(e) =>
-																handleAddToCart(e, product.id)
-															}
+															className="shrink-0 gap-1.5"
+															disabled={addingId === product.id || product.quantity === 0}
+															onClick={(e) => handleAddToCart(e, product.id)}
 														>
 															{addingId === product.id ? (
 																<motion.div
 																	animate={{ rotate: 360 }}
-																	transition={{
-																		repeat: Infinity,
-																		duration: 0.8,
-																		ease: "linear",
-																	}}
+																	transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
 																	className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
 																/>
 															) : (
 																<ShoppingBag className="w-4 h-4" />
 															)}
-															{product.quantity === 0
-																? "ناموجود"
-																: addingId === product.id
-																? "در حال افزودن..."
-																: "افزودن به سبد"}
+															{product.quantity === 0 ? "ناموجود" : addingId === product.id ? "..." : "افزودن"}
 														</Button>
-													</CardContent>
-												</Card>
+													</motion.div>
+												</div>
 											</motion.div>
 										))}
 								</div>

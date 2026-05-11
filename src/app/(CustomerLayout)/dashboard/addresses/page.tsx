@@ -1,74 +1,78 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
-import { MapPin, Plus, Home } from "lucide-react"
-import { Formik, Form } from "formik"
-import * as Yup from "yup"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { MapPin, Plus, Home } from "lucide-react";
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from "@/components/ui/dialog"
-import Input from "@/components/Custom/Input/Input"
-import ProvinceCityPicker from "@/components/Custom/ProvinceCityPicker/ProvinceCityPicker"
-import CustomToast from "@/components/Custom/CustomToast/CustomToast"
-import { getAddresses, createAddress } from "@/services/addressService"
+} from "@/components/ui/dialog";
+import Input from "@/components/Custom/Input/Input";
+import ProvinceCityPicker from "@/components/Custom/ProvinceCityPicker/ProvinceCityPicker";
+import CustomToast from "@/components/Custom/CustomToast/CustomToast";
+import { getAddresses, createAddress } from "@/services/addressService";
 
 interface Address {
-	id: number
-	province: string
-	city: string
-	streetAddress: string
-	postalCode: string
-	houseNumber: string
-	unit: number
+	id: number;
+	province: string;
+	city: string;
+	streetAddress: string;
+	postalCode: string;
+	houseNumber: string;
+	unit: number;
 }
 
 const schema = Yup.object({
 	provinceID: Yup.string().required("استان را انتخاب کنید"),
 	cityID: Yup.string().required("شهر را انتخاب کنید"),
-	streetAddress: Yup.string().min(5, "آدرس کوتاه است").required("آدرس الزامی است"),
-	postalCode: Yup.string().length(10, "کد پستی باید ۱۰ رقم باشد").required("کد پستی الزامی است"),
+	streetAddress: Yup.string()
+		.min(5, "آدرس کوتاه است")
+		.required("آدرس الزامی است"),
+	postalCode: Yup.string()
+		.length(10, "کد پستی باید ۱۰ رقم باشد")
+		.required("کد پستی الزامی است"),
 	houseNumber: Yup.string().required("پلاک الزامی است"),
 	unit: Yup.number().min(0).required("واحد الزامی است"),
-})
+});
 
 export default function AddressesPage() {
-	const [addresses, setAddresses] = useState<Address[]>([])
-	const [loading, setLoading] = useState(true)
-	const [dialogOpen, setDialogOpen] = useState(false)
-	const [submitting, setSubmitting] = useState(false)
+	const [addresses, setAddresses] = useState<Address[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [dialogOpen, setDialogOpen] = useState(false);
+	const [submitting, setSubmitting] = useState(false);
 
 	const fetchAddresses = async () => {
 		try {
-			const res = await getAddresses()
-			setAddresses(res?.data ?? [])
+			const res = await getAddresses();
+			setAddresses(res?.data ?? []);
 		} catch {
-			setAddresses([])
+			setAddresses([]);
 		} finally {
-			setLoading(false)
+			setLoading(false);
 		}
-	}
+	};
 
 	useEffect(() => {
-		fetchAddresses()
-	}, [])
+		fetchAddresses();
+	}, []);
 
 	const handleCreate = async (values: {
-		provinceID: string
-		cityID: string
-		streetAddress: string
-		postalCode: string
-		houseNumber: string
-		unit: string
+		provinceID: string;
+		cityID: string;
+		streetAddress: string;
+		postalCode: string;
+		houseNumber: string;
+		unit: string;
 	}) => {
-		setSubmitting(true)
+		setSubmitting(true);
 		try {
 			await createAddress({
 				provinceID: Number(values.provinceID),
@@ -77,26 +81,30 @@ export default function AddressesPage() {
 				postalCode: values.postalCode,
 				houseNumber: values.houseNumber,
 				unit: Number(values.unit),
-			})
-			CustomToast("آدرس با موفقیت اضافه شد", "success")
-			setDialogOpen(false)
-			await fetchAddresses()
+			});
+			CustomToast("آدرس با موفقیت اضافه شد", "success");
+			setDialogOpen(false);
+			await fetchAddresses();
 		} catch {
 		} finally {
-			setSubmitting(false)
+			setSubmitting(false);
 		}
-	}
+	};
 
 	if (loading) {
 		return (
 			<div className="flex items-center justify-center py-20">
 				<motion.div
 					animate={{ rotate: 360 }}
-					transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+					transition={{
+						repeat: Infinity,
+						duration: 1,
+						ease: "linear",
+					}}
 					className="w-10 h-10 border-4 border-primary-rose border-t-transparent rounded-full"
 				/>
 			</div>
-		)
+		);
 	}
 
 	return (
@@ -107,9 +115,14 @@ export default function AddressesPage() {
 				className="flex items-center justify-between"
 			>
 				<div>
-					<h1 className="text-2xl font-bold gradient-text mb-1">آدرس‌های من</h1>
+					<h1 className="text-2xl font-bold gradient-text mb-1">
+						آدرس‌های من
+					</h1>
 					<p className="text-sm text-muted-foreground">
-						{new Intl.NumberFormat("fa-IR").format(addresses.length)} آدرس ذخیره شده
+						{new Intl.NumberFormat("fa-IR").format(
+							addresses.length,
+						)}{" "}
+						آدرس ذخیره شده
 					</p>
 				</div>
 
@@ -180,7 +193,9 @@ export default function AddressesPage() {
 										className="flex-1"
 										disabled={submitting}
 									>
-										{submitting ? "در حال ذخیره..." : "ذخیره آدرس"}
+										{submitting
+											? "در حال ذخیره..."
+											: "ذخیره آدرس"}
 									</Button>
 								</div>
 							</Form>
@@ -198,11 +213,17 @@ export default function AddressesPage() {
 					<div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20 rounded-full flex items-center justify-center">
 						<MapPin className="w-12 h-12 text-muted-foreground" />
 					</div>
-					<h2 className="text-xl font-bold mb-3">هنوز آدرسی ندارید</h2>
+					<h2 className="text-xl font-bold mb-3">
+						هنوز آدرسی ندارید
+					</h2>
 					<p className="text-muted-foreground mb-6 text-sm">
 						برای تکمیل خرید، یک آدرس تحویل اضافه کنید
 					</p>
-					<Button variant="luxury" className="gap-2" onClick={() => setDialogOpen(true)}>
+					<Button
+						variant="luxury"
+						className="gap-2"
+						onClick={() => setDialogOpen(true)}
+					>
 						<Plus className="w-4 h-4" />
 						افزودن اولین آدرس
 					</Button>
@@ -224,11 +245,14 @@ export default function AddressesPage() {
 										</div>
 										<div className="flex-1 min-w-0">
 											<p className="font-semibold mb-1">
-												{address.province}، {address.city}
+												{address.province}،{" "}
+												{address.city}
 											</p>
 											<p className="text-sm text-muted-foreground">
-												{address.streetAddress}، پلاک {address.houseNumber}
-												{address.unit > 0 && `، واحد ${new Intl.NumberFormat("fa-IR").format(address.unit)}`}
+												{address.streetAddress}، پلاک{" "}
+												{address.houseNumber}
+												{address.unit > 0 &&
+													`، واحد ${new Intl.NumberFormat("fa-IR").format(address.unit)}`}
 											</p>
 											<p className="text-xs text-muted-foreground mt-1">
 												کد پستی: {address.postalCode}
@@ -242,5 +266,5 @@ export default function AddressesPage() {
 				</div>
 			)}
 		</div>
-	)
+	);
 }

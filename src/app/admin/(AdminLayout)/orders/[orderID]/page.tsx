@@ -15,6 +15,7 @@ import {
 	CheckCircle2,
 	XCircle,
 	PackageX,
+	Calendar,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -28,8 +29,23 @@ import {
 	TableRow,
 } from "@/components/ui/table"
 import { formatPrice } from "@/utils/formatPrice"
-import { getAdminOrderDetail, updateOrderStatus, cancelOrder, flagOrderRefund } from "@/services/orderService"
+import { getAdminOrderDetail, updateOrderStatus, cancelOrder, flagOrderRefund, getOrderInstalments } from "@/services/orderService"
 import CustomToast from "@/components/Custom/CustomToast/CustomToast"
+
+interface Instalment {
+	id: number
+	number: number
+	amount: number
+	dueDate: string
+	status: number
+	paidAt: string | null
+}
+
+const INSTALMENT_STATUS_MAP: Record<number, { label: string; color: string }> = {
+	1: { label: "در انتظار", color: "text-amber-600" },
+	2: { label: "پرداخت شده", color: "text-green-600" },
+	3: { label: "سررسید گذشته", color: "text-red-600" },
+}
 
 interface OrderDetail {
 	id: number
@@ -70,6 +86,7 @@ export default function AdminOrderDetailPage() {
 	const router = useRouter()
 	const orderID = Number(params.orderID)
 	const [order, setOrder] = useState<OrderDetail | null | undefined>(undefined)
+	const [instalments, setInstalments] = useState<Instalment[]>([])
 	const [updating, setUpdating] = useState(false)
 	const [statusNote, setStatusNote] = useState("")
 
@@ -80,6 +97,9 @@ export default function AdminOrderDetailPage() {
 
 	useEffect(() => {
 		loadOrder()
+		getOrderInstalments(orderID)
+			.then((res) => setInstalments(res?.data ?? []))
+			.catch(() => setInstalments([]))
 	}, [orderID])
 
 	const handleStatusChange = async (newStatus: number) => {
@@ -283,6 +303,64 @@ export default function AdminOrderDetailPage() {
 					</CardContent>
 				</Card>
 			</motion.div>
+
+			{/* Instalments */}
+			{instalments.length > 0 && (
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.42, type: "spring" }}
+					className="mb-6"
+				>
+					<Card>
+						<CardHeader>
+							<CardTitle className="flex items-center gap-2">
+								<Calendar className="w-5 h-5" />
+								اقساط ({new Intl.NumberFormat("fa-IR").format(instalments.length)})
+							</CardTitle>
+						</CardHeader>
+						<CardContent className="p-0">
+							<Table>
+								<TableHeader>
+									<TableRow>
+										<TableHead>شماره قسط</TableHead>
+										<TableHead>مبلغ</TableHead>
+										<TableHead>تاریخ سررسید</TableHead>
+										<TableHead>وضعیت</TableHead>
+										<TableHead>تاریخ پرداخت</TableHead>
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{instalments.map((inst) => {
+										const s = INSTALMENT_STATUS_MAP[inst.status]
+										return (
+											<TableRow key={inst.id}>
+												<TableCell className="font-medium">
+													{new Intl.NumberFormat("fa-IR").format(inst.number)}
+												</TableCell>
+												<TableCell>{formatPrice(inst.amount)} تومان</TableCell>
+												<TableCell className="text-muted-foreground">
+													{new Date(inst.dueDate).toLocaleDateString("fa-IR")}
+												</TableCell>
+												<TableCell>
+													<span className={`text-sm font-medium ${s?.color ?? ""}`}>
+														{s?.label ?? "—"}
+													</span>
+												</TableCell>
+												<TableCell className="text-muted-foreground">
+													{inst.paidAt
+														? new Date(inst.paidAt).toLocaleDateString("fa-IR")
+														: "—"}
+												</TableCell>
+											</TableRow>
+										)
+									})}
+								</TableBody>
+							</Table>
+						</CardContent>
+					</Card>
+				</motion.div>
+			)}
 
 			{/* Status Change */}
 			{nextStates.length > 0 && (

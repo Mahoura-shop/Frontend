@@ -4,7 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { RotateCcw, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type SlowMoKey = 'float' | 'shimmer' | 'fadeInUp' | 'fadeInScale' | 'pulseGlow' | 'accordion' | 'card3d' | 'navbarSlide' | 'stagger';
 
@@ -319,6 +321,11 @@ function StaggerDemo({ slowMo }: { slowMo: boolean }) {
 
 const sections = [
   { id: 'hero', label: 'Hero', emoji: '✨' },
+  { id: 'colors', label: 'Colors', emoji: '🎨' },
+  { id: 'typography', label: 'Typography', emoji: 'Aa' },
+  { id: 'buttons', label: 'Buttons', emoji: '▣' },
+  { id: 'badges', label: 'Badges', emoji: '◉' },
+  { id: 'motion', label: 'Motion Tokens', emoji: '⚡' },
   { id: 'float', label: 'Float', emoji: '↕️' },
   { id: 'shimmer', label: 'Shimmer', emoji: '✦' },
   { id: 'fadeInUp', label: 'Fade In Up', emoji: '⬆️' },
@@ -330,25 +337,35 @@ const sections = [
   { id: 'stagger', label: 'Stagger', emoji: '✶' },
 ];
 
-function Sidebar({ activeSection, isDark, onDarkModeChange }: { activeSection: string; isDark: boolean; onDarkModeChange: () => void }) {
-  return (
-    <aside className="fixed left-0 top-0 h-screen w-56 border-r border-border bg-background overflow-y-auto pt-8">
+function Sidebar({ activeSection, isDark, onDarkModeChange, open, onClose }: { activeSection: string; isDark: boolean; onDarkModeChange: () => void; open: boolean; onClose: () => void }) {
+  const content = (
+    <div className="flex flex-col h-full">
       <div className="px-6 mb-8 flex items-center justify-between">
         <h2 className="font-semibold text-lg">Design System</h2>
-        <button
-          onClick={onDarkModeChange}
-          className="p-2 hover:bg-muted rounded-lg transition-colors"
-          aria-label="Toggle dark mode"
-        >
-          {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={onDarkModeChange}
+            className="p-2 hover:bg-muted rounded-lg transition-colors"
+            aria-label="Toggle dark mode"
+          >
+            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+          <button
+            onClick={onClose}
+            className="md:hidden p-2 hover:bg-muted rounded-lg transition-colors"
+            aria-label="Close menu"
+          >
+            <span className="text-lg leading-none">×</span>
+          </button>
+        </div>
       </div>
 
-      <nav className="px-4">
+      <nav className="px-4 flex-1 overflow-y-auto">
         {sections.map((section) => (
           <a
             key={section.id}
             href={`#${section.id}`}
+            onClick={onClose}
             className={`block px-3 py-2.5 rounded-lg text-sm transition-all mb-1 ${
               activeSection === section.id
                 ? 'bg-primary-rose/20 text-primary-rose font-medium'
@@ -366,7 +383,26 @@ function Sidebar({ activeSection, isDark, onDarkModeChange }: { activeSection: s
           Each animation is interactive. Hit Replay to restart, toggle slow-mo to observe easing.
         </p>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex flex-col fixed left-0 top-0 h-screen w-56 border-r border-border bg-background overflow-y-auto pt-8">
+        {content}
+      </aside>
+
+      {/* Mobile overlay */}
+      {open && (
+        <>
+          <div className="md:hidden fixed inset-0 z-40 bg-black/50" onClick={onClose} />
+          <aside className="md:hidden fixed left-0 top-0 h-screen w-56 z-50 border-r border-border bg-background overflow-y-auto pt-8">
+            {content}
+          </aside>
+        </>
+      )}
+    </>
   );
 }
 
@@ -385,6 +421,7 @@ export default function DesignSystemPage() {
 
   const [activeSection, setActiveSection] = useState('hero');
   const [isDark, setIsDark] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -419,9 +456,26 @@ export default function DesignSystemPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Sidebar activeSection={activeSection} isDark={isDark} onDarkModeChange={() => setIsDark(!isDark)} />
+      <Sidebar
+        activeSection={activeSection}
+        isDark={isDark}
+        onDarkModeChange={() => setIsDark(!isDark)}
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-      <div className="ml-56">
+      {/* Mobile hamburger */}
+      <button
+        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-background border border-border shadow"
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Open menu"
+      >
+        <span className="block w-5 h-0.5 bg-foreground mb-1" />
+        <span className="block w-5 h-0.5 bg-foreground mb-1" />
+        <span className="block w-5 h-0.5 bg-foreground" />
+      </button>
+
+      <div className="md:ml-56">
         {/* Hero Section */}
         <div id="hero" data-section className="bg-gradient-to-b from-primary-rose/10 via-accent-gold/5 to-transparent py-20">
           <div className="mx-auto px-8" style={{ maxWidth: '960px' }}>
@@ -438,6 +492,197 @@ export default function DesignSystemPage() {
               Each demo includes replay controls and a 0.3× slow-motion toggle to observe the easing curves.
             </p>
           </motion.div>
+          </div>
+        </div>
+
+        {/* Color Tokens */}
+        <div id="colors" data-section className="py-20 border-t border-border">
+          <div className="mx-auto px-8" style={{ maxWidth: '960px' }}>
+            <h2 className="text-3xl font-bold mb-2">Color Tokens</h2>
+            <p className="text-muted-foreground mb-10">Brand palette defined as CSS custom properties in <code className="text-xs bg-muted px-1 py-0.5 rounded">globals.css</code>. Use these — never hardcode hex.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+              {[
+                { name: '--primary-rose', value: '#D4A5A5', label: 'Primary Rose', textClass: 'text-black' },
+                { name: '--secondary-plum', value: '#6B4E71', label: 'Secondary Plum', textClass: 'text-white' },
+                { name: '--accent-gold', value: '#C9A875', label: 'Accent Gold', textClass: 'text-black' },
+              ].map((token) => (
+                <div key={token.name} className="rounded-xl overflow-hidden border border-border">
+                  <div className="h-24" style={{ backgroundColor: token.value }} />
+                  <div className="p-4">
+                    <p className="font-bold text-sm mb-1">{token.label}</p>
+                    <p className="text-xs text-muted-foreground font-mono">{token.value}</p>
+                    <p className="text-xs text-muted-foreground font-mono mt-0.5">{token.name}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {[
+                { name: '--background', label: 'Background', class: 'bg-background border' },
+                { name: '--foreground', label: 'Foreground', class: 'bg-foreground' },
+                { name: '--muted', label: 'Muted', class: 'bg-muted' },
+                { name: '--border', label: 'Border', class: 'bg-border' },
+                { name: '--destructive', label: 'Destructive', class: 'bg-destructive' },
+                { name: '--card', label: 'Card', class: 'bg-card border' },
+                { name: '--secondary', label: 'Secondary', class: 'bg-secondary' },
+                { name: '--accent', label: 'Accent', class: 'bg-accent border' },
+              ].map((token) => (
+                <div key={token.name} className="rounded-lg overflow-hidden border border-border">
+                  <div className={`h-12 ${token.class}`} />
+                  <div className="p-2">
+                    <p className="text-xs font-medium">{token.label}</p>
+                    <p className="text-[10px] text-muted-foreground font-mono">{token.name}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Typography */}
+        <div id="typography" data-section className="py-20 border-t border-border">
+          <div className="mx-auto px-8" style={{ maxWidth: '960px' }}>
+            <h2 className="text-3xl font-bold mb-2">Typography</h2>
+            <p className="text-muted-foreground mb-10">Vazirmatn at all weights. Tailwind size scale — no custom sizes.</p>
+            <div className="space-y-6">
+              {[
+                { size: 'text-6xl', weight: 'font-bold', label: '6xl / Bold', sample: 'ماهورا' },
+                { size: 'text-5xl', weight: 'font-bold', label: '5xl / Bold', sample: 'محصولات لوکس' },
+                { size: 'text-4xl', weight: 'font-bold', label: '4xl / Bold', sample: 'عنوان صفحه' },
+                { size: 'text-3xl', weight: 'font-semibold', label: '3xl / Semibold', sample: 'عنوان بخش' },
+                { size: 'text-2xl', weight: 'font-semibold', label: '2xl / Semibold', sample: 'کارت محصول' },
+                { size: 'text-xl', weight: 'font-medium', label: 'xl / Medium', sample: 'توضیحات کوتاه' },
+                { size: 'text-base', weight: 'font-normal', label: 'base / Normal', sample: 'متن اصلی رابط کاربری. این یک نمونه از متن پایه است.' },
+                { size: 'text-sm', weight: 'font-normal', label: 'sm / Normal', sample: 'برچسب، راهنما، توضیح فرم' },
+                { size: 'text-xs', weight: 'font-medium', label: 'xs / Medium', sample: 'BADGE • LABEL • CAPTION' },
+              ].map((t) => (
+                <div key={t.label} className="flex items-baseline gap-6 pb-6 border-b border-border last:border-0">
+                  <span className="text-xs text-muted-foreground font-mono w-32 shrink-0">{t.label}</span>
+                  <span className={`${t.size} ${t.weight} leading-tight`}>{t.sample}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-10 p-4 bg-muted/40 rounded-lg">
+              <p className="text-xs font-mono text-muted-foreground">gradient-text utility: <span className="gradient-text font-bold">bg-gradient-to-r from-primary-rose via-accent-gold to-secondary-plum bg-clip-text text-transparent</span></p>
+            </div>
+          </div>
+        </div>
+
+        {/* Buttons */}
+        <div id="buttons" data-section className="py-20 border-t border-border">
+          <div className="mx-auto px-8" style={{ maxWidth: '960px' }}>
+            <h2 className="text-3xl font-bold mb-2">Buttons</h2>
+            <p className="text-muted-foreground mb-10">7 variants × 4 sizes. <code className="text-xs bg-muted px-1 py-0.5 rounded">luxury</code> = primary CTA. <code className="text-xs bg-muted px-1 py-0.5 rounded">default</code> = general action.</p>
+            <div className="space-y-8">
+              <div>
+                <p className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">Variants (default size)</p>
+                <div className="flex flex-wrap gap-3">
+                  {(['default', 'luxury', 'outline', 'ghost', 'secondary', 'destructive', 'link'] as const).map((v) => (
+                    <Button key={v} variant={v}>{v}</Button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">Sizes (luxury variant)</p>
+                <div className="flex flex-wrap items-center gap-3">
+                  {(['sm', 'default', 'lg'] as const).map((s) => (
+                    <Button key={s} variant="luxury" size={s}>size: {s}</Button>
+                  ))}
+                  <Button variant="luxury" size="icon">+</Button>
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">States</p>
+                <div className="flex flex-wrap gap-3">
+                  <Button variant="luxury">Normal</Button>
+                  <Button variant="luxury" disabled>Disabled</Button>
+                  <Button variant="outline" disabled>Disabled outline</Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Badges */}
+        <div id="badges" data-section className="py-20 border-t border-border">
+          <div className="mx-auto px-8" style={{ maxWidth: '960px' }}>
+            <h2 className="text-3xl font-bold mb-2">Badges</h2>
+            <p className="text-muted-foreground mb-10">6 variants. <code className="text-xs bg-muted px-1 py-0.5 rounded">new</code> pulses via <code className="text-xs bg-muted px-1 py-0.5 rounded">animate-pulse-glow</code>.</p>
+            <div className="flex flex-wrap gap-4 mb-8">
+              {([
+                { v: 'default', label: 'default' },
+                { v: 'secondary', label: 'secondary' },
+                { v: 'outline', label: 'outline' },
+                { v: 'destructive', label: 'destructive' },
+                { v: 'new', label: 'new (animated)' },
+                { v: 'available', label: 'available' },
+                { v: 'outOfStock', label: 'outOfStock' },
+              ] as const).map(({ v, label }) => (
+                <Badge key={v} variant={v}>{label}</Badge>
+              ))}
+            </div>
+            <div className="p-4 bg-muted/40 rounded-lg">
+              <p className="text-xs font-mono text-muted-foreground">{'<Badge variant="new">جدید</Badge>'}</p>
+            </div>
+            <div className="mt-8">
+              <p className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">Skeleton</p>
+              <div className="space-y-3 max-w-sm">
+                <Skeleton className="h-6 w-full" />
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-6 w-1/2" />
+                <Skeleton className="h-40 w-full rounded-xl" />
+              </div>
+              <p className="text-xs font-mono text-muted-foreground mt-3">{'<Skeleton className="h-6 w-full" />'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Motion Tokens */}
+        <div id="motion" data-section className="py-20 border-t border-border">
+          <div className="mx-auto px-8" style={{ maxWidth: '960px' }}>
+            <h2 className="text-3xl font-bold mb-2">Motion Tokens</h2>
+            <p className="text-muted-foreground mb-10">Named spring + ease presets from <code className="text-xs bg-muted px-1 py-0.5 rounded">lib/motion.ts</code>. Import and use — never write raw spring configs.</p>
+            <div className="space-y-4 mb-10">
+              {[
+                { name: 'spring.default', config: '{ type: "spring", stiffness: 300, damping: 30 }', use: 'Standard UI — sidebar, cart items, page elements' },
+                { name: 'spring.snappy', config: '{ type: "spring", stiffness: 400, damping: 35 }', use: 'Pill indicators, dot markers' },
+                { name: 'spring.responsive', config: '{ type: "spring", stiffness: 400, damping: 25 }', use: 'Hover scale on nav items' },
+                { name: 'spring.gentle', config: '{ type: "spring", stiffness: 200, damping: 25 }', use: 'Image entrance, modals' },
+                { name: 'spring.slow', config: '{ type: "spring", stiffness: 50, damping: 20 }', use: 'Hero animations' },
+                { name: 'spring.magnetic', config: '{ type: "spring", stiffness: 150, damping: 15 }', use: 'Magnetic button follow' },
+                { name: 'spring.bottomNav', config: '{ type: "spring", stiffness: 260, damping: 28 }', use: 'Bottom nav entrance' },
+              ].map((token) => (
+                <div key={token.name} className="flex gap-4 p-4 rounded-lg border border-border bg-card">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-mono text-sm font-bold text-primary-rose mb-1">{token.name}</p>
+                    <p className="font-mono text-xs text-muted-foreground mb-1">{token.config}</p>
+                    <p className="text-xs text-muted-foreground">{token.use}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="space-y-4">
+              {[
+                { name: 'ease.standard', config: '{ duration: 0.3, ease: "easeInOut" }', use: 'Page transitions' },
+                { name: 'ease.fast', config: '{ duration: 0.2, ease: "easeOut" }', use: 'Hover effects' },
+                { name: 'ease.enter', config: '{ duration: 0.6, ease: "easeOut" }', use: 'Scroll-triggered entrance' },
+                { name: 'ease.slow', config: '{ duration: 0.9, ease: "easeOut" }', use: 'Hero dramatic reveals' },
+              ].map((token) => (
+                <div key={token.name} className="flex gap-4 p-4 rounded-lg border border-border bg-card">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-mono text-sm font-bold text-accent-gold mb-1">{token.name}</p>
+                    <p className="font-mono text-xs text-muted-foreground mb-1">{token.config}</p>
+                    <p className="text-xs text-muted-foreground">{token.use}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-8 p-4 bg-muted/40 rounded-lg font-mono text-sm">
+              <p className="text-muted-foreground text-xs mb-2">Usage:</p>
+              <p>{"import { spring, ease } from '@/lib/motion';"}</p>
+              <p className="mt-2 text-muted-foreground">{"<motion.div transition={spring.default} />"}</p>
+              <p className="text-muted-foreground">{"<motion.div transition={{ ...spring.gentle, delay: 0.2 }} />"}</p>
+            </div>
           </div>
         </div>
 

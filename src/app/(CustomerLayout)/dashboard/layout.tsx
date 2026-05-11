@@ -18,6 +18,7 @@ import {
 	MessageSquare,
 	Star,
 	Home,
+	RotateCcw,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -26,6 +27,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { getMyProfile } from "@/services/userService";
+import AuthGuard from "@/components/AuthGuard";
 
 interface Profile {
 	firstName: string
@@ -94,6 +96,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 		// 	badge: MOCK_USER.loyaltyPoints,
 		// },
 		{
+			title: "مرجوعی‌ها",
+			href: "/dashboard/returns",
+			icon: RotateCcw,
+			badge: null,
+		},
+		{
 			title: "نظرات من",
 			href: "/dashboard/reviews",
 			icon: MessageSquare,
@@ -128,6 +136,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 	};
 
 	return (
+		<AuthGuard>
 		<div className="min-h-screen bg-background">
 
 			<div className="container mx-auto px-4 pt-24 pb-8">
@@ -213,7 +222,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 																: "در حال بارگذاری..."}
 														</h3>
 														<p className="text-sm text-muted-foreground truncate">
-															{profile?.email || profile?.phone || "—"}
+															{profile?.email || ""}
 														</p>
 													</div>
 													<Separator />
@@ -390,5 +399,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 				</div>
 			</div>
 		</div>
+		</AuthGuard>
 	);
 }

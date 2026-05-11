@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { spring } from "@/lib/motion";
 import {
 	Heart,
 	ShoppingBag,
@@ -22,6 +23,7 @@ import {
 	Copy,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -37,15 +39,17 @@ export default function ProductDetailPage() {
 	const router = useRouter();
 	const [product, setProduct] = useState<Product | null>(null);
 	const [loading, setLoading] = useState<boolean>(true);
+	const [selectedImage, setSelectedImage] = useState(0);
 	const [adding, setAdding] = useState(false);
 	const [added, setAdded] = useState(false);
+	const [showStickyBar, setShowStickyBar] = useState(false);
+	const addToCartRef = useRef<HTMLDivElement>(null);
 	const { formatPrice } = useSettingsStore();
 	const { addItem } = useCartStore();
 	const { products } = useProductStore();
-	// const product = products.find((p) => p.slug === params.slug);
 	const getProduct = () => {
 		setLoading(true);
-		getData({ endPoint: `/v1/product/${params.slug}` })
+		getData({ endPoint: `/v1/products/slug/${params.slug}` })
 			.then((data) => {
 				setProduct(data?.data);
 			})
@@ -67,6 +71,17 @@ export default function ProductDetailPage() {
 		getProduct();
 	}, []);
 
+	useEffect(() => {
+		const el = addToCartRef.current;
+		if (!el) return;
+		const observer = new IntersectionObserver(
+			([entry]) => setShowStickyBar(!entry.isIntersecting),
+			{ threshold: 0 }
+		);
+		observer.observe(el);
+		return () => observer.disconnect();
+	}, [product]);
+
 	if (!product) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
@@ -81,13 +96,12 @@ export default function ProductDetailPage() {
 		);
 	}
 
-	const images = product.productPic || [product.productPic];
-
 	const relatedProducts = products
 		.filter((p) => p.category === product.category && p.id !== product.id)
 		.slice(0, 4);
 
 	return (
+		<>
 		<div className="min-h-screen bg-neutral-warm dark:bg-gray-950 pt-2">
 			{/* Breadcrumb */}
 			<div className="bg-white dark:bg-gray-900 border-b">
@@ -110,35 +124,48 @@ export default function ProductDetailPage() {
 			</div>
 
 			<div className="container mx-auto px-4 py-12">
-				<div className="grid lg:grid-cols-2 gap-12 mb-16">
+				<div className="grid lg:grid-cols-2 gap-6 lg:gap-12 mb-16">
 					{/* Product Images */}
 					<motion.div
 						initial={{ opacity: 0, x: -50 }}
 						animate={{ opacity: 1, x: 0 }}
 					>
 						{/* Main Image */}
-						<div className="relative mb-4 rounded-2xl overflow-hidden shadow-2xl group min-h-[70vh] flex place-items-center place-content-center">
+						<div className="relative mb-4 rounded-2xl overflow-hidden shadow-2xl group h-64 sm:h-80 lg:min-h-[70vh]">
 							<AnimatePresence mode="wait">
-								{product?.productPic ? (
-									<motion.img
-										key={product.productPic}
-										src={product.productPic}
-										alt={product.name}
-										className="w-full h-[500px] object-cover"
-										initial={{ opacity: 0 }}
-										animate={{ opacity: 1 }}
-										exit={{ opacity: 0 }}
-										transition={{ duration: 0.3 }}
-									/>
-								) : (
-									<ImageIcon className="w-16 h-16 text-muted-foreground" />
-								)}
+								{(() => {
+									const allImages = product.images?.length ? product.images : product.productPic ? [product.productPic] : [];
+									const src = allImages[selectedImage] ?? allImages[0];
+									return src ? (
+										<motion.div
+											key={src}
+											className="absolute inset-0"
+											initial={{ opacity: 0 }}
+											animate={{ opacity: 1 }}
+											exit={{ opacity: 0 }}
+											transition={{ duration: 0.3 }}
+										>
+											<Image
+												src={src}
+												alt={product.name}
+												fill
+												priority
+												sizes="(max-width: 1024px) 100vw, 50vw"
+												className="object-cover"
+											/>
+										</motion.div>
+									) : (
+										<div className="absolute inset-0 flex items-center justify-center">
+											<ImageIcon className="w-16 h-16 text-muted-foreground" />
+										</div>
+									);
+								})()}
 							</AnimatePresence>
 
 							{product.isNew && (
 								<Badge
 									variant="new"
-									className="absolute top-4 right-4"
+									className="absolute top-4 right-4 z-10"
 								>
 									<Star className="w-3 h-3 ml-1" />
 									جدید
@@ -146,7 +173,7 @@ export default function ProductDetailPage() {
 							)}
 
 							{product.quantity == 0 && (
-								<div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+								<div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
 									<div className="text-center text-white">
 										<h3 className="text-3xl font-bold mb-2">
 											ناموجود
@@ -159,30 +186,36 @@ export default function ProductDetailPage() {
 							)}
 						</div>
 
-						{/* Thumbnail Images */}
-						{/* {images.length > 1 && (
-							<div className="grid grid-cols-4 gap-4">
-								{images.map((img, i) => (
-									<motion.button
-										key={i}
-										onClick={() => setSelectedImage(i)}
-										className={`relative rounded-lg overflow-hidden border-2 transition-all ${
-											selectedImage === i
-												? "border-primary-rose shadow-lg scale-105"
-												: "border-transparent hover:border-gray-300"
-										}`}
-										whileHover={{ scale: 1.05 }}
-										whileTap={{ scale: 0.95 }}
-									>
-										<img
-											src={img}
-											alt={`${product.name} ${i + 1}`}
-											className="w-full h-24 object-cover"
-										/>
-									</motion.button>
-								))}
-							</div>
-						)} */}
+						{/* Thumbnail strip */}
+						{(() => {
+							const allImages = product.images?.length ? product.images : product.productPic ? [product.productPic] : [];
+							if (allImages.length <= 1) return null;
+							return (
+								<div className="grid grid-cols-4 gap-3 mt-4">
+									{allImages.map((img, i) => (
+										<motion.button
+											key={i}
+											onClick={() => setSelectedImage(i)}
+											className={`relative rounded-lg overflow-hidden border-2 transition-colors h-20 ${
+												selectedImage === i
+													? "border-primary-rose shadow-md"
+													: "border-transparent hover:border-muted-foreground/40"
+											}`}
+											whileHover={{ scale: 1.04 }}
+											whileTap={{ scale: 0.96 }}
+										>
+											<Image
+												src={img}
+												alt={`${product.name} ${i + 1}`}
+												fill
+												sizes="25vw"
+												className="object-cover"
+											/>
+										</motion.button>
+									))}
+								</div>
+							);
+						})()}
 					</motion.div>
 
 					{/* Product Info */}
@@ -236,27 +269,6 @@ export default function ProductDetailPage() {
 							</div>
 						</div>
 
-						{/* Rating */}
-						{/* {product.rating && (
-							<div className="flex items-center gap-4">
-								<div className="flex">
-									{[...Array(5)].map((_, i) => (
-										<Star
-											key={i}
-											className={`w-5 h-5 ${
-												i < Math.floor(product.rating!)
-													? "fill-amber-500 text-amber-500"
-													: "text-gray-300"
-											}`}
-										/>
-									))}
-								</div>
-								<span className="text-muted-foreground">
-									{product.rating} ({product.reviews} نظر)
-								</span>
-							</div>
-						)} */}
-
 						{/* Price */}
 						<div className="py-6 border-b">
 							<div className="flex items-baseline gap-3">
@@ -266,13 +278,21 @@ export default function ProductDetailPage() {
 									animate={{ scale: 1 }}
 									transition={{ type: "spring" }}
 								>
-									{formatPrice(Number(product.price))}
+									{formatPrice(Number(product.resolvedPrice ?? product.irrPrice ?? product.price))}
 								</motion.span>
 								<span className="text-2xl text-muted-foreground">
-									ریال
+									{product.currency?.name ?? "ریال"}
 								</span>
 							</div>
 						</div>
+
+						{/* Min order notice */}
+						{product.minOrder > 1 && (
+							<div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 text-sm">
+								<Package className="w-4 h-4 shrink-0" />
+								<span>حداقل سفارش: {new Intl.NumberFormat("fa-IR").format(product.minOrder)} عدد</span>
+							</div>
+						)}
 
 						{/* Description */}
 						{product?.description && (
@@ -285,81 +305,9 @@ export default function ProductDetailPage() {
 								</p>
 							</div>
 						)}
-						{/* Sizes */}
-						{/* {product.sizes && product.sizes.length > 0 && (
-							<div>
-								<h3 className="text-lg font-bold mb-3">سایز</h3>
-								<div className="flex gap-3">
-									{product.sizes.map((size) => (
-										<Button
-											key={size}
-											variant={
-												selectedSize === size
-													? "default"
-													: "outline"
-											}
-											onClick={() =>
-												setSelectedSize(size)
-											}
-											className="min-w-[100px]"
-										>
-											{size}
-										</Button>
-									))}
-								</div>
-							</div>
-						)} */}
-
-						{/* Colors */}
-						{/* {product.colors && product.colors.length > 0 && (
-              <div>
-                <h3 className="text-lg font-bold mb-3">رنگ: {selectedColor}</h3>
-                <div className="flex gap-3 flex-wrap">
-                  {product.colors.map((color) => (
-                    <Button
-                      key={color}
-                      variant={selectedColor === color ? 'default' : 'outline'}
-                      onClick={() => setSelectedColor(color)}
-                      className="min-w-[100px]"
-                    >
-                      {color}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )} */}
-
-						{/* Quantity */}
-						{/* <div>
-              <h3 className="text-lg font-bold mb-3">تعداد</h3>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center border rounded-lg">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  >
-                    <Minus className="w-4 h-4" />
-                  </Button>
-                  <span className="w-12 text-center font-bold">{quantity}</span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setQuantity(Math.min(product.stock || 99, quantity + 1))}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-                {product.stock && (
-                  <span className="text-sm text-muted-foreground">
-                    {product.stock} عدد موجود
-                  </span>
-                )}
-              </div>
-            </div> */}
 
 						{/* Actions */}
-						<div className="flex gap-4">
+						<div ref={addToCartRef} className="flex gap-4">
 							<Button
 								variant="luxury"
 								size="lg"
@@ -407,172 +355,53 @@ export default function ProductDetailPage() {
 								</AnimatePresence>
 							</Button>
 						</div>
-
-						{/* Features */}
-						{/* <div className="grid grid-cols-3 gap-4 pt-6">
-							<div className="text-center p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
-								<Truck className="w-8 h-8 mx-auto mb-2 text-primary-rose" />
-								<p className="text-sm font-medium">
-									ارسال رایگان
-								</p>
-							</div>
-							<div className="text-center p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
-								<Shield className="w-8 h-8 mx-auto mb-2 text-primary-rose" />
-								<p className="text-sm font-medium">
-									ضمانت اصالت
-								</p>
-							</div>
-							<div className="text-center p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
-								<Sparkles className="w-8 h-8 mx-auto mb-2 text-primary-rose" />
-								<p className="text-sm font-medium">
-									کیفیت برتر
-								</p>
-							</div>
-						</div> */}
 					</motion.div>
 				</div>
-
-				{/* Product Details Tabs */}
-				{/* <motion.div
-					initial={{ opacity: 0, y: 30 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true }}
-					className="mb-16"
-				>
-					<Card>
-						<CardContent className="p-8">
-							<div className="grid md:grid-cols-2 gap-8">
-								{product.benefits && (
-									<div>
-										<h3 className="text-2xl font-bold mb-4 flex items-center gap-2">
-											<Sparkles className="w-6 h-6 text-primary-rose" />
-											مزایا
-										</h3>
-										<ul className="space-y-3">
-											{product.benefits.map(
-												(benefit, i) => (
-													<motion.li
-														key={i}
-														initial={{
-															opacity: 0,
-															x: -20,
-														}}
-														whileInView={{
-															opacity: 1,
-															x: 0,
-														}}
-														transition={{
-															delay: i * 0.1,
-														}}
-														className="flex items-center gap-3"
-													>
-														<Check className="w-5 h-5 text-emerald-500" />
-														<span>{benefit}</span>
-													</motion.li>
-												),
-											)}
-										</ul>
-									</div>
-								)}
-
-								{product.ingredients && (
-									<div>
-										<h3 className="text-2xl font-bold mb-4">
-											ترکیبات
-										</h3>
-										<ul className="space-y-3">
-											{product.ingredients.map(
-												(ingredient, i) => (
-													<motion.li
-														key={i}
-														initial={{
-															opacity: 0,
-															x: -20,
-														}}
-														whileInView={{
-															opacity: 1,
-															x: 0,
-														}}
-														transition={{
-															delay: i * 0.1,
-														}}
-														className="flex items-center gap-3"
-													>
-														<div className="w-2 h-2 rounded-full bg-accent-gold" />
-														<span>
-															{ingredient}
-														</span>
-													</motion.li>
-												),
-											)}
-										</ul>
-									</div>
-								)}
-							</div>
-
-							{product.howToUse && (
-								<div className="mt-8 pt-8 border-t">
-									<h3 className="text-2xl font-bold mb-4">
-										نحوه استفاده
-									</h3>
-									<p className="text-muted-foreground leading-relaxed">
-										{product.howToUse}
-									</p>
-								</div>
-							)}
-						</CardContent>
-					</Card>
-				</motion.div> */}
-
-				{/* Related Products */}
-				{/* {relatedProducts.length > 0 && (
-					<div>
-						<h2 className="text-3xl font-bold mb-8">
-							محصولات مرتبط
-						</h2>
-						<div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-							{relatedProducts.map((relatedProduct, i) => (
-								<motion.div
-									key={relatedProduct.id}
-									initial={{ opacity: 0, y: 20 }}
-									whileInView={{ opacity: 1, y: 0 }}
-									viewport={{ once: true }}
-									transition={{ delay: i * 0.1 }}
-								>
-									<Link
-										href={`/products/${relatedProduct.id}`}
-									>
-										<Card className="overflow-hidden hover:shadow-xl transition-all cursor-pointer group">
-											<div className="relative h-64 overflow-hidden">
-												<motion.img
-													src={relatedProduct.image}
-													alt={relatedProduct.name}
-													className="w-full h-full object-cover"
-													whileHover={{ scale: 1.1 }}
-												/>
-											</div>
-											<CardContent className="p-4">
-												<p className="text-sm text-muted-foreground">
-													{relatedProduct.brand}
-												</p>
-												<h3 className="font-bold mb-2">
-													{relatedProduct.name}
-												</h3>
-												<p className="text-lg font-bold text-primary-rose">
-													{
-														relatedProduct.priceFormatted
-													}{" "}
-													تومان
-												</p>
-											</CardContent>
-										</Card>
-									</Link>
-								</motion.div>
-							))}
-						</div>
-					</div>
-				)} */}
 			</div>
 		</div>
+
+		{/* Sticky add-to-cart bar — mobile only */}
+		<AnimatePresence>
+			{showStickyBar && product && (
+				<motion.div
+					initial={{ y: 100, opacity: 0 }}
+					animate={{ y: 0, opacity: 1 }}
+					exit={{ y: 100, opacity: 0 }}
+					transition={spring.default}
+					className="fixed bottom-0 inset-x-0 z-40 md:hidden glass-panel px-4 py-3 flex items-center gap-3 border-t-0"
+					style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)" }}
+				>
+					<div className="flex-1 min-w-0">
+						<p className="text-xs text-muted-foreground truncate">{product.name}</p>
+						<p className="text-base font-bold text-primary-rose">
+							{formatPrice(Number(product.resolvedPrice ?? product.irrPrice ?? product.price))} {product.currency?.name ?? "ریال"}
+						</p>
+					</div>
+					<Button
+						variant="luxury"
+						size="sm"
+						className="shrink-0 gap-2"
+						disabled={adding || product.quantity === 0}
+						onClick={handleAddToCart}
+					>
+						<AnimatePresence mode="wait">
+							{added ? (
+								<motion.span key="added" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="flex items-center gap-1">
+									<Check className="w-4 h-4" /> اضافه شد
+								</motion.span>
+							) : adding ? (
+								<motion.div key="spin" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }} className="w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+							) : (
+								<motion.span key="add" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="flex items-center gap-1">
+									<ShoppingBag className="w-4 h-4" />
+									{product.quantity === 0 ? "ناموجود" : "افزودن"}
+								</motion.span>
+							)}
+						</AnimatePresence>
+					</Button>
+				</motion.div>
+			)}
+		</AnimatePresence>
+		</>
 	);
 }

@@ -33,7 +33,7 @@ export default function AdminLogin() {
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState("");
-	const { setAccessToken } = useUserStore();
+	const { setAccessToken, setIsAdmin } = useUserStore();
 	const router = useRouter();
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -46,8 +46,8 @@ export default function AdminLogin() {
 		})
 			.then((data) => {
 				CustomToast(data?.message, "success");
-				console.log("setting", data?.data?.accessToken);
 				setAccessToken(data?.data?.accessToken);
+				setIsAdmin(true);
 				router.push("/admin/dashboard");
 			})
 			.finally(() => setIsLoading(false));

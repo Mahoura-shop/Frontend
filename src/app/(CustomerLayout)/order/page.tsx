@@ -23,6 +23,7 @@ import { formatPrice } from "@/utils/formatPrice"
 import { useCartStore } from "@/store/useCartStore"
 import { createOrder, payByWallet, initiatePayment } from "@/services/orderService"
 import { getAddresses } from "@/services/addressService"
+import useUserStore from "@/store/userStore/userStore"
 
 const PAYMENT_METHOD_ONLINE = 3
 const PAYMENT_METHOD_WALLET = 4
@@ -40,6 +41,11 @@ interface Address {
 export default function OrderPage() {
 	const router = useRouter()
 	const { items, loading, fetchCart } = useCartStore()
+	const { accessToken } = useUserStore()
+
+	useEffect(() => {
+		if (!accessToken) router.replace('/signin')
+	}, [accessToken])
 	const [paymentMethod, setPaymentMethod] = useState<number>(PAYMENT_METHOD_ONLINE)
 	const [submitting, setSubmitting] = useState(false)
 	const [done, setDone] = useState(false)

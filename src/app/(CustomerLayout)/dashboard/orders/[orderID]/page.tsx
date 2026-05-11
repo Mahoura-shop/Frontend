@@ -13,6 +13,7 @@ import {
 	MapPin,
 	Wallet,
 	Calendar,
+	RotateCcw,
 } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
@@ -22,6 +23,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { formatPrice } from "@/utils/formatPrice"
 import { getOrderDetail, payByWallet, initiatePayment, getOrderInstalments } from "@/services/orderService"
+import { requestReturn } from "@/services/returnService"
 import CustomToast from "@/components/Custom/CustomToast/CustomToast"
 
 interface StatusHistory {
@@ -99,6 +101,10 @@ export default function OrderDetailPage() {
 	const [instalments, setInstalments] = useState<Instalment[]>([])
 	const [loading, setLoading] = useState(true)
 	const [paying, setPaying] = useState(false)
+	const [returningItemID, setReturningItemID] = useState<number | null>(null)
+	const [returnReason, setReturnReason] = useState("")
+	const [returnQty, setReturnQty] = useState(1)
+	const [submittingReturn, setSubmittingReturn] = useState(false)
 
 	useEffect(() => {
 		const fetch = async () => {
@@ -142,6 +148,25 @@ export default function OrderDetailPage() {
 		} catch {
 		} finally {
 			setPaying(false)
+		}
+	}
+
+	const handleRequestReturn = async (itemID: number) => {
+		if (!returnReason.trim()) {
+			CustomToast("لطفا دلیل مرجوعی را وارد کنید", "error")
+			return
+		}
+		setSubmittingReturn(true)
+		try {
+			await requestReturn({ orderItemID: itemID, reason: returnReason, quantity: returnQty })
+			CustomToast("درخواست مرجوعی ثبت شد", "success")
+			setReturningItemID(null)
+			setReturnReason("")
+			setReturnQty(1)
+		} catch {
+			CustomToast("خطا در ثبت درخواست مرجوعی", "error")
+		} finally {
+			setSubmittingReturn(false)
 		}
 	}
 
@@ -283,9 +308,10 @@ export default function OrderDetailPage() {
 								محصولات ({new Intl.NumberFormat("fa-IR").format(order.items?.length ?? 0)})
 							</h2>
 						</div>
-						<CardContent className="p-0 divide-y">
+						<CardContent className="p-0">
 							{order.items?.map((item) => (
-								<div key={item.id} className="flex items-center gap-4 p-4">
+								<div key={item.id} className="border-b last:border-b-0">
+								<div className="flex items-center gap-4 p-4">
 									<div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20 flex items-center justify-center">
 										{item.product?.productPic ? (
 											<img src={item.product.productPic} alt={item.product.name} className="w-full h-full object-cover" />
@@ -303,10 +329,65 @@ export default function OrderDetailPage() {
 											{formatPrice(item.priceSnapshot)} تومان
 										</p>
 									</div>
-									<p className="font-bold gradient-text">
-										{formatPrice(item.priceSnapshot * item.count)}
-									</p>
+									<div className="text-left">
+										<p className="font-bold gradient-text">
+											{formatPrice(item.priceSnapshot * item.count)}
+										</p>
+										{order.status === 4 && (
+											<Button
+												variant="ghost"
+												size="sm"
+												className="mt-2 text-xs gap-1 text-muted-foreground hover:text-primary-rose"
+												onClick={() => {
+													setReturningItemID(returningItemID === item.id ? null : item.id)
+													setReturnReason("")
+													setReturnQty(1)
+												}}
+											>
+												<RotateCcw className="w-3 h-3" />
+												مرجوعی
+											</Button>
+										)}
+									</div>
 								</div>
+								</div>
+								{returningItemID === item.id && (
+									<div className="px-4 pb-4 space-y-2">
+										<textarea
+											className="w-full p-2 border rounded-lg text-sm bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary-rose/50"
+											rows={2}
+											placeholder="دلیل مرجوعی را بنویسید..."
+											value={returnReason}
+											onChange={(e) => setReturnReason(e.target.value)}
+										/>
+										<div className="flex items-center gap-3">
+											<input
+												type="number"
+												min={1}
+												max={item.count}
+												value={returnQty}
+												onChange={(e) => setReturnQty(Number(e.target.value))}
+												className="w-20 p-2 border rounded-lg text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary-rose/50"
+											/>
+											<span className="text-sm text-muted-foreground">عدد</span>
+											<Button
+												size="sm"
+												variant="luxury"
+												disabled={submittingReturn}
+												onClick={() => handleRequestReturn(item.id)}
+											>
+												{submittingReturn ? "در حال ثبت..." : "ثبت درخواست"}
+											</Button>
+											<Button
+												size="sm"
+												variant="ghost"
+												onClick={() => setReturningItemID(null)}
+											>
+												انصراف
+											</Button>
+										</div>
+									</div>
+								)}
 							))}
 						</CardContent>
 					</Card>

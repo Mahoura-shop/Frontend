@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { spring } from "@/lib/motion";
 import {
 	Package,
 	Globe,
@@ -60,7 +61,7 @@ export default function CategoryInfoDialog({
 		visible: {
 			opacity: 1,
 			y: 0,
-			transition: { type: "spring", stiffness: 300, damping: 25 },
+			transition: spring.default,
 		},
 	};
 
@@ -70,7 +71,7 @@ export default function CategoryInfoDialog({
 			opacity: 1,
 			scale: 1,
 			rotate: 0,
-			transition: { type: "spring", stiffness: 300, damping: 20 },
+			transition: spring.gentle,
 		},
 	};
 

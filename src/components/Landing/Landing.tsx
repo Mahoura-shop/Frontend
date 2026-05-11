@@ -3,6 +3,7 @@ import styles from "./Landing.module.css";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ShoppingBag, ArrowLeft, Stars } from "lucide-react";
+import { formatPrice } from "@/utils/formatPrice";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -65,11 +66,11 @@ export default function LandingPage() {
 					</div>
 
 					{/* Floating orbs */}
-					<div className="absolute -top-[100px] -right-[100px] w-[500px] h-[500px] rounded-full bg-gradient-to-br from-[#D4A5A5]/12 to-transparent blur-[80px] pointer-events-none opacity-0 group-[] animate-pulse" />
-					<div className="absolute bottom-0 left-[10%] w-[400px] h-[400px] rounded-full bg-gradient-to-br from-[#6B4E71]/15 to-transparent blur-[80px] pointer-events-none opacity-0 animate-pulse" />
+					<div className="absolute -top-[100px] -right-[100px] w-[500px] h-[500px] rounded-full bg-gradient-to-br from-primary-rose/12 to-transparent blur-[80px] pointer-events-none opacity-0 group-[] animate-pulse" />
+					<div className="absolute bottom-0 left-[10%] w-[400px] h-[400px] rounded-full bg-gradient-to-br from-secondary-plum/15 to-transparent blur-[80px] pointer-events-none opacity-0 animate-pulse" />
 
 					<div className="container mx-auto px-6 relative z-10 max-w-[1300px]">
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-end">
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-20 items-end">
 							{/* Right Column */}
 							<motion.div
 								initial={{ opacity: 0 }}
@@ -83,8 +84,8 @@ export default function LandingPage() {
 									transition={{ delay: 0.2, duration: 0.7 }}
 									className="flex items-center gap-3 mb-7"
 								>
-									<div className="w-8 h-px bg-[#C9A875]" />
-									<p className="text-xs font-bold tracking-[0.28em] text-[#C9A875] no-select">
+									<div className="w-8 h-px bg-accent-gold" />
+									<p className="text-xs font-bold tracking-[0.28em] text-accent-gold no-select">
 										محصولات لوکس آرایشی
 									</p>
 								</motion.div>
@@ -102,7 +103,7 @@ export default function LandingPage() {
 									style={{
 										fontSize: "clamp(6rem, 11vw, 10.5rem)",
 										background:
-											"linear-gradient(135deg, #D4A5A5 0%, #C9A875 50%, rgba(107,78,113,.9) 100%)",
+											"linear-gradient(135deg, var(--primary-rose) 0%, var(--accent-gold) 50%, rgba(107,78,113,.9) 100%)",
 										WebkitBackgroundClip: "text",
 										WebkitTextFillColor: "transparent",
 										backgroundClip: "text",
@@ -249,7 +250,7 @@ export default function LandingPage() {
 								className="text-5xl font-bold mb-1 leading-none"
 								style={{
 									background:
-										"linear-gradient(90deg, #D4A5A5, #C9A875)",
+										"linear-gradient(90deg, var(--primary-rose), var(--accent-gold))",
 									WebkitBackgroundClip: "text",
 									WebkitTextFillColor: "transparent",
 									backgroundClip: "text",
@@ -354,7 +355,7 @@ export default function LandingPage() {
 										borderLeftColor: "rgba(13,11,10,.08)",
 									}}
 								>
-									<div className="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[rgba(212,165,165,.25)] to-[rgba(201,168,117,.15)] flex items-center justify-center text-[#6B4E71]">
+									<div className="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[rgba(212,165,165,.25)] to-[rgba(201,168,117,.15)] flex items-center justify-center text-secondary-plum">
 										<Icon className="w-6 h-6" />
 									</div>
 									<h3 className="font-bold text-[15px] text-[#0D0B0A]">
@@ -372,7 +373,7 @@ export default function LandingPage() {
 			<TrustBar />
 
 			{/* Categories Masonry */}
-			<section className="bg-landing-background py-24 px-14">
+			<section className="bg-landing-background py-24 px-4 md:px-14">
 				<div className="max-w-[1300px] mx-auto">
 					<motion.div
 						initial={{ opacity: 0, y: 30 }}
@@ -381,8 +382,8 @@ export default function LandingPage() {
 						className="mb-16"
 					>
 						<div className="flex items-center gap-2.5 mb-4">
-							<div className="w-6 h-px bg-[#C9A875]" />
-							<p className="text-xs font-bold tracking-[0.22em] text-[#C9A875] uppercase">
+							<div className="w-6 h-px bg-accent-gold" />
+							<p className="text-xs font-bold tracking-[0.22em] text-accent-gold uppercase">
 								دسته‌بندی‌ها
 							</p>
 						</div>
@@ -390,7 +391,7 @@ export default function LandingPage() {
 							className="text-5xl font-bold leading-tight"
 							style={{
 								background:
-									"linear-gradient(90deg, #D4A5A5 0%, #C9A875 50%, rgba(107,78,113,.9) 100%)",
+									"linear-gradient(90deg, var(--primary-rose) 0%, var(--accent-gold) 50%, rgba(107,78,113,.9) 100%)",
 								WebkitBackgroundClip: "text",
 								WebkitTextFillColor: "transparent",
 								backgroundClip: "text",
@@ -400,7 +401,7 @@ export default function LandingPage() {
 						</h2>
 					</motion.div>
 
-					<div className="grid grid-cols-[1.4fr_1fr_1fr] grid-rows-[280px_280px] gap-3.5">
+					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[1.4fr_1fr_1fr] auto-rows-[240px] md:grid-rows-[280px_280px] gap-3.5">
 						{categories?.slice(0, 5).map((cat, i) => (
 							<motion.div
 								key={cat.id}
@@ -413,7 +414,7 @@ export default function LandingPage() {
 									delay: i * 0.1,
 								}}
 								className={`relative rounded-[20px] overflow-hidden cursor-pointer group bg-[#E8E6E3] ${
-									i === 0 ? "row-span-2" : ""
+									i === 0 ? "md:row-span-2" : ""
 								}`}
 							>
 								<div className="w-full h-full transition-transform duration-700 group-hover:scale-[1.06] flex items-center justify-center bg-[#E8E6E3]">
@@ -424,7 +425,7 @@ export default function LandingPage() {
 											className="w-full h-full object-cover"
 										/>
 									) : (
-										<ArrowLeft className="w-16 h-16 text-[#D4A5A5]/40" />
+										<ArrowLeft className="w-16 h-16 text-primary-rose/40" />
 									)}
 								</div>
 
@@ -436,10 +437,10 @@ export default function LandingPage() {
 									}}
 								/>
 
-								<div className="absolute inset-0 border border-white/0 group-hover:border-[#D4A5A5]/30 transition-colors duration-300 rounded-[20px]" />
+								<div className="absolute inset-0 border border-white/0 group-hover:border-primary-rose/30 transition-colors duration-300 rounded-[20px]" />
 
 								<div className="absolute bottom-0 right-0 left-0 p-6 text-white">
-									<p className="text-xs font-bold tracking-[0.18em] text-[#C9A875] mb-1.5 uppercase">
+									<p className="text-xs font-bold tracking-[0.18em] text-accent-gold mb-1.5 uppercase">
 										دسته‌بندی
 									</p>
 									<h3 className="text-2xl font-bold mb-1 leading-tight">
@@ -459,8 +460,7 @@ export default function LandingPage() {
 			</section>
 
 			{/* Products Grid */}
-			{/* <section className="bg-[#0D0B0A] py-24 px-14"> */}
-			<section className="bg-landing-background py-24 px-14">
+			<section className="bg-landing-background py-24 px-4 md:px-14">
 				<div className="max-w-[1300px] mx-auto">
 					<motion.div
 						initial={{ opacity: 0, y: 30 }}
@@ -469,8 +469,8 @@ export default function LandingPage() {
 						className="mb-16"
 					>
 						<div className="flex items-center gap-2.5 mb-4">
-							<div className="w-6 h-px bg-[#C9A875]" />
-							<p className="text-xs font-bold tracking-[0.22em] text-[#C9A875] uppercase">
+							<div className="w-6 h-px bg-accent-gold" />
+							<p className="text-xs font-bold tracking-[0.22em] text-accent-gold uppercase">
 								بهترین‌ها
 							</p>
 						</div>
@@ -478,7 +478,7 @@ export default function LandingPage() {
 							className="text-5xl font-bold leading-tight text-white"
 							style={{
 								background:
-									"linear-gradient(90deg, #D4A5A5 0%, #C9A875 50%, rgba(107,78,113,.9) 100%)",
+									"linear-gradient(90deg, var(--primary-rose) 0%, var(--accent-gold) 50%, rgba(107,78,113,.9) 100%)",
 								WebkitBackgroundClip: "text",
 								WebkitTextFillColor: "transparent",
 								backgroundClip: "text",
@@ -488,7 +488,7 @@ export default function LandingPage() {
 						</h2>
 					</motion.div>
 
-					<div className="grid grid-cols-3 gap-5">
+					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
 						{products?.slice(0, 6).map((prod, i) => (
 							<motion.div
 								key={prod.id}
@@ -535,7 +535,7 @@ export default function LandingPage() {
 									>
 										<MagneticButton
 											href={`/products/${prod.id}`}
-											className="w-full bg-[#C9A875] text-[#0D0B0A] font-bold px-4 py-3 rounded-[12px] text-sm text-center inline-flex items-center justify-center gap-2 hover:shadow-[0_6px_20px_rgba(201,168,117,.4)] transition-all"
+											className="w-full bg-accent-gold text-[#0D0B0A] font-bold px-4 py-3 rounded-[12px] text-sm text-center inline-flex items-center justify-center gap-2 hover:shadow-[0_6px_20px_rgba(201,168,117,.4)] transition-all"
 										>
 											افزودن به سبد
 										</MagneticButton>
@@ -552,12 +552,12 @@ export default function LandingPage() {
 									<div className="flex items-center justify-between">
 										<Badge
 											variant="secondary"
-											className="text-xs font-bold bg-[#6B4E71]/10 text-[#6B4E71] px-3 py-1"
+											className="text-xs font-bold bg-secondary-plum/10 text-secondary-plum px-3 py-1"
 										>
 											{prod?.category?.name}
 										</Badge>
-										<span className="text-base font-bold text-[#D4A5A5]">
-											{prod.price}
+										<span className="text-base font-bold text-primary-rose">
+											{formatPrice(Number(prod.resolvedPrice ?? prod.irrPrice ?? prod.price))}
 										</span>
 									</div>
 								</div>
@@ -568,8 +568,7 @@ export default function LandingPage() {
 			</section>
 
 			{/* Statement Section */}
-			{/* <section className="bg-[#0D0B0A] py-32 px-14 relative overflow-hidden"> */}
-			<section className="bg-landing-background py-32 px-14 relative overflow-hidden">
+			<section className="bg-landing-background py-24 md:py-32 px-4 md:px-14 relative overflow-hidden">
 				<div
 					className="absolute inset-0 opacity-20"
 					style={{
@@ -590,18 +589,18 @@ export default function LandingPage() {
 						transition={{ duration: 0.9 }}
 					>
 						<div className="flex items-center justify-center gap-3.5 mb-8">
-							<div className="w-10 h-px bg-[#C9A875]/40" />
-							<p className="text-xs font-bold tracking-[0.25em] text-[#C9A875] uppercase">
+							<div className="w-10 h-px bg-accent-gold/40" />
+							<p className="text-xs font-bold tracking-[0.25em] text-accent-gold uppercase">
 								درباره برند
 							</p>
-							<div className="w-10 h-px bg-[#C9A875]/40" />
+							<div className="w-10 h-px bg-accent-gold/40" />
 						</div>
 
 						<h2
-							className="text-7xl font-bold mb-7 leading-tight"
+							className="text-4xl md:text-7xl font-bold mb-7 leading-tight"
 							style={{
 								background:
-									"linear-gradient(135deg, white 0%, #D4A5A5 50%, #C9A875 100%)",
+									"linear-gradient(135deg, white 0%, var(--primary-rose) 50%, var(--accent-gold) 100%)",
 								WebkitBackgroundClip: "text",
 								WebkitTextFillColor: "transparent",
 								backgroundClip: "text",
@@ -639,8 +638,7 @@ export default function LandingPage() {
 
 			{/* New Products - Horizontal Scroll */}
 			{newProducts.length > 0 && (
-				// <section className="bg-[#F8F6F4] py-24 px-14 overflow-hidden">
-				<section className="bg-landing-background py-24 px-14 overflow-hidden">
+				<section className="bg-landing-background py-24 px-4 md:px-14 overflow-hidden">
 					<div className="max-w-[1300px] mx-auto">
 						<motion.div
 							initial={{ opacity: 0, y: 30 }}
@@ -650,8 +648,8 @@ export default function LandingPage() {
 						>
 							<div>
 								<div className="flex items-center gap-2.5 mb-4">
-									<div className="w-6 h-px bg-[#C9A875]" />
-									<p className="text-xs font-bold tracking-[0.22em] text-[#C9A875] uppercase">
+									<div className="w-6 h-px bg-accent-gold" />
+									<p className="text-xs font-bold tracking-[0.22em] text-accent-gold uppercase">
 										جدید‌ها
 									</p>
 								</div>
@@ -659,7 +657,7 @@ export default function LandingPage() {
 									className="text-5xl font-bold leading-tight"
 									style={{
 										background:
-											"linear-gradient(90deg, #D4A5A5 0%, #C9A875 50%, rgba(107,78,113,.9) 100%)",
+											"linear-gradient(90deg, var(--primary-rose) 0%, var(--accent-gold) 50%, rgba(107,78,113,.9) 100%)",
 										WebkitBackgroundClip: "text",
 										WebkitTextFillColor: "transparent",
 										backgroundClip: "text",
@@ -710,8 +708,8 @@ export default function LandingPage() {
 											{prod.name}
 										</h4>
 										<div className="flex items-center justify-between">
-											<span className="text-sm font-bold text-[#D4A5A5]">
-												{prod.price}
+											<span className="text-sm font-bold text-primary-rose">
+												{formatPrice(Number(prod.resolvedPrice ?? prod.irrPrice ?? prod.price))}
 											</span>
 											<Badge className="text-[10px] font-bold px-2 py-0.5 bg-gradient-to-r from-amber-400 to-orange-500 text-white animate-pulse-glow">
 												جدید

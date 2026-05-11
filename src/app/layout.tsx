@@ -5,9 +5,15 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata: Metadata = {
-	title: "Mahoura",
-	description:
-		"Luxury Persian Cosmetics & Beauty Products - محصولات آرایشی و بهداشتی لوکس",
+	title: "ماهورا",
+	description: "فروشگاه لوازم آرایشی و بهداشتی ماهورا",
+	manifest: "/manifest.json",
+	appleWebApp: {
+		capable: true,
+		statusBarStyle: "default",
+		title: "ماهورا",
+	},
+	themeColor: "#C8536A",
 };
 
 export default function RootLayout({

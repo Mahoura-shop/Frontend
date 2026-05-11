@@ -1,4 +1,5 @@
 import { getData, patchData } from "./services";
+import { MOCK_PRODUCTS } from "@/data/mockProducts";
 
 export interface ProductSearchParams {
   q?: string;
@@ -38,15 +39,34 @@ export const productService = {
     if (params.limit) queryParams.limit = params.limit;
     if (params.offset) queryParams.offset = params.offset;
 
-    const response = await getData({
-      endPoint: "/v1/products",
-      params: queryParams,
-    });
+    try {
+      const response = await getData({
+        endPoint: "/v1/products",
+        params: queryParams,
+      });
 
-    return {
-      products: response?.data?.products ?? [],
-      totalCount: response?.data?.totalCount ?? 0,
-    };
+      const products = response?.data?.products ?? [];
+      if (products.length > 0) {
+        return { products, totalCount: response?.data?.totalCount ?? 0 };
+      }
+    } catch {
+      // backend unavailable — fall through to mock
+    }
+
+    let mock = [...MOCK_PRODUCTS];
+    if (params.q) {
+      const q = params.q.toLowerCase();
+      mock = mock.filter((p) => p.name.includes(params.q!) || p.brand?.name?.toLowerCase().includes(q));
+    }
+    if (params.categoryID) mock = mock.filter((p) => p.category?.id === params.categoryID);
+    if (params.brandID) mock = mock.filter((p) => p.brand?.id === params.brandID);
+    if (params.minPrice) mock = mock.filter((p) => (p.irrPrice ?? 0) >= params.minPrice!);
+    if (params.maxPrice) mock = mock.filter((p) => (p.irrPrice ?? 0) <= params.maxPrice!);
+    if (params.sortBy === "price_asc") mock.sort((a, b) => (a.irrPrice ?? 0) - (b.irrPrice ?? 0));
+    if (params.sortBy === "price_desc") mock.sort((a, b) => (b.irrPrice ?? 0) - (a.irrPrice ?? 0));
+    const offset = params.offset ?? 0;
+    const limit = params.limit ?? 12;
+    return { products: mock.slice(offset, offset + limit), totalCount: mock.length };
   },
 
   async updateProductPrices(productPrices: ProductPrice[]) {

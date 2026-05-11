@@ -31,6 +31,8 @@ import {
 	DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import Magnet from "../utils/Magnet";
+import CartSheet from "@/components/CartSheet";
+import { spring } from "@/lib/motion";
 
 const menuItems = [
 	{ label: "محصولات", href: "/products" },
@@ -53,6 +55,7 @@ export default function Navbar() {
 	const { fetchCart, getItemCount } = useCartStore();
 	const itemCount = getItemCount();
 	const [scrolled, setScrolled] = useState(false);
+	const [cartSheetOpen, setCartSheetOpen] = useState(false);
 
 	useEffect(() => {
 		const handleScroll = () => {
@@ -83,7 +86,7 @@ export default function Navbar() {
 			<motion.nav
 				initial={{ y: -100, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
-				transition={{ type: "spring", stiffness: 300, damping: 30 }}
+				transition={spring.default}
 				className={`${styles.nav} ${scrolled ? styles.scrolled : ""}`}
 			>
 				<div className="w-full max-w-7xl mx-auto">
@@ -356,7 +359,8 @@ export default function Navbar() {
 				</div>
 			</motion.div> */}
 
-			<BottomNav isActive={isActive} cartCount={itemCount} />
+			<BottomNav isActive={isActive} cartCount={itemCount} onCartOpen={() => setCartSheetOpen(true)} isLoggedIn={!!accessToken} />
+			<CartSheet open={cartSheetOpen} onClose={() => setCartSheetOpen(false)} />
 		</>
 	);
 }
@@ -364,109 +368,85 @@ export default function Navbar() {
 function BottomNav({
 	isActive,
 	cartCount,
+	onCartOpen,
+	isLoggedIn,
 }: {
 	isActive: (href: string) => boolean;
 	cartCount: number;
+	onCartOpen: () => void;
+	isLoggedIn: boolean;
 }) {
 	return (
 		<motion.nav
 			initial={{ y: 100, opacity: 0 }}
 			animate={{ y: 0, opacity: 1 }}
-			transition={{
-				type: "spring",
-				stiffness: 260,
-				damping: 28,
-				delay: 0.1,
-			}}
+			transition={{ ...spring.bottomNav, delay: 0.1 }}
 			className="fixed bottom-0 inset-x-0 z-50 md:hidden px-3 pb-3"
 			style={{
 				paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)",
 			}}
 		>
-			<div className="w-full bg-background/90 backdrop-blur-xl border border-border/60 rounded-2xl shadow-2xl shadow-black/20">
+			<div className="w-full rounded-2xl shadow-2xl shadow-black/20" style={{ background: "hsl(var(--background) / 0.78)", backdropFilter: "blur(28px) saturate(200%)", WebkitBackdropFilter: "blur(28px) saturate(200%)", border: "1px solid hsl(var(--border) / 0.4)", boxShadow: "0 8px 32px hsl(var(--foreground) / 0.08), inset 0 1px 0 rgba(255,255,255,0.07)" }}>
 				<div className="flex items-center justify-around px-2 py-2">
 					{bottomNavItems.map((item) => {
-						const active = isActive(item.href);
+						const isAccount = item.href === "/dashboard";
+						const href = isAccount && !isLoggedIn ? "/signin" : item.href;
+						const active = isActive(href);
+						const isCart = item.href === "/cart";
 
-						return (
-							<Link
-								key={item.href}
-								href={item.href}
-								className="flex-1"
-							>
-								<div className="relative flex flex-col items-center justify-center py-1">
+						const inner = (
+							<div className="relative flex flex-col items-center justify-center py-1">
+								{active && (
+									<motion.div
+										layoutId="bottom-nav-pill"
+										className="absolute inset-0 bg-gradient-to-br from-primary-rose/20 via-accent-gold/10 to-secondary-plum/10 rounded-xl"
+										transition={spring.snappy}
+									/>
+								)}
+								<motion.div
+									animate={active ? { scale: 1.15, y: -2 } : { scale: 1, y: 0 }}
+									transition={spring.responsive}
+									whileTap={{ scale: 0.85 }}
+									className="relative flex flex-col items-center gap-1 py-1.5 px-3"
+								>
+									<div className="relative">
+										<item.icon
+											className={`w-5 h-5 transition-colors duration-200 ${
+												active ? "text-primary-rose" : isAccount && !isLoggedIn ? "text-accent-gold" : "text-muted-foreground"
+											}`}
+										/>
+										{isCart && cartCount > 0 && (
+											<span className="absolute -top-2 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-primary-rose text-white text-[10px] font-bold flex items-center justify-center leading-none">
+												{cartCount > 99 ? "99+" : cartCount}
+											</span>
+										)}
+									</div>
+									<motion.span
+										animate={active ? { opacity: 1 } : { opacity: 0.5 }}
+										className={`text-[10px] font-medium transition-colors duration-200 ${
+											active ? "text-primary-rose" : isAccount && !isLoggedIn ? "text-accent-gold opacity-100" : "text-muted-foreground"
+										}`}
+									>
+										{isAccount && !isLoggedIn ? "ورود" : item.label}
+									</motion.span>
 									{active && (
 										<motion.div
-											layoutId="bottom-nav-pill"
-											className="absolute inset-0 bg-gradient-to-br from-primary-rose/20 via-accent-gold/10 to-secondary-plum/10 rounded-xl"
-											transition={{
-												type: "spring",
-												stiffness: 400,
-												damping: 35,
-											}}
+											layoutId="bottom-nav-dot"
+											className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-primary-rose"
+											transition={spring.snappy}
 										/>
 									)}
+								</motion.div>
+							</div>
+						);
 
-									<motion.div
-										animate={
-											active
-												? { scale: 1.15, y: -2 }
-												: { scale: 1, y: 0 }
-										}
-										transition={{
-											type: "spring",
-											stiffness: 400,
-											damping: 25,
-										}}
-										whileTap={{ scale: 0.85 }}
-										className="relative flex flex-col items-center gap-1 py-1.5 px-3"
-									>
-										<div className="relative">
-											<item.icon
-												className={`w-5 h-5 transition-colors duration-200 ${
-													active
-														? "text-primary-rose"
-														: "text-muted-foreground"
-												}`}
-											/>
-											{item.href === "/cart" &&
-												cartCount > 0 && (
-													<span className="absolute -top-2 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-primary-rose text-white text-[10px] font-bold flex items-center justify-center leading-none">
-														{cartCount > 99
-															? "99+"
-															: cartCount}
-													</span>
-												)}
-										</div>
-
-										<motion.span
-											animate={
-												active
-													? { opacity: 1 }
-													: { opacity: 0.5 }
-											}
-											className={`text-[10px] font-medium transition-colors duration-200 ${
-												active
-													? "text-primary-rose"
-													: "text-muted-foreground"
-											}`}
-										>
-											{item.label}
-										</motion.span>
-
-										{active && (
-											<motion.div
-												layoutId="bottom-nav-dot"
-												className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-primary-rose"
-												transition={{
-													type: "spring",
-													stiffness: 400,
-													damping: 35,
-												}}
-											/>
-										)}
-									</motion.div>
-								</div>
+						return isCart ? (
+							<button key={item.href} className="flex-1" onClick={onCartOpen}>
+								{inner}
+							</button>
+						) : (
+							<Link key={item.href} href={href} className="flex-1">
+								{inner}
 							</Link>
 						);
 					})}

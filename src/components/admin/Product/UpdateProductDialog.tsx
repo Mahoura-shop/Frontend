@@ -32,6 +32,7 @@ import {
 	UserStar,
 	HandCoins,
 	Banknote,
+	AlertTriangle,
 } from "lucide-react";
 import Input from "@/components/Custom/Input/Input";
 import Textarea from "@/components/Custom/Textarea/Textarea";
@@ -252,14 +253,6 @@ export default function UpdateProductDialog({
 				});
 				formData.append("productPic", file);
 			}
-		}
-
-		console.log("FormData entries:");
-		for (let [key, value] of formData.entries()) {
-			console.log(
-				key,
-				value instanceof File ? `File: ${value.name}` : value,
-			);
 		}
 
 		const apiFunc = mode === "update" ? putImageData : postImageData;
@@ -673,6 +666,32 @@ export default function UpdateProductDialog({
 									name="productPic"
 									label="تصویر محصول"
 								/>
+
+								{/* Price invariant warning */}
+								{(() => {
+									const s1 = Number(values.step1Price) || 0;
+									const s2 = Number(values.step2Price) || 0;
+									const s3 = Number(values.step3Price) || 0;
+									const s4 = Number(values.step4Price) || 0;
+									const cp = Number(values.consumerPrice) || 0;
+									const violations: string[] = [];
+									if (s1 && s2 && s1 > s2) violations.push("قیمت همکار باید از قیمت مغازه نقدی کمتر یا مساوی باشد");
+									if (s2 && s3 && s2 > s3) violations.push("قیمت مغازه نقدی باید از قیمت مغازه چکی کمتر یا مساوی باشد");
+									if (s3 && s4 && s3 > s4) violations.push("قیمت مغازه چکی باید از قیمت تکی کمتر یا مساوی باشد");
+									if (s4 && cp && s4 > cp) violations.push("قیمت تکی باید از قیمت مصرف کننده کمتر یا مساوی باشد");
+									if (violations.length === 0) return null;
+									return (
+										<div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400">
+											<AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+											<div className="space-y-1">
+												<p className="text-sm font-semibold">نقض ترتیب قیمت‌گذاری</p>
+												{violations.map((v, i) => (
+													<p key={i} className="text-xs">{v}</p>
+												))}
+											</div>
+										</div>
+									);
+								})()}
 
 								{/* Footer Buttons */}
 								<StickyDialogFooter>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { spring } from "@/lib/motion"
 import {
 	ShoppingCart,
 	Trash2,
@@ -22,6 +23,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { useCartStore } from "@/store/useCartStore"
+import useUserStore from "@/store/userStore/userStore"
+import { useRouter } from "next/navigation"
 
 const VALID_COUPONS: Record<string, number> = {
 	welcome10: 10,
@@ -32,6 +35,12 @@ const VALID_COUPONS: Record<string, number> = {
 export default function CartPage() {
 	const { items, loading, fetchCart, addItem, removeItem, removeAllOfItem, clearCart } =
 		useCartStore()
+	const { accessToken } = useUserStore()
+	const router = useRouter()
+
+	useEffect(() => {
+		if (!accessToken) router.replace('/signin')
+	}, [accessToken])
 
 	const [couponCode, setCouponCode] = useState("")
 	const [appliedCoupon, setAppliedCoupon] = useState<{
@@ -123,7 +132,7 @@ export default function CartPage() {
 									initial={{ opacity: 0, scale: 0.9 }}
 									animate={{ opacity: 1, scale: 1 }}
 									exit={{ opacity: 0, scale: 0.9, x: -100 }}
-									transition={{ type: "spring", stiffness: 300, damping: 30 }}
+									transition={spring.default}
 								>
 									<Card className="overflow-hidden hover:shadow-lg transition-shadow">
 										<CardContent className="p-4">

@@ -283,12 +283,14 @@
 .floatEl3 { bottom: 100px; right: -50px; animation-delay: 1.5s; }
 @keyframes floatel { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
 .pill {
-  background: rgba(255,255,255,.08);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,.12);
+  background: linear-gradient(135deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.05) 100%);
+  backdrop-filter: blur(20px) saturate(200%) brightness(1.1);
+  -webkit-backdrop-filter: blur(20px) saturate(200%) brightness(1.1);
+  border: 1px solid rgba(255,255,255,.16);
   border-radius: 100px; padding: 10px 16px;
   display: flex; align-items: center; gap: 8px;
   font-size: 12px; font-weight: 600; color: white; white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.2), inset 0 -1px 0 rgba(0,0,0,.1);
 }
 .pillDot { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); animation: pulseGlow 2s ease-in-out infinite; }
 .pillDotGreen { background: #10b981; }
@@ -434,14 +436,20 @@
 .catCta {
   display: inline-flex; align-items: center; gap: 6px;
   font-size: 12px; font-weight: 700; color: white;
-  background: rgba(255,255,255,.12); backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,.15);
+  background: linear-gradient(135deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,.08) 100%);
+  backdrop-filter: blur(16px) saturate(200%) brightness(1.1);
+  -webkit-backdrop-filter: blur(16px) saturate(200%) brightness(1.1);
+  border: 1px solid rgba(255,255,255,.22);
   padding: 7px 14px; border-radius: 100px;
   opacity: 0; transform: translateY(6px);
-  transition: opacity .3s, transform .3s var(--ease-spring), background .2s;
+  box-shadow: 0 4px 16px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.25);
+  transition: opacity .3s, transform .3s var(--ease-spring), background .2s, box-shadow .2s;
 }
 .catCard:hover .catCta { opacity: 1; transform: translateY(0); }
-.catCta:hover { background: rgba(255,255,255,.2); }
+.catCta:hover {
+  background: linear-gradient(135deg, rgba(255,255,255,.26) 0%, rgba(255,255,255,.14) 100%);
+  box-shadow: 0 6px 20px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.3);
+}
 
 .productsGrid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
 .productCard {
@@ -609,9 +617,27 @@
 .testiStatLabel { font-size: 11px; color: rgba(255,255,255,.4); letter-spacing: .1em; }
 
 .testiGrid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
-.testiCard { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.06); border-radius: 22px; padding: 32px 28px; transition: transform .4s var(--ease-spring), background .3s, border-color .3s; }
-.testiCard:hover { background: rgba(255,255,255,.07); border-color: rgba(201,168,117,.3); transform: translateY(-6px); }
-.testiCard:nth-child(2) { transform: translateY(-20px); background: rgba(212,165,165,.08); border-color: rgba(212,165,165,.18); }
+.testiCard {
+  background: linear-gradient(160deg, rgba(255,255,255,.07) 0%, rgba(255,255,255,.02) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 22px; padding: 32px 28px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.12), inset 0 -1px 0 rgba(0,0,0,.1);
+  transition: transform .4s var(--ease-spring), background .3s, border-color .3s, box-shadow .3s;
+}
+.testiCard:hover {
+  background: linear-gradient(160deg, rgba(255,255,255,.11) 0%, rgba(255,255,255,.05) 100%);
+  border-color: rgba(201,168,117,.35);
+  box-shadow: 0 16px 48px rgba(0,0,0,.4), 0 0 32px rgba(201,168,117,.08), inset 0 1px 0 rgba(255,255,255,.16), inset 0 -1px 0 rgba(0,0,0,.12);
+  transform: translateY(-6px);
+}
+.testiCard:nth-child(2) {
+  transform: translateY(-20px);
+  background: linear-gradient(160deg, rgba(212,165,165,.14) 0%, rgba(212,165,165,.04) 100%);
+  border-color: rgba(212,165,165,.22);
+  box-shadow: 0 12px 40px rgba(212,165,165,.12), inset 0 1px 0 rgba(255,255,255,.16), inset 0 -1px 0 rgba(0,0,0,.1);
+}
 .testiCard:nth-child(2):hover { transform: translateY(-26px); }
 .testiStars { color: var(--gold); font-size: 14px; letter-spacing: 2px; margin-bottom: 18px; }
 .testiQuote { font-size: 16px; line-height: 1.75; color: rgba(255,255,255,.85); margin-bottom: 24px; font-weight: 500; }
@@ -669,8 +695,21 @@
 .newsletterH2 .g { background: linear-gradient(90deg,var(--rose),var(--gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .newsletterDesc { font-size: 15px; line-height: 1.7; color: rgba(255,255,255,.55); max-width: 420px; }
 .newsletterForm { display: flex; flex-direction: column; gap: 14px; }
-.newsletterInputWrap { position: relative; display: flex; gap: 8px; padding: 8px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 100px; backdrop-filter: blur(8px); transition: border-color .25s, background .25s; }
-.newsletterInputWrap:focus-within { border-color: var(--gold); background: rgba(255,255,255,.1); }
+.newsletterInputWrap {
+  position: relative; display: flex; gap: 8px; padding: 8px;
+  background: linear-gradient(135deg, rgba(255,255,255,.1) 0%, rgba(255,255,255,.04) 100%);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 100px;
+  backdrop-filter: blur(20px) saturate(200%) brightness(1.06);
+  -webkit-backdrop-filter: blur(20px) saturate(200%) brightness(1.06);
+  box-shadow: 0 4px 20px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.16), inset 0 -1px 0 rgba(0,0,0,.08);
+  transition: border-color .25s, background .25s, box-shadow .25s;
+}
+.newsletterInputWrap:focus-within {
+  border-color: var(--gold);
+  background: linear-gradient(135deg, rgba(255,255,255,.14) 0%, rgba(255,255,255,.07) 100%);
+  box-shadow: 0 4px 20px rgba(0,0,0,.2), 0 0 0 1px rgba(201,168,117,.3), inset 0 1px 0 rgba(255,255,255,.2), inset 0 -1px 0 rgba(0,0,0,.08);
+}
 .newsletterInput { flex: 1; background: transparent; border: none; outline: none; padding: 14px 22px; color: white; font-family: 'Vazirmatn', sans-serif; font-size: 14px; font-weight: 500; }
 .newsletterInput::placeholder { color: rgba(255,255,255,.35); }
 .newsletterSubmit { background: var(--gold); color: var(--ink); border: none; padding: 14px 28px; border-radius: 100px; font-family: 'Vazirmatn', sans-serif; font-size: 13px; font-weight: 800; cursor: none; transition: transform .25s var(--ease-spring), box-shadow .25s; }

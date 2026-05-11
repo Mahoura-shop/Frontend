@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { spring } from "@/lib/motion";
 import {
 	Home,
 	Package,
@@ -18,10 +19,13 @@ import {
 	Users,
 	ClipboardList,
 	Shield,
+	Coins,
+	RotateCcw,
 } from "lucide-react";
 import Link from "next/link";
 import logo from "@/assets/logo.png";
 import { usePathname, useRouter } from "next/navigation";
+import AdminGuard from "@/components/AdminGuard";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -113,6 +117,22 @@ export default function AdminLayout({
 			count: null,
 		},
 		{
+			id: "currencies",
+			label: "ارزها",
+			icon: Coins,
+			href: "/admin/currencies",
+			sub: false,
+			count: null,
+		},
+		{
+			id: "returns",
+			label: "مرجوعی‌ها",
+			icon: RotateCcw,
+			href: "/admin/returns",
+			sub: false,
+			count: null,
+		},
+		{
 			id: "settings",
 			label: "تنظیمات",
 			icon: Settings,
@@ -127,13 +147,14 @@ export default function AdminLayout({
 	};
 
 	return (
+		<AdminGuard>
 		<div className="min-h-screen bg-background flex no-scrollbar" dir="rtl">
 			{/* Sidebar - Fixed on the right */}
 			<motion.aside
 				initial={false}
 				animate={{ width: sidebarOpen ? 256 : 0 }}
-				transition={{ type: "spring", stiffness: 300, damping: 30 }}
-				className="fixed right-0 top-0 h-full bg-card border-l border-border z-50 overflow-hidden shadow-lg"
+				transition={spring.default}
+				className="fixed right-0 top-0 h-full bg-card border-l border-border overflow-hidden shadow-lg"
 			>
 				<div className="w-64 h-full flex flex-col">
 					{/* Sidebar Header */}
@@ -258,5 +279,6 @@ export default function AdminLayout({
 				{children}
 			</div>
 		</div>
+		</AdminGuard>
 	);
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { spring } from "@/lib/motion";
 import styles from "./MagneticButton.module.css";
 
 export default function MagneticButton({
@@ -70,7 +71,7 @@ export default function MagneticButton({
 			<motion.a
 				ref={ref}
 				animate={{ x: offset.x, y: offset.y, scale: offset.x !== 0 ? 1.04 : 1 }}
-				transition={{ type: "spring", stiffness: 150, damping: 15 }}
+				transition={spring.magnetic}
 				className={`${variantClass} ${className}`}
 				{...props}
 			>

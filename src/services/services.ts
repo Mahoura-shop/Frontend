@@ -44,7 +44,20 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
 	(response: AxiosResponse) => response,
 	(error) => {
-		// console.error(error);
+		if (error?.response?.status === 401 && typeof window !== 'undefined') {
+			try {
+				const raw = localStorage.getItem('user-storage');
+				if (raw) {
+					const parsed = JSON.parse(raw);
+					parsed.state.accessToken = undefined;
+					parsed.state.refreshToken = undefined;
+					parsed.state.isAdmin = false;
+					localStorage.setItem('user-storage', JSON.stringify(parsed));
+				}
+			} catch {}
+			const isAdminRoute = window.location.pathname.startsWith('/admin');
+			window.location.replace(isAdminRoute ? '/admin' : '/signin');
+		}
 		return Promise.reject(error);
 	},
 );
@@ -85,7 +98,9 @@ export const postData = async ({ endPoint, data, headers }: PostParams) => {
 // ✅ POST image/form-data
 export const postImageData = async ({ endPoint, data }: PostParams) => {
 	try {
-		const response: AxiosResponse = await apiClient.post(endPoint, data);
+		const response: AxiosResponse = await apiClient.post(endPoint, data, {
+			headers: { "Content-Type": undefined },
+		});
 		return response.data;
 	} catch (error) {
 		console.log("error in postImageData", (error as any).response?.data);
@@ -128,7 +143,9 @@ export const putData = async ({ endPoint, data }: PutParams) => {
 
 export const putImageData = async ({ endPoint, data }: PutParams) => {
 	try {
-		const response: AxiosResponse = await apiClient.put(endPoint, data);
+		const response: AxiosResponse = await apiClient.put(endPoint, data, {
+			headers: { "Content-Type": undefined },
+		});
 		return response.data;
 	} catch (error) {
 		console.log("error in putImageData", (error as any).response?.data);

@@ -11,7 +11,6 @@ import {
 	ArrowDownLeft,
 	Calendar,
 	Filter,
-	Download,
 	Eye,
 	EyeOff,
 	Gift,
@@ -35,7 +34,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { getWalletBalance, depositWallet } from "@/services/walletService";
+import { getWalletBalance, depositWallet, withdrawWallet } from "@/services/walletService";
 
 const depositSchema = Yup.object({
 	amount: Yup.number()
@@ -43,6 +42,12 @@ const depositSchema = Yup.object({
 		.max(50000000, "حداکثر مبلغ واریز ۵۰,۰۰۰,۰۰۰ تومان است")
 		.required("مبلغ الزامی است"),
 	paymentMethod: Yup.string().required("روش پرداخت را انتخاب کنید"),
+});
+
+const withdrawSchema = Yup.object({
+	amount: Yup.number()
+		.min(10000, "حداقل مبلغ برداشت ۱۰,۰۰۰ تومان است")
+		.required("مبلغ الزامی است"),
 });
 
 const MOCK_TRANSACTIONS = [
@@ -58,6 +63,7 @@ export default function WalletPage() {
 	const [showBalance, setShowBalance] = useState(true);
 	const [filterType, setFilterType] = useState("all");
 	const [depositDialogOpen, setDepositDialogOpen] = useState(false);
+	const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
@@ -109,6 +115,20 @@ export default function WalletPage() {
 			CustomToast("کیف پول با موفقیت شارژ شد", "success");
 			setDepositDialogOpen(false);
 		} catch {
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleWithdraw = async (values: { amount: string }) => {
+		setLoading(true);
+		try {
+			const res = await withdrawWallet(Number(values.amount));
+			setBalance(res?.data?.balance ?? balance);
+			CustomToast("برداشت با موفقیت انجام شد", "success");
+			setWithdrawDialogOpen(false);
+		} catch {
+			CustomToast("برداشت با خطا مواجه شد", "error");
 		} finally {
 			setLoading(false);
 		}
@@ -365,15 +385,67 @@ export default function WalletPage() {
 								</DialogContent>
 							</Dialog>
 
-							{/* Export Button */}
-							<Button
-								variant="outline"
-								className="gap-2 h-14"
-								size="lg"
+							{/* Withdraw Dialog */}
+							<Dialog
+								open={withdrawDialogOpen}
+								onOpenChange={setWithdrawDialogOpen}
 							>
-								<Download className="w-5 h-5" />
-								دریافت گزارش تراکنش‌ها
-							</Button>
+								<DialogTrigger asChild>
+									<Button
+										variant="outline"
+										className="gap-2 h-14"
+										size="lg"
+									>
+										<ArrowUpRight className="w-5 h-5" />
+										برداشت از کیف پول
+									</Button>
+								</DialogTrigger>
+								<DialogContent>
+									<DialogHeader>
+										<DialogTitle>برداشت از کیف پول</DialogTitle>
+									</DialogHeader>
+									<Formik
+										initialValues={{ amount: "" }}
+										validationSchema={withdrawSchema}
+										onSubmit={handleWithdraw}
+									>
+										{() => (
+											<Form className="space-y-4">
+												<Input
+													name="amount"
+													type="number"
+													icon={DollarSign}
+													label="مبلغ (تومان)"
+													placeholder="۱۰۰,۰۰۰"
+												/>
+												<div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+													<p className="text-sm text-amber-700 dark:text-amber-400">
+														موجودی فعلی: {balance !== null ? formatPrice(balance) : "..."} تومان
+													</p>
+												</div>
+												<div className="flex gap-4">
+													<Button
+														type="button"
+														variant="outline"
+														className="flex-1"
+														onClick={() => setWithdrawDialogOpen(false)}
+													>
+														انصراف
+													</Button>
+													<Button
+														type="submit"
+														variant="luxury"
+														className="flex-1"
+														disabled={loading}
+													>
+														{loading ? "در حال پردازش..." : "برداشت"}
+													</Button>
+												</div>
+											</Form>
+										)}
+									</Formik>
+								</DialogContent>
+							</Dialog>
 						</motion.div>
 					</div>
 
