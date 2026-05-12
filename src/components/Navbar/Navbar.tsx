@@ -279,11 +279,11 @@ export default function Navbar() {
 				redOffset={20}
 				greenOffset={20}
 				blueOffset={20}
-				blur={0}
+				// blur={10}
 				// brightness={80}
 				mixBlendMode="color"
 				width={1500}
-				height={60}
+				height={70}
 				className={`${styles.nav}`}
 			>
 				<div className={styles.navContent}>

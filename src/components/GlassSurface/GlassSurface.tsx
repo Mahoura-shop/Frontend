@@ -247,7 +247,7 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
 				background: isDarkMode
 					? `hsl(0 0% 0% / ${backgroundOpacity})`
 					: `hsl(0 0% 100% / ${backgroundOpacity})`,
-				backdropFilter: `url(#${filterId}) saturate(${saturation})`,
+				backdropFilter: `blur(${blur}px) url(#${filterId}) saturate(${saturation})`,
 				boxShadow: isDarkMode
 					? `0 0 2px 1px color-mix(in oklch, white, transparent 65%) inset,
              0 0 10px 4px color-mix(in oklch, white, transparent 85%) inset,
@@ -281,9 +281,9 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
 						...baseStyles,
 						background: "rgba(255, 255, 255, 0.1)",
 						backdropFilter:
-							"blur(12px) saturate(1.8) brightness(1.2)",
+							`blur(${blur}px) saturate(1.8) brightness(1.2)`,
 						WebkitBackdropFilter:
-							"blur(12px) saturate(1.8) brightness(1.2)",
+							`blur(${blur}px) saturate(1.8) brightness(1.2)`,
 						border: "1px solid rgba(255, 255, 255, 0.2)",
 						boxShadow: `inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
                         inset 0 -1px 0 0 rgba(255, 255, 255, 0.1)`,
@@ -303,9 +303,9 @@ const GlassSurface: React.FC<GlassSurfaceProps> = ({
 						...baseStyles,
 						background: "rgba(255, 255, 255, 0.25)",
 						backdropFilter:
-							"blur(12px) saturate(1.8) brightness(1.1)",
+							`blur(${blur}px) saturate(1.8) brightness(1.1)`,
 						WebkitBackdropFilter:
-							"blur(12px) saturate(1.8) brightness(1.1)",
+							`blur(${blur}px) saturate(1.8) brightness(1.1)`,
 						border: "1px solid rgba(255, 255, 255, 0.3)",
 						boxShadow: `0 8px 32px 0 rgba(31, 38, 135, 0.2),
                         0 2px 16px 0 rgba(31, 38, 135, 0.1),
