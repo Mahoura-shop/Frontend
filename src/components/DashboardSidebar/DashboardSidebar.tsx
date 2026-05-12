@@ -20,6 +20,14 @@ import {
 	ArrowRightLeft,
 	Moon,
 	Sun,
+	Package,
+	FolderTree,
+	Tag,
+	DollarSign,
+	Users,
+	ClipboardList,
+	Shield,
+	Coins,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -116,6 +124,69 @@ export default function DashboardSidebar() {
 			title: "خروج از حساب",
 			href: "/logout",
 			icon: LogOut,
+		},
+	];
+
+	const adminNavigationItems = [
+		{
+			title: "داشبورد",
+			href: "/admin/dashboard",
+			icon: Home,
+		},
+		{
+			title: "مدیریت محصولات",
+			href: "/admin/products",
+			icon: Package,
+		},
+		{
+			title: "تغییر گروهی قیمت",
+			href: "/admin/products/group",
+			icon: DollarSign,
+		},
+		{
+			title: "دسته‌بندی‌ها",
+			href: "/admin/categories",
+			icon: FolderTree,
+		},
+		{
+			title: "برندها",
+			href: "/admin/brands",
+			icon: Tag,
+		},
+		{
+			title: "سفارش‌ها",
+			href: "/admin/orders",
+			icon: ShoppingBag,
+		},
+		{
+			title: "کاربران",
+			href: "/admin/users",
+			icon: Users,
+		},
+		{
+			title: "درخواست‌های ارتقاء",
+			href: "/admin/upgrade-requests",
+			icon: ClipboardList,
+		},
+		{
+			title: "نقش‌ها و دسترسی‌ها",
+			href: "/admin/roles",
+			icon: Shield,
+		},
+		{
+			title: "ارزها",
+			href: "/admin/currencies",
+			icon: Coins,
+		},
+		{
+			title: "مرجوعی‌ها",
+			href: "/admin/returns",
+			icon: RotateCcw,
+		},
+		{
+			title: "تنظیمات",
+			href: "/admin/settings",
+			icon: Settings,
 		},
 	];
 
@@ -300,7 +371,10 @@ export default function DashboardSidebar() {
 							{/* Navigation Menu */}
 							<Card className="p-2">
 								<nav className="space-y-1">
-									{navigationItems.map((item) => (
+									{(isAdminView
+										? adminNavigationItems
+										: navigationItems
+									).map((item) => (
 										<Link
 											key={item.href}
 											href={item.href}
@@ -337,7 +411,8 @@ export default function DashboardSidebar() {
 													</span>
 												</div>
 												<div className="flex items-center gap-2">
-													{item.badge !==
+													{"badge" in item &&
+														item.badge !==
 														null && (
 														<Badge
 															variant={
