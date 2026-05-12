@@ -551,18 +551,6 @@ export default function LandingPage() {
 				/>
 			</div>
 			<section className="px-4 md:px-14 relative overflow-hidden h-screen m-auto flex place-items-center">
-				{/* <div
-					className="absolute inset-0 opacity-20"
-					style={{
-						background: `
-							radial-gradient(ellipse 50% 70% at 90% 50%, rgba(107,78,113,.2), transparent),
-							radial-gradient(ellipse 40% 50% at 10% 30%, rgba(212,165,165,.1), transparent)
-						`,
-						animation:
-							"meshmove 15s ease-in-out infinite alternate",
-					}}
-				/> */}
-
 				<div className="max-w-[900px]  mx-auto flex place-content-center align-middle place-items-center text-center relative z-10">
 					<motion.div
 						initial={{ opacity: 0, y: 40 }}
@@ -604,7 +592,7 @@ export default function LandingPage() {
 									className={`rounded-full h-16 w-48 hover:bg-transparent`}
 									variant="ghost"
 								>
-									<p>کشف کنید</p>
+									<p >کشف کنید</p>
 									<Stars className="fill-foreground" />
 								</Button>
 							</Link>

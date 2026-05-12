@@ -346,7 +346,7 @@ const Grainient: React.FC<GrainientProps> = ({
 	return (
 		<div
 			ref={containerRef}
-			className={`relative h-screen w-full opacity-60 border-none ${className}`.trim()}
+			className={`absolute h-screen w-full opacity-60 border-none ${className}`.trim()}
 		/>
 	);
 };
