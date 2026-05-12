@@ -222,7 +222,7 @@ export default function ProductsPage() {
 			)}
 			<div>
 				{/* Header */}
-				<div className="bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/20 py-8 md:py-16">
+				<div className="bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/20 py-8 md:py-32 md:pb-16">
 					<div className="container mx-auto px-4 pt-8">
 						<motion.div
 							initial={{ opacity: 0, y: 30 }}
@@ -600,7 +600,7 @@ export default function ProductsPage() {
 												className="rounded-[20px] overflow-hidden bg-card border border-border cursor-pointer group shadow-[0_2px_6px_rgba(107,78,113,0.10),0_6px_20px_rgba(107,78,113,0.06)] hover:shadow-[0_4px_12px_rgba(107,78,113,0.18),0_20px_48px_rgba(201,168,117,0.14)] dark:shadow-[0_2px_6px_rgba(0,0,0,0.3),0_6px_20px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_4px_12px_rgba(107,78,113,0.35),0_20px_48px_rgba(201,168,117,0.18)] transition-shadow duration-500"
 											>
 												{/* Image */}
-												<div className="relative aspect-[3/4] overflow-hidden bg-muted">
+												<div className="relative aspect-square overflow-hidden bg-muted">
 													<Link
 														href={`/products/${product.slug}`}
 													>
