@@ -167,7 +167,7 @@ export default function OrdersPage() {
 												{PAYMENT_METHOD_MAP[order.paymentMethod] ?? "—"}
 											</p>
 											<p className="text-lg font-bold gradient-text">
-												{formatPrice(order.totalAmount)} تومان
+												{formatPrice(order.totalAmount)} ریال
 											</p>
 										</div>
 

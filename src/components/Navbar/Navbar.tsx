@@ -34,6 +34,7 @@ import {
 import Magnet from "../utils/Magnet";
 import CartSheet from "@/components/CartSheet";
 import { spring } from "@/lib/motion";
+import GlassSurface from "../GlassSurface/GlassSurface";
 
 const menuItems = [
 	{ label: "محصولات", href: "/products" },
@@ -52,7 +53,8 @@ export default function Navbar() {
 	const { theme, setTheme } = useTheme();
 	const pathname = usePathname();
 	const router = useRouter();
-	const { accessToken, firstName, lastName, isAdmin, logout } = useUserStore();
+	const { accessToken, firstName, lastName, isAdmin, logout } =
+		useUserStore();
 	const { fetchCart, getItemCount } = useCartStore();
 	const itemCount = getItemCount();
 	const [scrolled, setScrolled] = useState(false);
@@ -84,7 +86,7 @@ export default function Navbar() {
 
 	return (
 		<>
-			<svg style={{ display: "none" }}>
+			{/* <svg style={{ display: "none" }}>
 				<filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox">
 					<feTurbulence type="fractalNoise" baseFrequency="0.001 0.005" numOctaves="1" seed="17" result="turbulence" />
 					<feComponentTransfer in="turbulence" result="mapped">
@@ -100,7 +102,6 @@ export default function Navbar() {
 					<feDisplacementMap in="SourceGraphic" in2="softMap" scale="200" xChannelSelector="R" yChannelSelector="G" />
 				</filter>
 			</svg>
-
 			<motion.nav
 				initial={{ y: -100, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
@@ -196,7 +197,9 @@ export default function Navbar() {
 							{!accessToken ? (
 								<Magnet padding={5}>
 									<Link href="/signin">
-										<Button className={`bg-accent-gold hover:bg-accent-gold rounded-full hover:opacity-90 transition-opacity ${styles.navbarCta}`}>
+										<Button
+											className={`bg-accent-gold hover:bg-accent-gold rounded-full hover:opacity-90 transition-opacity ${styles.navbarCta}`}
+										>
 											ورود / ثبت‌نام
 										</Button>
 									</Link>
@@ -267,8 +270,181 @@ export default function Navbar() {
 						</motion.div>
 					</div>
 				</div>
-			</motion.nav>
+			</motion.nav> */}
+			<GlassSurface
+				displace={0.5}
+				opacity={0.9}
+				borderRadius={50}
+				distortionScale={-180}
+				redOffset={20}
+				greenOffset={20}
+				blueOffset={20}
+				blur={0}
+				// brightness={80}
+				mixBlendMode="color"
+				width={1500}
+				height={60}
+				className={`${styles.nav}`}
+			>
+				<div className={styles.navContent}>
+					<div className="flex items-center justify-between">
+						<Link href="/">
+							<motion.div
+								whileHover={{ scale: 1.05 }}
+								whileTap={{ scale: 0.95 }}
+								className="flex items-center gap-3 cursor-pointer"
+							>
+								<Image
+									src={logo}
+									alt="Mahoura"
+									className="w-11 h-11 dark:invert"
+								/>
+							</motion.div>
+						</Link>
 
+						<div className="flex items-center gap-8">
+							{menuItems.map((item, i) => (
+								<Link
+									href={item.href}
+									className={`relative text-sm font-medium transition-colors group ${
+										pathname === item.href
+											? "text-primary-rose"
+											: "text-foreground hover:text-primary-rose"
+									}`}
+								>
+									{item.label}
+									<span
+										className={`absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-primary-rose to-accent-gold transition-all duration-300 ${
+											pathname === item.href
+												? "w-full"
+												: "w-0 group-hover:w-full"
+										}`}
+									/>
+								</Link>
+							))}
+						</div>
+
+						<motion.div
+							initial={{ opacity: 0, scale: 0.8 }}
+							animate={{ opacity: 1, scale: 1 }}
+							transition={{ delay: 0.4 }}
+							className="flex items-center gap-3"
+						>
+							<Button
+								variant="ghost"
+								size="icon"
+								onClick={() =>
+									setTheme(
+										theme === "dark" ? "light" : "dark",
+									)
+								}
+								className="rounded-full"
+							>
+								<AnimatePresence mode="wait">
+									{theme === "dark" ? (
+										<motion.div
+											key="sun"
+											initial={{
+												rotate: -90,
+												opacity: 0,
+											}}
+											animate={{ rotate: 0, opacity: 1 }}
+											exit={{ rotate: 90, opacity: 0 }}
+											transition={{ duration: 0.2 }}
+										>
+											<Sun className="w-5 h-5" />
+										</motion.div>
+									) : (
+										<motion.div
+											key="moon"
+											initial={{ rotate: 90, opacity: 0 }}
+											animate={{ rotate: 0, opacity: 1 }}
+											exit={{ rotate: -90, opacity: 0 }}
+											transition={{ duration: 0.2 }}
+										>
+											<Moon className="w-5 h-5" />
+										</motion.div>
+									)}
+								</AnimatePresence>
+							</Button>
+
+							{!accessToken ? (
+								<Magnet padding={5}>
+									<Link href="/signin">
+										<Button
+											className={`bg-accent-gold hover:bg-accent-gold rounded-full hover:opacity-90 transition-opacity ${styles.navbarCta}`}
+										>
+											ورود / ثبت‌نام
+										</Button>
+									</Link>
+								</Magnet>
+							) : (
+								<motion.div
+									initial={{ opacity: 0, scale: 0.8 }}
+									animate={{ opacity: 1, scale: 1 }}
+									transition={{ delay: 0.5 }}
+								>
+									<DropdownMenu>
+										<DropdownMenuTrigger asChild>
+											<button className="w-10 h-10 rounded-full bg-gradient-to-r from-secondary-plum to-primary-rose flex items-center justify-center text-white hover:shadow-lg transition-shadow">
+												<User className="w-5 h-5" />
+											</button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent
+											align="center"
+											className="w-48"
+										>
+											<DropdownMenuLabel className="text-right">
+												{firstName || lastName
+													? `${firstName} ${lastName}`.trim()
+													: "مستخدم"}
+											</DropdownMenuLabel>
+											<DropdownMenuSeparator />
+											{isAdmin && (
+												<DropdownMenuItem asChild>
+													<Link
+														href="/admin/dashboard"
+														className="flex items-center justify-end gap-2 cursor-pointer"
+													>
+														<LayoutDashboard className="w-4 h-4" />
+														پنل مدیریت
+													</Link>
+												</DropdownMenuItem>
+											)}
+											<DropdownMenuItem asChild>
+												<Link
+													href="/dashboard"
+													className="flex items-center justify-end gap-2 cursor-pointer"
+												>
+													<User className="w-4 h-4" />
+													حساب من
+												</Link>
+											</DropdownMenuItem>
+											<DropdownMenuItem asChild>
+												<Link
+													href="/cart"
+													className="flex items-center justify-end gap-2 cursor-pointer"
+												>
+													<ShoppingCart className="w-4 h-4" />
+													سبد خرید
+												</Link>
+											</DropdownMenuItem>
+											<DropdownMenuSeparator />
+											<DropdownMenuItem
+												onClick={handleLogout}
+												className="text-destructive focus:text-destructive focus:bg-destructive/10 flex justify-end items-center gap-2"
+											>
+												<LogOut className="w-4 h-4" />
+												خروج
+											</DropdownMenuItem>
+										</DropdownMenuContent>
+									</DropdownMenu>
+								</motion.div>
+							)}
+						</motion.div>
+					</div>
+				</div>
+			</GlassSurface>
 			{/* <motion.div
 				initial={{ y: -60, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
@@ -392,8 +568,16 @@ export default function Navbar() {
 				</div>
 			</motion.div> */}
 
-			<BottomNav isActive={isActive} cartCount={itemCount} onCartOpen={() => setCartSheetOpen(true)} isLoggedIn={!!accessToken} />
-			<CartSheet open={cartSheetOpen} onClose={() => setCartSheetOpen(false)} />
+			<BottomNav
+				isActive={isActive}
+				cartCount={itemCount}
+				onCartOpen={() => setCartSheetOpen(true)}
+				isLoggedIn={!!accessToken}
+			/>
+			<CartSheet
+				open={cartSheetOpen}
+				onClose={() => setCartSheetOpen(false)}
+			/>
 		</>
 	);
 }
@@ -419,11 +603,22 @@ function BottomNav({
 				paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)",
 			}}
 		>
-			<div className="w-full rounded-2xl shadow-2xl shadow-black/20" style={{ background: "hsl(var(--background) / 0.78)", backdropFilter: "blur(28px) saturate(200%)", WebkitBackdropFilter: "blur(28px) saturate(200%)", border: "1px solid hsl(var(--border) / 0.4)", boxShadow: "0 8px 32px hsl(var(--foreground) / 0.08), inset 0 1px 0 rgba(255,255,255,0.07)" }}>
+			<div
+				className="w-full rounded-2xl shadow-2xl shadow-black/20"
+				style={{
+					background: "hsl(var(--background) / 0.78)",
+					backdropFilter: "blur(28px) saturate(200%)",
+					WebkitBackdropFilter: "blur(28px) saturate(200%)",
+					border: "1px solid hsl(var(--border) / 0.4)",
+					boxShadow:
+						"0 8px 32px hsl(var(--foreground) / 0.08), inset 0 1px 0 rgba(255,255,255,0.07)",
+				}}
+			>
 				<div className="flex items-center justify-around px-2 py-2">
 					{bottomNavItems.map((item) => {
 						const isAccount = item.href === "/dashboard";
-						const href = isAccount && !isLoggedIn ? "/signin" : item.href;
+						const href =
+							isAccount && !isLoggedIn ? "/signin" : item.href;
 						const active = isActive(href);
 						const isCart = item.href === "/cart";
 
@@ -437,7 +632,11 @@ function BottomNav({
 									/>
 								)}
 								<motion.div
-									animate={active ? { scale: 1.15, y: -2 } : { scale: 1, y: 0 }}
+									animate={
+										active
+											? { scale: 1.15, y: -2 }
+											: { scale: 1, y: 0 }
+									}
 									transition={spring.responsive}
 									whileTap={{ scale: 0.85 }}
 									className="relative flex flex-col items-center gap-1 py-1.5 px-3"
@@ -445,22 +644,38 @@ function BottomNav({
 									<div className="relative">
 										<item.icon
 											className={`w-5 h-5 transition-colors duration-200 ${
-												active ? "text-primary-rose" : isAccount && !isLoggedIn ? "text-accent-gold" : "text-muted-foreground"
+												active
+													? "text-primary-rose"
+													: isAccount && !isLoggedIn
+														? "text-accent-gold"
+														: "text-muted-foreground"
 											}`}
 										/>
 										{isCart && cartCount > 0 && (
 											<span className="absolute -top-2 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-primary-rose text-white text-[10px] font-bold flex items-center justify-center leading-none">
-												{cartCount > 99 ? "99+" : cartCount}
+												{cartCount > 99
+													? "99+"
+													: cartCount}
 											</span>
 										)}
 									</div>
 									<motion.span
-										animate={active ? { opacity: 1 } : { opacity: 0.5 }}
+										animate={
+											active
+												? { opacity: 1 }
+												: { opacity: 0.5 }
+										}
 										className={`text-[10px] font-medium transition-colors duration-200 ${
-											active ? "text-primary-rose" : isAccount && !isLoggedIn ? "text-accent-gold opacity-100" : "text-muted-foreground"
+											active
+												? "text-primary-rose"
+												: isAccount && !isLoggedIn
+													? "text-accent-gold opacity-100"
+													: "text-muted-foreground"
 										}`}
 									>
-										{isAccount && !isLoggedIn ? "ورود" : item.label}
+										{isAccount && !isLoggedIn
+											? "ورود"
+											: item.label}
 									</motion.span>
 									{active && (
 										<motion.div
@@ -474,11 +689,19 @@ function BottomNav({
 						);
 
 						return isCart ? (
-							<button key={item.href} className="flex-1" onClick={onCartOpen}>
+							<button
+								key={item.href}
+								className="flex-1"
+								onClick={onCartOpen}
+							>
 								{inner}
 							</button>
 						) : (
-							<Link key={item.href} href={href} className="flex-1">
+							<Link
+								key={item.href}
+								href={href}
+								className="flex-1"
+							>
 								{inner}
 							</Link>
 						);

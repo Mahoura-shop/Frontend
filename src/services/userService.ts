@@ -2,8 +2,8 @@ import { getData, patchData } from "./services"
 
 export const getUsers = () => getData({ endPoint: "v1/users" })
 
-export const changeUserType = (userID: number, data: { type: string; reason: string }) =>
-	patchData({ endPoint: `v1/users/${userID}/type`, data })
+export const changeUserType = (userID: number, newType: number) =>
+	patchData({ endPoint: `v1/users/${userID}/type`, data: { newType } })
 
 export const getUserAuditLogs = (userID: number) =>
 	getData({ endPoint: `v1/users/${userID}/audit-logs` })

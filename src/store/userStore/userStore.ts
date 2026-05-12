@@ -10,6 +10,8 @@ const useUserStore = create<UserState>()(
 			firstName: undefined,
 			lastName: undefined,
 			isAdmin: false,
+			userType: undefined,
+			_hasHydrated: false,
 
 			setUsername: (username: string) =>
 				set((prev) => ({ ...prev, username })),
@@ -23,6 +25,8 @@ const useUserStore = create<UserState>()(
 				set((prev) => ({ ...prev, lastName })),
 			setIsAdmin: (value: boolean) =>
 				set((prev) => ({ ...prev, isAdmin: value })),
+			setUserType: (userType: string) =>
+				set((prev) => ({ ...prev, userType })),
 			logout: () =>
 				set(() => ({
 					username: undefined,
@@ -31,11 +35,15 @@ const useUserStore = create<UserState>()(
 					firstName: undefined,
 					lastName: undefined,
 					isAdmin: false,
+					userType: undefined,
 				})),
 		}),
 		{
 			name: "user-storage",
 			storage: createJSONStorage(() => localStorage),
+			onRehydrateStorage: () => (state) => {
+				if (state) state._hasHydrated = true;
+			},
 		},
 	),
 );

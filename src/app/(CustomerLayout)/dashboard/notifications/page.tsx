@@ -32,7 +32,7 @@ const MOCK_NOTIFICATIONS = [
 		color: "from-primary-rose/20 to-accent-gold/20",
 		iconColor: "text-primary-rose",
 		title: "شارژ کیف پول",
-		body: "مبلغ ۵۰۰,۰۰۰ تومان به کیف پول شما اضافه شد",
+		body: "مبلغ ۵۰۰,۰۰۰ ریال به کیف پول شما اضافه شد",
 		date: "۱۴۰۳/۰۲/۲۳",
 		read: true,
 	},

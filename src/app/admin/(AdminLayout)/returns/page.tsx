@@ -146,7 +146,7 @@ export default function AdminReturnsPage() {
 										</div>
 										<div>
 											<p className="text-xs text-muted-foreground mb-1">مبلغ استرجاع</p>
-											<p className="font-bold text-primary-rose">{formatPrice(r.refundAmount)} تومان</p>
+											<p className="font-bold text-primary-rose">{formatPrice(r.refundAmount)} ریال</p>
 										</div>
 										<div>
 											<p className="text-xs text-muted-foreground mb-1">تاریخ درخواست</p>

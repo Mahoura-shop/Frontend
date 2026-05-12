@@ -37,7 +37,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import InputFree from "@/components/Custom/Input/InputFree";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import { formatDate } from "@/utils/formatDate";
@@ -90,11 +89,11 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const TYPE_OPTIONS = [
-	{ value: "guest", label: "مهمان" },
-	{ value: "regular", label: "مشتری" },
-	{ value: "shopkeeperCheque", label: "فروشنده (چکی)" },
-	{ value: "shopkeeperCash", label: "فروشنده (نقدی)" },
-	{ value: "fellow", label: "همکار" },
+	{ value: "1", label: "مهمان" },
+	{ value: "2", label: "مشتری" },
+	{ value: "3", label: "فروشنده (چکی)" },
+	{ value: "4", label: "فروشنده (نقدی)" },
+	{ value: "5", label: "همکار" },
 ];
 
 export default function AdminUsersPage() {
@@ -108,7 +107,6 @@ export default function AdminUsersPage() {
 		user: UserItem | null;
 	}>({ open: false, user: null });
 	const [newType, setNewType] = useState("");
-	const [reason, setReason] = useState("");
 	const [actionLoading, setActionLoading] = useState(false);
 	const [walletDialog, setWalletDialog] = useState<{
 		open: boolean;
@@ -194,10 +192,10 @@ export default function AdminUsersPage() {
 	};
 
 	const handleChangeRole = async () => {
-		if (!roleDialog.user || !newType || !reason) return;
+		if (!roleDialog.user || !newType) return;
 		setActionLoading(true);
 		try {
-			await changeUserType(roleDialog.user.id, { type: newType, reason });
+			await changeUserType(roleDialog.user.id, parseInt(newType));
 			setUsers(
 				(prev) =>
 					prev?.map((u) =>
@@ -214,7 +212,6 @@ export default function AdminUsersPage() {
 			CustomToast("نقش کاربر تغییر کرد", "success");
 			setRoleDialog({ open: false, user: null });
 			setNewType("");
-			setReason("");
 		} finally {
 			setActionLoading(false);
 		}
@@ -539,18 +536,6 @@ export default function AdminUsersPage() {
 								</SelectContent>
 							</Select>
 						</div>
-						<div className="space-y-1">
-							<label className="text-sm font-medium">
-								دلیل تغییر
-							</label>
-							<Textarea
-								value={reason}
-								onChange={(e) => setReason(e.target.value)}
-								placeholder="دلیل تغییر نقش را بنویسید..."
-								className="resize-none"
-								rows={3}
-							/>
-						</div>
 					</div>
 					<DialogFooter>
 						<Button
@@ -563,7 +548,7 @@ export default function AdminUsersPage() {
 						</Button>
 						<Button
 							onClick={handleChangeRole}
-							disabled={actionLoading || !newType || !reason}
+							disabled={actionLoading || !newType}
 						>
 							تایید
 						</Button>

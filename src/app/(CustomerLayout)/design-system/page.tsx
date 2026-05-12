@@ -78,7 +78,7 @@ function FloatDemo({ slowMo }: { slowMo: boolean }) {
           <p className="font-semibold text-sm">Product Name</p>
           <p className="text-xs text-muted-foreground mb-2">Premium Cosmetic</p>
           <span className="inline-block px-2 py-1 bg-accent-gold/20 text-accent-gold text-xs rounded">
-            ۱۵۰,۰۰۰ تومان
+            ۱۵۰,۰۰۰ ریال
           </span>
         </CardContent>
       </Card>

@@ -178,13 +178,13 @@ export default function AdminOrderDetailPage() {
 		},
 		{
 			title: "مبلغ کل",
-			value: `${formatPrice(order.totalAmount)} تومان`,
+			value: `${formatPrice(order.totalAmount)} ریال`,
 			icon: ReceiptText,
 			color: "from-primary-rose to-secondary-plum",
 		},
 		{
 			title: "هزینه ارسال",
-			value: `${formatPrice(order.shippingCost)} تومان`,
+			value: `${formatPrice(order.shippingCost)} ریال`,
 			icon: Truck,
 			color: "from-blue-500 to-blue-600",
 		},
@@ -292,10 +292,10 @@ export default function AdminOrderDetailPage() {
 										</TableCell>
 										<TableCell>{item.count}</TableCell>
 										<TableCell className="text-muted-foreground">
-											{formatPrice(item.priceSnapshot)} تومان
+											{formatPrice(item.priceSnapshot)} ریال
 										</TableCell>
 										<TableCell className="font-bold text-primary-rose">
-											{formatPrice(item.count * item.priceSnapshot)} تومان
+											{formatPrice(item.count * item.priceSnapshot)} ریال
 										</TableCell>
 									</motion.tr>
 								))}
@@ -339,7 +339,7 @@ export default function AdminOrderDetailPage() {
 												<TableCell className="font-medium">
 													{new Intl.NumberFormat("fa-IR").format(inst.number)}
 												</TableCell>
-												<TableCell>{formatPrice(inst.amount)} تومان</TableCell>
+												<TableCell>{formatPrice(inst.amount)} ریال</TableCell>
 												<TableCell className="text-muted-foreground">
 													{formatDate(inst.dueDate)}
 												</TableCell>

@@ -35,7 +35,17 @@ const VALID_COUPONS: Record<string, number> = {
 export default function CartPage() {
 	const { items, loading, fetchCart, addItem, removeItem, removeAllOfItem, clearCart } =
 		useCartStore()
-	const { accessToken } = useUserStore()
+	const { accessToken, userType } = useUserStore()
+
+	const resolveItemPrice = (product: any): number => {
+		switch (userType) {
+			case "fellow": return product.step1Price ?? product.consumerPrice ?? 0
+			case "shopkeeperCash": return product.step2Price ?? product.consumerPrice ?? 0
+			case "shopkeeperCheque": return product.step3Price ?? product.consumerPrice ?? 0
+			case "regular": return product.step4Price ?? product.consumerPrice ?? 0
+			default: return product.step4Price ?? product.consumerPrice ?? 0
+		}
+	}
 	const router = useRouter()
 
 	useEffect(() => {
@@ -62,7 +72,7 @@ export default function CartPage() {
 	}
 
 	const subtotal = items.reduce(
-		(sum, item) => sum + (item.product.irrPrice ?? 0) * item.count,
+		(sum, item) => sum + resolveItemPrice(item.product) * item.count,
 		0
 	)
 	const shipping = subtotal > 0 ? (subtotal > 500000 ? 0 : 50000) : 0
@@ -210,12 +220,12 @@ export default function CartPage() {
 
 												<div className="text-left">
 													<p className="text-2xl font-bold gradient-text">
-														{formatPrice((item.product.irrPrice ?? 0) * item.count)}
+														{formatPrice(resolveItemPrice(item.product) * item.count)}
 													</p>
-													<p className="text-sm text-muted-foreground">تومان</p>
+													<p className="text-sm text-muted-foreground">ریال</p>
 													{item.count > 1 && (
 														<p className="text-xs text-muted-foreground mt-1">
-															{formatPrice(item.product.irrPrice ?? 0)} ×{" "}
+															{formatPrice(resolveItemPrice(item.product))} ×{" "}
 															{new Intl.NumberFormat("fa-IR").format(item.count)}
 														</p>
 													)}
@@ -305,7 +315,7 @@ export default function CartPage() {
 									<div className="space-y-3">
 										<div className="flex items-center justify-between">
 											<span className="text-muted-foreground">جمع کل</span>
-											<span className="font-medium">{formatPrice(subtotal)} تومان</span>
+											<span className="font-medium">{formatPrice(subtotal)} ریال</span>
 										</div>
 
 										{appliedCoupon && (
@@ -314,7 +324,7 @@ export default function CartPage() {
 													<Percent className="w-4 h-4" />
 													تخفیف ({appliedCoupon.discount}%)
 												</span>
-												<span className="font-medium">-{formatPrice(discount)} تومان</span>
+												<span className="font-medium">-{formatPrice(discount)} ریال</span>
 											</div>
 										)}
 
@@ -326,14 +336,14 @@ export default function CartPage() {
 														رایگان
 													</span>
 												) : (
-													`${formatPrice(shipping)} تومان`
+													`${formatPrice(shipping)} ریال`
 												)}
 											</span>
 										</div>
 
 										<div className="flex items-center justify-between">
 											<span className="text-muted-foreground">مالیات (۹٪)</span>
-											<span className="font-medium">{formatPrice(tax)} تومان</span>
+											<span className="font-medium">{formatPrice(tax)} ریال</span>
 										</div>
 									</div>
 
@@ -349,7 +359,7 @@ export default function CartPage() {
 											<p className="text-sm text-center">
 												با خرید{" "}
 												<span className="font-bold">
-													{formatPrice(500000 - subtotal)} تومان
+													{formatPrice(500000 - subtotal)} ریال
 												</span>{" "}
 												بیشتر، ارسال رایگان!
 											</p>

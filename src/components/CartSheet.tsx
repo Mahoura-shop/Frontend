@@ -6,6 +6,7 @@ import { X, ShoppingCart, Plus, Minus, Trash2, CreditCard, Package, ShoppingBag 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
+import useUserStore from "@/store/userStore/userStore";
 import { formatPrice } from "@/utils/formatPrice";
 
 interface CartSheetProps {
@@ -15,8 +16,19 @@ interface CartSheetProps {
 
 export default function CartSheet({ open, onClose }: CartSheetProps) {
 	const { items, loading, addItem, removeItem, removeAllOfItem } = useCartStore();
+	const { userType } = useUserStore();
 
-	const total = items.reduce((sum, item) => sum + (item.product.irrPrice ?? 0) * item.count, 0);
+	const resolveItemPrice = (product: any): number => {
+		switch (userType) {
+			case "fellow": return product.step1Price ?? product.consumerPrice ?? 0
+			case "shopkeeperCash": return product.step2Price ?? product.consumerPrice ?? 0
+			case "shopkeeperCheque": return product.step3Price ?? product.consumerPrice ?? 0
+			case "regular": return product.step4Price ?? product.consumerPrice ?? 0
+			default: return product.step4Price ?? product.consumerPrice ?? 0
+		}
+	};
+
+	const total = items.reduce((sum, item) => sum + resolveItemPrice(item.product) * item.count, 0);
 
 	return (
 		<AnimatePresence>
@@ -79,7 +91,7 @@ export default function CartSheet({ open, onClose }: CartSheetProps) {
 										<div className="flex-1 min-w-0">
 											<p className="text-sm font-semibold truncate">{item.product.name}</p>
 											<p className="text-xs text-primary-rose font-bold">
-												{formatPrice((item.product.irrPrice ?? 0) * item.count)} تومان
+												{formatPrice(resolveItemPrice(item.product) * item.count)} ریال
 											</p>
 										</div>
 
@@ -119,7 +131,7 @@ export default function CartSheet({ open, onClose }: CartSheetProps) {
 							<div className="px-5 py-4 border-t border-border space-y-3">
 								<div className="flex items-center justify-between">
 									<span className="text-muted-foreground text-sm">جمع کل</span>
-									<span className="font-bold text-lg">{formatPrice(total)} تومان</span>
+									<span className="font-bold text-lg">{formatPrice(total)} ریال</span>
 								</div>
 								<div className="flex gap-3">
 									<Link href="/cart" className="flex-1" onClick={onClose}>

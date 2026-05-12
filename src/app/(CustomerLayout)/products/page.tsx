@@ -39,26 +39,42 @@ import { Slider } from "@/components/ui/slider";
 import { Pagination } from "@/components/ui/pagination";
 import InputFree from "@/components/Custom/Input/InputFree";
 import SelectFree from "@/components/Custom/Select/SelectFree";
+import useUserStore from "@/store/userStore/userStore";
+import resolvePrice from "@/utils/resolvePrice";
 
 export default function ProductsPage() {
 	const { products, totalCount, fetchProducts } = useProductStore();
 	const { categories, fetchCategories } = useCategoryStore();
 	const { brands, fetchBrands } = useBrandStore();
 	const { addItem } = useCartStore();
+	const { userType } = useUserStore();
+
 	const searchParams = useSearchParams();
 	const router = useRouter();
 	const pathname = usePathname();
 	const [addingId, setAddingId] = useState<number | null>(null);
 	const itemsPerPage = 12;
-	const [searchQuery, setSearchQuery] = useState(() => searchParams.get("q") ?? "");
-	const [debouncedSearch, setDebouncedSearch] = useState(() => searchParams.get("q") ?? "");
-	const [selectedCategory, setSelectedCategory] = useState<string>(() => searchParams.get("category") ?? "0");
-	const [selectedBrand, setSelectedBrand] = useState<string>(() => searchParams.get("brand") ?? "0");
-	const [currentPage, setCurrentPage] = useState(() => Number(searchParams.get("page") ?? "1"));
+	const [searchQuery, setSearchQuery] = useState(
+		() => searchParams.get("q") ?? "",
+	);
+	const [debouncedSearch, setDebouncedSearch] = useState(
+		() => searchParams.get("q") ?? "",
+	);
+	const [selectedCategory, setSelectedCategory] = useState<string>(
+		() => searchParams.get("category") ?? "0",
+	);
+	const [selectedBrand, setSelectedBrand] = useState<string>(
+		() => searchParams.get("brand") ?? "0",
+	);
+	const [currentPage, setCurrentPage] = useState(() =>
+		Number(searchParams.get("page") ?? "1"),
+	);
 	const [priceRange, setPriceRange] = useState<number[]>([0, 100000]);
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 	const [showFilters, setShowFilters] = useState(false);
-	const [sortBy, setSortBy] = useState<string>(() => searchParams.get("sort") ?? "newest");
+	const [sortBy, setSortBy] = useState<string>(
+		() => searchParams.get("sort") ?? "newest",
+	);
 	const [isLoading, setIsLoading] = useState(false);
 
 	const refreshProducts = useCallback(async () => {
@@ -66,8 +82,12 @@ export default function ProductsPage() {
 		try {
 			await fetchProducts({
 				q: debouncedSearch,
-				categoryID: selectedCategory !== "0" ? Number(selectedCategory) : undefined,
-				brandID: selectedBrand !== "0" ? Number(selectedBrand) : undefined,
+				categoryID:
+					selectedCategory !== "0"
+						? Number(selectedCategory)
+						: undefined,
+				brandID:
+					selectedBrand !== "0" ? Number(selectedBrand) : undefined,
 				sortBy: mapSortByToBackend(sortBy),
 				limit: itemsPerPage,
 				offset: (currentPage - 1) * itemsPerPage,
@@ -75,7 +95,14 @@ export default function ProductsPage() {
 		} finally {
 			setIsLoading(false);
 		}
-	}, [fetchProducts, debouncedSearch, selectedCategory, selectedBrand, sortBy, currentPage]);
+	}, [
+		fetchProducts,
+		debouncedSearch,
+		selectedCategory,
+		selectedBrand,
+		sortBy,
+		currentPage,
+	]);
 
 	const { pulling, pullY, refreshing } = usePullToRefresh(refreshProducts);
 
@@ -138,10 +165,17 @@ export default function ProductsPage() {
 			try {
 				await fetchProducts({
 					q: debouncedSearch,
-					categoryID: selectedCategory !== "0" ? Number(selectedCategory) : undefined,
-					brandID: selectedBrand !== "0" ? Number(selectedBrand) : undefined,
+					categoryID:
+						selectedCategory !== "0"
+							? Number(selectedCategory)
+							: undefined,
+					brandID:
+						selectedBrand !== "0"
+							? Number(selectedBrand)
+							: undefined,
 					minPrice: priceRange[0] > 0 ? priceRange[0] : undefined,
-					maxPrice: priceRange[1] < 100000 ? priceRange[1] : undefined,
+					maxPrice:
+						priceRange[1] < 100000 ? priceRange[1] : undefined,
 					sortBy: mapSortByToBackend(sortBy),
 					limit: itemsPerPage,
 					offset: (currentPage - 1) * itemsPerPage,
@@ -151,7 +185,14 @@ export default function ProductsPage() {
 			}
 		};
 		loadProducts();
-	}, [debouncedSearch, selectedCategory, selectedBrand, priceRange, sortBy, currentPage]);
+	}, [
+		debouncedSearch,
+		selectedCategory,
+		selectedBrand,
+		priceRange,
+		sortBy,
+		currentPage,
+	]);
 
 	return (
 		<div className="min-h-screen bg-background">
@@ -159,10 +200,22 @@ export default function ProductsPage() {
 			{(pulling || refreshing) && (
 				<div
 					className="fixed top-0 inset-x-0 z-50 flex items-center justify-center pointer-events-none"
-					style={{ height: pullY || (refreshing ? 56 : 0), transition: pulling ? "none" : "height 0.3s ease" }}
+					style={{
+						height: pullY || (refreshing ? 56 : 0),
+						transition: pulling ? "none" : "height 0.3s ease",
+					}}
 				>
 					<div className="flex items-center gap-2 bg-background/90 backdrop-blur border border-border rounded-full px-4 py-2 shadow-lg text-sm text-muted-foreground">
-						<RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} style={!refreshing ? { transform: `rotate(${(pullY / 56) * 180}deg)` } : undefined} />
+						<RefreshCw
+							className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
+							style={
+								!refreshing
+									? {
+											transform: `rotate(${(pullY / 56) * 180}deg)`,
+										}
+									: undefined
+							}
+						/>
 						{refreshing ? "در حال بارگذاری..." : "رها کنید"}
 					</div>
 				</div>
@@ -180,7 +233,10 @@ export default function ProductsPage() {
 								تمامی محصولات
 							</h1>
 							<p className="text-muted-foreground text-lg">
-								{new Intl.NumberFormat("fa-IR").format(products.length)} محصول موجود
+								{new Intl.NumberFormat("fa-IR").format(
+									products.length,
+								)}{" "}
+								محصول موجود
 							</p>
 						</motion.div>
 					</div>
@@ -203,17 +259,23 @@ export default function ProductsPage() {
 										<div>
 											<SelectFree
 												value={selectedCategory}
-												onValueChange={setSelectedCategory}
+												onValueChange={
+													setSelectedCategory
+												}
 												label="دسته‌بندی"
 												options={[
 													{
 														value: "0",
 														label: "تمام دسته‌بندی‌ها",
 													},
-													...categories.map((cat) => ({
-														value: String(cat.id),
-														label: cat.name,
-													})),
+													...categories.map(
+														(cat) => ({
+															value: String(
+																cat.id,
+															),
+															label: cat.name,
+														}),
+													),
 												]}
 											/>
 										</div>
@@ -249,7 +311,9 @@ export default function ProductsPage() {
 
 											<Slider
 												value={priceRange}
-												onValueChange={handlePriceChange}
+												onValueChange={
+													handlePriceChange
+												}
 												max={5000000}
 												min={0}
 												step={10000}
@@ -261,10 +325,12 @@ export default function ProductsPage() {
 														حداکثر
 													</p>
 													<p className="font-bold gradient-text">
-														{formatPrice(priceRange[1])}
+														{formatPrice(
+															priceRange[1],
+														)}
 													</p>
 													<p className="font-bold gradient-text">
-														تومان
+														ریال
 													</p>
 												</div>
 												<div className="p-3 rounded-lg bg-background border text-center">
@@ -272,10 +338,12 @@ export default function ProductsPage() {
 														حداقل
 													</p>
 													<p className="font-bold gradient-text">
-														{formatPrice(priceRange[0])}
+														{formatPrice(
+															priceRange[0],
+														)}
 													</p>
 													<p className="font-bold gradient-text">
-														تومان
+														ریال
 													</p>
 												</div>
 											</div>
@@ -314,7 +382,11 @@ export default function ProductsPage() {
 										initial={{ y: "100%" }}
 										animate={{ y: 0 }}
 										exit={{ y: "100%" }}
-										transition={{ type: "spring", damping: 30, stiffness: 300 }}
+										transition={{
+											type: "spring",
+											damping: 30,
+											stiffness: 300,
+										}}
 										className="absolute bottom-0 inset-x-0 glass-panel rounded-t-2xl max-h-[85vh] overflow-y-auto"
 										onClick={(e) => e.stopPropagation()}
 									>
@@ -328,17 +400,35 @@ export default function ProductsPage() {
 													<Filter className="w-5 h-5" />
 													فیلترها
 												</h3>
-												<Button variant="ghost" size="icon" onClick={() => setShowFilters(false)}>
+												<Button
+													variant="ghost"
+													size="icon"
+													onClick={() =>
+														setShowFilters(false)
+													}
+												>
 													<X className="w-5 h-5" />
 												</Button>
 											</div>
 											<SelectFree
 												value={selectedCategory}
-												onValueChange={setSelectedCategory}
+												onValueChange={
+													setSelectedCategory
+												}
 												label="دسته‌بندی"
 												options={[
-													{ value: "0", label: "تمام دسته‌بندی‌ها" },
-													...categories.map((cat) => ({ value: String(cat.id), label: cat.name })),
+													{
+														value: "0",
+														label: "تمام دسته‌بندی‌ها",
+													},
+													...categories.map(
+														(cat) => ({
+															value: String(
+																cat.id,
+															),
+															label: cat.name,
+														}),
+													),
 												]}
 											/>
 											<SelectFree
@@ -346,27 +436,69 @@ export default function ProductsPage() {
 												onValueChange={setSelectedBrand}
 												label="برند"
 												options={[
-													{ value: "0", label: "تمام برندها" },
-													...brands.map((brand) => ({ value: String(brand.id), label: brand.name })),
+													{
+														value: "0",
+														label: "تمام برندها",
+													},
+													...brands.map((brand) => ({
+														value: String(brand.id),
+														label: brand.name,
+													})),
 												]}
 											/>
 											<div className="space-y-4">
-												<span className="text-sm font-medium">محدوده قیمت</span>
-												<Slider value={priceRange} onValueChange={handlePriceChange} max={5000000} min={0} step={10000} />
+												<span className="text-sm font-medium">
+													محدوده قیمت
+												</span>
+												<Slider
+													value={priceRange}
+													onValueChange={
+														handlePriceChange
+													}
+													max={5000000}
+													min={0}
+													step={10000}
+												/>
 												<div className="grid grid-cols-2 gap-4">
 													<div className="p-3 rounded-lg bg-background border text-center">
-														<p className="text-xs text-muted-foreground mb-1">حداکثر</p>
-														<p className="font-bold gradient-text">{formatPrice(priceRange[1])}</p>
-														<p className="font-bold gradient-text">تومان</p>
+														<p className="text-xs text-muted-foreground mb-1">
+															حداکثر
+														</p>
+														<p className="font-bold gradient-text">
+															{formatPrice(
+																priceRange[1],
+															)}
+														</p>
+														<p className="font-bold gradient-text">
+															ریال
+														</p>
 													</div>
 													<div className="p-3 rounded-lg bg-background border text-center">
-														<p className="text-xs text-muted-foreground mb-1">حداقل</p>
-														<p className="font-bold gradient-text">{formatPrice(priceRange[0])}</p>
-														<p className="font-bold gradient-text">تومان</p>
+														<p className="text-xs text-muted-foreground mb-1">
+															حداقل
+														</p>
+														<p className="font-bold gradient-text">
+															{formatPrice(
+																priceRange[0],
+															)}
+														</p>
+														<p className="font-bold gradient-text">
+															ریال
+														</p>
 													</div>
 												</div>
 											</div>
-											<Button variant="outline" className="w-full" onClick={() => { setSearchQuery(""); setSelectedCategory("0"); setSelectedBrand("0"); setPriceRange([0, 5000000]); setShowFilters(false); }}>
+											<Button
+												variant="outline"
+												className="w-full"
+												onClick={() => {
+													setSearchQuery("");
+													setSelectedCategory("0");
+													setSelectedBrand("0");
+													setPriceRange([0, 5000000]);
+													setShowFilters(false);
+												}}
+											>
 												پاک کردن فیلترها
 											</Button>
 										</div>
@@ -441,7 +573,7 @@ export default function ProductsPage() {
 							{isLoading ? (
 								<ProductGridSkeleton count={12} />
 							) : paginatedProducts &&
-							paginatedProducts?.length === 0 ? (
+							  paginatedProducts?.length === 0 ? (
 								<div className="text-center py-20">
 									<Package className="w-20 h-20 mx-auto text-muted-foreground mb-4" />
 									<h3 className="text-2xl font-bold mb-2">
@@ -471,11 +603,17 @@ export default function ProductsPage() {
 											>
 												{/* Image */}
 												<div className="relative aspect-[3/4] overflow-hidden bg-muted">
-													<Link href={`/products/${product.slug}`}>
+													<Link
+														href={`/products/${product.slug}`}
+													>
 														{product.productPic ? (
 															<img
-																src={product.productPic}
-																alt={product.name}
+																src={
+																	product.productPic
+																}
+																alt={
+																	product.name
+																}
 																className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
 															/>
 														) : (
@@ -493,8 +631,11 @@ export default function ProductsPage() {
 																جدید
 															</Badge>
 														)}
-														{product.quantity === 0 && (
-															<Badge variant="outOfStock">ناموجود</Badge>
+														{product.quantity ===
+															0 && (
+															<Badge variant="outOfStock">
+																ناموجود
+															</Badge>
 														)}
 													</div>
 
@@ -502,39 +643,94 @@ export default function ProductsPage() {
 													<motion.div
 														initial={{ y: "100%" }}
 														whileHover={{ y: 0 }}
-														transition={{ duration: 0.35, ease: "easeOut" }}
+														transition={{
+															duration: 0.35,
+															ease: "easeOut",
+														}}
 														className="absolute bottom-0 inset-x-0 z-20 bg-card/95 backdrop-blur-sm p-3 flex justify-end"
 													>
 														<Button
 															variant="luxury"
 															size="sm"
 															className="gap-1.5 w-full"
-															disabled={addingId === product.id || product.quantity === 0}
-															onClick={(e) => handleAddToCart(e, product.id)}
+															disabled={
+																addingId ===
+																	product.id ||
+																product.quantity ===
+																	0
+															}
+															onClick={(e) =>
+																handleAddToCart(
+																	e,
+																	product.id,
+																)
+															}
 														>
-															{addingId === product.id ? (
+															{addingId ===
+															product.id ? (
 																<motion.div
-																	animate={{ rotate: 360 }}
-																	transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
+																	animate={{
+																		rotate: 360,
+																	}}
+																	transition={{
+																		repeat: Infinity,
+																		duration: 0.8,
+																		ease: "linear",
+																	}}
 																	className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
 																/>
 															) : (
 																<ShoppingBag className="w-4 h-4" />
 															)}
-															{product.quantity === 0 ? "ناموجود" : addingId === product.id ? "..." : "افزودن"}
+															{product.quantity ===
+															0
+																? "ناموجود"
+																: addingId ===
+																	  product.id
+																	? "..."
+																	: "افزودن"}
 														</Button>
 													</motion.div>
 												</div>
 
 												{/* Info footer — always visible */}
-												<Link href={`/products/${product.slug}`}>
+												<Link
+													href={`/products/${product.slug}`}
+												>
 													<div className="p-4">
-														<p className="text-xs text-muted-foreground font-semibold mb-1 truncate">{product.brand?.name}</p>
-														<p className="text-sm font-bold text-foreground leading-snug line-clamp-2 mb-3">{product.name}</p>
-														<p className="text-base font-bold text-primary-rose">
-															{formatPrice(Number(product.resolvedPrice || product.irrPrice))}
-															<span className="text-xs text-muted-foreground ms-1">تومان</span>
+														<p className="text-xs text-muted-foreground font-semibold mb-1 truncate">
+															{
+																product.brand
+																	?.name
+															}
 														</p>
+														<p className="text-sm font-bold text-foreground leading-snug line-clamp-2 mb-3">
+															{product.name}
+														</p>
+														<p className="text-base font-bold text-primary-rose">
+															{formatPrice(
+																resolvePrice(
+																	product,
+																	userType,
+																),
+															)}
+															<span className="text-xs text-muted-foreground ms-1">
+																ریال
+															</span>
+														</p>
+														{!!product.consumerPrice &&
+															product.consumerPrice !==
+																resolvePrice(
+																	product,
+																	userType,
+																) && (
+																<p className="text-sm text-muted-foreground line-through mt-1">
+																	{formatPrice(
+																		product.consumerPrice,
+																	)}{" "}
+																	ریال
+																</p>
+															)}
 													</div>
 												</Link>
 											</motion.div>
@@ -554,7 +750,6 @@ export default function ProductsPage() {
 					</div>
 				</div>
 			</div>
-
 		</div>
 	);
 }

@@ -85,7 +85,7 @@ export default function CustomerReturnsPage() {
 												</div>
 												<div className="text-left shrink-0">
 													<p className="text-xl font-bold text-primary-rose mb-1">
-														{formatPrice(r.refundAmount)} تومان
+														{formatPrice(r.refundAmount)} ریال
 													</p>
 													<div className={`flex items-center gap-1 text-sm font-medium ${s.color}`}>
 														<Icon className="w-4 h-4" />

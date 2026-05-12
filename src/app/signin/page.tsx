@@ -24,7 +24,7 @@ export default function SignIn() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [resendTimer, setResendTimer] = useState(0);
 	const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
-	const { setAccessToken, setRefreshToken, setFirstName, setLastName, setIsAdmin } = useUserStore();
+	const { setAccessToken, setRefreshToken, setFirstName, setLastName, setIsAdmin, setUserType } = useUserStore();
 	const router = useRouter();
 
 	useEffect(() => {
@@ -60,6 +60,7 @@ export default function SignIn() {
 			setFirstName(data?.data?.firstName ?? "");
 			setLastName(data?.data?.lastName ?? "");
 			setIsAdmin(data?.data?.isAdmin ?? false);
+			setUserType(data?.data?.type ?? "regular");
 			CustomToast("خوش آمدید!", "success");
 			router.push(data?.data?.isAdmin ? "/admin/dashboard" : "/");
 		} finally {
@@ -99,6 +100,7 @@ export default function SignIn() {
 
 	useEffect(() => {
 		if (step !== "otp") return;
+		setTimeout(() => otpRefs.current[0]?.focus(), 50);
 		if (!("OTPCredential" in window)) return;
 		const ac = new AbortController();
 		(navigator.credentials as any)
@@ -107,6 +109,12 @@ export default function SignIn() {
 			.catch(() => {});
 		return () => ac.abort();
 	}, [step]);
+
+	useEffect(() => {
+		if (otp.every((d) => d !== "") && !isLoading) {
+			handleVerifyOTP({ preventDefault: () => {} } as React.FormEvent);
+		}
+	}, [otp]);
 
 	const handleResend = async () => {
 		if (resendTimer > 0) return;
@@ -340,6 +348,7 @@ export default function SignIn() {
 													onPaste={i === 0 ? handleOtpPaste : undefined}
 													animate={digit ? { scale: [1, 1.08, 1] } : { scale: 1 }}
 													transition={spring}
+													autoFocus={i === 0}
 													className={[
 														"w-11 h-13 sm:w-13 sm:h-15 text-center text-lg sm:text-xl font-bold rounded-xl border-2 outline-none transition-all duration-200",
 														"focus:ring-2 focus:ring-secondary-plum/30",

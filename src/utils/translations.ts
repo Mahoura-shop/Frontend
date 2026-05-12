@@ -145,7 +145,7 @@ export const translations = {
     updateProductDesc: 'جزئیات محصول را در زیر به‌روزرسانی کنید.',
     createProductDesc: 'جزئیات را برای افزودن محصول جدید به کاتالوگ پر کنید.',
     productName: 'نام محصول',
-    productPrice: 'قیمت (تومان)',
+    productPrice: 'قیمت (ریال)',
     productDescription: 'توضیحات',
     imageUrl: 'آدرس تصویر',
     selectCategory: 'انتخاب دسته‌بندی',
@@ -173,7 +173,7 @@ export const translations = {
     deleteConfirm: 'آیا مطمئن هستید که می‌خواهید حذف کنید',
     
     // Currency
-    currency: 'تومان',
+    currency: 'ریال',
   },
 };
 

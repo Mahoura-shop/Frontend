@@ -437,7 +437,7 @@ export default function OrderDetailPage() {
 													{formatPrice(
 														item.priceSnapshot,
 													)}{" "}
-													تومان
+													ریال
 												</p>
 											</div>
 											<div className="text-left">
@@ -559,7 +559,7 @@ export default function OrderDetailPage() {
 								</span>
 								<span>
 									{order.shippingCost > 0
-										? `${formatPrice(order.shippingCost)} تومان`
+										? `${formatPrice(order.shippingCost)} ریال`
 										: "رایگان"}
 								</span>
 							</div>
@@ -573,7 +573,7 @@ export default function OrderDetailPage() {
 							<div className="flex justify-between font-bold">
 								<span>جمع کل</span>
 								<span className="gradient-text">
-									{formatPrice(order.totalAmount)} تومان
+									{formatPrice(order.totalAmount)} ریال
 								</span>
 							</div>
 						</CardContent>
@@ -660,7 +660,7 @@ export default function OrderDetailPage() {
 														{formatPrice(
 															inst.amount,
 														)}{" "}
-														تومان
+														ریال
 													</span>
 													<span>
 														تاریخ سررسید:{" "}

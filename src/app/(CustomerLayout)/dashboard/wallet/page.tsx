@@ -38,15 +38,15 @@ import { getWalletBalance, depositWallet, withdrawWallet } from "@/services/wall
 
 const depositSchema = Yup.object({
 	amount: Yup.number()
-		.min(10000, "حداقل مبلغ واریز ۱۰٬۰۰۰ تومان است")
-		.max(50000000, "حداکثر مبلغ واریز ۵۰٬۰۰۰٬۰۰۰ تومان است")
+		.min(10000, "حداقل مبلغ واریز ۱۰٬۰۰۰ ریال است")
+		.max(50000000, "حداکثر مبلغ واریز ۵۰٬۰۰۰٬۰۰۰ ریال است")
 		.required("مبلغ الزامی است"),
 	paymentMethod: Yup.string().required("روش پرداخت را انتخاب کنید"),
 });
 
 const withdrawSchema = Yup.object({
 	amount: Yup.number()
-		.min(10000, "حداقل مبلغ برداشت ۱۰٬۰۰۰ تومان است")
+		.min(10000, "حداقل مبلغ برداشت ۱۰٬۰۰۰ ریال است")
 		.required("مبلغ الزامی است"),
 });
 
@@ -199,7 +199,7 @@ export default function WalletPage() {
 												: "••••••"}
 										</p>
 										<p className="text-sm text-muted-foreground">
-											تومان
+											ریال
 										</p>
 									</div>
 								</CardContent>
@@ -232,7 +232,7 @@ export default function WalletPage() {
 											{showBalance ? "۰" : "••••••"}
 										</p>
 										<p className="text-sm text-muted-foreground">
-											تومان
+											ریال
 										</p>
 									</div>
 								</CardContent>
@@ -267,7 +267,7 @@ export default function WalletPage() {
 												: "••••••"}
 										</p>
 										<p className="text-sm text-muted-foreground">
-											تومان
+											ریال
 										</p>
 									</div>
 								</CardContent>
@@ -317,7 +317,7 @@ export default function WalletPage() {
 													name="amount"
 													type="number"
 													icon={DollarSign}
-													label="مبلغ (تومان)"
+													label="مبلغ (ریال)"
 													placeholder="۱۰۰,۰۰۰"
 												/>
 
@@ -347,9 +347,9 @@ export default function WalletPage() {
 
 												<div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
 													<p className="text-sm text-blue-700 dark:text-blue-400">
-														حداقل مبلغ شارژ: ۱۰٬۰۰۰ تومان
+														حداقل مبلغ شارژ: ۱۰٬۰۰۰ ریال
 														<br />
-														حداکثر مبلغ شارژ: ۵۰٬۰۰۰٬۰۰۰ تومان
+														حداکثر مبلغ شارژ: ۵۰٬۰۰۰٬۰۰۰ ریال
 													</p>
 												</div>
 
@@ -413,12 +413,12 @@ export default function WalletPage() {
 													name="amount"
 													type="number"
 													icon={DollarSign}
-													label="مبلغ (تومان)"
+													label="مبلغ (ریال)"
 													placeholder="۱۰۰,۰۰۰"
 												/>
 												<div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
 													<p className="text-sm text-amber-700 dark:text-amber-400">
-														موجودی فعلی: {balance !== null ? formatPrice(balance) : "..."} تومان
+														موجودی فعلی: {balance !== null ? formatPrice(balance) : "..."} ریال
 													</p>
 												</div>
 												<div className="flex gap-4">
@@ -588,7 +588,7 @@ export default function WalletPage() {
 																	)}
 																</p>
 																<p className="text-xs text-muted-foreground mt-1">
-																	تومان
+																	ریال
 																</p>
 																{transaction.status ===
 																	"pending" && (

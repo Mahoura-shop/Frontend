@@ -7,6 +7,11 @@ interface CartProduct {
 	name: string
 	slug: string
 	irrPrice: number
+	consumerPrice: number
+	step1Price: number
+	step2Price: number
+	step3Price: number
+	step4Price: number
 	productPic: string
 	brand: { name: string } | null
 	isNew: boolean

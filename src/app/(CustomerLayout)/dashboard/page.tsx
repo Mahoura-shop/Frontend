@@ -188,7 +188,7 @@ export default function DashboardPage() {
 							</div>
 							<h3 className="font-bold mb-2">کیف پول</h3>
 							<p className="text-sm text-muted-foreground">
-								موجودی {walletBalance === null ? "..." : formatPrice(walletBalance)} تومان
+								موجودی {walletBalance === null ? "..." : formatPrice(walletBalance)} ریال
 							</p>
 						</CardContent>
 					</Card>
@@ -284,7 +284,7 @@ export default function DashboardPage() {
 														{new Intl.NumberFormat("fa-IR").format(itemCount)} محصول
 													</p>
 													<p className="text-lg font-bold gradient-text">
-														{formatPrice(order.totalAmount)} تومان
+														{formatPrice(order.totalAmount)} ریال
 													</p>
 												</div>
 												<div className="flex items-center gap-3">

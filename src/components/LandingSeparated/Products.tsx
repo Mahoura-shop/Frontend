@@ -46,7 +46,7 @@ export default function Products() {
                   <span className="product-cat">{p.cat}</span>
                   <div className="product-price">
                     {p.price}
-                    <span className="product-price-unit"> هزار تومان</span>
+                    <span className="product-price-unit"> ریال</span>
                   </div>
                 </div>
               </div>

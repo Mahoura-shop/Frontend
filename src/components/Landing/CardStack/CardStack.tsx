@@ -51,7 +51,7 @@ interface CardItemProps extends CardData {
 // 		emoji: "✨",
 // 		badge: "ویژه ماهورا",
 // 		name: "سرم روشن‌کننده",
-// 		price: "۴۵۰,۰۰۰ تومان",
+// 		price: "۴۵۰,۰۰۰ ریال",
 // 		gradient: "linear-gradient(160deg, #2e2420, #1c1410)",
 // 		borderColor: "rgba(201,168,117,.15)",
 // 	},
@@ -81,7 +81,7 @@ const PRODUCTS: CardData[] = [
 		emoji: "✨",
 		badge: "ویژه ماهورا",
 		name: "سرم روشن‌کننده",
-		price: "۴۵۰,۰۰۰ تومان",
+		price: "۴۵۰,۰۰۰ ریال",
 		hue: 38,
 		// hue: 35, // Gold/Orange hue
 	},

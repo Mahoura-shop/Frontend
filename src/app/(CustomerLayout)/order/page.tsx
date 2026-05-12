@@ -41,7 +41,17 @@ interface Address {
 export default function OrderPage() {
 	const router = useRouter()
 	const { items, loading, fetchCart } = useCartStore()
-	const { accessToken } = useUserStore()
+	const { accessToken, userType } = useUserStore()
+
+	const resolveItemPrice = (product: any): number => {
+		switch (userType) {
+			case "fellow": return product.step1Price ?? product.consumerPrice ?? 0
+			case "shopkeeperCash": return product.step2Price ?? product.consumerPrice ?? 0
+			case "shopkeeperCheque": return product.step3Price ?? product.consumerPrice ?? 0
+			case "regular": return product.step4Price ?? product.consumerPrice ?? 0
+			default: return product.step4Price ?? product.consumerPrice ?? 0
+		}
+	}
 
 	useEffect(() => {
 		if (!accessToken) router.replace('/signin')
@@ -64,7 +74,7 @@ export default function OrderPage() {
 	}, [])
 
 	const subtotal = items.reduce(
-		(sum, item) => sum + (item.product.irrPrice ?? 0) * item.count,
+		(sum, item) => sum + resolveItemPrice(item.product) * item.count,
 		0
 	)
 
@@ -176,7 +186,7 @@ export default function OrderPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-background">
+		<div className="min-h-screen bg-background mt-20">
 			<div className="container mx-auto px-4 py-8">
 				<motion.div
 					initial={{ opacity: 0, y: -20 }}
@@ -370,7 +380,7 @@ export default function OrderPage() {
 												</p>
 											</div>
 											<p className="font-bold text-sm gradient-text">
-												{formatPrice((item.product.irrPrice ?? 0) * item.count)}
+												{formatPrice(resolveItemPrice(item.product) * item.count)}
 											</p>
 										</div>
 									))}
@@ -381,7 +391,7 @@ export default function OrderPage() {
 								<CardContent className="p-6 space-y-4">
 									<div className="flex items-center justify-between">
 										<span className="text-muted-foreground">جمع محصولات</span>
-										<span className="font-medium">{formatPrice(subtotal)} تومان</span>
+										<span className="font-medium">{formatPrice(subtotal)} ریال</span>
 									</div>
 									<div className="flex items-center justify-between text-sm text-muted-foreground">
 										<span>هزینه ارسال</span>
