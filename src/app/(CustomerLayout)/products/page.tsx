@@ -466,9 +466,11 @@ export default function ProductsPage() {
 												initial={{ opacity: 0, y: 20 }}
 												animate={{ opacity: 1, y: 0 }}
 												transition={{ delay: i * 0.05 }}
+												whileHover={{ y: -6 }}
+												className="rounded-[20px] overflow-hidden bg-card border border-border cursor-pointer group shadow-[0_2px_6px_rgba(107,78,113,0.10),0_6px_20px_rgba(107,78,113,0.06)] hover:shadow-[0_4px_12px_rgba(107,78,113,0.18),0_20px_48px_rgba(201,168,117,0.14)] dark:shadow-[0_2px_6px_rgba(0,0,0,0.3),0_6px_20px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_4px_12px_rgba(107,78,113,0.35),0_20px_48px_rgba(201,168,117,0.18)] transition-shadow duration-500"
 											>
-												<div className="relative rounded-[20px] overflow-hidden cursor-pointer group aspect-[3/4] bg-muted shadow-sm hover:shadow-2xl transition-shadow duration-500">
-													{/* Image */}
+												{/* Image */}
+												<div className="relative aspect-[3/4] overflow-hidden bg-muted">
 													<Link href={`/products/${product.slug}`}>
 														{product.productPic ? (
 															<img
@@ -496,31 +498,17 @@ export default function ProductsPage() {
 														)}
 													</div>
 
-													{/* Static bottom info — always visible */}
-													<div className="absolute bottom-0 inset-x-0 z-10 p-4 bg-gradient-to-t from-black/70 via-black/30 to-transparent">
-														<p className="text-[11px] font-bold text-white/60 mb-0.5">{product.brand?.name}</p>
-														<p className="text-sm font-bold text-white leading-tight line-clamp-1">{product.name}</p>
-													</div>
-
-													{/* Hover reveal — slides up over the static info */}
+													{/* Hover add-to-cart */}
 													<motion.div
 														initial={{ y: "100%" }}
 														whileHover={{ y: 0 }}
 														transition={{ duration: 0.35, ease: "easeOut" }}
-														className="absolute bottom-0 inset-x-0 z-20 bg-black/80 backdrop-blur-sm p-4 flex items-center justify-between gap-3"
+														className="absolute bottom-0 inset-x-0 z-20 bg-card/95 backdrop-blur-sm p-3 flex justify-end"
 													>
-														<div className="min-w-0">
-															<p className="text-[11px] font-bold text-white/50 mb-0.5">{product.brand?.name}</p>
-															<p className="text-sm font-bold text-white leading-tight line-clamp-1 mb-1">{product.name}</p>
-															<p className="text-base font-bold text-primary-rose">
-																{formatPrice(Number(product.resolvedPrice || product.irrPrice))}
-																<span className="text-xs text-white/40 ms-1">تومان</span>
-															</p>
-														</div>
 														<Button
 															variant="luxury"
 															size="sm"
-															className="shrink-0 gap-1.5"
+															className="gap-1.5 w-full"
 															disabled={addingId === product.id || product.quantity === 0}
 															onClick={(e) => handleAddToCart(e, product.id)}
 														>
@@ -537,6 +525,18 @@ export default function ProductsPage() {
 														</Button>
 													</motion.div>
 												</div>
+
+												{/* Info footer — always visible */}
+												<Link href={`/products/${product.slug}`}>
+													<div className="p-4">
+														<p className="text-xs text-muted-foreground font-semibold mb-1 truncate">{product.brand?.name}</p>
+														<p className="text-sm font-bold text-foreground leading-snug line-clamp-2 mb-3">{product.name}</p>
+														<p className="text-base font-bold text-primary-rose">
+															{formatPrice(Number(product.resolvedPrice || product.irrPrice))}
+															<span className="text-xs text-muted-foreground ms-1">تومان</span>
+														</p>
+													</div>
+												</Link>
 											</motion.div>
 										))}
 								</div>

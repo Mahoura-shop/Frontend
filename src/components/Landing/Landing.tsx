@@ -23,16 +23,16 @@ export default function LandingPage() {
 	const [categoriesCount, setCategoriesCount] = useState<number>(20);
 	const [productsCount, setProductsCount] = useState<number>(20);
 
-	const fetchSiteData = () => {
-		getData({ endPoint: `/v1/admin/dashboard` }).then((data) => {
-			setProductsCount(data?.data?.productsCount);
-			setBrandsCount(data?.data?.brandsCount);
-			setCategoriesCount(data?.data?.categoriesCount);
-		});
-	};
+	// const fetchSiteData = () => {
+	// 	getData({ endPoint: `/v1/admin/dashboard` }).then((data) => {
+	// 		setProductsCount(data?.data?.productsCount);
+	// 		setBrandsCount(data?.data?.brandsCount);
+	// 		setCategoriesCount(data?.data?.categoriesCount);
+	// 	});
+	// };
 
 	useEffect(() => {
-		fetchSiteData();
+		// fetchSiteData();
 		fetchCategories();
 	}, []);
 
@@ -116,7 +116,7 @@ export default function LandingPage() {
 									initial={{ opacity: 0, y: 16 }}
 									animate={{ opacity: 1, y: 0 }}
 									transition={{ delay: 0.55, duration: 0.7 }}
-									className="text-base text-white/45 max-w-sm mb-11 leading-[1.75] no-select"
+									className="text-base text-foreground/60 max-w-sm mb-11 leading-[1.75] no-select"
 								>
 									تجربه زیبایی بی‌نظیر
 								</motion.p>
@@ -258,7 +258,7 @@ export default function LandingPage() {
 							>
 								{stat.value}
 							</div>
-							<div className="text-xs text-white/35">
+							<div className="text-xs text-foreground/50">
 								{stat.label}
 							</div>
 						</motion.div>
@@ -429,28 +429,19 @@ export default function LandingPage() {
 									)}
 								</div>
 
-								<div
-									className="absolute inset-0 opacity-0 group-hover:opacity-[1.25] transition-opacity duration-400"
-									style={{
-										background:
-											"linear-gradient(to top, rgba(13,11,10,.8) 0%, rgba(13,11,10,.15) 45%, transparent 100%)",
-									}}
-								/>
+								<div className="absolute inset-0 border border-transparent group-hover:border-primary-rose/30 transition-colors duration-300 rounded-[20px]" />
 
-								<div className="absolute inset-0 border border-white/0 group-hover:border-primary-rose/30 transition-colors duration-300 rounded-[20px]" />
-
-								<div className="absolute bottom-0 right-0 left-0 p-6 text-white">
-									<p className="text-xs font-bold text-accent-gold mb-1.5">
-										دسته‌بندی
-									</p>
-									<h3 className="text-2xl font-bold mb-1 leading-tight">
-										{cat.name}
-									</h3>
-									<p className="text-xs text-white/50 mb-3.5">
-										{cat.description || "محصولات متنوع"}
-									</p>
-									<div className="inline-flex items-center gap-1.5 px-3.5 py-1.75 text-xs font-bold text-white bg-white/12 backdrop-blur-[8px] border border-white/15 rounded-full opacity-0 translate-y-1.5 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
-										مشاهده
+								<div className="absolute bottom-0 right-0 left-0 p-4">
+									<div className="bg-background/80 dark:bg-card/85 backdrop-blur-md rounded-xl p-3.5 border border-border/50 translate-y-1 opacity-90 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+										<p className="text-xs font-bold text-accent-gold mb-1">
+											دسته‌بندی
+										</p>
+										<h3 className="text-base font-bold leading-tight text-foreground">
+											{cat.name}
+										</h3>
+										<p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+											{cat.description || "محصولات متنوع"}
+										</p>
 									</div>
 								</div>
 							</motion.div>
@@ -500,20 +491,22 @@ export default function LandingPage() {
 									ease: "easeOut",
 									delay: i * 0.1,
 								}}
-								className="rounded-[20px] overflow-hidden bg-white dark:bg-card cursor-pointer hover:shadow-[0_20px_60px_rgba(13,11,10,.12)] dark:hover:shadow-[0_20px_60px_rgba(0,0,0,.4)] transition-all group"
+								className="rounded-2xl overflow-hidden bg-card border border-border cursor-pointer hover:shadow-[0_16px_48px_rgba(13,11,10,.10)] dark:hover:shadow-[0_16px_48px_rgba(0,0,0,.45)] transition-all duration-300 group"
 							>
-								<div className="relative aspect-square overflow-hidden bg-gradient-to-br from-[#E8E6E3] to-[rgba(212,165,165,.3)] flex items-center justify-center">
+								<div className="relative aspect-square overflow-hidden bg-gradient-to-br from-neutral-warm to-primary-rose/20 dark:from-muted dark:to-primary-rose/10 flex items-center justify-center">
 									{prod.productPic ? (
 										<img
 											src={prod.productPic}
 											alt={prod.name}
-											className="w-full h-full object-cover transition-transform duration-600 group-hover:scale-[1.07]"
+											className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
 										/>
 									) : (
-										<span className="text-6xl">💄</span>
+										<div className="w-16 h-16 rounded-full bg-primary-rose/20 flex items-center justify-center">
+											<span className="text-primary-rose text-2xl font-bold">M</span>
+										</div>
 									)}
 
-									<div className="absolute top-3.5 right-3.5 flex flex-col gap-1.5">
+									<div className="absolute top-3 right-3 flex flex-col gap-1.5">
 										{prod.isNew && (
 											<Badge
 												variant="new"
@@ -528,35 +521,35 @@ export default function LandingPage() {
 										initial={{ translateY: "100%" }}
 										whileHover={{ translateY: 0 }}
 										transition={{
-											duration: 0.4,
+											duration: 0.35,
 											ease: "easeOut",
 										}}
-										className="absolute bottom-0 inset-x-0 bg-[#0D0B0A]/85 p-5 flex flex-col items-end gap-3"
+										className="absolute bottom-0 inset-x-0 bg-foreground/90 dark:bg-background/95 backdrop-blur-sm p-4 flex items-center gap-3"
 									>
 										<MagneticButton
 											href={`/products/${prod.id}`}
-											className="w-full bg-accent-gold text-[#0D0B0A] font-bold px-4 py-3 rounded-[12px] text-sm text-center inline-flex items-center justify-center gap-2 hover:shadow-[0_6px_20px_rgba(201,168,117,.4)] transition-all"
+											className="flex-1 bg-accent-gold text-foreground font-bold px-4 py-2.5 rounded-xl text-sm text-center inline-flex items-center justify-center gap-2 hover:bg-accent-gold/90 hover:shadow-[0_4px_16px_rgba(201,168,117,.35)] transition-all duration-200"
 										>
-											افزودن به سبد
+											مشاهده محصول
 										</MagneticButton>
 									</motion.div>
 								</div>
 
-								<div className="p-4.5">
-									<p className="text-xs text-[#0D0B0A]/35 font-bold mb-1.25">
+								<div className="p-5">
+									<p className="text-xs text-muted-foreground font-semibold mb-1.5 truncate">
 										{prod?.brand?.name}
 									</p>
-									<h3 className="text-base font-bold mb-3.5 text-[#0D0B0A] leading-[1.3] line-clamp-2">
+									<h3 className="text-sm font-bold mb-4 text-foreground leading-[1.4] line-clamp-2">
 										{prod.name}
 									</h3>
-									<div className="flex items-center justify-between">
+									<div className="flex items-center justify-between gap-2">
 										<Badge
 											variant="secondary"
-											className="text-xs font-bold bg-secondary-plum/10 text-secondary-plum px-3 py-1"
+											className="text-xs font-semibold bg-secondary-plum/10 dark:bg-secondary-plum/20 text-secondary-plum px-2.5 py-1 truncate max-w-[120px]"
 										>
 											{prod?.category?.name}
 										</Badge>
-										<span className="text-base font-bold text-primary-rose">
+										<span className="text-sm font-bold text-primary-rose whitespace-nowrap">
 											{formatPrice(Number(prod.resolvedPrice ?? prod.irrPrice ?? prod.price))}
 										</span>
 									</div>
@@ -600,7 +593,7 @@ export default function LandingPage() {
 							className="text-4xl md:text-7xl font-bold mb-7 leading-tight"
 							style={{
 								background:
-									"linear-gradient(135deg, white 0%, var(--primary-rose) 50%, var(--accent-gold) 100%)",
+									"linear-gradient(135deg, var(--foreground) 0%, var(--primary-rose) 50%, var(--accent-gold) 100%)",
 								WebkitBackgroundClip: "text",
 								WebkitTextFillColor: "transparent",
 								backgroundClip: "text",

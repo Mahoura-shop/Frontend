@@ -3,43 +3,79 @@
 	box-shadow: 0 0 18px var(--accent-gold);
 }
 
-/* .nav {
-	position: fixed;
-	top: 0;
-	right: 0;
-	left: 0;
-	z-index: 100;
-	padding: 28px 56px;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	transition:
-		padding 0.4s var(--ease-out),
-		background 0.4s;
-}
-
-.nav.scrolled {
-	background: rgba(13, 11, 10, 0.88);
-	backdrop-filter: blur(24px);
-	padding: 16px 56px;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-} */
-
 .nav {
 	position: fixed;
-	top: 0;
-	right: 0;
-	left: 0;
+	top: 14px;
+	right: 20px;
+	left: 20px;
 	z-index: 100;
-	padding: 16px 56px;
+	padding: 10px 28px;
 	display: none;
 	align-items: center;
 	justify-content: space-between;
+	border-radius: 22px;
+	isolation: isolate;
+	overflow: hidden;
 	transition:
 		padding 0.4s cubic-bezier(0.33, 1, 0.68, 1),
-		background 0.4s ease,
-		border-bottom 0.4s ease;
-	background: transparent;
+		top 0.4s ease;
+
+	box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+/* layer 1a: pure backdrop blur (no svg filter — they conflict) */
+.glassBlur {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	border-radius: inherit;
+	backdrop-filter: blur(24px) saturate(180%);
+	-webkit-backdrop-filter: blur(24px) saturate(180%);
+}
+
+/* layer 1b: svg distortion on top of blur result */
+.glassDistortion {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	border-radius: inherit;
+	filter: url(#glass-distortion);
+	isolation: isolate;
+	overflow: hidden;
+	opacity: 0.6;
+}
+
+/* layer 2: white tint */
+.glassTint {
+	position: absolute;
+	inset: 0;
+	z-index: 2;
+	border-radius: inherit;
+	background: rgba(255, 255, 255, 0.5);
+}
+
+:global(.dark) .glassTint {
+	background: rgba(20, 20, 25, 0.6);
+}
+
+/* layer 3: inner rim specular */
+.glassRim {
+	position: absolute;
+	inset: 0;
+	z-index: 2;
+	border-radius: inherit;
+	overflow: hidden;
+	box-shadow:
+		inset 2px 2px 1px 0 rgba(255, 255, 255, 0.5),
+		inset -1px -1px 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+.navContent {
+	position: relative;
+	z-index: 3;
+	width: 100%;
+	max-width: 80rem;
+	margin: 0 auto;
 }
 
 @media (min-width: 768px) {
@@ -49,10 +85,10 @@
 }
 
 .scrolled {
-	background: hsl(var(--background) / 0.72);
-	backdrop-filter: blur(28px) saturate(200%);
-	-webkit-backdrop-filter: blur(28px) saturate(200%);
-	padding: 12px 56px;
-	border-bottom: 1px solid hsl(var(--border) / 0.35);
-	box-shadow: 0 4px 32px hsl(var(--foreground) / 0.05);
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25), 0 0 30px rgba(0, 0, 0, 0.15);
+}
+
+.scrolled .glassBlur {
+	backdrop-filter: blur(36px) saturate(200%);
+	-webkit-backdrop-filter: blur(36px) saturate(200%);
 }

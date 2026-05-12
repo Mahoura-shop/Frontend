@@ -10,7 +10,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
 
 	useEffect(() => {
 		if (!accessToken || !isAdmin) {
-			router.replace('/admin');
+			router.replace('/signin');
 		}
 	}, [accessToken, isAdmin, router]);
 

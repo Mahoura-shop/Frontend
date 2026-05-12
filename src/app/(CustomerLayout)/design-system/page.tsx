@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
-type SlowMoKey = 'float' | 'shimmer' | 'fadeInUp' | 'fadeInScale' | 'pulseGlow' | 'accordion' | 'card3d' | 'navbarSlide' | 'stagger';
+type SlowMoKey = 'float' | 'shimmer' | 'fadeInUp' | 'fadeInScale' | 'pulseGlow' | 'accordion' | 'card3d' | 'navbarSlide' | 'stagger' | 'buttons';
 
 interface AnimationDemoProps {
   title: string;
@@ -417,6 +417,7 @@ export default function DesignSystemPage() {
     card3d: false,
     navbarSlide: false,
     stagger: false,
+    buttons: false,
   });
 
   const [activeSection, setActiveSection] = useState('hero');
@@ -477,27 +478,85 @@ export default function DesignSystemPage() {
 
       <div className="md:ml-56">
         {/* Hero Section */}
-        <div id="hero" data-section className="bg-gradient-to-b from-primary-rose/10 via-accent-gold/5 to-transparent py-20">
-          <div className="mx-auto px-8" style={{ maxWidth: '960px' }}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center"
-          >
-            <h1 className="text-5xl md:text-6xl font-bold gradient-text mb-6">
-              Animation Showcase
-            </h1>
-            <p className="text-lg text-muted-foreground">
-              Explore the 9 core animations that power the Mahoura design system.
-              Each demo includes replay controls and a 0.3× slow-motion toggle to observe the easing curves.
-            </p>
-          </motion.div>
+        <div id="hero" data-section className="relative overflow-hidden">
+          {/* Full-bleed background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-rose/20 via-accent-gold/10 to-secondary-plum/20" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary-rose/10 via-transparent to-transparent" />
+
+          <div className="relative px-8 py-24 md:py-32 text-center">
+            {/* Logo / wordmark */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+              className="mb-6"
+            >
+              <span className="text-7xl md:text-9xl font-bold gradient-text tracking-tight leading-none">
+                ماهورا
+              </span>
+            </motion.div>
+
+            {/* EN wordmark */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="text-sm font-mono tracking-[0.3em] text-muted-foreground uppercase mb-4"
+            >
+              Mahoura Cosmetics — Design System
+            </motion.p>
+
+            {/* Persian tagline */}
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.5 }}
+              className="text-xl md:text-2xl text-muted-foreground mb-12 font-medium"
+            >
+              سیستم طراحی لوکس — ساخته‌شده برای زیبایی ایرانی
+            </motion.p>
+
+            {/* Tech badges */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.4 }}
+              className="flex flex-wrap justify-center gap-3"
+            >
+              {[
+                { label: 'Next.js 15', color: 'bg-foreground/10 text-foreground border-border' },
+                { label: 'Go 1.23', color: 'bg-primary-rose/10 text-primary-rose border-primary-rose/30' },
+                { label: 'Framer Motion', color: 'bg-accent-gold/10 text-accent-gold border-accent-gold/30' },
+                { label: 'Tailwind CSS', color: 'bg-secondary-plum/10 text-secondary-plum border-secondary-plum/30' },
+                { label: 'Vazirmatn', color: 'bg-primary-rose/10 text-primary-rose border-primary-rose/30' },
+                { label: 'PostgreSQL', color: 'bg-accent-gold/10 text-accent-gold border-accent-gold/30' },
+                { label: 'RTL-First', color: 'bg-secondary-plum/10 text-secondary-plum border-secondary-plum/30' },
+              ].map((badge, i) => (
+                <motion.span
+                  key={badge.label}
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.55 + i * 0.07, duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}
+                  className={`px-4 py-1.5 rounded-full border text-sm font-medium ${badge.color}`}
+                >
+                  {badge.label}
+                </motion.span>
+              ))}
+            </motion.div>
+
+            {/* Divider line */}
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ delay: 1.1, duration: 0.6, ease: 'easeOut' }}
+              className="mt-16 h-px bg-gradient-to-r from-transparent via-border to-transparent origin-center"
+            />
           </div>
         </div>
 
         {/* Color Tokens */}
         <div id="colors" data-section className="py-20 border-t border-border">
-          <div className="mx-auto px-8" style={{ maxWidth: '960px' }}>
+          <motion.div className="mx-auto px-8" style={{ maxWidth: '960px' }} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, ease: 'easeOut' }}>
             <h2 className="text-3xl font-bold mb-2">Color Tokens</h2>
             <p className="text-muted-foreground mb-10">Brand palette defined as CSS custom properties in <code className="text-xs bg-muted px-1 py-0.5 rounded">globals.css</code>. Use these — never hardcode hex.</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
@@ -536,12 +595,12 @@ export default function DesignSystemPage() {
                 </div>
               ))}
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Typography */}
         <div id="typography" data-section className="py-20 border-t border-border">
-          <div className="mx-auto px-8" style={{ maxWidth: '960px' }}>
+          <motion.div className="mx-auto px-8" style={{ maxWidth: '960px' }} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, ease: 'easeOut' }}>
             <h2 className="text-3xl font-bold mb-2">Typography</h2>
             <p className="text-muted-foreground mb-10">Vazirmatn at all weights. Tailwind size scale — no custom sizes.</p>
             <div className="space-y-6">
@@ -565,47 +624,109 @@ export default function DesignSystemPage() {
             <div className="mt-10 p-4 bg-muted/40 rounded-lg">
               <p className="text-xs font-mono text-muted-foreground">gradient-text utility: <span className="gradient-text font-bold">bg-gradient-to-r from-primary-rose via-accent-gold to-secondary-plum bg-clip-text text-transparent</span></p>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Buttons */}
         <div id="buttons" data-section className="py-20 border-t border-border">
-          <div className="mx-auto px-8" style={{ maxWidth: '960px' }}>
-            <h2 className="text-3xl font-bold mb-2">Buttons</h2>
-            <p className="text-muted-foreground mb-10">7 variants × 4 sizes. <code className="text-xs bg-muted px-1 py-0.5 rounded">luxury</code> = primary CTA. <code className="text-xs bg-muted px-1 py-0.5 rounded">default</code> = general action.</p>
-            <div className="space-y-8">
+          <motion.div className="mx-auto px-8" style={{ maxWidth: '960px' }} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, ease: 'easeOut' }}>
+            <div className="flex items-start justify-between mb-2 flex-wrap gap-4">
               <div>
-                <p className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">Variants (default size)</p>
+                <h2 className="text-3xl font-bold">Buttons</h2>
+                <p className="text-muted-foreground mt-1">
+                  8 variants × 4 sizes. <code className="text-xs bg-muted px-1 py-0.5 rounded">luxury</code> = primary CTA.{' '}
+                  Toggle slow-mo to observe hover transition easing at 0.3× speed.
+                </p>
+              </div>
+              <label className="flex items-center gap-2 px-3 py-2 border border-border rounded cursor-pointer hover:bg-muted shrink-0">
+                <input
+                  type="checkbox"
+                  checked={slowMo.buttons}
+                  onChange={() => handleSlowMoChange('buttons')}
+                  className="w-4 h-4"
+                />
+                <span className="text-sm">0.3× slow-mo</span>
+              </label>
+            </div>
+
+            <div
+              className="mt-10 p-8 rounded-xl border border-border bg-muted/20 space-y-10"
+              style={slowMo.buttons ? { ['--btn-duration' as string]: '2000ms' } : { ['--btn-duration' as string]: '200ms' }}
+            >
+              {/* All variants */}
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-5">Variants</p>
                 <div className="flex flex-wrap gap-3">
-                  {(['default', 'luxury', 'outline', 'ghost', 'secondary', 'destructive', 'link'] as const).map((v) => (
-                    <Button key={v} variant={v}>{v}</Button>
+                  {([
+                    { v: 'luxury', label: 'luxury' },
+                    { v: 'default', label: 'default' },
+                    { v: 'outline', label: 'outline' },
+                    { v: 'ghost', label: 'ghost' },
+                    { v: 'secondary', label: 'secondary' },
+                    { v: 'destructive', label: 'destructive' },
+                    { v: 'link', label: 'link' },
+                    { v: 'primary', label: 'primary' },
+                  ] as const).map(({ v, label }) => (
+                    <div
+                      key={v}
+                      style={{ ['--tw-transition-duration' as string]: slowMo.buttons ? '2000ms' : '200ms' }}
+                      className="[&_button]:transition-all"
+                    >
+                      <Button variant={v}>{label}</Button>
+                    </div>
                   ))}
                 </div>
               </div>
+
+              {/* Sizes */}
               <div>
-                <p className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">Sizes (luxury variant)</p>
-                <div className="flex flex-wrap items-center gap-3">
-                  {(['sm', 'default', 'lg'] as const).map((s) => (
-                    <Button key={s} variant="luxury" size={s}>size: {s}</Button>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-5">Sizes — luxury</p>
+                <div className="flex flex-wrap items-center gap-4">
+                  {([
+                    { s: 'sm', label: 'sm' },
+                    { s: 'default', label: 'default' },
+                    { s: 'lg', label: 'lg' },
+                  ] as const).map(({ s, label }) => (
+                    <div
+                      key={s}
+                      style={{ ['--tw-transition-duration' as string]: slowMo.buttons ? '2000ms' : '200ms' }}
+                      className="[&_button]:transition-all flex flex-col items-center gap-2"
+                    >
+                      <Button variant="luxury" size={s}>{label}</Button>
+                      <span className="text-[10px] text-muted-foreground font-mono">{s}</span>
+                    </div>
                   ))}
-                  <Button variant="luxury" size="icon">+</Button>
+                  <div
+                    style={{ ['--tw-transition-duration' as string]: slowMo.buttons ? '2000ms' : '200ms' }}
+                    className="[&_button]:transition-all flex flex-col items-center gap-2"
+                  >
+                    <Button variant="luxury" size="icon">+</Button>
+                    <span className="text-[10px] text-muted-foreground font-mono">icon</span>
+                  </div>
                 </div>
               </div>
+
+              {/* States */}
               <div>
-                <p className="text-sm font-semibold text-muted-foreground mb-4 uppercase tracking-wider">States</p>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-5">States</p>
                 <div className="flex flex-wrap gap-3">
                   <Button variant="luxury">Normal</Button>
                   <Button variant="luxury" disabled>Disabled</Button>
                   <Button variant="outline" disabled>Disabled outline</Button>
+                  <Button variant="destructive">Destructive</Button>
                 </div>
               </div>
             </div>
-          </div>
+
+            <div className="mt-4 p-4 bg-muted/40 rounded-lg font-mono text-xs text-muted-foreground">
+              {'<Button variant="luxury" size="lg">تکمیل خرید</Button>'}
+            </div>
+          </motion.div>
         </div>
 
         {/* Badges */}
         <div id="badges" data-section className="py-20 border-t border-border">
-          <div className="mx-auto px-8" style={{ maxWidth: '960px' }}>
+          <motion.div className="mx-auto px-8" style={{ maxWidth: '960px' }} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, ease: 'easeOut' }}>
             <h2 className="text-3xl font-bold mb-2">Badges</h2>
             <p className="text-muted-foreground mb-10">6 variants. <code className="text-xs bg-muted px-1 py-0.5 rounded">new</code> pulses via <code className="text-xs bg-muted px-1 py-0.5 rounded">animate-pulse-glow</code>.</p>
             <div className="flex flex-wrap gap-4 mb-8">
@@ -634,12 +755,12 @@ export default function DesignSystemPage() {
               </div>
               <p className="text-xs font-mono text-muted-foreground mt-3">{'<Skeleton className="h-6 w-full" />'}</p>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Motion Tokens */}
         <div id="motion" data-section className="py-20 border-t border-border">
-          <div className="mx-auto px-8" style={{ maxWidth: '960px' }}>
+          <motion.div className="mx-auto px-8" style={{ maxWidth: '960px' }} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, ease: 'easeOut' }}>
             <h2 className="text-3xl font-bold mb-2">Motion Tokens</h2>
             <p className="text-muted-foreground mb-10">Named spring + ease presets from <code className="text-xs bg-muted px-1 py-0.5 rounded">lib/motion.ts</code>. Import and use — never write raw spring configs.</p>
             <div className="space-y-4 mb-10">
@@ -683,12 +804,12 @@ export default function DesignSystemPage() {
               <p className="mt-2 text-muted-foreground">{"<motion.div transition={spring.default} />"}</p>
               <p className="text-muted-foreground">{"<motion.div transition={{ ...spring.gentle, delay: 0.2 }} />"}</p>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Animation Demos */}
         <div id="animations" className="py-20">
-          <div className="mx-auto px-8" style={{ maxWidth: '960px' }}>
+          <motion.div className="mx-auto px-8" style={{ maxWidth: '960px' }} initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, ease: 'easeOut' }}>
         <AnimationDemo
             id="float"
             title="1. Float"
@@ -878,7 +999,7 @@ rotateY = -(mouseX - centerX) / width * 8`}
         >
           <StaggerDemo slowMo={slowMo.stagger} />
         </AnimationDemo>
-          </div>
+          </motion.div>
         </div>
 
         {/* Footer */}

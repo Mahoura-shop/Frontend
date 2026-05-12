@@ -12,6 +12,7 @@ import {
 	ShoppingCart,
 	Search,
 	LogOut,
+	LayoutDashboard,
 } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
@@ -51,7 +52,7 @@ export default function Navbar() {
 	const { theme, setTheme } = useTheme();
 	const pathname = usePathname();
 	const router = useRouter();
-	const { accessToken, firstName, lastName, logout } = useUserStore();
+	const { accessToken, firstName, lastName, isAdmin, logout } = useUserStore();
 	const { fetchCart, getItemCount } = useCartStore();
 	const itemCount = getItemCount();
 	const [scrolled, setScrolled] = useState(false);
@@ -83,13 +84,34 @@ export default function Navbar() {
 
 	return (
 		<>
+			<svg style={{ display: "none" }}>
+				<filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox">
+					<feTurbulence type="fractalNoise" baseFrequency="0.001 0.005" numOctaves="1" seed="17" result="turbulence" />
+					<feComponentTransfer in="turbulence" result="mapped">
+						<feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5" />
+						<feFuncG type="gamma" amplitude="0" exponent="1" offset="0" />
+						<feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5" />
+					</feComponentTransfer>
+					<feGaussianBlur in="turbulence" stdDeviation="3" result="softMap" />
+					<feSpecularLighting in="softMap" surfaceScale="5" specularConstant="1" specularExponent="100" lightingColor="white" result="specLight">
+						<fePointLight x="-200" y="-200" z="300" />
+					</feSpecularLighting>
+					<feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage" />
+					<feDisplacementMap in="SourceGraphic" in2="softMap" scale="200" xChannelSelector="R" yChannelSelector="G" />
+				</filter>
+			</svg>
+
 			<motion.nav
 				initial={{ y: -100, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={spring.default}
 				className={`${styles.nav} ${scrolled ? styles.scrolled : ""}`}
 			>
-				<div className="w-full max-w-7xl mx-auto">
+				<div className={styles.glassBlur} />
+				<div className={styles.glassDistortion} />
+				<div className={styles.glassTint} />
+				<div className={styles.glassRim} />
+				<div className={styles.navContent}>
 					<div className="flex items-center justify-between">
 						<Link href="/">
 							<motion.div
@@ -201,6 +223,17 @@ export default function Navbar() {
 													: "مستخدم"}
 											</DropdownMenuLabel>
 											<DropdownMenuSeparator />
+											{isAdmin && (
+												<DropdownMenuItem asChild>
+													<Link
+														href="/admin/dashboard"
+														className="flex items-center justify-end gap-2 cursor-pointer"
+													>
+														<LayoutDashboard className="w-4 h-4" />
+														پنل مدیریت
+													</Link>
+												</DropdownMenuItem>
+											)}
 											<DropdownMenuItem asChild>
 												<Link
 													href="/dashboard"

@@ -165,7 +165,6 @@ export default function CategoryInfoDialog({
 												alt={category.name}
 												className="relative w-full max-w-md h-64 object-cover rounded-2xl border-4 border-background shadow-2xl"
 											/>
-											<div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
 										</motion.div>
 									) : (
 										<motion.div

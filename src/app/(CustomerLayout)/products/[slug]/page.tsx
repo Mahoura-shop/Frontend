@@ -102,7 +102,7 @@ export default function ProductDetailPage() {
 
 	return (
 		<>
-		<div className="min-h-screen bg-background pt-2">
+		<div className="min-h-screen bg-background pt-20">
 			{/* Breadcrumb */}
 			<div className="bg-background border-b">
 				<div className="container mx-auto px-4 py-4">

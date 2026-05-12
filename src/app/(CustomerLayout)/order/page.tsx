@@ -89,13 +89,18 @@ export default function OrderPage() {
 				setDone(true)
 				await fetchCart()
 			} else {
-				const payRes = await initiatePayment(orderID)
-				const gatewayURL: string = payRes?.data?.gatewayURL
-				if (gatewayURL) {
-					window.location.href = gatewayURL
-				} else {
-					CustomToast("خطا در اتصال به درگاه پرداخت", "error")
-				}
+				// MOCKED: gateway call marks order as paid on backend, show success directly
+				await initiatePayment(orderID)
+				CustomToast("سفارش با موفقیت پرداخت شد!", "success")
+				setDone(true)
+				await fetchCart()
+				// const payRes = await initiatePayment(orderID)
+				// const gatewayURL: string = payRes?.data?.gatewayURL
+				// if (gatewayURL) {
+				// 	window.location.href = gatewayURL
+				// } else {
+				// 	CustomToast("خطا در اتصال به درگاه پرداخت", "error")
+				// }
 			}
 		} catch {
 		} finally {

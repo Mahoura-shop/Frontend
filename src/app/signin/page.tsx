@@ -10,9 +10,6 @@ import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import useUserStore from "@/store/userStore/userStore";
 import { sendOTP, verifyOTP } from "@/services/authService";
 
-const toE164 = (phone: string) =>
-	phone.startsWith("0") ? "+98" + phone.slice(1) : phone;
-
 const spring = { type: "spring", stiffness: 400, damping: 30 };
 const stepVariants = {
 	enter: { opacity: 0, scale: 0.96, filter: "blur(4px)" },
@@ -27,7 +24,7 @@ export default function SignIn() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [resendTimer, setResendTimer] = useState(0);
 	const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
-	const { setAccessToken, setRefreshToken, setFirstName, setLastName } = useUserStore();
+	const { setAccessToken, setRefreshToken, setFirstName, setLastName, setIsAdmin } = useUserStore();
 	const router = useRouter();
 
 	useEffect(() => {
@@ -41,7 +38,7 @@ export default function SignIn() {
 		if (!phone) return;
 		setIsLoading(true);
 		try {
-			await sendOTP(toE164(phone));
+			await sendOTP(phone);
 			CustomToast("کد تایید ارسال شد", "success");
 			setStep("otp");
 			setResendTimer(60);
@@ -57,13 +54,14 @@ export default function SignIn() {
 		if (code.length < 6) return;
 		setIsLoading(true);
 		try {
-			const data = await verifyOTP(toE164(phone), code);
+			const data = await verifyOTP(phone, code);
 			setAccessToken(data?.data?.accessToken);
 			setRefreshToken(data?.data?.refreshToken);
 			setFirstName(data?.data?.firstName ?? "");
 			setLastName(data?.data?.lastName ?? "");
+			setIsAdmin(data?.data?.isAdmin ?? false);
 			CustomToast("خوش آمدید!", "success");
-			router.push("/");
+			router.push(data?.data?.isAdmin ? "/admin/dashboard" : "/");
 		} finally {
 			setIsLoading(false);
 		}
@@ -114,7 +112,7 @@ export default function SignIn() {
 		if (resendTimer > 0) return;
 		setIsLoading(true);
 		try {
-			await sendOTP(toE164(phone));
+			await sendOTP(phone);
 			CustomToast("کد جدید ارسال شد", "success");
 			setOtp(["", "", "", "", "", ""]);
 			setResendTimer(60);
