@@ -101,7 +101,7 @@ export default function AdminNavbar() {
 								{item.count !== null && (
 									<Badge
 										variant="secondary"
-										className="mr-auto"
+										className="ms-auto"
 									>
 										{item.count}
 									</Badge>

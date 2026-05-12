@@ -311,7 +311,7 @@ export default function Navbar() {
 									<Button
 										variant="ghost"
 										size="icon"
-										className="h-9 w-9 rounded-full ml-2 bg-gradient-to-r from-secondary-plum/20 to-primary-rose/20"
+										className="h-9 w-9 rounded-full me-2 bg-gradient-to-r from-secondary-plum/20 to-primary-rose/20"
 									>
 										<User className="w-4 h-4" />
 									</Button>

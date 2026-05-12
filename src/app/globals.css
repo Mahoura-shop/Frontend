@@ -142,6 +142,17 @@
 		direction: rtl;
 	}
 
+	/* Vazirmatn heading rhythm — Persian script needs more leading than Latin defaults */
+	h1, h2, h3, h4 {
+		line-height: 1.45;
+		letter-spacing: 0;
+	}
+
+	/* Persian body text rhythm */
+	p, li, span {
+		letter-spacing: 0;
+	}
+
 	/* Smooth scrolling */
 
 	.no-scrollbar::-webkit-scrollbar {

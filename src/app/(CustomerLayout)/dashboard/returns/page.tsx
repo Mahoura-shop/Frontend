@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getMyReturns } from "@/services/returnService";
 import { formatPrice } from "@/utils/formatPrice";
+import { formatDate } from "@/utils/formatDate";
 
 interface ReturnRequest {
 	id: number;
@@ -79,7 +80,7 @@ export default function CustomerReturnsPage() {
 														تعداد: {new Intl.NumberFormat("fa-IR").format(r.quantity)} — {r.reason}
 													</p>
 													<p className="text-xs text-muted-foreground">
-														{new Date(r.requestedAt).toLocaleDateString("fa-IR")}
+														{formatDate(r.requestedAt)}
 													</p>
 												</div>
 												<div className="text-left shrink-0">

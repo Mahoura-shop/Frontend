@@ -16,6 +16,7 @@ import {
 	TableRow,
 } from "@/components/ui/table"
 import { formatPrice } from "@/utils/formatPrice"
+import { formatDate } from "@/utils/formatDate"
 import { getAllOrders } from "@/services/orderService"
 
 interface Order {
@@ -164,7 +165,7 @@ export default function AdminOrdersPage() {
 											{formatPrice(order.totalAmount)}
 										</TableCell>
 										<TableCell className="text-sm text-muted-foreground">
-											{new Date(order.createdAt).toLocaleDateString("fa-IR")}
+											{formatDate(order.createdAt)}
 										</TableCell>
 										<TableCell>
 											<div className="flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

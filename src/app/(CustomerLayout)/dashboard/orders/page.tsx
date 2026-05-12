@@ -1,6 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
+import { usePullToRefresh } from "@/hooks/usePullToRefresh"
+import { RefreshCw } from "lucide-react"
 import { motion } from "framer-motion"
 import {
 	Package,
@@ -17,6 +19,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { formatPrice } from "@/utils/formatPrice"
+import { formatDate } from "@/utils/formatDate"
 import { getMyOrders } from "@/services/orderService"
 
 interface Order {
@@ -49,19 +52,20 @@ export default function OrdersPage() {
 	const [orders, setOrders] = useState<Order[]>([])
 	const [loading, setLoading] = useState(true)
 
-	useEffect(() => {
-		const fetch = async () => {
-			try {
-				const res = await getMyOrders()
-				setOrders(res?.data ?? [])
-			} catch {
-				setOrders([])
-			} finally {
-				setLoading(false)
-			}
+	const fetchOrders = useCallback(async () => {
+		try {
+			const res = await getMyOrders()
+			setOrders(res?.data ?? [])
+		} catch {
+			setOrders([])
+		} finally {
+			setLoading(false)
 		}
-		fetch()
 	}, [])
+
+	useEffect(() => { fetchOrders() }, [fetchOrders])
+
+	const { pulling, pullY, refreshing } = usePullToRefresh(fetchOrders)
 
 	if (loading) {
 		return (
@@ -99,6 +103,17 @@ export default function OrdersPage() {
 
 	return (
 		<div className="space-y-4">
+			{(pulling || refreshing) && (
+				<div
+					className="fixed top-0 inset-x-0 z-50 flex items-center justify-center pointer-events-none"
+					style={{ height: pullY || (refreshing ? 56 : 0), transition: pulling ? "none" : "height 0.3s ease" }}
+				>
+					<div className="flex items-center gap-2 bg-background/90 backdrop-blur border border-border rounded-full px-4 py-2 shadow-lg text-sm text-muted-foreground">
+						<RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} style={!refreshing ? { transform: `rotate(${(pullY / 56) * 180}deg)` } : undefined} />
+						{refreshing ? "در حال بارگذاری..." : "رها کنید"}
+					</div>
+				</div>
+			)}
 			<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
 				<h1 className="text-2xl font-bold gradient-text mb-1">سفارش‌های من</h1>
 				<p className="text-sm text-muted-foreground">
@@ -147,7 +162,7 @@ export default function OrdersPage() {
 												</Badge>
 											</div>
 											<p className="text-sm text-muted-foreground mb-1">
-												{new Date(order.createdAt).toLocaleDateString("fa-IR")} •{" "}
+												{formatDate(order.createdAt)} •{" "}
 												{new Intl.NumberFormat("fa-IR").format(itemCount)} محصول •{" "}
 												{PAYMENT_METHOD_MAP[order.paymentMethod] ?? "—"}
 											</p>

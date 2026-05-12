@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { translateNumber } from "@/utils/translateNumber";
 import { formatPrice } from "@/utils/formatPrice";
+import { formatDate } from "@/utils/formatDate";
 import { getMyOrders } from "@/services/orderService";
 import { getWalletBalance } from "@/services/walletService";
 
@@ -279,7 +280,7 @@ export default function DashboardPage() {
 														<Badge variant={s.variant} className="text-xs">{s.label}</Badge>
 													</div>
 													<p className="text-sm text-muted-foreground mb-1">
-														{new Date(order.createdAt).toLocaleDateString("fa-IR")} •{" "}
+														{formatDate(order.createdAt)} •{" "}
 														{new Intl.NumberFormat("fa-IR").format(itemCount)} محصول
 													</p>
 													<p className="text-lg font-bold gradient-text">

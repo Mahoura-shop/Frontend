@@ -85,7 +85,7 @@ export default function LandingPage() {
 									className="flex items-center gap-3 mb-7"
 								>
 									<div className="w-8 h-px bg-accent-gold" />
-									<p className="text-xs font-bold tracking-[0.28em] text-accent-gold no-select">
+									<p className="text-xs font-bold text-accent-gold no-select">
 										محصولات لوکس آرایشی
 									</p>
 								</motion.div>
@@ -207,7 +207,7 @@ export default function LandingPage() {
 						transition={{ repeat: Infinity, duration: 1.8 }}
 						className="absolute bottom-16 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2.5 opacity-50"
 					>
-						<p className="text-xs tracking-[0.2em] uppercase text-white/50">
+						<p className="text-xs text-white/50">
 							اسکرول کنید
 						</p>
 						<div className="w-px h-12 bg-gradient-to-b from-white/40 to-transparent" />
@@ -301,7 +301,7 @@ export default function LandingPage() {
 							].map((item, i) => (
 								<div
 									key={`${batch}-${i}`}
-									className="flex flex-row-reverse items-center gap-8 px-4 text-[#0D0B0A] text-sm font-bold tracking-wider"
+									className="flex flex-row-reverse items-center gap-8 px-4 text-[#0D0B0A] text-sm font-bold"
 								>
 									<p>{item}</p>
 									<span className="w-1 h-1 bg-[#0D0B0A] rounded-full opacity-40" />
@@ -383,7 +383,7 @@ export default function LandingPage() {
 					>
 						<div className="flex items-center gap-2.5 mb-4">
 							<div className="w-6 h-px bg-accent-gold" />
-							<p className="text-xs font-bold tracking-[0.22em] text-accent-gold uppercase">
+							<p className="text-xs font-bold text-accent-gold">
 								دسته‌بندی‌ها
 							</p>
 						</div>
@@ -440,7 +440,7 @@ export default function LandingPage() {
 								<div className="absolute inset-0 border border-white/0 group-hover:border-primary-rose/30 transition-colors duration-300 rounded-[20px]" />
 
 								<div className="absolute bottom-0 right-0 left-0 p-6 text-white">
-									<p className="text-xs font-bold tracking-[0.18em] text-accent-gold mb-1.5 uppercase">
+									<p className="text-xs font-bold text-accent-gold mb-1.5">
 										دسته‌بندی
 									</p>
 									<h3 className="text-2xl font-bold mb-1 leading-tight">
@@ -470,7 +470,7 @@ export default function LandingPage() {
 					>
 						<div className="flex items-center gap-2.5 mb-4">
 							<div className="w-6 h-px bg-accent-gold" />
-							<p className="text-xs font-bold tracking-[0.22em] text-accent-gold uppercase">
+							<p className="text-xs font-bold text-accent-gold">
 								بهترین‌ها
 							</p>
 						</div>
@@ -500,7 +500,7 @@ export default function LandingPage() {
 									ease: "easeOut",
 									delay: i * 0.1,
 								}}
-								className="rounded-[20px] overflow-hidden bg-white cursor-pointer hover:shadow-[0_20px_60px_rgba(13,11,10,.12)] transition-all group"
+								className="rounded-[20px] overflow-hidden bg-white dark:bg-card cursor-pointer hover:shadow-[0_20px_60px_rgba(13,11,10,.12)] dark:hover:shadow-[0_20px_60px_rgba(0,0,0,.4)] transition-all group"
 							>
 								<div className="relative aspect-square overflow-hidden bg-gradient-to-br from-[#E8E6E3] to-[rgba(212,165,165,.3)] flex items-center justify-center">
 									{prod.productPic ? (
@@ -543,7 +543,7 @@ export default function LandingPage() {
 								</div>
 
 								<div className="p-4.5">
-									<p className="text-xs text-[#0D0B0A]/35 font-bold tracking-[0.1em] uppercase mb-1.25">
+									<p className="text-xs text-[#0D0B0A]/35 font-bold mb-1.25">
 										{prod?.brand?.name}
 									</p>
 									<h3 className="text-base font-bold mb-3.5 text-[#0D0B0A] leading-[1.3] line-clamp-2">
@@ -590,7 +590,7 @@ export default function LandingPage() {
 					>
 						<div className="flex items-center justify-center gap-3.5 mb-8">
 							<div className="w-10 h-px bg-accent-gold/40" />
-							<p className="text-xs font-bold tracking-[0.25em] text-accent-gold uppercase">
+							<p className="text-xs font-bold text-accent-gold">
 								درباره برند
 							</p>
 							<div className="w-10 h-px bg-accent-gold/40" />
@@ -649,7 +649,7 @@ export default function LandingPage() {
 							<div>
 								<div className="flex items-center gap-2.5 mb-4">
 									<div className="w-6 h-px bg-accent-gold" />
-									<p className="text-xs font-bold tracking-[0.22em] text-accent-gold uppercase">
+									<p className="text-xs font-bold text-accent-gold">
 										جدید‌ها
 									</p>
 								</div>
@@ -687,7 +687,7 @@ export default function LandingPage() {
 										ease: "easeOut",
 										delay: i * 0.1,
 									}}
-									className="flex-shrink-0 w-[260px] rounded-[20px] overflow-hidden bg-white border border-[#0D0B0A]/5 hover:shadow-[0_16px_48px_rgba(13,11,10,.1)] hover:-translate-y-1.5 transition-all cursor-pointer group"
+									className="flex-shrink-0 w-[260px] rounded-[20px] overflow-hidden bg-white dark:bg-card border border-[#0D0B0A]/5 dark:border-border hover:shadow-[0_16px_48px_rgba(13,11,10,.1)] dark:hover:shadow-[0_16px_48px_rgba(0,0,0,.4)] hover:-translate-y-1.5 transition-all cursor-pointer group"
 								>
 									<div className="aspect-square overflow-hidden bg-gradient-to-br from-[#E8E6E3] to-[rgba(212,165,165,.25)] flex items-center justify-center">
 										{prod.productPic ? (
@@ -701,7 +701,7 @@ export default function LandingPage() {
 										)}
 									</div>
 									<div className="p-4">
-										<p className="text-xs text-[#0D0B0A]/30 font-bold uppercase mb-1">
+										<p className="text-xs text-[#0D0B0A]/30 font-bold mb-1">
 											{prod?.brand?.name}
 										</p>
 										<h4 className="text-sm font-bold mb-2.5 text-[#0D0B0A] line-clamp-1">

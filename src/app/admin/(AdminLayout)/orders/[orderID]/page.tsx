@@ -29,6 +29,7 @@ import {
 	TableRow,
 } from "@/components/ui/table"
 import { formatPrice } from "@/utils/formatPrice"
+import { formatDate } from "@/utils/formatDate"
 import { getAdminOrderDetail, updateOrderStatus, cancelOrder, flagOrderRefund, getOrderInstalments } from "@/services/orderService"
 import CustomToast from "@/components/Custom/CustomToast/CustomToast"
 
@@ -211,7 +212,7 @@ export default function AdminOrderDetailPage() {
 					سفارش #{new Intl.NumberFormat("fa-IR").format(order.id)}
 				</h1>
 				<p className="text-muted-foreground text-sm flex items-center gap-3">
-					{new Date(order.createdAt).toLocaleDateString("fa-IR")}
+					{formatDate(order.createdAt)}
 					{" · "}
 					{PAYMENT_METHOD_MAP[order.paymentMethod] ?? "—"}
 					{order.refundFlag && (
@@ -340,7 +341,7 @@ export default function AdminOrderDetailPage() {
 												</TableCell>
 												<TableCell>{formatPrice(inst.amount)} تومان</TableCell>
 												<TableCell className="text-muted-foreground">
-													{new Date(inst.dueDate).toLocaleDateString("fa-IR")}
+													{formatDate(inst.dueDate)}
 												</TableCell>
 												<TableCell>
 													<span className={`text-sm font-medium ${s?.color ?? ""}`}>
@@ -349,7 +350,7 @@ export default function AdminOrderDetailPage() {
 												</TableCell>
 												<TableCell className="text-muted-foreground">
 													{inst.paidAt
-														? new Date(inst.paidAt).toLocaleDateString("fa-IR")
+														? formatDate(inst.paidAt)
 														: "—"}
 												</TableCell>
 											</TableRow>

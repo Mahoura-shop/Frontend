@@ -14,6 +14,9 @@ export const banUser = (userID: number) =>
 export const unbanUser = (userID: number) =>
 	patchData({ endPoint: `v1/users/${userID}/unban`, data: {} })
 
+export const getAdminUserWallet = (userID: number) =>
+	getData({ endPoint: `v1/users/${userID}/wallet` })
+
 export const getMyProfile = () => getData({ endPoint: "v1/profile" })
 
 export const updateMyProfile = (data: { firstName: string; lastName: string; email: string }) =>

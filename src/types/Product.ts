@@ -33,6 +33,7 @@ interface Product {
 	currencyID: string;
 	productPic: string | undefined;
 	images?: string[];
+	imageObjects?: { id: number; path: string }[];
 	resolvedPrice?: number;
 }
 

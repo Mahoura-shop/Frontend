@@ -29,7 +29,7 @@ const TrustBar = () => {
 	return (
 		<section className="bg-landing-background py-24 px-6 md:px-14 no-select">
 			<div className="max-w-[1300px] mx-auto">
-				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 relative overflow-hidden rounded-3xl border border-black/[0.03] bg-white shadow-[0_20px_50px_rgba(0,0,0,0.02)]">
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 relative overflow-hidden rounded-3xl border border-black/[0.03] dark:border-border bg-white dark:bg-card shadow-[0_20px_50px_rgba(0,0,0,0.02)] dark:shadow-none">
 					{items.map((item, i) => {
 						const Icon = item.icon;
 						return (
@@ -61,7 +61,7 @@ const TrustBar = () => {
 								</div>
 
 								<div className="space-y-2">
-									<h3 className="font-bold text-sm uppercase tracking-widest text-[#0D0B0A]">
+									<h3 className="font-bold text-sm text-[#0D0B0A] dark:text-foreground">
 										{item.title}
 									</h3>
 									<p className="text-[13px] text-[#0D0B0A]/50 font-medium leading-relaxed max-w-[180px]">

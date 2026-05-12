@@ -55,7 +55,7 @@ export default function CartSheet({ open, onClose }: CartSheetProps) {
 								<ShoppingCart className="w-5 h-5" />
 								سبد خرید
 							</h2>
-							<span className="text-sm text-muted-foreground">{items.length} محصول</span>
+							<span className="text-sm text-muted-foreground">{new Intl.NumberFormat("fa-IR").format(items.length)} محصول</span>
 						</div>
 
 						{/* Items */}
@@ -104,7 +104,7 @@ export default function CartSheet({ open, onClose }: CartSheetProps) {
 											<button
 												disabled={loading}
 												onClick={() => removeAllOfItem(item.product.id, item.count)}
-												className="w-7 h-7 rounded-full bg-destructive/10 flex items-center justify-center mr-1"
+												className="w-7 h-7 rounded-full bg-destructive/10 flex items-center justify-center ms-1"
 											>
 												<Trash2 className="w-3 h-3 text-destructive" />
 											</button>

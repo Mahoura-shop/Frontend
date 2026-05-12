@@ -10,6 +10,7 @@ import {
 	CheckCircle2,
 	ChevronDown,
 	ChevronUp,
+	Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,12 +40,14 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import InputFree from "@/components/Custom/Input/InputFree";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
+import { formatDate } from "@/utils/formatDate";
 import {
 	getUsers,
 	banUser,
 	unbanUser,
 	changeUserType,
 	getUserAuditLogs,
+	getAdminUserWallet,
 } from "@/services/userService";
 
 interface UserItem {
@@ -63,6 +66,18 @@ interface AuditLog {
 	newType: string;
 	reason: string;
 	changedAt: string;
+}
+
+interface WalletTransaction {
+	id: number;
+	amount: number;
+	type: number;
+	createdAt: string;
+}
+
+interface UserWallet {
+	balance: number;
+	transactions: WalletTransaction[];
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -95,6 +110,12 @@ export default function AdminUsersPage() {
 	const [newType, setNewType] = useState("");
 	const [reason, setReason] = useState("");
 	const [actionLoading, setActionLoading] = useState(false);
+	const [walletDialog, setWalletDialog] = useState<{
+		open: boolean;
+		user: UserItem | null;
+		wallet: UserWallet | null;
+		loading: boolean;
+	}>({ open: false, user: null, wallet: null, loading: false });
 
 	const fetchUsers = useCallback(() => {
 		getUsers()
@@ -196,6 +217,16 @@ export default function AdminUsersPage() {
 			setReason("");
 		} finally {
 			setActionLoading(false);
+		}
+	};
+
+	const openWalletDialog = async (user: UserItem) => {
+		setWalletDialog({ open: true, user, wallet: null, loading: true });
+		try {
+			const res = await getAdminUserWallet(user.id);
+			setWalletDialog((prev) => ({ ...prev, wallet: res?.data ?? null, loading: false }));
+		} catch {
+			setWalletDialog((prev) => ({ ...prev, loading: false }));
 		}
 	};
 
@@ -385,6 +416,16 @@ export default function AdminUsersPage() {
 														)}
 														سابقه
 													</Button>
+
+													<Button
+														variant="ghost"
+														size="sm"
+														onClick={() => openWalletDialog(user)}
+														className="text-xs gap-1"
+													>
+														<Wallet className="w-3 h-3" />
+														کیف پول
+													</Button>
 												</div>
 											</TableCell>
 										</motion.tr>
@@ -419,11 +460,7 @@ export default function AdminUsersPage() {
 																	className="text-xs bg-background rounded p-2 border"
 																>
 																	<span className="text-muted-foreground">
-																		{new Date(
-																			log.changedAt,
-																		).toLocaleDateString(
-																			"fa-IR",
-																		)}
+																		{formatDate(log.changedAt)}
 																	</span>
 																	{" — "}
 																	<span>
@@ -531,6 +568,52 @@ export default function AdminUsersPage() {
 							تایید
 						</Button>
 					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
+			<Dialog
+				open={walletDialog.open}
+				onOpenChange={(open) =>
+					setWalletDialog({ open, user: open ? walletDialog.user : null, wallet: null, loading: false })
+				}
+			>
+				<DialogContent className="max-w-md">
+					<DialogHeader>
+						<DialogTitle>
+							کیف پول — {walletDialog.user?.firstName} {walletDialog.user?.lastName}
+						</DialogTitle>
+					</DialogHeader>
+					{walletDialog.loading ? (
+						<p className="text-sm text-muted-foreground py-4 text-center">در حال بارگذاری...</p>
+					) : walletDialog.wallet ? (
+						<div className="space-y-4">
+							<div className="rounded-lg bg-muted px-4 py-3 flex items-center justify-between">
+								<span className="text-sm text-muted-foreground">موجودی</span>
+								<span className="font-bold text-lg">
+									{new Intl.NumberFormat("fa-IR").format(walletDialog.wallet.balance)} ریال
+								</span>
+							</div>
+							<div>
+								<p className="text-sm font-medium mb-2">تراکنش‌ها</p>
+								{walletDialog.wallet.transactions.length === 0 ? (
+									<p className="text-xs text-muted-foreground">تراکنشی ثبت نشده</p>
+								) : (
+									<div className="space-y-2 max-h-64 overflow-y-auto">
+										{walletDialog.wallet.transactions.map((t) => (
+											<div key={t.id} className="flex items-center justify-between text-xs bg-background border rounded p-2">
+												<span className="text-muted-foreground">{formatDate(t.createdAt)}</span>
+												<span className={t.type === 1 ? "text-green-600" : "text-destructive"}>
+													{t.type === 1 ? "+" : "-"}{new Intl.NumberFormat("fa-IR").format(t.amount)} ریال
+												</span>
+											</div>
+										))}
+									</div>
+								)}
+							</div>
+						</div>
+					) : (
+						<p className="text-sm text-muted-foreground py-4 text-center">اطلاعاتی یافت نشد</p>
+					)}
 				</DialogContent>
 			</Dialog>
 		</main>

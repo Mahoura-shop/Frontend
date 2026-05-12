@@ -119,7 +119,7 @@ export default function CartPage() {
 					className="mb-8"
 				>
 					<h1 className="text-4xl font-bold gradient-text mb-2">سبد خرید</h1>
-					<p className="text-muted-foreground">{items.length} محصول در سبد خرید شما</p>
+					<p className="text-muted-foreground">{new Intl.NumberFormat("fa-IR").format(items.length)} محصول در سبد خرید شما</p>
 				</motion.div>
 
 				<div className="grid lg:grid-cols-3 gap-8">
@@ -216,7 +216,7 @@ export default function CartPage() {
 													{item.count > 1 && (
 														<p className="text-xs text-muted-foreground mt-1">
 															{formatPrice(item.product.irrPrice ?? 0)} ×{" "}
-															{item.count}
+															{new Intl.NumberFormat("fa-IR").format(item.count)}
 														</p>
 													)}
 												</div>

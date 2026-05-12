@@ -38,15 +38,15 @@ import { getWalletBalance, depositWallet, withdrawWallet } from "@/services/wall
 
 const depositSchema = Yup.object({
 	amount: Yup.number()
-		.min(10000, "حداقل مبلغ واریز ۱۰,۰۰۰ تومان است")
-		.max(50000000, "حداکثر مبلغ واریز ۵۰,۰۰۰,۰۰۰ تومان است")
+		.min(10000, "حداقل مبلغ واریز ۱۰٬۰۰۰ تومان است")
+		.max(50000000, "حداکثر مبلغ واریز ۵۰٬۰۰۰٬۰۰۰ تومان است")
 		.required("مبلغ الزامی است"),
 	paymentMethod: Yup.string().required("روش پرداخت را انتخاب کنید"),
 });
 
 const withdrawSchema = Yup.object({
 	amount: Yup.number()
-		.min(10000, "حداقل مبلغ برداشت ۱۰,۰۰۰ تومان است")
+		.min(10000, "حداقل مبلغ برداشت ۱۰٬۰۰۰ تومان است")
 		.required("مبلغ الزامی است"),
 });
 
@@ -347,11 +347,9 @@ export default function WalletPage() {
 
 												<div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
 													<p className="text-sm text-blue-700 dark:text-blue-400">
-														حداقل مبلغ شارژ: ۱۰,۰۰۰
-														تومان
+														حداقل مبلغ شارژ: ۱۰٬۰۰۰ تومان
 														<br />
-														حداکثر مبلغ شارژ:
-														۵۰,۰۰۰,۰۰۰ تومان
+														حداکثر مبلغ شارژ: ۵۰٬۰۰۰٬۰۰۰ تومان
 													</p>
 												</div>
 

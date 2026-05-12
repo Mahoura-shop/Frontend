@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getAdminReturns, reviewReturn, processRefund } from "@/services/returnService";
 import { formatPrice } from "@/utils/formatPrice";
+import { formatDate } from "@/utils/formatDate";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 
 interface ReturnRequest {
@@ -149,7 +150,7 @@ export default function AdminReturnsPage() {
 										</div>
 										<div>
 											<p className="text-xs text-muted-foreground mb-1">تاریخ درخواست</p>
-											<p className="font-medium">{new Date(r.requestedAt).toLocaleDateString("fa-IR")}</p>
+											<p className="font-medium">{formatDate(r.requestedAt)}</p>
 										</div>
 									</div>
 									<p className="text-sm text-muted-foreground border-t pt-2">

@@ -26,7 +26,7 @@ export default function RootLayout({
 			<body className="antialiased no-scrollbar">
 				<ThemeProvider
 					attribute="class"
-					defaultTheme="light"
+					defaultTheme="system"
 					enableSystem
 					disableTransitionOnChange
 				>

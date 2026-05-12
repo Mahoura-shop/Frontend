@@ -101,7 +101,7 @@ export default function SettingsPage() {
 								</Badge>
 							</div>
 						</div>
-						<div className="mr-auto flex items-center gap-2 text-sm text-muted-foreground">
+						<div className="ms-auto flex items-center gap-2 text-sm text-muted-foreground">
 							<Phone className="w-4 h-4" />
 							<span dir="ltr">{profile.phone}</span>
 						</div>

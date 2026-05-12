@@ -22,6 +22,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { formatPrice } from "@/utils/formatPrice"
+import { formatDate, formatDateLong } from "@/utils/formatDate"
 import { getOrderDetail, payByWallet, initiatePayment, getOrderInstalments } from "@/services/orderService"
 import { requestReturn } from "@/services/returnService"
 import CustomToast from "@/components/Custom/CustomToast/CustomToast"
@@ -213,15 +214,11 @@ export default function OrderDetailPage() {
 							سفارش #{new Intl.NumberFormat("fa-IR").format(order.id)}
 						</h1>
 						<p className="text-sm text-muted-foreground mt-1">
-							{new Date(order.createdAt).toLocaleDateString("fa-IR", {
-								year: "numeric",
-								month: "long",
-								day: "numeric",
-							})}
+							{formatDateLong(order.createdAt)}
 						</p>
 					</div>
 					<Badge variant={status.variant} className="text-sm px-3 py-1">
-						<StatusIcon className="w-4 h-4 ml-1" />
+						<StatusIcon className="w-4 h-4 me-1" />
 						{status.label}
 					</Badge>
 				</div>
@@ -441,7 +438,7 @@ export default function OrderDetailPage() {
 													<p className="text-xs font-medium">{s?.label ?? "—"}</p>
 													{h.note && <p className="text-xs text-muted-foreground">{h.note}</p>}
 													<p className="text-xs text-muted-foreground">
-														{new Date(h.createdAt).toLocaleDateString("fa-IR")}
+														{formatDate(h.createdAt)}
 													</p>
 												</div>
 											</div>
@@ -471,11 +468,11 @@ export default function OrderDetailPage() {
 												</div>
 												<div className="flex items-center justify-between text-xs text-muted-foreground">
 													<span>مبلغ: {formatPrice(inst.amount)} تومان</span>
-													<span>تاریخ سررسید: {new Date(inst.dueDate).toLocaleDateString("fa-IR")}</span>
+													<span>تاریخ سررسید: {formatDate(inst.dueDate)}</span>
 												</div>
 												{inst.paidAt && (
 													<p className="text-xs text-green-600">
-														پرداخت شده: {new Date(inst.paidAt).toLocaleDateString("fa-IR")}
+														پرداخت شده: {formatDate(inst.paidAt)}
 													</p>
 												)}
 											</div>

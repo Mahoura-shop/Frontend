@@ -102,9 +102,9 @@ export default function ProductDetailPage() {
 
 	return (
 		<>
-		<div className="min-h-screen bg-neutral-warm dark:bg-gray-950 pt-2">
+		<div className="min-h-screen bg-background pt-2">
 			{/* Breadcrumb */}
-			<div className="bg-white dark:bg-gray-900 border-b">
+			<div className="bg-background border-b">
 				<div className="container mx-auto px-4 py-4">
 					<div className="flex items-center gap-2 text-sm text-muted-foreground">
 						<Link href="/" className="hover:text-foreground">
@@ -167,7 +167,7 @@ export default function ProductDetailPage() {
 									variant="new"
 									className="absolute top-4 right-4 z-10"
 								>
-									<Star className="w-3 h-3 ml-1" />
+									<Star className="w-3 h-3 me-1" />
 									جدید
 								</Badge>
 							)}
@@ -252,20 +252,29 @@ export default function ProductDetailPage() {
 								>
 									<Copy className="w-5 h-5" />
 								</Button>
-								<Button
-									variant="outline"
-									size="icon"
-									className="w-12 h-12"
-									onClick={async () => {
-										await navigator.share({
-											title: document.title,
-											text: "این محصول را ببینید:",
-											url: window.location.href,
-										});
-									}}
-								>
-									<Share2 className="w-5 h-5" />
-								</Button>
+								{typeof navigator !== "undefined" && "share" in navigator && (
+									<Button
+										variant="outline"
+										size="icon"
+										className="w-12 h-12"
+										onClick={async () => {
+											try {
+												await navigator.share({
+													title: product.name,
+													text: `${product.name} را در ماهورا ببینید:`,
+													url: window.location.href,
+												});
+											} catch (e: any) {
+												if (e?.name !== "AbortError") {
+													navigator.clipboard.writeText(window.location.href);
+													CustomToast("لینک کپی شد", "success");
+												}
+											}
+										}}
+									>
+										<Share2 className="w-5 h-5" />
+									</Button>
+								)}
 							</div>
 						</div>
 

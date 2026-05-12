@@ -69,7 +69,18 @@ export default function SignIn() {
 		}
 	};
 
+	const fillOtp = (code: string) => {
+		const digits = code.replace(/\D/g, "").slice(0, 6).split("");
+		if (digits.length === 0) return;
+		const next = ["", "", "", "", "", ""];
+		digits.forEach((d, i) => { next[i] = d; });
+		setOtp(next);
+		const lastFilled = Math.min(digits.length, 5);
+		otpRefs.current[lastFilled]?.focus();
+	};
+
 	const handleOtpChange = (index: number, value: string) => {
+		if (value.length > 1) { fillOtp(value); return; }
 		if (!/^\d?$/.test(value)) return;
 		const next = [...otp];
 		next[index] = value;
@@ -82,6 +93,22 @@ export default function SignIn() {
 			otpRefs.current[index - 1]?.focus();
 		}
 	};
+
+	const handleOtpPaste = (e: React.ClipboardEvent) => {
+		e.preventDefault();
+		fillOtp(e.clipboardData.getData("text"));
+	};
+
+	useEffect(() => {
+		if (step !== "otp") return;
+		if (!("OTPCredential" in window)) return;
+		const ac = new AbortController();
+		(navigator.credentials as any)
+			.get({ otp: { transport: ["sms"] }, signal: ac.signal })
+			.then((cred: any) => { if (cred?.code) fillOtp(cred.code); })
+			.catch(() => {});
+		return () => ac.abort();
+	}, [step]);
 
 	const handleResend = async () => {
 		if (resendTimer > 0) return;
@@ -312,6 +339,7 @@ export default function SignIn() {
 													value={digit}
 													onChange={(e) => handleOtpChange(i, e.target.value)}
 													onKeyDown={(e) => handleOtpKeyDown(i, e)}
+													onPaste={i === 0 ? handleOtpPaste : undefined}
 													animate={digit ? { scale: [1, 1.08, 1] } : { scale: 1 }}
 													transition={spring}
 													className={[

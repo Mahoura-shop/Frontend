@@ -336,7 +336,7 @@ export default function OrderPage() {
 								<div className="bg-gradient-to-br from-primary-rose/10 via-accent-gold/10 to-secondary-plum/10 p-4 border-b">
 									<h2 className="text-xl font-bold flex items-center gap-2">
 										<ShoppingBag className="w-5 h-5" />
-										سفارش شما ({items.length} محصول)
+										سفارش شما ({new Intl.NumberFormat("fa-IR").format(items.length)} محصول)
 									</h2>
 								</div>
 								<CardContent className="p-4 space-y-3">

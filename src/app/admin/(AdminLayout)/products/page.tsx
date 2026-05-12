@@ -36,6 +36,7 @@ import { useCallback } from "react";
 import DeleteProductDialog from "@/components/admin/Product/DeleteProductDialog";
 import UpdateProductDialog from "@/components/admin/Product/UpdateProductDialog";
 import ProductInfoDialog from "@/components/admin/Product/ProductInfoDialog";
+import ProductImagesDialog from "@/components/admin/Product/ProductImagesDialog";
 
 type ProductSortColumn =
 	| "name"
@@ -506,6 +507,11 @@ export default function ProductsAdminPage() {
 												mode="update"
 												categories={categories}
 												brands={brands}
+											/>
+											<ProductImagesDialog
+												productID={product?.id}
+												images={product?.imageObjects ?? []}
+												fetchProducts={fetchProducts}
 											/>
 											<DeleteProductDialog
 												id={product?.id}

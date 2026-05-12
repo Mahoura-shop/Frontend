@@ -103,7 +103,7 @@ export default function Select({
 			{/* Floating label */}
 			<label className={cn(styles.label, hasValue && styles.floating)}>
 				{label}
-				{required && <span className="text-destructive mr-1">*</span>}
+				{required && <span className="text-destructive ms-1">*</span>}
 			</label>
 
 			{/* Icon */}

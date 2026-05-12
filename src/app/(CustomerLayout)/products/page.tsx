@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { formatPrice } from "@/utils/formatPrice";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ProductGridSkeleton } from "@/components/ui/product-card-skeleton";
@@ -14,6 +15,7 @@ import {
 	X,
 	Package,
 	ImageIcon,
+	RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -58,6 +60,24 @@ export default function ProductsPage() {
 	const [showFilters, setShowFilters] = useState(false);
 	const [sortBy, setSortBy] = useState<string>(() => searchParams.get("sort") ?? "newest");
 	const [isLoading, setIsLoading] = useState(false);
+
+	const refreshProducts = useCallback(async () => {
+		setIsLoading(true);
+		try {
+			await fetchProducts({
+				q: debouncedSearch,
+				categoryID: selectedCategory !== "0" ? Number(selectedCategory) : undefined,
+				brandID: selectedBrand !== "0" ? Number(selectedBrand) : undefined,
+				sortBy: mapSortByToBackend(sortBy),
+				limit: itemsPerPage,
+				offset: (currentPage - 1) * itemsPerPage,
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	}, [fetchProducts, debouncedSearch, selectedCategory, selectedBrand, sortBy, currentPage]);
+
+	const { pulling, pullY, refreshing } = usePullToRefresh(refreshProducts);
 
 	const handleAddToCart = async (e: React.MouseEvent, productId: number) => {
 		e.preventDefault();
@@ -135,6 +155,18 @@ export default function ProductsPage() {
 
 	return (
 		<div className="min-h-screen bg-background">
+			{/* Pull-to-refresh indicator */}
+			{(pulling || refreshing) && (
+				<div
+					className="fixed top-0 inset-x-0 z-50 flex items-center justify-center pointer-events-none"
+					style={{ height: pullY || (refreshing ? 56 : 0), transition: pulling ? "none" : "height 0.3s ease" }}
+				>
+					<div className="flex items-center gap-2 bg-background/90 backdrop-blur border border-border rounded-full px-4 py-2 shadow-lg text-sm text-muted-foreground">
+						<RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} style={!refreshing ? { transform: `rotate(${(pullY / 56) * 180}deg)` } : undefined} />
+						{refreshing ? "در حال بارگذاری..." : "رها کنید"}
+					</div>
+				</div>
+			)}
 			<div>
 				{/* Header */}
 				<div className="bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/20 py-8 md:py-16">
@@ -148,7 +180,7 @@ export default function ProductsPage() {
 								تمامی محصولات
 							</h1>
 							<p className="text-muted-foreground text-lg">
-								{products.length} محصول موجود
+								{new Intl.NumberFormat("fa-IR").format(products.length)} محصول موجود
 							</p>
 						</motion.div>
 					</div>
@@ -455,7 +487,7 @@ export default function ProductsPage() {
 													<div className="absolute top-3 right-3 flex flex-col gap-1.5 z-10">
 														{product.isNew && (
 															<Badge variant="new">
-																<Star className="w-3 h-3 ml-1" />
+																<Star className="w-3 h-3 me-1" />
 																جدید
 															</Badge>
 														)}
@@ -482,7 +514,7 @@ export default function ProductsPage() {
 															<p className="text-sm font-bold text-white leading-tight line-clamp-1 mb-1">{product.name}</p>
 															<p className="text-base font-bold text-primary-rose">
 																{formatPrice(Number(product.resolvedPrice || product.irrPrice))}
-																<span className="text-xs text-white/40 mr-1">ریال</span>
+																<span className="text-xs text-white/40 ms-1">تومان</span>
 															</p>
 														</div>
 														<Button
