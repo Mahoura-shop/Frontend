@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
+import DashboardSidebar from "@/components/DashboardSidebar/DashboardSidebar";
 
 export default function RootLayout({
 	children,
@@ -10,6 +11,7 @@ export default function RootLayout({
 	return (
 		<>
 			<Navbar />
+			<DashboardSidebar />
 			<PageTransition>
 				<div>{children}</div>
 			</PageTransition>

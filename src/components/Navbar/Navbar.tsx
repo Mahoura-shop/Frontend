@@ -35,6 +35,7 @@ import Magnet from "../utils/Magnet";
 import CartSheet from "@/components/CartSheet";
 import { spring } from "@/lib/motion";
 import GlassSurface from "../ReactBits/GlassSurface/GlassSurface";
+import { useDashboardMenuStore } from "@/store/useDashboardMenuStore";
 
 const menuItems = [
 	{ label: "محصولات", href: "/products" },
@@ -56,6 +57,7 @@ export default function Navbar() {
 	const { accessToken, firstName, lastName, isAdmin, logout } =
 		useUserStore();
 	const { fetchCart, getItemCount } = useCartStore();
+	const { setSidebarOpen } = useDashboardMenuStore();
 	const itemCount = getItemCount();
 	const [scrolled, setScrolled] = useState(false);
 	const [cartSheetOpen, setCartSheetOpen] = useState(false);
@@ -573,6 +575,11 @@ export default function Navbar() {
 				cartCount={itemCount}
 				onCartOpen={() => setCartSheetOpen(true)}
 				isLoggedIn={!!accessToken}
+				firstName={firstName}
+				lastName={lastName}
+				isAdmin={isAdmin}
+				onLogout={handleLogout}
+				onAccountClick={() => setSidebarOpen(true)}
 			/>
 			<CartSheet
 				open={cartSheetOpen}
@@ -587,11 +594,21 @@ function BottomNav({
 	cartCount,
 	onCartOpen,
 	isLoggedIn,
+	firstName,
+	lastName,
+	isAdmin,
+	onLogout,
+	onAccountClick,
 }: {
 	isActive: (href: string) => boolean;
 	cartCount: number;
 	onCartOpen: () => void;
 	isLoggedIn: boolean;
+	firstName?: string;
+	lastName?: string;
+	isAdmin?: boolean;
+	onLogout: () => void;
+	onAccountClick: () => void;
 }) {
 	return (
 		<motion.nav
@@ -688,15 +705,31 @@ function BottomNav({
 							</div>
 						);
 
-						return isCart ? (
-							<button
-								key={item.href}
-								className="flex-1"
-								onClick={onCartOpen}
-							>
-								{inner}
-							</button>
-						) : (
+						if (isCart) {
+							return (
+								<button
+									key={item.href}
+									className="flex-1"
+									onClick={onCartOpen}
+								>
+									{inner}
+								</button>
+							);
+						}
+
+						if (isAccount && isLoggedIn) {
+							return (
+								<button
+									key={item.href}
+									className="flex-1"
+									onClick={onAccountClick}
+								>
+									{inner}
+								</button>
+							);
+						}
+
+						return (
 							<Link
 								key={item.href}
 								href={href}

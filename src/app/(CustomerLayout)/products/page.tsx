@@ -246,9 +246,8 @@ export default function ProductsPage() {
 					<div className="flex flex-col lg:flex-row gap-8">
 						{/* Filters Sidebar - STICKY (desktop) / Bottom Sheet (mobile) */}
 						{/* Desktop sidebar */}
-						<aside className="hidden lg:block lg:w-80">
-							<div className="sticky top-24">
-								<Card>
+						<aside className="hidden lg:block lg:w-80 self-start sticky top-28">
+							<Card>
 									<CardContent className="flex flex-col gap-6 p-6">
 										<h3 className="text-xl font-bold flex items-center gap-2">
 											<Filter className="w-5 h-5" />
@@ -364,7 +363,6 @@ export default function ProductsPage() {
 										</Button>
 									</CardContent>
 								</Card>
-							</div>
 						</aside>
 
 						{/* Mobile filter bottom sheet */}
