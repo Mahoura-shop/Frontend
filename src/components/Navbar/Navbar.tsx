@@ -99,7 +99,7 @@ export default function Navbar() {
 				// blur={10}
 				// brightness={80}
 				mixBlendMode="color"
-				width="100%"
+				width="calc(100% - 40px)"
 				height={70}
 				className={`${styles.nav}`}
 			>
@@ -243,8 +243,8 @@ export default function Navbar() {
 													href="/cart"
 													className="flex items-center justify-end gap-2 cursor-pointer"
 												>
+													<p>سبد خرید</p>
 													<ShoppingCart className="w-4 h-4" />
-													سبد خرید
 												</Link>
 											</DropdownMenuItem>
 											<DropdownMenuSeparator />

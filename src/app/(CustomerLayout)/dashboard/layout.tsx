@@ -126,7 +126,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 	return (
 		<AuthGuard>
 			<div className="min-h-screen bg-background">
-				<div className="container mx-auto px-4 pt-24 pb-8">
+				<div className="container mx-auto px-4 pt-28 pb-8">
 					<div className="grid lg:grid-cols-4 gap-6">
 						{/* Mobile Sidebar Toggle */}
 						<div className="lg:hidden">
