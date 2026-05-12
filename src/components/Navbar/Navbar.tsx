@@ -34,7 +34,7 @@ import {
 import Magnet from "../utils/Magnet";
 import CartSheet from "@/components/CartSheet";
 import { spring } from "@/lib/motion";
-import GlassSurface from "../GlassSurface/GlassSurface";
+import GlassSurface from "../ReactBits/GlassSurface/GlassSurface";
 
 const menuItems = [
 	{ label: "محصولات", href: "/products" },

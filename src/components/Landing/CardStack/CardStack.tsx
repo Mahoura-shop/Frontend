@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, TargetAndTransition } from "framer-motion";
+import BorderGlow from "@/components/ReactBits/BorderGlowCard/BorderGlowCard";
 
 // --- Types ---
 interface CardData {
@@ -217,6 +218,7 @@ const CardStack: React.FC = () => {
 							{...product}
 							initial={variantSet.idle}
 							animate={animateTarget}
+							hue={product.hue}
 							transition={{
 								// Apply the spring to everything simultaneously
 								...sharedSpring,
@@ -418,7 +420,10 @@ const CardItem: React.FC<CardItemProps> = ({
 				borderColor: `hsl(${hue} 40% 50% / var(--card-border-opacity))`,
 			}}
 		>
+			<BorderGlow className="w-full h-full" colors={hue}>
+				
 			{/* Content... */}
+			</BorderGlow>
 		</motion.div>
 	);
 };

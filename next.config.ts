@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
 				hostname: "s3.ir-thr-at1.arvanstorage.ir",
 			},
 			{
+				protocol: "https",
+				hostname: "mahoura-product-pic.s3.ir-thr-at1.arvanstorage.ir",
+			},
+			{
 				protocol: "http",
 				hostname: "localhost",
 			},

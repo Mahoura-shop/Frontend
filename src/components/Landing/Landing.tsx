@@ -619,12 +619,6 @@ export default function LandingPage() {
 								</Button>
 							</Link>
 						</Magnet>
-						{/* <MagneticButton
-							href="/products"
-							className="bg-[#C9A875] text-[#0D0B0A] font-bold px-11 py-4.5 hover:scale-[1.06] hover:shadow-[0_14px_40px_rgba(201,168,117,.4)] transition-all"
-						>
-							کشف کنید
-						</MagneticButton> */}
 					</motion.div>
 				</div>
 			</section>

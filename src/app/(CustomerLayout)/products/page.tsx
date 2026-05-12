@@ -18,7 +18,7 @@ import {
 	RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import TiltedCard from "@/components/ReactBits/TiltedCard/TiltedCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
