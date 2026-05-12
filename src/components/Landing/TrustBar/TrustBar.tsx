@@ -54,7 +54,7 @@ const TrustBar = () => {
 									${i >= 2 ? "sm:border-t lg:border-t-0 border-border" : ""}`}
 								>
 									<div className="relative">
-										<div className="w-[52px] h-[52px] rounded-full bg-primary-rose/15 dark:bg-primary-rose/10 flex items-center justify-center text-secondary-plum dark:text-primary-rose transition-transform duration-500 group-hover:scale-110">
+										<div className="w-[52px] h-[52px] rounded-full bg-primary-rose/15 dark:bg-primary-rose/10 flex items-center justify-center text-accent-gold dark:text-primary-rose transition-transform duration-500 group-hover:scale-110">
 											<Icon
 												strokeWidth={1.4}
 												className="w-6 h-6"

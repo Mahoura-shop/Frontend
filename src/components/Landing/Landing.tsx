@@ -15,6 +15,8 @@ import Magnet from "../utils/Magnet";
 import CardStack from "./CardStack/CardStack";
 import TrustBar from "./TrustBar/TrustBar";
 import BorderGlow from "../ReactBits/BorderGlowCard/BorderGlowCard";
+import Aurora from "../ReactBits/Aurora/Aurora";
+import Grainient from "../ReactBits/Grainient/Grainient";
 
 export default function LandingPage() {
 	const { products } = useProductStore();
@@ -169,7 +171,7 @@ export default function LandingPage() {
 										style={{ animationDelay: "-4.8s" }}
 									>
 										<div className={styles.pillDot} />
-										<p>جدیدترین محصول</p>
+										<p>جدیدترین محصولات</p>
 									</motion.div>
 
 									<motion.div
@@ -179,14 +181,11 @@ export default function LandingPage() {
 										className={`absolute top-24 -left-10 no-select border-pill-border bg-pill-bg  text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-lg border border-white/12 bg-white/8 whitespace-nowrap animate-float ${styles.pill}`}
 										style={{ animationDelay: "-2.5s" }}
 									>
-									{/* <BorderGlow className="flex place-items-center gap-2 px-2 py-1" backgroundColor="#EEECEC"> */}
-											<div
-												className={`${styles.pillDot} ${styles.pillDotGreen}`}
-											/>
-											<p>
-
-											۱۰۰+ مشتری راضی
-											</p>
+										{/* <BorderGlow className="flex place-items-center gap-2 px-2 py-1" backgroundColor="#EEECEC"> */}
+										<div
+											className={`${styles.pillDot} ${styles.pillDotGreen}`}
+										/>
+										<p>۱۰۰+ مشتری راضی</p>
 										{/* </BorderGlow> */}
 									</motion.div>
 
@@ -361,11 +360,11 @@ export default function LandingPage() {
 									ease: "easeOut",
 									delay: i * 0.1,
 								}}
-								className={`relative rounded-[20px] overflow-hidden cursor-pointer group bg-[#E8E6E3] dark:bg-muted ${
+								className={`relative rounded-[20px] overflow-hidden cursor-pointer group bg-[#E8E6E3]  ${
 									i === 0 ? "md:row-span-2" : ""
 								}`}
 							>
-								<div className="w-full h-full transition-transform duration-700 group-hover:scale-[1.06] flex items-center justify-center bg-[#E8E6E3] dark:bg-muted">
+								<div className="w-full h-full transition-transform duration-700 group-hover:scale-[1.06] flex items-center justify-center bg-[#E8E6E3] dark:bg-card">
 									{cat.categoryPic ? (
 										<img
 											src={cat.categoryPic}
@@ -517,8 +516,42 @@ export default function LandingPage() {
 			</section>
 
 			{/* Statement Section */}
-			<section className="bg-landing-background py-24 md:py-32 px-4 md:px-14 relative overflow-hidden">
-				<div
+			{/* <Aurora
+				colorStops={["#D4A5A5", "#6B4E71", "#C9A875"]}
+				blend={0.5}
+				speed={0.8}
+			/> */}
+
+			<div
+				style={{ width: "100%", height: "600px", position: "absolute" }}
+			>
+				<Grainient
+					color1="#D4A5A5"
+					color2="#6B4E71"
+					color3="#C9A875"
+					timeSpeed={0.5}
+					colorBalance={0}
+					warpStrength={1}
+					warpFrequency={5}
+					warpSpeed={2}
+					warpAmplitude={50}
+					blendAngle={0}
+					blendSoftness={0.05}
+					rotationAmount={500}
+					noiseScale={2}
+					grainAmount={0.1}
+					grainScale={2}
+					grainAnimated={false}
+					contrast={1.5}
+					gamma={1}
+					saturation={1}
+					centerX={0}
+					centerY={0}
+					zoom={0.9}
+				/>
+			</div>
+			<section className="px-4 md:px-14 relative overflow-hidden h-screen m-auto flex place-items-center">
+				{/* <div
 					className="absolute inset-0 opacity-20"
 					style={{
 						background: `
@@ -528,9 +561,9 @@ export default function LandingPage() {
 						animation:
 							"meshmove 15s ease-in-out infinite alternate",
 					}}
-				/>
+				/> */}
 
-				<div className="max-w-[900px] mx-auto text-center relative z-10">
+				<div className="max-w-[900px]  mx-auto flex place-content-center align-middle place-items-center text-center relative z-10">
 					<motion.div
 						initial={{ opacity: 0, y: 40 }}
 						whileInView={{ opacity: 1, y: 0 }}
@@ -539,26 +572,27 @@ export default function LandingPage() {
 					>
 						<div className="flex items-center justify-center gap-3.5 mb-8">
 							<div className="w-10 h-px bg-accent-gold/40" />
-							<p className="text-xs font-bold text-accent-gold">
+							{/* <p className="text-xs font-bold text-accent-gold">
 								درباره برند
-							</p>
+							</p> */}
+							<p className="font-bold text-6xl">درباره برند</p>
 							<div className="w-10 h-px bg-accent-gold/40" />
 						</div>
 
-						<h2
-							className="text-4xl md:text-7xl font-bold mb-7 leading-tight"
-							style={{
-								background:
-									"linear-gradient(135deg, var(--foreground) 0%, var(--primary-rose) 50%, var(--accent-gold) 100%)",
-								WebkitBackgroundClip: "text",
-								WebkitTextFillColor: "transparent",
-								backgroundClip: "text",
-							}}
+						<p
+							className="text-4xl font-bold mb-7 leading-tight"
+							// style={{
+							// 	background:
+							// 		"linear-gradient(135deg, var(--foreground) 0%, var(--primary-rose) 50%, var(--accent-gold) 100%)",
+							// 	WebkitBackgroundClip: "text",
+							// 	// WebkitTextFillColor: "transparent",
+							// 	backgroundClip: "text",
+							// }}
 						>
 							زیبایی یک هنر است
-						</h2>
+						</p>
 
-						<p className="text-lg mb-12 max-w-[580px] mx-auto leading-[1.85]">
+						<p className="text-lg mb-12 font-bold max-w-[580px] mx-auto leading-[1.85]">
 							ماهورا با انتخاب بهترین محصولات آرایشی و بهداشتی،
 							تجربه‌ای منحصربه‌فرد از زیبایی را برای شما به ارمغان
 							می‌آورد

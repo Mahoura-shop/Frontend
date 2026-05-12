@@ -65,6 +65,7 @@ const config = {
 			},
 			backgroundColor: {
 				"pill-bg": "var(--pill-bg)",
+				"landing-background": "var(--landing-background)",
 			},
 			borderColor: {
 				"pill-border": "var(--pill-border)",

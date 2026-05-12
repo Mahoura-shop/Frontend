@@ -393,6 +393,7 @@ export default function Navbar() {
 											</button>
 										</DropdownMenuTrigger>
 										<DropdownMenuContent
+											sideOffset={20}
 											align="center"
 											className="w-48"
 										>
@@ -408,8 +409,8 @@ export default function Navbar() {
 														href="/admin/dashboard"
 														className="flex items-center justify-end gap-2 cursor-pointer"
 													>
+														<p>پنل مدیریت</p>
 														<LayoutDashboard className="w-4 h-4" />
-														پنل مدیریت
 													</Link>
 												</DropdownMenuItem>
 											)}
@@ -418,8 +419,8 @@ export default function Navbar() {
 													href="/dashboard"
 													className="flex items-center justify-end gap-2 cursor-pointer"
 												>
+													<p>حساب من</p>
 													<User className="w-4 h-4" />
-													حساب من
 												</Link>
 											</DropdownMenuItem>
 											<DropdownMenuItem asChild>
@@ -434,10 +435,10 @@ export default function Navbar() {
 											<DropdownMenuSeparator />
 											<DropdownMenuItem
 												onClick={handleLogout}
-												className="text-destructive focus:text-destructive focus:bg-destructive/10 flex justify-end items-center gap-2"
+												className="text-red-500 cursor-pointer focus:text-red-600 focus:bg-destructive/10 flex justify-end items-center gap-2"
 											>
+												<p>خروج</p>
 												<LogOut className="w-4 h-4" />
-												خروج
 											</DropdownMenuItem>
 										</DropdownMenuContent>
 									</DropdownMenu>
