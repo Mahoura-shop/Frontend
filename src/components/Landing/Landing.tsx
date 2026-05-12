@@ -14,6 +14,7 @@ import MagneticButton from "@/components/Custom/Button/MagneticButton";
 import Magnet from "../utils/Magnet";
 import CardStack from "./CardStack/CardStack";
 import TrustBar from "./TrustBar/TrustBar";
+import BorderGlow from "../ReactBits/BorderGlowCard/BorderGlowCard";
 
 export default function LandingPage() {
 	const { products } = useProductStore();
@@ -175,13 +176,18 @@ export default function LandingPage() {
 										initial={{ opacity: 0, y: 20 }}
 										animate={{ opacity: 1, y: 0 }}
 										transition={{ delay: 1.0 }}
-										className={`absolute top-24 -left-10 no-select border-pill-border bg-pill-bg flex place-items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-lg border border-white/12 bg-white/8 whitespace-nowrap animate-float ${styles.pill}`}
+										className={`absolute top-24 -left-10 no-select border-pill-border bg-pill-bg  text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-lg border border-white/12 bg-white/8 whitespace-nowrap animate-float ${styles.pill}`}
 										style={{ animationDelay: "-2.5s" }}
 									>
-										<div
-											className={`${styles.pillDot} ${styles.pillDotGreen}`}
-										/>
-										۱۰۰+ مشتری راضی
+									{/* <BorderGlow className="flex place-items-center gap-2 px-2 py-1" backgroundColor="#EEECEC"> */}
+											<div
+												className={`${styles.pillDot} ${styles.pillDotGreen}`}
+											/>
+											<p>
+
+											۱۰۰+ مشتری راضی
+											</p>
+										{/* </BorderGlow> */}
 									</motion.div>
 
 									<motion.div
@@ -312,64 +318,6 @@ export default function LandingPage() {
 				</motion.div>
 			</div>
 
-			{/* Trust Bar */}
-			{/* <section className="bg-[#F8F6F4] py-20 px-14">
-				<div className="max-w-[1300px] mx-auto">
-					<div className="grid grid-cols-4 w-full ">
-						{[
-							{
-								icon: ShoppingBag,
-								title: "ارسال سریع",
-								sub: "تحویل در کمترین زمان",
-							},
-							{
-								icon: ShieldCheck,
-								title: "محصولات اصل",
-								sub: "تضمین اصالت کالا",
-							},
-							{
-								icon: RefreshCcw,
-								title: "ضمانت بازگشت",
-								sub: "۷ روز ضمانت",
-							},
-							{
-								icon: Headphones,
-								title: "پشتیبانی",
-								sub: "پاسخگویی ۲۴/۷",
-							},
-						].map((item, i) => {
-							const Icon = item.icon;
-							return (
-								<motion.div
-									key={item.title}
-									initial={{ opacity: 0, y: 24 }}
-									whileInView={{ opacity: 1, y: 0 }}
-									viewport={{ once: true }}
-									transition={{
-										duration: 0.6,
-										ease: "easeOut",
-										delay: i * 0.1,
-									}}
-									className="py-9 border-l px-8 flex flex-col gap-3.5 place-self-center w-full"
-									style={{
-										borderLeftColor: "rgba(13,11,10,.08)",
-									}}
-								>
-									<div className="w-12 h-12 rounded-[14px] bg-gradient-to-br from-[rgba(212,165,165,.25)] to-[rgba(201,168,117,.15)] flex items-center justify-center text-secondary-plum">
-										<Icon className="w-6 h-6" />
-									</div>
-									<h3 className="font-bold text-[15px] text-[#0D0B0A]">
-										{item.title}
-									</h3>
-									<p className="text-xs text-[#0D0B0A]/45 leading-[1.6]">
-										{item.sub}
-									</p>
-								</motion.div>
-							);
-						})}
-					</div>
-				</div>
-			</section> */}
 			<TrustBar />
 
 			{/* Categories Masonry */}
@@ -413,11 +361,11 @@ export default function LandingPage() {
 									ease: "easeOut",
 									delay: i * 0.1,
 								}}
-								className={`relative rounded-[20px] overflow-hidden cursor-pointer group bg-[#E8E6E3] ${
+								className={`relative rounded-[20px] overflow-hidden cursor-pointer group bg-[#E8E6E3] dark:bg-muted ${
 									i === 0 ? "md:row-span-2" : ""
 								}`}
 							>
-								<div className="w-full h-full transition-transform duration-700 group-hover:scale-[1.06] flex items-center justify-center bg-[#E8E6E3]">
+								<div className="w-full h-full transition-transform duration-700 group-hover:scale-[1.06] flex items-center justify-center bg-[#E8E6E3] dark:bg-muted">
 									{cat.categoryPic ? (
 										<img
 											src={cat.categoryPic}
@@ -502,7 +450,9 @@ export default function LandingPage() {
 										/>
 									) : (
 										<div className="w-16 h-16 rounded-full bg-primary-rose/20 flex items-center justify-center">
-											<span className="text-primary-rose text-2xl font-bold">M</span>
+											<span className="text-primary-rose text-2xl font-bold">
+												M
+											</span>
 										</div>
 									)}
 
@@ -550,7 +500,13 @@ export default function LandingPage() {
 											{prod?.category?.name}
 										</Badge>
 										<span className="text-sm font-bold text-primary-rose whitespace-nowrap">
-											{formatPrice(Number(prod.resolvedPrice ?? prod.irrPrice ?? prod.price))}
+											{formatPrice(
+												Number(
+													prod.resolvedPrice ??
+														prod.irrPrice ??
+														prod.price,
+												),
+											)}
 										</span>
 									</div>
 								</div>
@@ -615,7 +571,7 @@ export default function LandingPage() {
 									variant="ghost"
 								>
 									<p>کشف کنید</p>
-                                    <Stars className="fill-foreground" />
+									<Stars className="fill-foreground" />
 								</Button>
 							</Link>
 						</Magnet>
@@ -696,7 +652,13 @@ export default function LandingPage() {
 										</h4>
 										<div className="flex items-center justify-between">
 											<span className="text-sm font-bold text-primary-rose">
-												{formatPrice(Number(prod.resolvedPrice ?? prod.irrPrice ?? prod.price))}
+												{formatPrice(
+													Number(
+														prod.resolvedPrice ??
+															prod.irrPrice ??
+															prod.price,
+													),
+												)}
 											</span>
 											<Badge className="text-[10px] font-bold px-2 py-0.5 bg-gradient-to-r from-amber-400 to-orange-500 text-white animate-pulse-glow">
 												جدید

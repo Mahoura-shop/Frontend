@@ -12,6 +12,7 @@ interface CardData {
 	// gradient: string;
 	// borderColor: string;
 	hue: number;
+	hex: string;
 }
 
 interface SlotVariants {
@@ -66,6 +67,7 @@ const PRODUCTS: CardData[] = [
 		name: "ماسک صورت سبز",
 		price: "۹۵,۰۰۰",
 		hue: 0,
+		hex: "#111A14"
 		// hue: 142, // Green hue
 	},
 	{
@@ -75,6 +77,7 @@ const PRODUCTS: CardData[] = [
 		name: "رژلب مات ولوت",
 		price: "۱۸۰,۰۰۰",
 		hue: 283,
+		hex: "#16111A"
 		// hue: 350, // Pink/Red hue
 	},
 	{
@@ -84,6 +87,7 @@ const PRODUCTS: CardData[] = [
 		name: "سرم روشن‌کننده",
 		price: "۴۵۰,۰۰۰ ریال",
 		hue: 38,
+		hex: "#1A1711",
 		// hue: 35, // Gold/Orange hue
 	},
 ];
@@ -219,6 +223,7 @@ const CardStack: React.FC = () => {
 							initial={variantSet.idle}
 							animate={animateTarget}
 							hue={product.hue}
+							hex={product.hex}
 							transition={{
 								// Apply the spring to everything simultaneously
 								...sharedSpring,
@@ -402,6 +407,7 @@ const CardItem: React.FC<CardItemProps> = ({
 	name,
 	price,
 	hue,
+	hex
 }) => {
 	return (
 		<motion.div
@@ -420,10 +426,10 @@ const CardItem: React.FC<CardItemProps> = ({
 				borderColor: `hsl(${hue} 40% 50% / var(--card-border-opacity))`,
 			}}
 		>
-			<BorderGlow className="w-full h-full" colors={hue}>
+			{/* <BorderGlow className="w-full h-full" backgroundColor={hex}> */}
 				
 			{/* Content... */}
-			</BorderGlow>
+			{/* </BorderGlow> */}
 		</motion.div>
 	);
 };
