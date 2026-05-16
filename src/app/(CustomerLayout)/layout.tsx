@@ -13,7 +13,7 @@ export default function RootLayout({
 			<Navbar />
 			<DashboardSidebar />
 			<PageTransition>
-				<div>{children}</div>
+				<div className="md:pt-[90px]">{children}</div>
 			</PageTransition>
 			<Footer />
 		</>

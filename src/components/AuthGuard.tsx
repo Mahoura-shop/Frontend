@@ -15,7 +15,11 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 		}
 	}, [accessToken, _hasHydrated, router]);
 
-	if (!_hasHydrated) return null;
+	if (!_hasHydrated) return (
+		<div className="min-h-[60vh] flex items-center justify-center">
+			<div className="w-8 h-8 rounded-full border-4 border-primary-rose border-t-transparent animate-spin" />
+		</div>
+	);
 	if (!accessToken) return null;
 
 	return <>{children}</>;

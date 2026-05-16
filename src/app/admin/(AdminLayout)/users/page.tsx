@@ -101,7 +101,6 @@ export default function AdminUsersPage() {
 	const [search, setSearch] = useState("");
 	const [expandedID, setExpandedID] = useState<number | null>(null);
 	const [auditLogs, setAuditLogs] = useState<Record<number, AuditLog[]>>({});
-	const [auditLoading, setAuditLoading] = useState<number | null>(null);
 	const [roleDialog, setRoleDialog] = useState<{
 		open: boolean;
 		user: UserItem | null;
@@ -136,28 +135,6 @@ export default function AdminUsersPage() {
 			u.lastName?.toLowerCase().includes(q)
 		);
 	});
-
-	const toggleAuditLog = async (userID: number) => {
-		if (expandedID === userID) {
-			setExpandedID(null);
-			return;
-		}
-		setExpandedID(userID);
-		if (!auditLogs[userID]) {
-			setAuditLoading(userID);
-			try {
-				const res = await getUserAuditLogs(userID);
-				setAuditLogs((prev) => ({
-					...prev,
-					[userID]: res?.data ?? [],
-				}));
-			} catch {
-				setAuditLogs((prev) => ({ ...prev, [userID]: [] }));
-			} finally {
-				setAuditLoading(null);
-			}
-		}
-	};
 
 	const handleBan = async (user: UserItem) => {
 		setActionLoading(true);
@@ -221,7 +198,11 @@ export default function AdminUsersPage() {
 		setWalletDialog({ open: true, user, wallet: null, loading: true });
 		try {
 			const res = await getAdminUserWallet(user.id);
-			setWalletDialog((prev) => ({ ...prev, wallet: res?.data ?? null, loading: false }));
+			setWalletDialog((prev) => ({
+				...prev,
+				wallet: res?.data ?? null,
+				loading: false,
+			}));
 		} catch {
 			setWalletDialog((prev) => ({ ...prev, loading: false }));
 		}
@@ -354,7 +335,6 @@ export default function AdminUsersPage() {
 															setNewType(
 																user.type,
 															);
-															setReason("");
 														}}
 														className="text-xs gap-1"
 													>
@@ -400,24 +380,10 @@ export default function AdminUsersPage() {
 														variant="ghost"
 														size="sm"
 														onClick={() =>
-															toggleAuditLog(
-																user.id,
+															openWalletDialog(
+																user,
 															)
 														}
-														className="text-xs gap-1"
-													>
-														{isExpanded ? (
-															<ChevronUp className="w-3 h-3" />
-														) : (
-															<ChevronDown className="w-3 h-3" />
-														)}
-														سابقه
-													</Button>
-
-													<Button
-														variant="ghost"
-														size="sm"
-														onClick={() => openWalletDialog(user)}
 														className="text-xs gap-1"
 													>
 														<Wallet className="w-3 h-3" />
@@ -426,72 +392,6 @@ export default function AdminUsersPage() {
 												</div>
 											</TableCell>
 										</motion.tr>
-
-										{isExpanded && (
-											<motion.tr
-												key={`audit-${user.id}`}
-												initial={{ opacity: 0 }}
-												animate={{ opacity: 1 }}
-											>
-												<TableCell
-													colSpan={5}
-													className="bg-muted/20 px-6 py-4"
-												>
-													<p className="text-sm font-medium mb-3">
-														سابقه تغییر نقش
-													</p>
-													{auditLoading ===
-													user.id ? (
-														<p className="text-xs text-muted-foreground">
-															در حال بارگذاری...
-														</p>
-													) : logs.length === 0 ? (
-														<p className="text-xs text-muted-foreground">
-															سابقه‌ای ثبت نشده
-														</p>
-													) : (
-														<div className="space-y-2">
-															{logs.map((log) => (
-																<div
-																	key={log.id}
-																	className="text-xs bg-background rounded p-2 border"
-																>
-																	<span className="text-muted-foreground">
-																		{formatDate(log.changedAt)}
-																	</span>
-																	{" — "}
-																	<span>
-																		{TYPE_LABELS[
-																			log
-																				.oldType
-																		] ??
-																			log.oldType}
-																	</span>
-																	{" → "}
-																	<span className="font-medium">
-																		{TYPE_LABELS[
-																			log
-																				.newType
-																		] ??
-																			log.newType}
-																	</span>
-																	{log.reason && (
-																		<span className="text-muted-foreground">
-																			{" "}
-																			(
-																			{
-																				log.reason
-																			}
-																			)
-																		</span>
-																	)}
-																</div>
-															))}
-														</div>
-													)}
-												</TableCell>
-											</motion.tr>
-										)}
 									</>
 								);
 							})}
@@ -510,16 +410,15 @@ export default function AdminUsersPage() {
 					<DialogHeader>
 						<DialogTitle>تغییر نقش کاربر</DialogTitle>
 					</DialogHeader>
-					<div className="space-y-4 py-2">
+					<div className="space-y-4 py-2 rtl">
 						<p className="text-sm text-muted-foreground">
 							{roleDialog.user?.firstName}{" "}
-							{roleDialog.user?.lastName} —{" "}
-							{roleDialog.user?.phone}
+							{roleDialog.user?.lastName} {roleDialog.user?.phone}
 						</p>
 						<div className="space-y-1">
-							<label className="text-sm font-medium">
-								نقش جدید
-							</label>
+							{/* <label className="text-sm font-medium">
+								نقش فعلی کاربر: {roleDialog.user?.type}
+							</label> */}
 							<Select value={newType} onValueChange={setNewType}>
 								<SelectTrigger>
 									<SelectValue placeholder="انتخاب نقش" />
@@ -559,45 +458,86 @@ export default function AdminUsersPage() {
 			<Dialog
 				open={walletDialog.open}
 				onOpenChange={(open) =>
-					setWalletDialog({ open, user: open ? walletDialog.user : null, wallet: null, loading: false })
+					setWalletDialog({
+						open,
+						user: open ? walletDialog.user : null,
+						wallet: null,
+						loading: false,
+					})
 				}
 			>
 				<DialogContent className="max-w-md">
 					<DialogHeader>
 						<DialogTitle>
-							کیف پول — {walletDialog.user?.firstName} {walletDialog.user?.lastName}
+							کیف پول — {walletDialog.user?.firstName}{" "}
+							{walletDialog.user?.lastName}
 						</DialogTitle>
 					</DialogHeader>
 					{walletDialog.loading ? (
-						<p className="text-sm text-muted-foreground py-4 text-center">در حال بارگذاری...</p>
+						<p className="text-sm text-muted-foreground py-4 text-center">
+							در حال بارگذاری...
+						</p>
 					) : walletDialog.wallet ? (
 						<div className="space-y-4">
 							<div className="rounded-lg bg-muted px-4 py-3 flex items-center justify-between">
-								<span className="text-sm text-muted-foreground">موجودی</span>
+								<span className="text-sm text-muted-foreground">
+									موجودی
+								</span>
 								<span className="font-bold text-lg">
-									{new Intl.NumberFormat("fa-IR").format(walletDialog.wallet.balance)} ریال
+									{new Intl.NumberFormat("fa-IR").format(
+										walletDialog.wallet.balance,
+									)}{" "}
+									ریال
 								</span>
 							</div>
 							<div>
-								<p className="text-sm font-medium mb-2">تراکنش‌ها</p>
-								{walletDialog.wallet.transactions.length === 0 ? (
-									<p className="text-xs text-muted-foreground">تراکنشی ثبت نشده</p>
+								<p className="text-sm font-medium mb-2">
+									تراکنش‌ها
+								</p>
+								{walletDialog.wallet.transactions.length ===
+								0 ? (
+									<p className="text-xs text-muted-foreground">
+										تراکنشی ثبت نشده
+									</p>
 								) : (
 									<div className="space-y-2 max-h-64 overflow-y-auto">
-										{walletDialog.wallet.transactions.map((t) => (
-											<div key={t.id} className="flex items-center justify-between text-xs bg-background border rounded p-2">
-												<span className="text-muted-foreground">{formatDate(t.createdAt)}</span>
-												<span className={t.type === 1 ? "text-green-600" : "text-destructive"}>
-													{t.type === 1 ? "+" : "-"}{new Intl.NumberFormat("fa-IR").format(t.amount)} ریال
-												</span>
-											</div>
-										))}
+										{walletDialog.wallet.transactions.map(
+											(t) => (
+												<div
+													key={t.id}
+													className="flex items-center justify-between text-xs bg-background border rounded p-2"
+												>
+													<span className="text-muted-foreground">
+														{formatDate(
+															t.createdAt,
+														)}
+													</span>
+													<span
+														className={
+															t.type === 1
+																? "text-green-600"
+																: "text-destructive"
+														}
+													>
+														{t.type === 1
+															? "+"
+															: "-"}
+														{new Intl.NumberFormat(
+															"fa-IR",
+														).format(t.amount)}{" "}
+														ریال
+													</span>
+												</div>
+											),
+										)}
 									</div>
 								)}
 							</div>
 						</div>
 					) : (
-						<p className="text-sm text-muted-foreground py-4 text-center">اطلاعاتی یافت نشد</p>
+						<p className="text-sm text-muted-foreground py-4 text-center">
+							اطلاعاتی یافت نشد
+						</p>
 					)}
 				</DialogContent>
 			</Dialog>

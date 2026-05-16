@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
 import useUserStore from "@/store/userStore/userStore";
 import { formatPrice } from "@/utils/formatPrice";
+import resolvePrice from "@/utils/resolvePrice";
 
 interface CartSheetProps {
 	open: boolean;
@@ -18,17 +19,7 @@ export default function CartSheet({ open, onClose }: CartSheetProps) {
 	const { items, loading, addItem, removeItem, removeAllOfItem } = useCartStore();
 	const { userType } = useUserStore();
 
-	const resolveItemPrice = (product: any): number => {
-		switch (userType) {
-			case "fellow": return product.step1Price ?? product.consumerPrice ?? 0
-			case "shopkeeperCash": return product.step2Price ?? product.consumerPrice ?? 0
-			case "shopkeeperCheque": return product.step3Price ?? product.consumerPrice ?? 0
-			case "regular": return product.step4Price ?? product.consumerPrice ?? 0
-			default: return product.step4Price ?? product.consumerPrice ?? 0
-		}
-	};
-
-	const total = items.reduce((sum, item) => sum + resolveItemPrice(item.product) * item.count, 0);
+	const total = items.reduce((sum, item) => sum + resolvePrice(item.product, userType) * item.count, 0);
 
 	return (
 		<AnimatePresence>
@@ -91,7 +82,7 @@ export default function CartSheet({ open, onClose }: CartSheetProps) {
 										<div className="flex-1 min-w-0">
 											<p className="text-sm font-semibold truncate">{item.product.name}</p>
 											<p className="text-xs text-primary-rose font-bold">
-												{formatPrice(resolveItemPrice(item.product) * item.count)} ریال
+												{formatPrice(resolvePrice(item.product, userType) * item.count)} ریال
 											</p>
 										</div>
 

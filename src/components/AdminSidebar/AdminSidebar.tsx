@@ -17,79 +17,22 @@ import {
 	Coins,
 	RotateCcw,
 	Settings,
+	LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import logo from "@/assets/logo.png";
-import { Button } from "@/components/ui/button";
 import { useDashboardMenuStore } from "@/store/useDashboardMenuStore";
 import useUserStore from "@/store/userStore/userStore";
 
-const adminMenuItems = [
-	{
-		title: "داشبورد",
-		href: "/admin/dashboard",
-		icon: Home,
-	},
-	{
-		title: "مدیریت محصولات",
-		href: "/admin/products",
-		icon: Package,
-	},
-	{
-		title: "تغییر گروهی قیمت",
-		href: "/admin/products/group",
-		icon: DollarSign,
-	},
-	{
-		title: "دسته‌بندی‌ها",
-		href: "/admin/categories",
-		icon: FolderTree,
-	},
-	{
-		title: "برندها",
-		href: "/admin/brands",
-		icon: Tag,
-	},
-	{
-		title: "سفارش‌ها",
-		href: "/admin/orders",
-		icon: ShoppingBag,
-	},
-	{
-		title: "کاربران",
-		href: "/admin/users",
-		icon: Users,
-	},
-	{
-		title: "درخواست‌های ارتقاء",
-		href: "/admin/upgrade-requests",
-		icon: ClipboardList,
-	},
-	{
-		title: "نقش‌ها و دسترسی‌ها",
-		href: "/admin/roles",
-		icon: Shield,
-	},
-	{
-		title: "ارزها",
-		href: "/admin/currencies",
-		icon: Coins,
-	},
-	{
-		title: "مرجوعی‌ها",
-		href: "/admin/returns",
-		icon: RotateCcw,
-	},
-	{
-		title: "تنظیمات",
-		href: "/admin/settings",
-		icon: Settings,
-	},
-];
+interface Item {
+	title: string;
+	href: string;
+	icon: LucideIcon
+}
 
-export default function AdminSidebar() {
+export default function AdminSidebar({items}: {items: Item[]}) {
 	const pathname = usePathname();
 	const { sidebarOpen, setSidebarOpen } = useDashboardMenuStore();
 	const { logout } = useUserStore();
@@ -111,7 +54,8 @@ export default function AdminSidebar() {
 			initial={false}
 			animate={{ width: sidebarOpen ? 256 : 0 }}
 			transition={{ type: "spring", stiffness: 300, damping: 30 }}
-			className="hidden lg:block fixed right-0 top-0 h-full bg-card border-l border-border overflow-hidden shadow-lg"
+			className="hidden lg:block fixed right-0 top-20 bg-card border-l border-border overflow-hidden shadow-lg"
+			style={{ height: "calc(100vh - 80px)" }}
 		>
 			<div className="w-64 h-full flex flex-col">
 				{/* Sidebar Header */}
@@ -130,7 +74,7 @@ export default function AdminSidebar() {
 
 				{/* Navigation Menu */}
 				<nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-					{adminMenuItems.map((item, i) => {
+					{items.map((item, i) => {
 						const active = isActive(item.href);
 						return (
 							<motion.div

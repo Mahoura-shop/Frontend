@@ -14,6 +14,7 @@ import {
 	Moon,
 	Users,
 	ShieldCheck,
+	Mail,
 } from "lucide-react";
 
 import { motion } from "framer-motion";
@@ -62,6 +63,13 @@ const menuItems = [
 		label: "نقش‌ها",
 		icon: ShieldCheck,
 		href: "/admin/roles",
+		count: null,
+	},
+	{
+		id: "contacts",
+		label: "پیام‌های تماس",
+		icon: Mail,
+		href: "/admin/contacts",
 		count: null,
 	},
 	{

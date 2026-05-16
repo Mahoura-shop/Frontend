@@ -32,6 +32,16 @@ export default function resolvePrice(
 			);
 		case "regular":
 			return p.step4Price || p.consumerPrice || p.irrPrice || 0;
+		case "admin":
+			return (
+				p.step1Price ||
+				p.step2Price ||
+				p.step3Price ||
+				p.step4Price ||
+				p.consumerPrice ||
+				p.irrPrice ||
+				0
+			);
 		default:
 			return p.step4Price || p.consumerPrice || p.irrPrice || 0;
 	}

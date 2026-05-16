@@ -126,7 +126,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 	return (
 		<AuthGuard>
 			<div className="min-h-screen bg-background">
-				<div className="container mx-auto px-4 pt-28 pb-8">
+				<div className="container mx-auto px-4 pt-4 pb-8">
 					<div className="grid lg:grid-cols-4 gap-6">
 						{/* Mobile Sidebar Toggle */}
 						<div className="lg:hidden">
@@ -311,15 +311,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
 						{/* Main Content */}
 						<div className="lg:col-span-3">
-							<motion.div
-								key={pathname}
-								initial={{ opacity: 0, y: 20 }}
-								animate={{ opacity: 1, y: 0 }}
-								exit={{ opacity: 0, y: -20 }}
-								transition={{ duration: 0.3 }}
-							>
-								{children}
-							</motion.div>
+							{children}
 						</div>
 					</div>
 				</div>

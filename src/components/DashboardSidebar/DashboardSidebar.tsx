@@ -28,6 +28,7 @@ import {
 	ClipboardList,
 	Shield,
 	Coins,
+	LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -48,19 +49,28 @@ interface Profile {
 	type: string;
 }
 
-export default function DashboardSidebar() {
+interface Item {
+	title: string;
+	href: string;
+	badge?: string;
+	icon: LucideIcon;
+}
+
+export default function DashboardSidebar({ items }: { items: Item[] }) {
 	const [profile, setProfile] = useState<Profile | null>(null);
 	const pathname = usePathname();
 	const router = useRouter();
 	const { theme, setTheme } = useTheme();
 	const { sidebarOpen, setSidebarOpen, isAdminView, toggleAdminView } =
 		useDashboardMenuStore();
-	const { isAdmin, logout } = useUserStore();
+	const { isAdmin, logout, accessToken } = useUserStore();
 
 	useEffect(() => {
-		getMyProfile()
-			.then((res) => setProfile(res?.data ?? null))
-			.catch(() => {});
+		if (accessToken) {
+			getMyProfile()
+				.then((res) => setProfile(res?.data ?? null))
+				.catch(() => {});
+		}
 	}, []);
 
 	const navigationItems = [
@@ -124,69 +134,6 @@ export default function DashboardSidebar() {
 			title: "خروج از حساب",
 			href: "/logout",
 			icon: LogOut,
-		},
-	];
-
-	const adminNavigationItems = [
-		{
-			title: "داشبورد",
-			href: "/admin/dashboard",
-			icon: Home,
-		},
-		{
-			title: "مدیریت محصولات",
-			href: "/admin/products",
-			icon: Package,
-		},
-		{
-			title: "تغییر گروهی قیمت",
-			href: "/admin/products/group",
-			icon: DollarSign,
-		},
-		{
-			title: "دسته‌بندی‌ها",
-			href: "/admin/categories",
-			icon: FolderTree,
-		},
-		{
-			title: "برندها",
-			href: "/admin/brands",
-			icon: Tag,
-		},
-		{
-			title: "سفارش‌ها",
-			href: "/admin/orders",
-			icon: ShoppingBag,
-		},
-		{
-			title: "کاربران",
-			href: "/admin/users",
-			icon: Users,
-		},
-		{
-			title: "درخواست‌های ارتقاء",
-			href: "/admin/upgrade-requests",
-			icon: ClipboardList,
-		},
-		{
-			title: "نقش‌ها و دسترسی‌ها",
-			href: "/admin/roles",
-			icon: Shield,
-		},
-		{
-			title: "ارزها",
-			href: "/admin/currencies",
-			icon: Coins,
-		},
-		{
-			title: "مرجوعی‌ها",
-			href: "/admin/returns",
-			icon: RotateCcw,
-		},
-		{
-			title: "تنظیمات",
-			href: "/admin/settings",
-			icon: Settings,
 		},
 	];
 
@@ -328,9 +275,9 @@ export default function DashboardSidebar() {
 															profile.firstName,
 															profile.lastName,
 														]
-														.filter(Boolean)
-														.join(" ") ||
-													  "بدون نام"
+															.filter(Boolean)
+															.join(" ") ||
+														"بدون نام"
 													: "در حال بارگذاری..."}
 											</h3>
 											<p className="text-sm text-muted-foreground truncate">
@@ -372,7 +319,7 @@ export default function DashboardSidebar() {
 							<Card className="p-2">
 								<nav className="space-y-1">
 									{(isAdminView
-										? adminNavigationItems
+										? items
 										: navigationItems
 									).map((item) => (
 										<Link
@@ -399,9 +346,7 @@ export default function DashboardSidebar() {
 												<div className="flex items-center gap-3">
 													<item.icon
 														className={`w-5 h-5 ${
-															isActive(
-																item.href
-															)
+															isActive(item.href)
 																? "text-primary-rose"
 																: "text-muted-foreground"
 														}`}
@@ -412,28 +357,25 @@ export default function DashboardSidebar() {
 												</div>
 												<div className="flex items-center gap-2">
 													{"badge" in item &&
-														item.badge !==
-														null && (
-														<Badge
-															variant={
-																isActive(
-																	item.href
-																)
-																	? "default"
-																	: "secondary"
-															}
-															className="text-xs"
-														>
-															{new Intl.NumberFormat(
-																"fa-IR"
-															).format(
-																item.badge
-															)}
-														</Badge>
-													)}
-													{isActive(
-														item.href
-													) && (
+														item.badge !== null && (
+															<Badge
+																variant={
+																	isActive(
+																		item.href,
+																	)
+																		? "default"
+																		: "secondary"
+																}
+																className="text-xs"
+															>
+																{new Intl.NumberFormat(
+																	"fa-IR",
+																).format(
+																	item.badge,
+																)}
+															</Badge>
+														)}
+													{isActive(item.href) && (
 														<ChevronLeft className="w-4 h-4" />
 													)}
 												</div>
@@ -471,7 +413,7 @@ export default function DashboardSidebar() {
 															}}
 															className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
 																isActive(
-																	item.href
+																	item.href,
 																)
 																	? "bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/5 text-primary-rose font-semibold"
 																	: "hover:bg-muted/50"
@@ -480,7 +422,7 @@ export default function DashboardSidebar() {
 															<item.icon
 																className={`w-5 h-5 ${
 																	isActive(
-																		item.href
+																		item.href,
 																	)
 																		? "text-primary-rose"
 																		: "text-muted-foreground"

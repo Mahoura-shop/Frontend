@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { postData } from "@/services/services";
 
 interface FormErrors {
 	name?: string;
@@ -64,18 +65,22 @@ export default function ContactPage() {
 		if (!validateForm()) return;
 
 		setIsSubmitting(true);
-		await new Promise((resolve) => setTimeout(resolve, 600));
-
-		CustomToast(
-			"پیام شما با موفقیت ارسال شد. به زودی با شما تماس خواهیم گرفت.",
-			"success",
-		);
-
-		setSubmitted(true);
-		setFormData({ name: "", email: "", subject: "", message: "" });
-		setIsSubmitting(false);
-
-		setTimeout(() => setSubmitted(false), 3000);
+		try {
+			await postData({
+				endPoint: "/v1/contact",
+				data: formData,
+			});
+			CustomToast(
+				"پیام شما با موفقیت ارسال شد. به زودی با شما تماس خواهیم گرفت.",
+				"success",
+			);
+			setSubmitted(true);
+			setFormData({ name: "", email: "", subject: "", message: "" });
+			setTimeout(() => setSubmitted(false), 3000);
+		} catch {
+		} finally {
+			setIsSubmitting(false);
+		}
 	};
 
 	const handleFieldChange = (

@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
 	ShoppingBag,
 	Package,
@@ -15,6 +15,9 @@ import {
 	CreditCard,
 	XCircle,
 	Heart,
+	UserCircle,
+	X,
+	AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -26,6 +29,7 @@ import { formatPrice } from "@/utils/formatPrice";
 import { formatDate } from "@/utils/formatDate";
 import { getMyOrders } from "@/services/orderService";
 import { getWalletBalance } from "@/services/walletService";
+import { getMyProfile } from "@/services/userService";
 
 interface Order {
 	id: number;
@@ -43,11 +47,19 @@ const STATUS_MAP: Record<number, { label: string; variant: "available" | "new" |
 	5: { label: "لغو شده", variant: "secondary", icon: XCircle },
 };
 
+interface Profile {
+	firstName: string;
+	lastName: string;
+	email: string;
+}
+
 const MOCK_STATS = { wishlistItems: 5 };
 
 export default function DashboardPage() {
 	const [recentOrders, setRecentOrders] = useState<Order[]>([]);
 	const [walletBalance, setWalletBalance] = useState<number | null>(null);
+	const [profile, setProfile] = useState<Profile | null>(null);
+	const [bannerDismissed, setBannerDismissed] = useState(false);
 
 	useEffect(() => {
 		getMyOrders()
@@ -56,10 +68,60 @@ export default function DashboardPage() {
 		getWalletBalance()
 			.then((res) => setWalletBalance(res?.data?.balance ?? 0))
 			.catch(() => setWalletBalance(0));
+		getMyProfile()
+			.then((res) => setProfile(res?.data ?? null))
+			.catch(() => {});
 	}, []);
+
+	const missingFields: string[] = [];
+	if (profile && !profile.firstName) missingFields.push("نام");
+	if (profile && !profile.lastName) missingFields.push("نام خانوادگی");
+	if (profile && !profile.email) missingFields.push("ایمیل");
+	const showBanner = profile !== null && missingFields.length > 0 && !bannerDismissed;
 
 	return (
 		<div className="space-y-6">
+			{/* Profile completion banner */}
+			<AnimatePresence>
+				{showBanner && (
+					<motion.div
+						initial={{ opacity: 0, y: -10 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: -10 }}
+						transition={{ duration: 0.3 }}
+					>
+						<Card className="border-amber-400/50 bg-gradient-to-r from-amber-50/80 to-orange-50/80 dark:from-amber-900/20 dark:to-orange-900/20 overflow-hidden">
+							<CardContent className="p-4">
+								<div className="flex items-start gap-4">
+									<div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center flex-shrink-0">
+										<AlertCircle className="w-5 h-5 text-amber-600" />
+									</div>
+									<div className="flex-1">
+										<p className="font-semibold text-sm mb-1">پروفایل شما ناقص است</p>
+										<p className="text-xs text-muted-foreground mb-3">
+											لطفا اطلاعات زیر را تکمیل کنید:{" "}
+											<span className="font-medium text-foreground">{missingFields.join("، ")}</span>
+										</p>
+										<Link href="/dashboard/settings">
+											<Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-white h-8 gap-2">
+												<UserCircle className="w-4 h-4" />
+												تکمیل اطلاعات
+											</Button>
+										</Link>
+									</div>
+									<button
+										onClick={() => setBannerDismissed(true)}
+										className="text-muted-foreground hover:text-foreground transition-colors mt-0.5"
+									>
+										<X className="w-4 h-4" />
+									</button>
+								</div>
+							</CardContent>
+						</Card>
+					</motion.div>
+				)}
+			</AnimatePresence>
+
 			{/* Welcome Section */}
 			{/* <motion.div
 				initial={{ opacity: 0, y: -20 }}

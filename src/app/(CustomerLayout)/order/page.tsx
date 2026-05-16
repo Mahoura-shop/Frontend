@@ -20,6 +20,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import CustomToast from "@/components/Custom/CustomToast/CustomToast"
 import { formatPrice } from "@/utils/formatPrice"
+import resolvePrice from "@/utils/resolvePrice"
 import { useCartStore } from "@/store/useCartStore"
 import { createOrder, payByWallet, initiatePayment } from "@/services/orderService"
 import { getAddresses } from "@/services/addressService"
@@ -41,21 +42,12 @@ interface Address {
 export default function OrderPage() {
 	const router = useRouter()
 	const { items, loading, fetchCart } = useCartStore()
-	const { accessToken, userType } = useUserStore()
-
-	const resolveItemPrice = (product: any): number => {
-		switch (userType) {
-			case "fellow": return product.step1Price ?? product.consumerPrice ?? 0
-			case "shopkeeperCash": return product.step2Price ?? product.consumerPrice ?? 0
-			case "shopkeeperCheque": return product.step3Price ?? product.consumerPrice ?? 0
-			case "regular": return product.step4Price ?? product.consumerPrice ?? 0
-			default: return product.step4Price ?? product.consumerPrice ?? 0
-		}
-	}
+	const { accessToken, userType, _hasHydrated } = useUserStore()
 
 	useEffect(() => {
+		if (!_hasHydrated) return;
 		if (!accessToken) router.replace('/signin')
-	}, [accessToken])
+	}, [accessToken, _hasHydrated])
 	const [paymentMethod, setPaymentMethod] = useState<number>(PAYMENT_METHOD_ONLINE)
 	const [submitting, setSubmitting] = useState(false)
 	const [done, setDone] = useState(false)
@@ -74,7 +66,7 @@ export default function OrderPage() {
 	}, [])
 
 	const subtotal = items.reduce(
-		(sum, item) => sum + resolveItemPrice(item.product) * item.count,
+		(sum, item) => sum + resolvePrice(item.product, userType) * item.count,
 		0
 	)
 
@@ -380,7 +372,7 @@ export default function OrderPage() {
 												</p>
 											</div>
 											<p className="font-bold text-sm gradient-text">
-												{formatPrice(resolveItemPrice(item.product) * item.count)}
+												{formatPrice(resolvePrice(item.product, userType) * item.count)}
 											</p>
 										</div>
 									))}

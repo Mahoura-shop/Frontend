@@ -1,38 +1,38 @@
-import { create } from "zustand"
-import { getCart, addToCart, removeFromCart } from "@/services/cartService"
-import { toast } from "sonner"
+import { create } from "zustand";
+import { getCart, addToCart, removeFromCart } from "@/services/cartService";
+import { toast } from "sonner";
 
 interface CartProduct {
-	id: number
-	name: string
-	slug: string
-	irrPrice: number
-	consumerPrice: number
-	step1Price: number
-	step2Price: number
-	step3Price: number
-	step4Price: number
-	productPic: string
-	brand: { name: string } | null
-	isNew: boolean
+	id: number;
+	name: string;
+	slug: string;
+	irrPrice: number;
+	consumerPrice: number;
+	step1Price: number;
+	step2Price: number;
+	step3Price: number;
+	step4Price: number;
+	productPic: string;
+	brand: { name: string } | null;
+	isNew: boolean;
 }
 
 export interface CartItem {
-	id: number
-	product: CartProduct
-	count: number
+	id: number;
+	product: CartProduct;
+	count: number;
 }
 
 interface CartStore {
-	items: CartItem[]
-	loading: boolean
-	fetchCart: () => Promise<void>
-	addItem: (productID: number) => Promise<void>
-	removeItem: (productID: number) => Promise<void>
-	removeAllOfItem: (productID: number, count: number) => Promise<void>
-	clearCart: () => Promise<void>
-	getItemCount: () => number
-	getTotalPrice: () => number
+	items: CartItem[];
+	loading: boolean;
+	fetchCart: () => Promise<void>;
+	addItem: (productID: number) => Promise<void>;
+	removeItem: (productID: number) => Promise<void>;
+	removeAllOfItem: (productID: number, count: number) => Promise<void>;
+	clearCart: () => Promise<void>;
+	getItemCount: () => number;
+	getTotalPrice: () => number;
 }
 
 export const useCartStore = create<CartStore>((set, get) => ({
@@ -40,82 +40,92 @@ export const useCartStore = create<CartStore>((set, get) => ({
 	loading: false,
 
 	fetchCart: async () => {
-		set({ loading: true })
+		set({ loading: true });
 		try {
-			const res = await getCart()
-			set({ items: res.data?.items ?? [] })
+			const res = await getCart();
+			console.log("res", res);
+			set({ items: res.data?.items ?? [] });
 		} catch {
-			set({ items: [] })
+			set({ items: [] });
 		} finally {
-			set({ loading: false })
+			set({ loading: false });
 		}
 	},
 
 	addItem: async (productID: number) => {
-		const prev = get().items
-		const existing = prev.find((i) => i.product.id === productID)
+		const prev = get().items;
+		const existing = prev.find((i) => i.product.id === productID);
 		if (existing) {
 			set({
 				items: prev.map((i) =>
-					i.product.id === productID ? { ...i, count: i.count + 1 } : i
+					i.product.id === productID
+						? { ...i, count: i.count + 1 }
+						: i,
 				),
-			})
+			});
 		}
 		try {
-			await addToCart(productID)
-			await get().fetchCart()
+			await addToCart(productID);
+			await get().fetchCart();
 		} catch {
-			set({ items: prev })
-			toast.error("افزودن به سبد خرید با خطا مواجه شد")
+			set({ items: prev });
+			toast.error("افزودن به سبد خرید با خطا مواجه شد");
 		}
 	},
 
 	removeItem: async (productID: number) => {
-		const prev = get().items
+		const prev = get().items;
 		set({
 			items: prev
-				.map((i) => (i.product.id === productID ? { ...i, count: i.count - 1 } : i))
+				.map((i) =>
+					i.product.id === productID
+						? { ...i, count: i.count - 1 }
+						: i,
+				)
 				.filter((i) => i.count > 0),
-		})
+		});
 		try {
-			await removeFromCart(productID)
-			await get().fetchCart()
+			await removeFromCart(productID);
+			await get().fetchCart();
 		} catch {
-			set({ items: prev })
-			toast.error("حذف از سبد خرید با خطا مواجه شد")
+			set({ items: prev });
+			toast.error("حذف از سبد خرید با خطا مواجه شد");
 		}
 	},
 
 	removeAllOfItem: async (productID: number, count: number) => {
-		const prev = get().items
-		set({ items: prev.filter((i) => i.product.id !== productID) })
+		const prev = get().items;
+		set({ items: prev.filter((i) => i.product.id !== productID) });
 		try {
 			for (let i = 0; i < count; i++) {
-				await removeFromCart(productID)
+				await removeFromCart(productID);
 			}
-			await get().fetchCart()
+			await get().fetchCart();
 		} catch {
-			set({ items: prev })
+			set({ items: prev });
 		}
 	},
 
 	clearCart: async () => {
-		const prev = get().items
-		set({ items: [] })
+		const prev = get().items;
+		set({ items: [] });
 		try {
 			for (const item of prev) {
 				for (let i = 0; i < item.count; i++) {
-					await removeFromCart(item.product.id)
+					await removeFromCart(item.product.id);
 				}
 			}
-			await get().fetchCart()
+			await get().fetchCart();
 		} catch {
-			set({ items: prev })
+			set({ items: prev });
 		}
 	},
 
 	getItemCount: () => get().items.reduce((sum, item) => sum + item.count, 0),
 
 	getTotalPrice: () =>
-		get().items.reduce((sum, item) => sum + (item.product.irrPrice ?? 0) * item.count, 0),
-}))
+		get().items.reduce(
+			(sum, item) => sum + (item.product.irrPrice ?? 0) * item.count,
+			0,
+		),
+}));
