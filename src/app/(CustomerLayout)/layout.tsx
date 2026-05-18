@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar/Navbar";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import DashboardSidebar from "@/components/DashboardSidebar/DashboardSidebar";
+import PageWrapper from "@/components/PageWrapper/PageWrapper";
 
 export default function RootLayout({
 	children,
@@ -13,7 +14,7 @@ export default function RootLayout({
 			<Navbar />
 			<DashboardSidebar />
 			<PageTransition>
-				<div className="md:pt-[90px]">{children}</div>
+				<PageWrapper>{children}</PageWrapper>
 			</PageTransition>
 			<Footer />
 		</>

@@ -9,6 +9,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { formatPrice } from "@/utils/formatPrice"
 import CustomToast from "@/components/Custom/CustomToast/CustomToast"
 import { getWishlist, removeFromWishlist } from "@/services/wishlistService"
+import resolvePrice from "@/utils/resolvePrice"
+import useUserStore from "@/store/userStore/userStore"
 
 interface WishlistItem {
 	id: number
@@ -17,12 +19,18 @@ interface WishlistItem {
 		name: string
 		slug: string
 		productPic: string
+		step1Price: number
+		step2Price: number
+		step3Price: number
 		step4Price: number
+		consumerPrice: number
+		irrPrice: number
 		quantity: number
 	}
 }
 
 export default function WishlistPage() {
+	const { userType } = useUserStore()
 	const [items, setItems] = useState<WishlistItem[] | null>(null)
 	const [removing, setRemoving] = useState<number | null>(null)
 
@@ -107,7 +115,7 @@ export default function WishlistPage() {
 										<div className="flex-1 min-w-0">
 											<p className="font-semibold truncate mb-1">{item.product.name}</p>
 											<p className="text-lg font-bold gradient-text mb-3">
-												{formatPrice(item.product.step4Price)} ریال
+												{formatPrice(resolvePrice(item.product, userType))} ریال
 											</p>
 											<div className="flex gap-2">
 												<Link href={`/products/${item.product.slug}`} className="flex-1">

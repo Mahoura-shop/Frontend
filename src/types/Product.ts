@@ -35,6 +35,8 @@ interface Product {
 	images?: string[];
 	imageObjects?: { id: number; path: string }[];
 	resolvedPrice?: number;
+	averageRating?: number;
+	reviewCount?: number;
 }
 
 interface ProductPrice {

@@ -3,12 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Search } from "lucide-react";
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
 	Table,
@@ -37,17 +32,21 @@ export default function AdminContactsPage() {
 
 	useEffect(() => {
 		getData({ endPoint: "/v1/admin/contact-messages" })
-			.then((data) => setMessages(data?.data ?? []))
+			.then((res) => {
+				setMessages(res?.data ?? []);
+			})
 			.catch(() => {})
 			.finally(() => setLoading(false));
 	}, []);
 
-	const filtered = messages.filter(
-		(m) =>
-			m.name.toLowerCase().includes(search.toLowerCase()) ||
-			m.email.toLowerCase().includes(search.toLowerCase()) ||
-			m.subject.toLowerCase().includes(search.toLowerCase()),
-	);
+	const filtered = search
+		? messages.filter(
+				(m) =>
+					m.name?.toLowerCase().includes(search?.toLowerCase()) ||
+					m.email?.toLowerCase().includes(search?.toLowerCase()) ||
+					m.subject?.toLowerCase().includes(search?.toLowerCase()),
+			)
+		: messages;
 
 	return (
 		<main className="p-6">
@@ -103,11 +102,7 @@ export default function AdminContactsPage() {
 										{filtered.map((msg) => (
 											<TableRow
 												key={msg.id}
-												className={`cursor-pointer transition-colors ${
-													selected?.id === msg.id
-														? "bg-muted"
-														: "hover:bg-muted/50"
-												}`}
+												className={`cursor-pointer transition-colors ${selected?.id === msg.id ? "bg-muted" : "hover:bg-muted/50"}`}
 												onClick={() =>
 													setSelected(
 														selected?.id === msg.id
@@ -122,11 +117,15 @@ export default function AdminContactsPage() {
 												<TableCell className="text-muted-foreground">
 													{msg.email}
 												</TableCell>
-												<TableCell>{msg.subject}</TableCell>
+												<TableCell>
+													{msg.subject}
+												</TableCell>
 												<TableCell className="text-muted-foreground text-sm">
 													{new Date(
 														msg.createdAt,
-													).toLocaleDateString("fa-IR")}
+													).toLocaleDateString(
+														"fa-IR",
+													)}
 												</TableCell>
 											</TableRow>
 										))}

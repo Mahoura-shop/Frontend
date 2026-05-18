@@ -13,17 +13,11 @@ export default function resolvePrice(
 				p.irrPrice ||
 				0
 			);
+		case "shopkeeper":
 		case "shopkeeperCash":
-			return (
-				p.step2Price ||
-				p.step3Price ||
-				p.step4Price ||
-				p.consumerPrice ||
-				p.irrPrice ||
-				0
-			);
 		case "shopkeeperCheque":
 			return (
+				p.step2Price ||
 				p.step3Price ||
 				p.step4Price ||
 				p.consumerPrice ||

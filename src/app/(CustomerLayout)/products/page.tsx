@@ -16,6 +16,7 @@ import {
 	Package,
 	ImageIcon,
 	RefreshCw,
+	Heart,
 } from "lucide-react";
 import Link from "next/link";
 import TiltedCard from "@/components/ReactBits/TiltedCard/TiltedCard";
@@ -41,13 +42,15 @@ import InputFree from "@/components/Custom/Input/InputFree";
 import SelectFree from "@/components/Custom/Select/SelectFree";
 import useUserStore from "@/store/userStore/userStore";
 import resolvePrice from "@/utils/resolvePrice";
+import { getWishlist, addToWishlist, removeFromWishlist } from "@/services/wishlistService";
+import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 
 export default function ProductsPage() {
 	const { products, totalCount, fetchProducts } = useProductStore();
 	const { categories, fetchCategories } = useCategoryStore();
 	const { brands, fetchBrands } = useBrandStore();
-	const { addItem } = useCartStore();
-	const { userType } = useUserStore();
+	const { addItem, removeItem, items: cartItems, fetchCart } = useCartStore();
+	const { userType, accessToken } = useUserStore();
 
 	const searchParams = useSearchParams();
 	const router = useRouter();
@@ -76,6 +79,8 @@ export default function ProductsPage() {
 		() => searchParams.get("sort") ?? "newest",
 	);
 	const [isLoading, setIsLoading] = useState(false);
+	const [wishlistIds, setWishlistIds] = useState<Set<number>>(new Set());
+	const [wishlistingId, setWishlistingId] = useState<number | null>(null);
 
 	const refreshProducts = useCallback(async () => {
 		setIsLoading(true);
@@ -116,6 +121,37 @@ export default function ProductsPage() {
 		}
 	};
 
+	const handleRemoveFromCart = async (e: React.MouseEvent, productId: number) => {
+		e.preventDefault();
+		await removeItem(productId);
+	};
+
+	const getCartCount = (productId: number) =>
+		cartItems.find((i) => i.product.id === productId)?.count ?? 0;
+
+	const handleToggleWishlist = async (e: React.MouseEvent, productId: number) => {
+		e.preventDefault();
+		if (!accessToken) {
+			CustomToast("برای افزودن به علاقه‌مندی‌ها وارد شوید", "error");
+			return;
+		}
+		setWishlistingId(productId);
+		try {
+			if (wishlistIds.has(productId)) {
+				await removeFromWishlist(productId);
+				setWishlistIds((prev) => { const next = new Set(prev); next.delete(productId); return next; });
+				CustomToast("از علاقه‌مندی‌ها حذف شد", "success");
+			} else {
+				await addToWishlist(productId);
+				setWishlistIds((prev) => new Set([...prev, productId]));
+				CustomToast("به علاقه‌مندی‌ها اضافه شد", "success");
+			}
+		} catch {
+		} finally {
+			setWishlistingId(null);
+		}
+	};
+
 	const totalPages = Math.ceil(totalCount / itemsPerPage);
 	const paginatedProducts = products;
 
@@ -147,7 +183,18 @@ export default function ProductsPage() {
 	useEffect(() => {
 		fetchCategories();
 		fetchBrands();
+		fetchCart();
 	}, []);
+
+	useEffect(() => {
+		if (!accessToken) return;
+		getWishlist()
+			.then((res) => {
+				const ids: number[] = (res?.data ?? []).map((item: any) => item.product.id);
+				setWishlistIds(new Set(ids));
+			})
+			.catch(() => {});
+	}, [accessToken]);
 
 	useEffect(() => {
 		const params = new URLSearchParams();
@@ -597,7 +644,7 @@ export default function ProductsPage() {
 												animate={{ opacity: 1, y: 0 }}
 												transition={{ delay: i * 0.05 }}
 												whileHover={{ y: -6 }}
-												className="rounded-[20px] overflow-hidden bg-card border border-border cursor-pointer group shadow-[0_2px_6px_rgba(107,78,113,0.10),0_6px_20px_rgba(107,78,113,0.06)] hover:shadow-[0_4px_12px_rgba(107,78,113,0.18),0_20px_48px_rgba(201,168,117,0.14)] dark:shadow-[0_2px_6px_rgba(0,0,0,0.3),0_6px_20px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_4px_12px_rgba(107,78,113,0.35),0_20px_48px_rgba(201,168,117,0.18)] transition-shadow duration-500"
+												className="isolate rounded-[20px] overflow-hidden bg-card border border-border cursor-pointer group shadow-[0_2px_6px_rgba(107,78,113,0.10),0_6px_20px_rgba(107,78,113,0.06)] hover:shadow-[0_4px_12px_rgba(107,78,113,0.18),0_20px_48px_rgba(201,168,117,0.14)] dark:shadow-[0_2px_6px_rgba(0,0,0,0.3),0_6px_20px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_4px_12px_rgba(107,78,113,0.35),0_20px_48px_rgba(201,168,117,0.18)] transition-shadow duration-500"
 											>
 												{/* Image */}
 												<div className="relative aspect-square overflow-hidden bg-muted">
@@ -636,6 +683,17 @@ export default function ProductsPage() {
 															</Badge>
 														)}
 													</div>
+
+													{/* Wishlist button */}
+													<button
+														className="absolute top-3 left-3 z-20 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center border border-border hover:scale-110 transition-transform disabled:opacity-50"
+														onClick={(e) => handleToggleWishlist(e, product.id)}
+														disabled={wishlistingId === product.id}
+													>
+														<Heart
+															className={`w-4 h-4 transition-colors ${wishlistIds.has(product.id) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
+														/>
+													</button>
 
 													{/* Hover add-to-cart */}
 													<motion.div

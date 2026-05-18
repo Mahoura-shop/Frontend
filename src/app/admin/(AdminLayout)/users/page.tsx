@@ -57,6 +57,7 @@ interface UserItem {
 	email: string;
 	status: string;
 	type: string;
+	isAdmin: boolean;
 }
 
 interface AuditLog {
@@ -82,18 +83,25 @@ interface UserWallet {
 const TYPE_LABELS: Record<string, string> = {
 	guest: "مهمان",
 	regular: "مشتری",
-	shopkeeperCheque: "فروشنده (چکی)",
-	shopkeeperCash: "فروشنده (نقدی)",
+	shopkeeper: "فروشنده",
 	fellow: "همکار",
 	admin: "مدیر",
 };
 
+const TYPE_TO_NUMERIC: Record<string, number> = {
+	guest: 1,
+	regular: 2,
+	shopkeeper: 4,
+	fellow: 5,
+	admin: 6,
+};
+
 const TYPE_OPTIONS = [
-	{ value: "1", label: "مهمان" },
-	{ value: "2", label: "مشتری" },
-	{ value: "3", label: "فروشنده (چکی)" },
-	{ value: "4", label: "فروشنده (نقدی)" },
-	{ value: "5", label: "همکار" },
+	{ value: "guest", label: "مهمان" },
+	{ value: "regular", label: "مشتری" },
+	{ value: "shopkeeper", label: "فروشنده" },
+	{ value: "fellow", label: "همکار" },
+	{ value: "admin", label: "مدیر" },
 ];
 
 export default function AdminUsersPage() {
@@ -117,7 +125,6 @@ export default function AdminUsersPage() {
 	const fetchUsers = useCallback(() => {
 		getUsers()
 			.then((res) => {
-				console.log("res", res);
 				setUsers(res?.data ?? []);
 			})
 			.catch(() => setUsers([]));
@@ -172,12 +179,12 @@ export default function AdminUsersPage() {
 		if (!roleDialog.user || !newType) return;
 		setActionLoading(true);
 		try {
-			await changeUserType(roleDialog.user.id, parseInt(newType));
+			await changeUserType(roleDialog.user.id, TYPE_TO_NUMERIC[newType]);
 			setUsers(
 				(prev) =>
 					prev?.map((u) =>
 						u.id === roleDialog.user!.id
-							? { ...u, type: newType }
+							? { ...u, type: newType, isAdmin: newType === "admin" }
 							: u,
 					) ?? prev,
 			);
@@ -300,13 +307,24 @@ export default function AdminUsersPage() {
 												{user.phone}
 											</TableCell>
 											<TableCell>
-												<Badge
-													variant="secondary"
-													className="text-xs"
-												>
-													{TYPE_LABELS[user.type] ??
-														user.type}
-												</Badge>
+												<div className="flex items-center gap-1">
+													<Badge
+														variant="secondary"
+														className="text-xs"
+													>
+														{TYPE_LABELS[user.type] ??
+															user.type}
+													</Badge>
+													{user.isAdmin && (
+														<Badge
+															variant="outline"
+															className="text-xs border-amber-500 text-amber-600"
+														>
+															<ShieldCheck className="w-3 h-3 ml-1" />
+															ادمین
+														</Badge>
+													)}
+												</div>
 											</TableCell>
 											<TableCell>
 												<Badge

@@ -24,12 +24,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { translateNumber } from "@/utils/translateNumber";
 import { formatPrice } from "@/utils/formatPrice";
 import { formatDate } from "@/utils/formatDate";
 import { getMyOrders } from "@/services/orderService";
 import { getWalletBalance } from "@/services/walletService";
 import { getMyProfile } from "@/services/userService";
+import { getWishlist } from "@/services/wishlistService";
 
 interface Order {
 	id: number;
@@ -53,24 +55,28 @@ interface Profile {
 	email: string;
 }
 
-const MOCK_STATS = { wishlistItems: 5 };
-
 export default function DashboardPage() {
 	const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+	const [ordersLoading, setOrdersLoading] = useState(true);
 	const [walletBalance, setWalletBalance] = useState<number | null>(null);
 	const [profile, setProfile] = useState<Profile | null>(null);
 	const [bannerDismissed, setBannerDismissed] = useState(false);
+	const [wishlistCount, setWishlistCount] = useState<number | null>(null);
 
 	useEffect(() => {
 		getMyOrders()
 			.then((res) => setRecentOrders((res?.data ?? []).slice(0, 3)))
-			.catch(() => setRecentOrders([]));
+			.catch(() => setRecentOrders([]))
+			.finally(() => setOrdersLoading(false));
 		getWalletBalance()
 			.then((res) => setWalletBalance(res?.data?.balance ?? 0))
 			.catch(() => setWalletBalance(0));
 		getMyProfile()
 			.then((res) => setProfile(res?.data ?? null))
 			.catch(() => {});
+		getWishlist()
+			.then((res) => setWishlistCount((res?.data ?? []).length))
+			.catch(() => setWishlistCount(0));
 	}, []);
 
 	const missingFields: string[] = [];
@@ -249,9 +255,13 @@ export default function DashboardPage() {
 								<Wallet className="w-8 h-8 text-primary-rose" />
 							</div>
 							<h3 className="font-bold mb-2">کیف پول</h3>
-							<p className="text-sm text-muted-foreground">
-								موجودی {walletBalance === null ? "..." : formatPrice(walletBalance)} ریال
-							</p>
+							{walletBalance === null ? (
+								<Skeleton className="h-4 w-28 mx-auto mt-1" />
+							) : (
+								<p className="text-sm text-muted-foreground">
+									موجودی {formatPrice(walletBalance)} ریال
+								</p>
+							)}
 						</CardContent>
 					</Card>
 				</Link>
@@ -263,12 +273,13 @@ export default function DashboardPage() {
 								<Heart className="w-8 h-8 text-red-600" />
 							</div>
 							<h3 className="font-bold mb-2">علاقه‌مندی‌ها</h3>
-							<p className="text-sm text-muted-foreground">
-								{new Intl.NumberFormat("fa-IR").format(
-									MOCK_STATS.wishlistItems,
-								)}{" "}
-								محصول ذخیره شده
-							</p>
+							{wishlistCount === null ? (
+								<Skeleton className="h-4 w-24 mx-auto mt-1" />
+							) : (
+								<p className="text-sm text-muted-foreground">
+									{new Intl.NumberFormat("fa-IR").format(wishlistCount)} محصول ذخیره شده
+								</p>
+							)}
 						</CardContent>
 					</Card>
 				</Link>
@@ -311,7 +322,24 @@ export default function DashboardPage() {
 
 					<CardContent className="p-0">
 						<div className="divide-y">
-							{recentOrders.length === 0 ? (
+							{ordersLoading ? (
+								Array.from({ length: 3 }).map((_, i) => (
+									<div key={i} className="p-4">
+										<div className="flex items-center gap-4">
+											<Skeleton className="w-16 h-16 flex-shrink-0 rounded-lg" />
+											<div className="flex-1 space-y-2">
+												<div className="flex items-center gap-2">
+													<Skeleton className="h-4 w-28" />
+													<Skeleton className="h-5 w-20 rounded-full" />
+												</div>
+												<Skeleton className="h-3 w-44" />
+												<Skeleton className="h-5 w-24" />
+											</div>
+											<Skeleton className="h-8 w-16 rounded-md" />
+										</div>
+									</div>
+								))
+							) : recentOrders.length === 0 ? (
 								<div className="p-8 text-center text-muted-foreground text-sm">
 									هنوز سفارشی ندارید
 								</div>

@@ -47,7 +47,6 @@ export default function ProvinceCityPicker({
 	useEffect(() => {
 		getProvinces()
 			.then((res) => {
-				console.log("res", res);
 				setProvinces(res?.data ?? []);
 			})
 			.catch(() => setProvinces([]))

@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { formatIncome, formatPersianDate } from "@/lib/utils";
 import { motion } from "framer-motion";
+import {
+	PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
+	AreaChart, Area, XAxis, YAxis, CartesianGrid,
+} from "recharts";
 import {
 	Package,
 	FolderTree,
@@ -50,9 +55,23 @@ interface DashboardData {
 	}>;
 }
 
+type OrderPeriod = "week" | "month" | "year";
+
+const PERIOD_LABELS: Record<OrderPeriod, string> = {
+	week: "۷ روز اخیر",
+	month: "۳۰ روز اخیر",
+	year: "یک سال اخیر",
+};
+
 export default function AdminDashboard() {
 	const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
 	const [loading, setLoading] = useState(true);
+	const [orderPeriod, setOrderPeriod] = useState<OrderPeriod>("week");
+	const [ordersChart, setOrdersChart] = useState<Array<{ date: string; count: number }>>([]);
+	const [ordersChartLoading, setOrdersChartLoading] = useState(false);
+	const [salesPeriod, setSalesPeriod] = useState<OrderPeriod>("week");
+	const [salesChart, setSalesChart] = useState<Array<{ date: string; revenue: number }>>([]);
+	const [salesChartLoading, setSalesChartLoading] = useState(false);
 
 	const fetchDashboardData = () => {
 		setLoading(true);
@@ -64,9 +83,37 @@ export default function AdminDashboard() {
 			.finally(() => setLoading(false));
 	};
 
+	const fetchOrdersChart = useCallback((period: OrderPeriod) => {
+		setOrdersChartLoading(true);
+		getData({ endPoint: `/v1/admin/dashboard/orders?period=${period}` })
+			.then((data) => {
+				setOrdersChart(data?.data ?? []);
+			})
+			.catch(() => {})
+			.finally(() => setOrdersChartLoading(false));
+	}, []);
+
 	useEffect(() => {
 		fetchDashboardData();
 	}, []);
+
+	const fetchSalesChart = useCallback((period: OrderPeriod) => {
+		setSalesChartLoading(true);
+		getData({ endPoint: `/v1/admin/dashboard/sales?period=${period}` })
+			.then((data) => {
+				setSalesChart(data?.data ?? []);
+			})
+			.catch(() => {})
+			.finally(() => setSalesChartLoading(false));
+	}, []);
+
+	useEffect(() => {
+		fetchOrdersChart(orderPeriod);
+	}, [orderPeriod, fetchOrdersChart]);
+
+	useEffect(() => {
+		fetchSalesChart(salesPeriod);
+	}, [salesPeriod, fetchSalesChart]);
 	const stats = useMemo(
 		() => [
 			{
@@ -90,7 +137,6 @@ export default function AdminDashboard() {
 		],
 		[dashboardData],
 	);
-
 
 	return (
 		<main className="p-6">
@@ -148,189 +194,408 @@ export default function AdminDashboard() {
 			</div>
 
 			{/* Revenue Per Tier */}
-			{dashboardData?.revenuePerTier && dashboardData.revenuePerTier.length > 0 && (
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.3 }}
-					className="mb-8"
-				>
-					<Card>
-						<CardHeader>
-							<CardTitle>درآمد بر اساس سطح</CardTitle>
-							<CardDescription>
-								خلاصه درآمد برای هر سطح کاربری
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-								{dashboardData.revenuePerTier.map((item) => (
-									<div
-										key={item.tier}
-										className="p-4 rounded-lg bg-muted/50 border border-border"
-									>
-										<p className="text-sm text-muted-foreground mb-1 capitalize">
-											{item.tier}
-										</p>
-										<p className="text-2xl font-bold text-primary-rose">
-											{(item.revenue / 1000000).toFixed(1)}M
-										</p>
-									</div>
-								))}
-							</div>
-						</CardContent>
-					</Card>
-				</motion.div>
-			)}
-
-			{/* Orders Per Day Chart */}
-			{dashboardData?.ordersPerDay && dashboardData.ordersPerDay.length > 0 && (
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.4 }}
-					className="mb-8"
-				>
-					<Card>
-						<CardHeader>
-							<CardTitle>سفارشات در 7 روز اخیر</CardTitle>
-							<CardDescription>تعداد سفارشات به تفکیک روز</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<div className="space-y-4">
-								{dashboardData.ordersPerDay.map((item) => (
-									<div
-										key={item.date}
-										className="flex items-center justify-between"
-									>
-										<span className="text-sm text-muted-foreground min-w-20">
-											{item.date}
-										</span>
-										<div className="flex-1 mx-4 h-8 bg-muted rounded overflow-hidden">
-											<div
-												className="h-full bg-gradient-to-r from-primary-rose to-primary-rose/70 transition-all"
-												style={{
-													width: `${
-														((item.count || 0) /
-															Math.max(
-																...(dashboardData.ordersPerDay.map(
-																	(o) => o.count,
-																) || [1]),
-															)) *
-														100
-													}%`,
-												}}
-											/>
+			{dashboardData?.revenuePerTier &&
+				dashboardData.revenuePerTier.length > 0 && (
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.3 }}
+						className="mb-8"
+					>
+						<Card>
+							<CardHeader>
+								<CardTitle>درآمد بر اساس سطح</CardTitle>
+								<CardDescription>
+									خلاصه درآمد برای هر سطح کاربری
+								</CardDescription>
+							</CardHeader>
+							<CardContent>
+								{(() => {
+									const tierNames: Record<string, string> = {
+										admin: "مدیر",
+										guest: "مهمان",
+										regular: "مشتری عادی",
+										shopkeeper: "فروشنده",
+										shopkeepercash: "فروشنده نقدی",
+										shopkeepercheque: "فروشنده چکی",
+										fellow: "همکار",
+										step1: "سطح ۱",
+										step2: "سطح ۲",
+										step3: "سطح ۳",
+										step4: "سطح ۴",
+										bronze: "برنز",
+										silver: "نقره",
+										gold: "طلا",
+										platinum: "پلاتینیوم",
+									};
+									const COLORS = [
+										"#e11d48",
+										"#f43f5e",
+										"#fb7185",
+										"#fda4af",
+										"#fecdd3",
+									];
+									const chartData =
+										dashboardData.revenuePerTier
+											.filter((item) => item.tier !== "" && item.revenue > 0)
+											.map((item) => ({
+												name:
+													tierNames[
+														item.tier.toLowerCase()
+													] ?? item.tier,
+												value: item.revenue,
+											}));
+									const total = chartData.reduce(
+										(sum, d) => sum + d.value,
+										0,
+									);
+									return (
+										<div className="flex flex-col md:flex-row place-content-center place-items-center  items-center gap-6">
+											<ResponsiveContainer
+												width={260}
+												height={260}
+											>
+												<PieChart>
+													<Pie
+														data={chartData}
+														cx="50%"
+														cy="50%"
+														outerRadius={110}
+														dataKey="value"
+														label={false}
+													>
+														{chartData.map(
+															(_, index) => (
+																<Cell
+																	key={index}
+																	fill={
+																		COLORS[
+																			index %
+																				COLORS.length
+																		]
+																	}
+																/>
+															),
+														)}
+													</Pie>
+													<Tooltip
+														formatter={(
+															value: number,
+														) => [
+															formatIncome(value),
+															"درآمد",
+														]}
+													/>
+												</PieChart>
+											</ResponsiveContainer>
+											<div className="flex flex-col gap-2 text-sm min-w-0">
+												{chartData.map(
+													(entry, index) => (
+														<div
+															key={entry.name}
+															className="flex items-center gap-2"
+														>
+															<span
+																className="inline-block w-3 h-3 rounded-full shrink-0"
+																style={{
+																	backgroundColor:
+																		COLORS[
+																			index %
+																				COLORS.length
+																		],
+																}}
+															/>
+															<span className="text-muted-foreground">
+																{entry.name}
+															</span>
+															<span className="font-semibold mr-auto">
+																{total > 0
+																	? `${((entry.value / total) * 100).toFixed(0)}%`
+																	: "—"}
+															</span>
+														</div>
+													),
+												)}
+											</div>
 										</div>
-										<span className="font-bold min-w-12 text-right">
-											{item.count}
-										</span>
-									</div>
+									);
+								})()}
+							</CardContent>
+						</Card>
+					</motion.div>
+				)}
+
+			{/* Orders Chart */}
+			<motion.div
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ delay: 0.4 }}
+				className="mb-8"
+			>
+				<Card>
+					<CardHeader>
+						<div className="flex items-center justify-between flex-wrap gap-4">
+							<div>
+								<CardTitle>تعداد سفارشات</CardTitle>
+								<CardDescription>{PERIOD_LABELS[orderPeriod]}</CardDescription>
+							</div>
+							<div className="flex gap-2">
+								{(["week", "month", "year"] as OrderPeriod[]).map((p) => (
+									<Button
+										key={p}
+										size="sm"
+										variant={orderPeriod === p ? "default" : "outline"}
+										onClick={() => setOrderPeriod(p)}
+									>
+										{PERIOD_LABELS[p]}
+									</Button>
 								))}
 							</div>
-						</CardContent>
-					</Card>
-				</motion.div>
-			)}
-
-			{/* Low Stock Products */}
-			{dashboardData?.lowStockProducts && dashboardData.lowStockProducts.length > 0 && (
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.5 }}
-					className="mb-8"
-				>
-					<Card className="border-amber-200 bg-amber-50/50">
-						<CardHeader>
-							<div className="flex items-center gap-2">
-								<AlertCircle className="w-5 h-5 text-amber-600" />
-								<div>
-									<CardTitle>محصولات کم موجودی</CardTitle>
-									<CardDescription>
-										محصولاتی که موجودی آنها کمتر از حد نصاب است
-									</CardDescription>
-								</div>
+						</div>
+					</CardHeader>
+					<CardContent>
+						{ordersChartLoading ? (
+							<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
+								در حال بارگذاری...
 							</div>
-						</CardHeader>
-						<CardContent>
-							<Table>
-								<TableHeader>
-									<TableRow>
-										<TableHead>نام محصول</TableHead>
-										<TableHead>موجودی</TableHead>
-										<TableHead>حد نصاب</TableHead>
-										<TableHead>وضعیت</TableHead>
-									</TableRow>
-								</TableHeader>
-								<TableBody>
-									{dashboardData.lowStockProducts.map((product) => (
-										<TableRow key={product.id}>
-											<TableCell className="font-medium">
-												{product.name}
-											</TableCell>
-											<TableCell>{product.quantity}</TableCell>
-											<TableCell>{product.minOrder}</TableCell>
-											<TableCell>
-												<Badge variant="destructive">
-													کم موجود
-												</Badge>
-											</TableCell>
+						) : ordersChart.length === 0 ? (
+							<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
+								داده‌ای یافت نشد
+							</div>
+						) : (
+							<ResponsiveContainer width="100%" height={260}>
+								<AreaChart data={ordersChart} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
+									<defs>
+										<linearGradient id="ordersGradient" x1="0" y1="0" x2="0" y2="1">
+											<stop offset="5%" stopColor="#e11d48" stopOpacity={0.3} />
+											<stop offset="95%" stopColor="#e11d48" stopOpacity={0} />
+										</linearGradient>
+									</defs>
+									<CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+									<XAxis dataKey="date" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={formatPersianDate} />
+									<YAxis allowDecimals={false} tick={{ fontSize: 11 }} tickLine={false} axisLine={false} width={32} />
+									<Tooltip
+										contentStyle={{
+										borderRadius: 8,
+										fontSize: 13,
+										backgroundColor: "hsl(var(--card))",
+										border: "1px solid hsl(var(--border))",
+										color: "hsl(var(--card-foreground))",
+									}}
+										formatter={(value: number) => [value, "سفارش"]}
+									labelFormatter={formatPersianDate}
+									/>
+									<Area
+										type="monotone"
+										dataKey="count"
+										stroke="#e11d48"
+										strokeWidth={2}
+										fill="url(#ordersGradient)"
+									/>
+								</AreaChart>
+							</ResponsiveContainer>
+						)}
+					</CardContent>
+				</Card>
+			</motion.div>
+
+			{/* Sales Chart */}
+		<motion.div
+			initial={{ opacity: 0, y: 20 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ delay: 0.45 }}
+			className="mb-8"
+		>
+			<Card>
+				<CardHeader>
+					<div className="flex items-center justify-between flex-wrap gap-4">
+						<div>
+							<CardTitle>درآمد فروش</CardTitle>
+							<CardDescription>{PERIOD_LABELS[salesPeriod]}</CardDescription>
+						</div>
+						<div className="flex gap-2">
+							{(["week", "month", "year"] as OrderPeriod[]).map((p) => (
+								<Button
+									key={p}
+									size="sm"
+									variant={salesPeriod === p ? "default" : "outline"}
+									onClick={() => setSalesPeriod(p)}
+								>
+									{PERIOD_LABELS[p]}
+								</Button>
+							))}
+						</div>
+					</div>
+				</CardHeader>
+				<CardContent>
+					{salesChartLoading ? (
+						<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
+							در حال بارگذاری...
+						</div>
+					) : salesChart.length === 0 ? (
+						<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
+							داده‌ای یافت نشد
+						</div>
+					) : (
+						<ResponsiveContainer width="100%" height={260}>
+							<AreaChart data={salesChart} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
+								<defs>
+									<linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
+										<stop offset="5%" stopColor="#7c3aed" stopOpacity={0.3} />
+										<stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
+									</linearGradient>
+								</defs>
+								<CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+								<XAxis dataKey="date" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={formatPersianDate} />
+								<YAxis
+									allowDecimals={false}
+									tick={{ fontSize: 11 }}
+									tickLine={false}
+									axisLine={false}
+									width={48}
+									tickFormatter={(v: number) => formatIncome(v).split(" ")[0]}
+								/>
+								<Tooltip
+									contentStyle={{
+										borderRadius: 8,
+										fontSize: 13,
+										backgroundColor: "hsl(var(--card))",
+										border: "1px solid hsl(var(--border))",
+										color: "hsl(var(--card-foreground))",
+									}}
+									formatter={(value: number) => [formatIncome(value), "درآمد"]}
+									labelFormatter={formatPersianDate}
+								/>
+								<Area
+									type="monotone"
+									dataKey="revenue"
+									stroke="#7c3aed"
+									strokeWidth={2}
+									fill="url(#salesGradient)"
+								/>
+							</AreaChart>
+						</ResponsiveContainer>
+					)}
+				</CardContent>
+			</Card>
+		</motion.div>
+
+		{/* Low Stock Products */}
+			{dashboardData?.lowStockProducts &&
+				dashboardData.lowStockProducts.length > 0 && (
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.5 }}
+						className="mb-8"
+					>
+						<Card>
+							<CardHeader>
+								<div className="flex items-center gap-2">
+									<AlertCircle className="w-5 h-5 text-primary-rose" />
+									<div>
+										<CardTitle>محصولات کم موجودی</CardTitle>
+										<CardDescription>
+											محصولاتی که موجودی آنها کمتر از حد
+											نصاب است
+										</CardDescription>
+									</div>
+								</div>
+							</CardHeader>
+							<CardContent>
+								<Table>
+									<TableHeader>
+										<TableRow>
+											<TableHead>نام محصول</TableHead>
+											<TableHead>موجودی</TableHead>
+											<TableHead>حد نصاب</TableHead>
+											<TableHead>وضعیت</TableHead>
 										</TableRow>
-									))}
-								</TableBody>
-							</Table>
-						</CardContent>
-					</Card>
-				</motion.div>
-			)}
+									</TableHeader>
+									<TableBody>
+										{dashboardData.lowStockProducts.map(
+											(product) => (
+												<TableRow key={product.id}>
+													<TableCell className="font-medium">
+														{product.name}
+													</TableCell>
+													<TableCell>
+														{product.quantity}
+													</TableCell>
+													<TableCell>
+														{product.minOrder}
+													</TableCell>
+													<TableCell>
+														<Badge
+															variant="outline"
+															className="text-primary-rose border-primary-rose"
+														>
+															کم موجود
+														</Badge>
+													</TableCell>
+												</TableRow>
+											),
+										)}
+									</TableBody>
+								</Table>
+							</CardContent>
+						</Card>
+					</motion.div>
+				)}
 
 			{/* Top Products */}
-			{dashboardData?.topProducts && dashboardData.topProducts.length > 0 && (
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.6 }}
-				>
-					<Card>
-						<CardHeader>
-							<CardTitle>محصولات پرفروش</CardTitle>
-							<CardDescription>
-								محصولات با بیشترین تعداد فروش
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<Table>
-								<TableHeader>
-									<TableRow>
-										<TableHead>نام محصول</TableHead>
-										<TableHead>تعداد فروخته شده</TableHead>
-										<TableHead>درآمد</TableHead>
-									</TableRow>
-								</TableHeader>
-								<TableBody>
-									{dashboardData.topProducts.map((product) => (
-										<TableRow key={product.id}>
-											<TableCell className="font-medium">
-												{product.name}
-											</TableCell>
-											<TableCell>
-												<div className="flex items-center gap-2">
-													<TrendingUp className="w-4 h-4 text-green-600" />
-													{product.quantity}
-												</div>
-											</TableCell>
-											<TableCell className="font-bold text-primary-rose">
-												{(product.revenue / 1000000).toFixed(1)}M
-											</TableCell>
+			{dashboardData?.topProducts &&
+				dashboardData.topProducts.length > 0 && (
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.6 }}
+					>
+						<Card>
+							<CardHeader>
+								<CardTitle>محصولات پرفروش</CardTitle>
+								<CardDescription>
+									محصولات با بیشترین تعداد فروش
+								</CardDescription>
+							</CardHeader>
+							<CardContent>
+								<Table>
+									<TableHeader>
+										<TableRow>
+											<TableHead>نام محصول</TableHead>
+											<TableHead>
+												تعداد فروخته شده
+											</TableHead>
+											<TableHead>درآمد</TableHead>
 										</TableRow>
-									))}
-								</TableBody>
-							</Table>
-						</CardContent>
-					</Card>
-				</motion.div>
-			)}
+									</TableHeader>
+									<TableBody>
+										{dashboardData.topProducts.map(
+											(product) => (
+												<TableRow key={product.id}>
+													<TableCell className="font-medium">
+														{product.name}
+													</TableCell>
+													<TableCell>
+														<div className="flex items-center gap-2">
+															<TrendingUp className="w-4 h-4 text-green-600" />
+															{product.quantity}
+														</div>
+													</TableCell>
+													<TableCell className="font-bold text-primary-rose">
+														{formatIncome(
+															product.revenue,
+														)}
+													</TableCell>
+												</TableRow>
+											),
+										)}
+									</TableBody>
+								</Table>
+							</CardContent>
+						</Card>
+					</motion.div>
+				)}
 		</main>
 	);
 }

@@ -6,25 +6,21 @@ import {
 	Wallet,
 	Plus,
 	TrendingUp,
-	CreditCard,
 	ArrowUpRight,
 	ArrowDownLeft,
-	Calendar,
 	Filter,
 	Eye,
 	EyeOff,
-	Gift,
-	DollarSign,
 	RefreshCw,
+	DollarSign,
 } from "lucide-react";
+import SelectFree from "@/components/Custom/Select/SelectFree";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import Input from "@/components/Custom/Input/Input";
-import Select from "@/components/Custom/Select/Select";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import { formatPrice } from "@/utils/formatPrice";
 import {
@@ -34,101 +30,73 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { getWalletBalance, depositWallet, withdrawWallet } from "@/services/walletService";
+import { getWalletBalance, depositWallet, getWalletHistory } from "@/services/walletService";
+
+interface Transaction {
+	id: number;
+	amount: number;
+	type: number;
+	createdAt: string;
+}
 
 const depositSchema = Yup.object({
 	amount: Yup.number()
 		.min(10000, "حداقل مبلغ واریز ۱۰٬۰۰۰ ریال است")
 		.max(50000000, "حداکثر مبلغ واریز ۵۰٬۰۰۰٬۰۰۰ ریال است")
 		.required("مبلغ الزامی است"),
-	paymentMethod: Yup.string().required("روش پرداخت را انتخاب کنید"),
 });
-
-const withdrawSchema = Yup.object({
-	amount: Yup.number()
-		.min(10000, "حداقل مبلغ برداشت ۱۰٬۰۰۰ ریال است")
-		.required("مبلغ الزامی است"),
-});
-
-const MOCK_TRANSACTIONS = [
-	{ id: 1, type: "deposit", amount: 500000, description: "واریز به کیف پول", date: "۱۴۰۳/۰۲/۲۵", time: "۱۴:۳۰", status: "completed", reference: "TRX-20240225-001" },
-	{ id: 2, type: "withdrawal", amount: 350000, description: "پرداخت سفارش #۱۲۳۴", date: "۱۴۰۳/۰۲/۲۴", time: "۱۰:۱۵", status: "completed", reference: "TRX-20240224-002" },
-	{ id: 3, type: "deposit", amount: 1200000, description: "شارژ کیف پول از کارت بانکی", date: "۱۴۰۳/۰۲/۲۳", time: "۱۶:۴۵", status: "completed", reference: "TRX-20240223-003" },
-	{ id: 4, type: "withdrawal", amount: 890000, description: "خرید محصول - پالت سایه", date: "۱۴۰۳/۰۲/۲۲", time: "۱۱:۲۰", status: "completed", reference: "TRX-20240222-004" },
-	{ id: 5, type: "refund", amount: 450000, description: "بازگشت وجه سفارش لغو شده", date: "۱۴۰۳/۰۲/۲۱", time: "۰۹:۰۰", status: "completed", reference: "TRX-20240221-005" },
-];
 
 export default function WalletPage() {
 	const [balance, setBalance] = useState<number | null>(null);
 	const [showBalance, setShowBalance] = useState(true);
 	const [filterType, setFilterType] = useState("all");
 	const [depositDialogOpen, setDepositDialogOpen] = useState(false);
-	const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const [transactions, setTransactions] = useState<Transaction[]>([]);
 
 	useEffect(() => {
 		getWalletBalance()
 			.then((res) => setBalance(res?.data?.balance ?? 0))
 			.catch(() => setBalance(0));
+
+		getWalletHistory()
+			.then((res) => setTransactions(res?.data ?? []))
+			.catch(() => setTransactions([]));
 	}, []);
 
-	const getTransactionIcon = (type: string) => {
-		switch (type) {
-			case "deposit":
-				return <ArrowDownLeft className="w-5 h-5 text-green-600" />;
-			case "withdrawal":
-				return <ArrowUpRight className="w-5 h-5 text-red-600" />;
-			case "refund":
-				return <RefreshCw className="w-5 h-5 text-blue-600" />;
-			case "bonus":
-				return <Gift className="w-5 h-5 text-amber-600" />;
-			default:
-				return <DollarSign className="w-5 h-5" />;
-		}
+	const getTransactionIcon = (type: number) => {
+		if (type === 1) return <ArrowDownLeft className="w-5 h-5 text-green-600" />;
+		if (type === 2) return <ArrowUpRight className="w-5 h-5 text-red-600" />;
+		return <RefreshCw className="w-5 h-5 text-blue-600" />;
 	};
 
-	const getTransactionTypeName = (type: string) => {
-		switch (type) {
-			case "deposit":
-				return "واریز";
-			case "withdrawal":
-				return "برداشت";
-			case "refund":
-				return "بازگشت وجه";
-			case "bonus":
-				return "پاداش";
-			default:
-				return type;
-		}
+	const getTransactionTypeName = (type: number) => {
+		if (type === 1) return "واریز";
+		if (type === 2) return "برداشت";
+		return "تراکنش";
 	};
 
 	const filteredTransactions =
 		filterType === "all"
-			? MOCK_TRANSACTIONS
-			: MOCK_TRANSACTIONS.filter((t) => t.type === filterType);
+			? transactions
+			: transactions.filter((t) => {
+					if (filterType === "deposit") return t.type === 1;
+					if (filterType === "withdrawal") return t.type === 2;
+					return true;
+			  });
 
-	const handleDeposit = async (values: { amount: string; paymentMethod: string }) => {
+	const handleDeposit = async (values: { amount: string }) => {
 		setLoading(true);
 		try {
 			const res = await depositWallet(Number(values.amount));
-			setBalance(res?.data?.balance ?? balance);
+			const newBalance = res?.data?.balance ?? balance;
+			setBalance(newBalance);
+			const history = await getWalletHistory();
+			setTransactions(history?.data ?? []);
 			CustomToast("کیف پول با موفقیت شارژ شد", "success");
 			setDepositDialogOpen(false);
 		} catch {
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const handleWithdraw = async (values: { amount: string }) => {
-		setLoading(true);
-		try {
-			const res = await withdrawWallet(Number(values.amount));
-			setBalance(res?.data?.balance ?? balance);
-			CustomToast("برداشت با موفقیت انجام شد", "success");
-			setWithdrawDialogOpen(false);
-		} catch {
-			CustomToast("برداشت با خطا مواجه شد", "error");
+			CustomToast("شارژ کیف پول با خطا مواجه شد", "error");
 		} finally {
 			setLoading(false);
 		}
@@ -136,9 +104,7 @@ export default function WalletPage() {
 
 	return (
 		<div className="min-h-screen bg-background">
-
 			<div className="container mx-auto px-4 py-8">
-				{/* Header */}
 				<motion.div
 					initial={{ opacity: 0, y: -20 }}
 					animate={{ opacity: 1, y: 0 }}
@@ -153,9 +119,8 @@ export default function WalletPage() {
 				</motion.div>
 
 				<div className="grid lg:grid-cols-3 gap-6">
-					{/* Balance Cards */}
-					<div className="lg:col-span-3 grid md:grid-cols-3 gap-6">
-						{/* Main Balance */}
+					{/* Balance Card */}
+					<div className="lg:col-span-3 grid md:grid-cols-2 gap-6">
 						<motion.div
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
@@ -181,9 +146,7 @@ export default function WalletPage() {
 										<Button
 											variant="ghost"
 											size="icon"
-											onClick={() =>
-												setShowBalance(!showBalance)
-											}
+											onClick={() => setShowBalance(!showBalance)}
 										>
 											{showBalance ? (
 												<Eye className="w-5 h-5" />
@@ -195,55 +158,22 @@ export default function WalletPage() {
 									<div className="space-y-2">
 										<p className="text-3xl font-bold gradient-text">
 											{showBalance
-												? (balance === null ? "..." : formatPrice(balance))
+												? balance === null
+													? "..."
+													: formatPrice(balance)
 												: "••••••"}
 										</p>
-										<p className="text-sm text-muted-foreground">
-											ریال
-										</p>
+										<p className="text-sm text-muted-foreground">ریال</p>
 									</div>
 								</CardContent>
 							</Card>
 						</motion.div>
 
-						{/* Pending Balance */}
+						{/* Total transactions summary */}
 						<motion.div
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ delay: 0.2 }}
-						>
-							<Card className="border-2">
-								<CardContent className="p-6">
-									<div className="flex items-center gap-3 mb-4">
-										<div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center">
-											<Calendar className="w-6 h-6 text-amber-600" />
-										</div>
-										<div>
-											<p className="text-sm text-muted-foreground">
-												موجودی در انتظار
-											</p>
-											<p className="text-xs text-muted-foreground">
-												در حال پردازش
-											</p>
-										</div>
-									</div>
-									<div className="space-y-2">
-										<p className="text-2xl font-bold text-amber-600">
-											{showBalance ? "۰" : "••••••"}
-										</p>
-										<p className="text-sm text-muted-foreground">
-											ریال
-										</p>
-									</div>
-								</CardContent>
-							</Card>
-						</motion.div>
-
-						{/* Total Balance */}
-						<motion.div
-							initial={{ opacity: 0, y: 20 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ delay: 0.3 }}
 						>
 							<Card className="border-2">
 								<CardContent className="p-6">
@@ -253,47 +183,37 @@ export default function WalletPage() {
 										</div>
 										<div>
 											<p className="text-sm text-muted-foreground">
-												مجموع موجودی
+												تعداد تراکنش‌ها
 											</p>
 											<p className="text-xs text-muted-foreground">
-												کل دارایی
+												کل
 											</p>
 										</div>
 									</div>
 									<div className="space-y-2">
 										<p className="text-2xl font-bold text-green-600">
-											{showBalance
-												? (balance === null ? "..." : formatPrice(balance))
-												: "••••••"}
+											{transactions.length}
 										</p>
-										<p className="text-sm text-muted-foreground">
-											ریال
-										</p>
+										<p className="text-sm text-muted-foreground">تراکنش</p>
 									</div>
 								</CardContent>
 							</Card>
 						</motion.div>
 					</div>
 
-					{/* Quick Actions */}
+					{/* Deposit Button */}
 					<div className="lg:col-span-3">
 						<motion.div
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
-							transition={{ delay: 0.4 }}
-							className="grid md:grid-cols-2 gap-4"
+							transition={{ delay: 0.3 }}
 						>
-							{/* Deposit Button */}
 							<Dialog
 								open={depositDialogOpen}
 								onOpenChange={setDepositDialogOpen}
 							>
 								<DialogTrigger asChild>
-									<Button
-										variant="luxury"
-										className="gap-2 h-14"
-										size="lg"
-									>
+									<Button variant="luxury" className="gap-2 h-14 w-full md:w-auto" size="lg">
 										<Plus className="w-5 h-5" />
 										شارژ کیف پول
 									</Button>
@@ -304,45 +224,19 @@ export default function WalletPage() {
 									</DialogHeader>
 
 									<Formik
-										initialValues={{
-											amount: "",
-											paymentMethod: "",
-										}}
+										initialValues={{ amount: "" }}
 										validationSchema={depositSchema}
 										onSubmit={handleDeposit}
 									>
-										{({ values }) => (
+										{() => (
 											<Form className="space-y-4">
 												<Input
 													name="amount"
-													type="number"
+													type="text"
+													isPriceInput
 													icon={DollarSign}
 													label="مبلغ (ریال)"
 													placeholder="۱۰۰,۰۰۰"
-												/>
-
-												<Select
-													name="paymentMethod"
-													label="روش پرداخت"
-													icon={CreditCard}
-													options={[
-														{
-															value: "",
-															label: "انتخاب روش پرداخت",
-														},
-														{
-															value: "online",
-															label: "پرداخت آنلاین",
-														},
-														{
-															value: "card",
-															label: "کارت به کارت",
-														},
-														{
-															value: "pos",
-															label: "دستگاه کارتخوان",
-														},
-													]}
 												/>
 
 												<div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
@@ -358,11 +252,7 @@ export default function WalletPage() {
 														type="button"
 														variant="outline"
 														className="flex-1"
-														onClick={() =>
-															setDepositDialogOpen(
-																false,
-															)
-														}
+														onClick={() => setDepositDialogOpen(false)}
 													>
 														انصراف
 													</Button>
@@ -372,71 +262,7 @@ export default function WalletPage() {
 														className="flex-1"
 														disabled={loading}
 													>
-														{loading
-															? "در حال پردازش..."
-															: "پرداخت"}
-													</Button>
-												</div>
-											</Form>
-										)}
-									</Formik>
-								</DialogContent>
-							</Dialog>
-
-							{/* Withdraw Dialog */}
-							<Dialog
-								open={withdrawDialogOpen}
-								onOpenChange={setWithdrawDialogOpen}
-							>
-								<DialogTrigger asChild>
-									<Button
-										variant="outline"
-										className="gap-2 h-14"
-										size="lg"
-									>
-										<ArrowUpRight className="w-5 h-5" />
-										برداشت از کیف پول
-									</Button>
-								</DialogTrigger>
-								<DialogContent>
-									<DialogHeader>
-										<DialogTitle>برداشت از کیف پول</DialogTitle>
-									</DialogHeader>
-									<Formik
-										initialValues={{ amount: "" }}
-										validationSchema={withdrawSchema}
-										onSubmit={handleWithdraw}
-									>
-										{() => (
-											<Form className="space-y-4">
-												<Input
-													name="amount"
-													type="number"
-													icon={DollarSign}
-													label="مبلغ (ریال)"
-													placeholder="۱۰۰,۰۰۰"
-												/>
-												<div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-													<p className="text-sm text-amber-700 dark:text-amber-400">
-														موجودی فعلی: {balance !== null ? formatPrice(balance) : "..."} ریال
-													</p>
-												</div>
-												<div className="flex gap-4">
-													<Button
-														type="button"
-														variant="outline"
-														className="flex-1"
-														onClick={() => setWithdrawDialogOpen(false)}
-													>
-														انصراف
-													</Button>
-													<Button
-														type="submit"
-														variant="luxury"
-														className="flex-1"
-														disabled={loading}
-													>
-														{loading ? "در حال پردازش..." : "برداشت"}
+														{loading ? "در حال پردازش..." : "پرداخت"}
 													</Button>
 												</div>
 											</Form>
@@ -452,7 +278,7 @@ export default function WalletPage() {
 						<motion.div
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
-							transition={{ delay: 0.5 }}
+							transition={{ delay: 0.4 }}
 						>
 							<Card>
 								<div className="bg-gradient-to-r from-primary-rose/10 via-accent-gold/10 to-secondary-plum/10 p-4 border-b">
@@ -461,150 +287,69 @@ export default function WalletPage() {
 											<TrendingUp className="w-5 h-5" />
 											تاریخچه تراکنش‌ها
 										</h2>
-										<div className="flex items-center gap-2">
-											<Filter className="w-4 h-4 text-muted-foreground" />
-											<select
-												value={filterType}
-												onChange={(e) =>
-													setFilterType(
-														e.target.value,
-													)
-												}
-												className="px-3 py-1 border rounded-lg text-sm focus:border-primary-rose focus:outline-none"
-											>
-												<option value="all">همه</option>
-												<option value="deposit">
-													واریز
-												</option>
-												<option value="withdrawal">
-													برداشت
-												</option>
-												<option value="refund">
-													بازگشت وجه
-												</option>
-												<option value="bonus">
-													پاداش
-												</option>
-											</select>
-										</div>
+										<SelectFree
+										label="فیلتر"
+										icon={Filter}
+										value={filterType}
+										onValueChange={setFilterType}
+										options={[
+											{ value: "all", label: "همه" },
+											{ value: "deposit", label: "واریز" },
+											{ value: "withdrawal", label: "برداشت" },
+										]}
+										className="w-36"
+									/>
 									</div>
 								</div>
 
 								<CardContent className="p-0">
 									<div className="divide-y">
 										<AnimatePresence mode="popLayout">
-											{filteredTransactions.map(
-												(transaction, index) => (
-													<motion.div
-														key={transaction.id}
-														layout
-														initial={{
-															opacity: 0,
-															x: -20,
-														}}
-														animate={{
-															opacity: 1,
-															x: 0,
-														}}
-														exit={{
-															opacity: 0,
-															x: 20,
-														}}
-														transition={{
-															delay: index * 0.05,
-														}}
-														className="p-4 hover:bg-muted/50 transition-colors"
-													>
-														<div className="flex items-center gap-4">
-															{/* Icon */}
-															<div className="flex-shrink-0">
-																<div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-																	{getTransactionIcon(
-																		transaction.type,
-																	)}
-																</div>
-															</div>
-
-															{/* Details */}
-															<div className="flex-1 min-w-0">
-																<div className="flex items-center gap-2 mb-1">
-																	<p className="font-semibold truncate">
-																		{
-																			transaction.description
-																		}
-																	</p>
-																	<Badge
-																		variant={
-																			transaction.type ===
-																				"deposit" ||
-																			transaction.type ===
-																				"refund" ||
-																			transaction.type ===
-																				"bonus"
-																				? "available"
-																				: "outOfStock"
-																		}
-																		className="text-xs"
-																	>
-																		{getTransactionTypeName(
-																			transaction.type,
-																		)}
-																	</Badge>
-																</div>
-																<p className="text-sm text-muted-foreground">
-																	{
-																		transaction.date
-																	}{" "}
-																	-{" "}
-																	{
-																		transaction.time
-																	}
-																</p>
-																<p className="text-xs text-muted-foreground mt-1">
-																	شماره
-																	پیگیری:{" "}
-																	{
-																		transaction.reference
-																	}
-																</p>
-															</div>
-
-															{/* Amount & Status */}
-															<div className="text-left">
-																<p
-																	className={`text-xl font-bold ${
-																		transaction.type ===
-																		"withdrawal"
-																			? "text-red-600"
-																			: "text-green-600"
-																	}`}
-																>
-																	{transaction.type ===
-																	"withdrawal"
-																		? "-"
-																		: "+"}
-																	{formatPrice(
-																		transaction.amount,
-																	)}
-																</p>
-																<p className="text-xs text-muted-foreground mt-1">
-																	ریال
-																</p>
-																{transaction.status ===
-																	"pending" && (
-																	<Badge
-																		variant="outOfStock"
-																		className="mt-2 text-xs"
-																	>
-																		در
-																		انتظار
-																	</Badge>
-																)}
+											{filteredTransactions.map((transaction, index) => (
+												<motion.div
+													key={transaction.id}
+													layout
+													initial={{ opacity: 0, x: -20 }}
+													animate={{ opacity: 1, x: 0 }}
+													exit={{ opacity: 0, x: 20 }}
+													transition={{ delay: index * 0.05 }}
+													className="p-4 hover:bg-muted/50 transition-colors"
+												>
+													<div className="flex items-center gap-4">
+														<div className="flex-shrink-0">
+															<div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+																{getTransactionIcon(transaction.type)}
 															</div>
 														</div>
-													</motion.div>
-												),
-											)}
+
+														<div className="flex-1 min-w-0">
+															<div className="flex items-center gap-2 mb-1">
+																<Badge
+																	variant={transaction.type === 1 ? "available" : "outOfStock"}
+																	className="text-xs"
+																>
+																	{getTransactionTypeName(transaction.type)}
+																</Badge>
+															</div>
+															<p className="text-sm text-muted-foreground">
+																{new Date(transaction.createdAt).toLocaleDateString("fa-IR")}
+															</p>
+														</div>
+
+														<div className="text-left">
+															<p
+																className={`text-xl font-bold ${
+																	transaction.type === 2 ? "text-red-600" : "text-green-600"
+																}`}
+															>
+																{transaction.type === 2 ? "-" : "+"}
+																{formatPrice(transaction.amount)}
+															</p>
+															<p className="text-xs text-muted-foreground mt-1">ریال</p>
+														</div>
+													</div>
+												</motion.div>
+											))}
 										</AnimatePresence>
 									</div>
 

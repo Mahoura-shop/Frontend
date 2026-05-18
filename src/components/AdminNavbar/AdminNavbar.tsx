@@ -15,6 +15,7 @@ import {
 	Users,
 	ShieldCheck,
 	Mail,
+	Warehouse,
 } from "lucide-react";
 
 import { motion } from "framer-motion";
@@ -63,6 +64,13 @@ const menuItems = [
 		label: "نقش‌ها",
 		icon: ShieldCheck,
 		href: "/admin/roles",
+		count: null,
+	},
+	{
+		id: "inventory",
+		label: "موجودی",
+		icon: Warehouse,
+		href: "/admin/inventory",
 		count: null,
 	},
 	{

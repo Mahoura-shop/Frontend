@@ -1,4 +1,4 @@
-import { getData, patchData } from "./services";
+import { getData, patchData, postData } from "./services";
 import { MOCK_PRODUCTS } from "@/data/mockProducts";
 
 export interface ProductSearchParams {
@@ -73,6 +73,13 @@ export const productService = {
     return patchData({
       endPoint: "/v1/admin/product/prices",
       data: { productPrices },
+    });
+  },
+
+  async batchUpdateStock(type: "buy" | "sell", items: Array<{ productID: number; count: number }>) {
+    return postData({
+      endPoint: "/v1/product/stock",
+      data: { type, items },
     });
   },
 };

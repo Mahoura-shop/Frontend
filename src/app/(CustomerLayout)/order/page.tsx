@@ -12,19 +12,49 @@ import {
 	Package,
 	MapPin,
 	Plus,
+	Phone,
+	Home,
+	DollarSign,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { Formik, Form } from "formik"
+import * as Yup from "yup"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog"
+import Input from "@/components/Custom/Input/Input"
+import ProvinceCityPicker from "@/components/Custom/ProvinceCityPicker/ProvinceCityPicker"
 import CustomToast from "@/components/Custom/CustomToast/CustomToast"
 import { formatPrice } from "@/utils/formatPrice"
 import resolvePrice from "@/utils/resolvePrice"
 import { useCartStore } from "@/store/useCartStore"
 import { createOrder, payByWallet, initiatePayment } from "@/services/orderService"
-import { getAddresses } from "@/services/addressService"
+import { getAddresses, createAddress } from "@/services/addressService"
+import { getWalletBalance, depositWallet } from "@/services/walletService"
 import useUserStore from "@/store/userStore/userStore"
+
+const depositSchema = Yup.object({
+	amount: Yup.number()
+		.min(10000, "حداقل مبلغ واریز ۱۰٬۰۰۰ ریال است")
+		.max(50000000, "حداکثر مبلغ واریز ۵۰٬۰۰۰٬۰۰۰ ریال است")
+		.required("مبلغ الزامی است"),
+})
+
+const addressSchema = Yup.object({
+	provinceID: Yup.string().required("استان را انتخاب کنید"),
+	cityID: Yup.string().required("شهر را انتخاب کنید"),
+	streetAddress: Yup.string().min(5, "آدرس کوتاه است").required("آدرس الزامی است"),
+	postalCode: Yup.string().length(10, "کد پستی باید ۱۰ رقم باشد").required("کد پستی الزامی است"),
+	houseNumber: Yup.string().required("پلاک الزامی است"),
+	unit: Yup.number().min(0).required("واحد الزامی است"),
+})
 
 const PAYMENT_METHOD_ONLINE = 3
 const PAYMENT_METHOD_WALLET = 4
@@ -53,9 +83,13 @@ export default function OrderPage() {
 	const [done, setDone] = useState(false)
 	const [addresses, setAddresses] = useState<Address[]>([])
 	const [selectedAddressID, setSelectedAddressID] = useState<number | null>(null)
+	const [addDialogOpen, setAddDialogOpen] = useState(false)
+	const [addSubmitting, setAddSubmitting] = useState(false)
+	const [walletBalance, setWalletBalance] = useState<number | null>(null)
+	const [depositDialogOpen, setDepositDialogOpen] = useState(false)
+	const [depositSubmitting, setDepositSubmitting] = useState(false)
 
-	useEffect(() => {
-		fetchCart()
+	const fetchAddresses = () =>
 		getAddresses()
 			.then((res) => {
 				const list: Address[] = res?.data ?? []
@@ -63,6 +97,57 @@ export default function OrderPage() {
 				if (list.length > 0) setSelectedAddressID(list[0].id)
 			})
 			.catch(() => setAddresses([]))
+
+	const handleCreateAddress = async (values: {
+		provinceID: string
+		cityID: string
+		streetAddress: string
+		postalCode: string
+		houseNumber: string
+		unit: string
+	}) => {
+		setAddSubmitting(true)
+		try {
+			await createAddress({
+				provinceID: Number(values.provinceID),
+				cityID: Number(values.cityID),
+				streetAddress: values.streetAddress,
+				postalCode: values.postalCode,
+				houseNumber: values.houseNumber,
+				unit: Number(values.unit),
+			})
+			CustomToast("آدرس با موفقیت اضافه شد", "success")
+			setAddDialogOpen(false)
+			const res = await getAddresses()
+			const list: Address[] = res?.data ?? []
+			setAddresses(list)
+			if (list.length > 0) setSelectedAddressID(list[list.length - 1].id)
+		} catch {
+		} finally {
+			setAddSubmitting(false)
+		}
+	}
+
+	const handleDeposit = async (values: { amount: string }) => {
+		setDepositSubmitting(true)
+		try {
+			await depositWallet(Number(values.amount))
+			const balRes = await getWalletBalance()
+			setWalletBalance(balRes?.data?.balance ?? walletBalance)
+			CustomToast("کیف پول با موفقیت شارژ شد", "success")
+			setDepositDialogOpen(false)
+		} catch {
+		} finally {
+			setDepositSubmitting(false)
+		}
+	}
+
+	useEffect(() => {
+		fetchCart()
+		fetchAddresses()
+		getWalletBalance()
+			.then((res) => setWalletBalance(res?.data?.balance ?? 0))
+			.catch(() => setWalletBalance(0))
 	}, [])
 
 	const subtotal = items.reduce(
@@ -178,6 +263,7 @@ export default function OrderPage() {
 	}
 
 	return (
+		<>
 		<div className="min-h-screen bg-background mt-20">
 			<div className="container mx-auto px-4 py-8">
 				<motion.div
@@ -217,12 +303,10 @@ export default function OrderPage() {
 											<p className="text-sm text-amber-700 dark:text-amber-400">
 												هنوز آدرسی ندارید. برای تحویل سفارش، یک آدرس اضافه کنید.
 											</p>
-											<Link href="/dashboard/addresses">
-												<Button variant="outline" size="sm" className="gap-1 flex-shrink-0">
-													<Plus className="w-3 h-3" />
-													افزودن آدرس
-												</Button>
-											</Link>
+											<Button variant="outline" size="sm" className="gap-1 flex-shrink-0" onClick={() => setAddDialogOpen(true)}>
+												<Plus className="w-3 h-3" />
+												افزودن آدرس
+											</Button>
 										</div>
 									) : (
 										<div className="space-y-3">
@@ -256,10 +340,10 @@ export default function OrderPage() {
 													</div>
 												</label>
 											))}
-											<Link href="/dashboard/addresses" className="text-xs text-primary-rose hover:underline flex items-center gap-1 mt-2">
+											<button type="button" onClick={() => setAddDialogOpen(true)} className="text-xs text-primary-rose hover:underline flex items-center gap-1 mt-2">
 												<Plus className="w-3 h-3" />
 												افزودن آدرس جدید
-											</Link>
+											</button>
 										</div>
 									)}
 								</CardContent>
@@ -327,6 +411,49 @@ export default function OrderPage() {
 											</div>
 										</label>
 									</div>
+
+									{paymentMethod === PAYMENT_METHOD_WALLET && walletBalance !== null && (
+										<div className={`flex items-center justify-between gap-4 p-3 rounded-lg border ${walletBalance >= subtotal ? "bg-green-500/10 border-green-500/20" : "bg-red-500/10 border-red-500/20"}`}>
+											<div>
+												<p className="text-sm font-medium">
+													موجودی کیف پول: {formatPrice(walletBalance)} ریال
+												</p>
+												{walletBalance < subtotal && (
+													<p className="text-xs text-red-600 dark:text-red-400 mt-0.5">
+														کسری: {formatPrice(subtotal - walletBalance)} ریال
+													</p>
+												)}
+											</div>
+											{walletBalance < subtotal && (
+												<Button variant="outline" size="sm" className="gap-1 flex-shrink-0" onClick={() => setDepositDialogOpen(true)}>
+													<Plus className="w-3 h-3" />
+													شارژ کیف پول
+												</Button>
+											)}
+										</div>
+									)}
+
+									{(userType === "shopkeeper" ||
+										userType === "shopkeeperCash" ||
+										userType === "shopkeeperCheque") && (
+										<div className="flex items-center gap-4 rounded-xl border border-dashed border-accent-gold/60 bg-accent-gold/5 px-4 py-3">
+											<Phone className="w-5 h-5 text-accent-gold shrink-0" />
+											<div className="flex-1 min-w-0">
+												<p className="text-sm font-medium">
+													پرداخت چکی؟
+												</p>
+												<p className="text-xs text-muted-foreground">
+													برای خرید با چک با تیم فروش تماس بگیرید و از قیمت چکی بهره‌مند شوید.
+												</p>
+											</div>
+											<Link
+												href="/contact"
+												className="text-xs font-medium text-accent-gold border border-accent-gold/40 hover:bg-accent-gold/10 transition-colors rounded-lg px-3 py-1.5 shrink-0"
+											>
+												تماس با ما
+											</Link>
+										</div>
+									)}
 								</CardContent>
 							</Card>
 						</motion.div>
@@ -402,7 +529,7 @@ export default function OrderPage() {
 										className="w-full gap-2"
 										size="lg"
 										onClick={handleSubmit}
-										disabled={submitting || items.length === 0}
+										disabled={submitting || items.length === 0 || (paymentMethod === PAYMENT_METHOD_WALLET && walletBalance !== null && walletBalance < subtotal)}
 									>
 										{submitting ? (
 											"در حال پردازش..."
@@ -428,5 +555,114 @@ export default function OrderPage() {
 				</div>
 			</div>
 		</div>
+
+		<Dialog open={depositDialogOpen} onOpenChange={setDepositDialogOpen}>
+			<DialogContent className="max-w-sm">
+				<DialogHeader>
+					<DialogTitle>شارژ کیف پول</DialogTitle>
+				</DialogHeader>
+				<Formik
+					initialValues={{ amount: "" }}
+					validationSchema={depositSchema}
+					onSubmit={handleDeposit}
+				>
+					<Form className="space-y-4">
+						<Input
+							name="amount"
+							type="text"
+							isPriceInput
+							icon={DollarSign}
+							label="مبلغ (ریال)"
+							placeholder="۱۰۰,۰۰۰"
+						/>
+						<div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+							<p className="text-sm text-blue-700 dark:text-blue-400">
+								حداقل مبلغ شارژ: ۱۰٬۰۰۰ ریال
+								<br />
+								حداکثر مبلغ شارژ: ۵۰٬۰۰۰٬۰۰۰ ریال
+							</p>
+						</div>
+						<div className="flex gap-3">
+							<Button type="button" variant="outline" className="flex-1" onClick={() => setDepositDialogOpen(false)}>
+								انصراف
+							</Button>
+							<Button type="submit" variant="luxury" className="flex-1" disabled={depositSubmitting}>
+								{depositSubmitting ? "در حال پردازش..." : "پرداخت"}
+							</Button>
+						</div>
+					</Form>
+				</Formik>
+			</DialogContent>
+		</Dialog>
+
+		<Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+			<DialogContent className="max-w-md">
+				<DialogHeader>
+					<DialogTitle>افزودن آدرس جدید</DialogTitle>
+				</DialogHeader>
+				<Formik
+					initialValues={{
+						provinceID: "",
+						cityID: "",
+						streetAddress: "",
+						postalCode: "",
+						houseNumber: "",
+						unit: "0",
+					}}
+					validationSchema={addressSchema}
+					onSubmit={handleCreateAddress}
+				>
+					<Form className="space-y-4">
+						<ProvinceCityPicker />
+						<Input
+							name="streetAddress"
+							label="آدرس خیابان"
+							placeholder="خیابان، کوچه، بن‌بست..."
+							icon={Home}
+						/>
+						<div className="grid grid-cols-2 gap-3">
+							<Input
+								name="houseNumber"
+								label="پلاک"
+								placeholder="۱۲"
+								icon={Home}
+							/>
+							<Input
+								name="unit"
+								type="number"
+								label="واحد"
+								placeholder="۳"
+								icon={Home}
+							/>
+						</div>
+						<Input
+							name="postalCode"
+							label="کد پستی"
+							placeholder="۱۲۳۴۵۶۷۸۹۰"
+							icon={MapPin}
+						/>
+						<div className="flex gap-3 pt-2">
+							<Button
+								type="button"
+								variant="outline"
+								className="flex-1"
+								onClick={() => setAddDialogOpen(false)}
+							>
+								انصراف
+							</Button>
+							<Button
+								type="submit"
+								variant="luxury"
+								className="flex-1"
+								disabled={addSubmitting}
+							>
+								{addSubmitting ? "در حال ذخیره..." : "ذخیره آدرس"}
+							</Button>
+						</div>
+					</Form>
+				</Formik>
+			</DialogContent>
+		</Dialog>
+		</>
 	)
 }

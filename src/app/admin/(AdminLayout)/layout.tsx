@@ -21,6 +21,8 @@ import {
 	Coins,
 	RotateCcw,
 	Settings,
+	Mail,
+	Warehouse,
 } from "lucide-react";
 
 const adminMenuItems = [
@@ -68,6 +70,16 @@ const adminMenuItems = [
 		title: "مرجوعی‌ها",
 		href: "/admin/returns",
 		icon: RotateCcw,
+	},
+	{
+		title: "موجودی",
+		href: "/admin/inventory",
+		icon: Warehouse,
+	},
+	{
+		title: "پیام‌های تماس",
+		href: "/admin/contacts",
+		icon: Mail,
 	},
 	{
 		title: "تنظیمات",

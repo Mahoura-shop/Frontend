@@ -43,7 +43,6 @@ export const useCartStore = create<CartStore>((set, get) => ({
 		set({ loading: true });
 		try {
 			const res = await getCart();
-			console.log("res", res);
 			set({ items: res.data?.items ?? [] });
 		} catch {
 			set({ items: [] });
