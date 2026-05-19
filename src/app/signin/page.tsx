@@ -24,7 +24,7 @@ export default function SignIn() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [resendTimer, setResendTimer] = useState(0);
 	const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
-	const { setAccessToken, setRefreshToken, setFirstName, setLastName, setIsAdmin, setUserType } = useUserStore();
+	const { setAccessToken, setRefreshToken, setFirstName, setLastName, setIsAdmin, setUserType, setPermissions } = useUserStore();
 	const router = useRouter();
 
 	useEffect(() => {
@@ -61,6 +61,7 @@ export default function SignIn() {
 			setLastName(data?.data?.lastName ?? "");
 			setIsAdmin(data?.data?.isAdmin ?? false);
 			setUserType(data?.data?.type ?? "regular");
+			setPermissions(data?.data?.permissions ?? []);
 			CustomToast("خوش آمدید!", "success");
 			router.push(data?.data?.isAdmin ? "/admin/dashboard" : "/");
 		} finally {

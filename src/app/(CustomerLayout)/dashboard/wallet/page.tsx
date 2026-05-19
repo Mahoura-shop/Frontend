@@ -19,6 +19,7 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import Input from "@/components/Custom/Input/Input";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
@@ -30,6 +31,14 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+	Drawer,
+	DrawerContent,
+	DrawerHeader,
+	DrawerTitle,
+	DrawerTrigger,
+} from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { getWalletBalance, depositWallet, getWalletHistory } from "@/services/walletService";
 
 interface Transaction {
@@ -53,6 +62,8 @@ export default function WalletPage() {
 	const [depositDialogOpen, setDepositDialogOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
+	const [txLoading, setTxLoading] = useState(true);
+	const isMobile = useIsMobile();
 
 	useEffect(() => {
 		getWalletBalance()
@@ -61,7 +72,8 @@ export default function WalletPage() {
 
 		getWalletHistory()
 			.then((res) => setTransactions(res?.data ?? []))
-			.catch(() => setTransactions([]));
+			.catch(() => setTransactions([]))
+			.finally(() => setTxLoading(false));
 	}, []);
 
 	const getTransactionIcon = (type: number) => {
@@ -208,68 +220,129 @@ export default function WalletPage() {
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ delay: 0.3 }}
 						>
-							<Dialog
-								open={depositDialogOpen}
-								onOpenChange={setDepositDialogOpen}
-							>
-								<DialogTrigger asChild>
-									<Button variant="luxury" className="gap-2 h-14 w-full md:w-auto" size="lg">
-										<Plus className="w-5 h-5" />
-										شارژ کیف پول
-									</Button>
-								</DialogTrigger>
-								<DialogContent>
-									<DialogHeader>
-										<DialogTitle>شارژ کیف پول</DialogTitle>
-									</DialogHeader>
-
-									<Formik
-										initialValues={{ amount: "" }}
-										validationSchema={depositSchema}
-										onSubmit={handleDeposit}
-									>
-										{() => (
-											<Form className="space-y-4">
-												<Input
-													name="amount"
-													type="text"
-													isPriceInput
-													icon={DollarSign}
-													label="مبلغ (ریال)"
-													placeholder="۱۰۰,۰۰۰"
-												/>
-
-												<div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-													<p className="text-sm text-blue-700 dark:text-blue-400">
-														حداقل مبلغ شارژ: ۱۰٬۰۰۰ ریال
-														<br />
-														حداکثر مبلغ شارژ: ۵۰٬۰۰۰٬۰۰۰ ریال
-													</p>
-												</div>
-
-												<div className="flex gap-4">
-													<Button
-														type="button"
-														variant="outline"
-														className="flex-1"
-														onClick={() => setDepositDialogOpen(false)}
-													>
-														انصراف
-													</Button>
-													<Button
-														type="submit"
-														variant="luxury"
-														className="flex-1"
-														disabled={loading}
-													>
-														{loading ? "در حال پردازش..." : "پرداخت"}
-													</Button>
-												</div>
-											</Form>
-										)}
-									</Formik>
-								</DialogContent>
-							</Dialog>
+							{isMobile ? (
+								<Drawer
+									open={depositDialogOpen}
+									onOpenChange={setDepositDialogOpen}
+								>
+									<DrawerTrigger asChild>
+										<Button variant="luxury" className="gap-2 h-14 w-full md:w-auto" size="lg">
+											<Plus className="w-5 h-5" />
+											شارژ کیف پول
+										</Button>
+									</DrawerTrigger>
+									<DrawerContent className="max-h-[90vh]">
+										<DrawerHeader>
+											<DrawerTitle>شارژ کیف پول</DrawerTitle>
+										</DrawerHeader>
+										<div className="overflow-y-auto overscroll-contain px-4 pb-6">
+											<Formik
+												initialValues={{ amount: "" }}
+												validationSchema={depositSchema}
+												onSubmit={handleDeposit}
+											>
+												{() => (
+													<Form className="space-y-4">
+														<Input
+															name="amount"
+															type="text"
+															isPriceInput
+															icon={DollarSign}
+															label="مبلغ (ریال)"
+															placeholder="۱۰۰,۰۰۰"
+														/>
+														<div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+															<p className="text-sm text-blue-700 dark:text-blue-400">
+																حداقل مبلغ شارژ: ۱۰٬۰۰۰ ریال
+																<br />
+																حداکثر مبلغ شارژ: ۵۰٬۰۰۰٬۰۰۰ ریال
+															</p>
+														</div>
+														<div className="flex gap-4">
+															<Button
+																type="button"
+																variant="outline"
+																className="flex-1"
+																onClick={() => setDepositDialogOpen(false)}
+															>
+																انصراف
+															</Button>
+															<Button
+																type="submit"
+																variant="luxury"
+																className="flex-1"
+																disabled={loading}
+															>
+																{loading ? "در حال پردازش..." : "پرداخت"}
+															</Button>
+														</div>
+													</Form>
+												)}
+											</Formik>
+										</div>
+									</DrawerContent>
+								</Drawer>
+							) : (
+								<Dialog
+									open={depositDialogOpen}
+									onOpenChange={setDepositDialogOpen}
+								>
+									<DialogTrigger asChild>
+										<Button variant="luxury" className="gap-2 h-14 w-full md:w-auto" size="lg">
+											<Plus className="w-5 h-5" />
+											شارژ کیف پول
+										</Button>
+									</DialogTrigger>
+									<DialogContent>
+										<DialogHeader>
+											<DialogTitle>شارژ کیف پول</DialogTitle>
+										</DialogHeader>
+										<Formik
+											initialValues={{ amount: "" }}
+											validationSchema={depositSchema}
+											onSubmit={handleDeposit}
+										>
+											{() => (
+												<Form className="space-y-4">
+													<Input
+														name="amount"
+														type="text"
+														isPriceInput
+														icon={DollarSign}
+														label="مبلغ (ریال)"
+														placeholder="۱۰۰,۰۰۰"
+													/>
+													<div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+														<p className="text-sm text-blue-700 dark:text-blue-400">
+															حداقل مبلغ شارژ: ۱۰٬۰۰۰ ریال
+															<br />
+															حداکثر مبلغ شارژ: ۵۰٬۰۰۰٬۰۰۰ ریال
+														</p>
+													</div>
+													<div className="flex gap-4">
+														<Button
+															type="button"
+															variant="outline"
+															className="flex-1"
+															onClick={() => setDepositDialogOpen(false)}
+														>
+															انصراف
+														</Button>
+														<Button
+															type="submit"
+															variant="luxury"
+															className="flex-1"
+															disabled={loading}
+														>
+															{loading ? "در حال پردازش..." : "پرداخت"}
+														</Button>
+													</div>
+												</Form>
+											)}
+										</Formik>
+									</DialogContent>
+								</Dialog>
+							)}
 						</motion.div>
 					</div>
 
@@ -304,6 +377,23 @@ export default function WalletPage() {
 
 								<CardContent className="p-0">
 									<div className="divide-y">
+										{txLoading ? (
+											Array.from({ length: 4 }).map((_, i) => (
+												<div key={i} className="p-4">
+													<div className="flex items-center gap-4">
+														<Skeleton className="w-12 h-12 rounded-full flex-shrink-0" />
+														<div className="flex-1 space-y-2">
+															<Skeleton className="h-5 w-16 rounded-full" />
+															<Skeleton className="h-3 w-24" />
+														</div>
+														<div className="space-y-1 text-left">
+															<Skeleton className="h-6 w-24" />
+															<Skeleton className="h-3 w-8 ms-auto" />
+														</div>
+													</div>
+												</div>
+											))
+										) : (
 										<AnimatePresence mode="popLayout">
 											{filteredTransactions.map((transaction, index) => (
 												<motion.div
@@ -351,9 +441,10 @@ export default function WalletPage() {
 												</motion.div>
 											))}
 										</AnimatePresence>
+										)}
 									</div>
 
-									{filteredTransactions.length === 0 && (
+									{!txLoading && filteredTransactions.length === 0 && (
 										<div className="p-12 text-center">
 											<div className="w-20 h-20 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
 												<Wallet className="w-10 h-10 text-muted-foreground" />

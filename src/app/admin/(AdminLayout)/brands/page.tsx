@@ -31,9 +31,15 @@ import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import BrandInfoDialog from "@/components/admin/Brand/BrandInfoDialog";
 import UpdateBrandDialog from "@/components/admin/Brand/UpdateBrandDialog";
 import DeleteBrandDialog from "@/components/admin/Brand/DeleteBrandDialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getData } from "@/services/services";
+import PermissionGuard from "@/components/admin/PermissionGuard";
+import { usePermission } from "@/hooks/usePermission";
 
-export default function BrandsPage() {
+function BrandsPageContent() {
+	const canCreate = usePermission("brand:create");
+	const canEdit = usePermission("brand:edit");
+	const canDelete = usePermission("brand:delete");
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 	const [searchQuery, setSearchQuery] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
@@ -41,6 +47,7 @@ export default function BrandsPage() {
 
 	// Sample data
 	const [brands, setBrands] = useState<Brand[]>([]);
+	const [loading, setLoading] = useState(true);
 
 	const filteredBrands = brands.filter((brand) =>
 		brand.name.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -56,9 +63,10 @@ export default function BrandsPage() {
 	const inactiveCount = brands.filter((b) => !b.isActive).length;
 
 	const fetchBrands = useCallback(() => {
+		setLoading(true);
 		getData({ endPoint: `/v1/brand` }).then((data) => {
 			setBrands(data.data ?? []);
-		});
+		}).finally(() => setLoading(false));
 	}, []);
 
 	useEffect(() => {
@@ -93,8 +101,8 @@ export default function BrandsPage() {
 			</div>
 
 			{/* Toolbar */}
-			<div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-				<div className="flex items-center gap-4 flex-1 max-w-md">
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+				<div className="flex items-center gap-3 w-full sm:flex-1 sm:max-w-md">
 					<div className="relative flex-1">
 						<Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
 						<Input
@@ -121,17 +129,35 @@ export default function BrandsPage() {
 					>
 						<List className="w-5 h-5" />
 					</Button>
-					<UpdateBrandDialog
-						fetchBrands={fetchBrands}
-						mode="create"
-					/>
+					{canCreate && (
+						<UpdateBrandDialog
+							fetchBrands={fetchBrands}
+							mode="create"
+						/>
+					)}
 				</div>
 			</div>
 
 			{/* Grid View */}
 			{viewMode === "grid" && (
 				<>
-					{paginatedBrands.length === 0 && (
+					{loading && (
+						<div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+							{Array.from({ length: 8 }).map((_, i) => (
+								<Card key={i} className="overflow-hidden">
+									<Skeleton className="h-48 w-full rounded-none" />
+									<CardContent className="p-4">
+										<Skeleton className="h-5 w-28 mb-3" />
+										<div className="flex items-center justify-between">
+											<Skeleton className="h-4 w-20" />
+											<Skeleton className="h-8 w-24 rounded-md" />
+										</div>
+									</CardContent>
+								</Card>
+							))}
+						</div>
+					)}
+					{!loading && paginatedBrands.length === 0 && (
 						<Card>
 							<CardContent className="p-0">
 								<Table>
@@ -151,7 +177,7 @@ export default function BrandsPage() {
 							</CardContent>
 						</Card>
 					)}
-					<div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+					{!loading && <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 						{paginatedBrands?.map((brand, i) => (
 							<motion.div
 								key={brand.id}
@@ -172,17 +198,21 @@ export default function BrandsPage() {
 										)}
 
 										{/* Quick Actions */}
-										<div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+										<div className="absolute top-2 left-2 flex gap-2">
 											<BrandInfoDialog brand={brand} />
-											<UpdateBrandDialog
-												fetchBrands={fetchBrands}
-												mode="update"
-												brand={brand}
-											/>
-											<DeleteBrandDialog
-												id={brand?.id}
-												fetchBrands={fetchBrands}
-											/>
+											{canEdit && (
+												<UpdateBrandDialog
+													fetchBrands={fetchBrands}
+													mode="update"
+													brand={brand}
+												/>
+											)}
+											{canDelete && (
+												<DeleteBrandDialog
+													id={brand?.id}
+													fetchBrands={fetchBrands}
+												/>
+											)}
 										</div>
 
 										{/* Status Badge */}
@@ -221,7 +251,7 @@ export default function BrandsPage() {
 								</Card>
 							</motion.div>
 						))}
-					</div>
+					</div>}
 				</>
 			)}
 
@@ -241,7 +271,23 @@ export default function BrandsPage() {
 								</TableRow>
 							</TableHeader>
 							<TableBody>
-								{paginatedBrands.length === 0 && (
+								{loading && (
+									Array.from({ length: 8 }).map((_, i) => (
+										<TableRow key={i}>
+											<TableCell><Skeleton className="h-4 w-28" /></TableCell>
+											<TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
+											<TableCell><Skeleton className="h-5 w-14 rounded-full" /></TableCell>
+											<TableCell>
+												<div className="flex items-center justify-center gap-2">
+													<Skeleton className="h-8 w-8 rounded-md" />
+													<Skeleton className="h-8 w-8 rounded-md" />
+													<Skeleton className="h-8 w-8 rounded-md" />
+												</div>
+											</TableCell>
+										</TableRow>
+									))
+								)}
+								{!loading && paginatedBrands.length === 0 && (
 									<TableRow>
 										<TableCell
 											colSpan={100}
@@ -283,19 +329,23 @@ export default function BrandsPage() {
 											</Badge>
 										</TableCell>
 										<TableCell>
-											<div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+											<div className="flex items-center justify-center gap-2">
 												<BrandInfoDialog
 													brand={brand}
 												/>
-												<UpdateBrandDialog
-													fetchBrands={fetchBrands}
-													mode="update"
-													brand={brand}
-												/>
-												<DeleteBrandDialog
-													id={brand?.id}
-													fetchBrands={fetchBrands}
-												/>
+												{canEdit && (
+													<UpdateBrandDialog
+														fetchBrands={fetchBrands}
+														mode="update"
+														brand={brand}
+													/>
+												)}
+												{canDelete && (
+													<DeleteBrandDialog
+														id={brand?.id}
+														fetchBrands={fetchBrands}
+													/>
+												)}
 											</div>
 										</TableCell>
 									</motion.tr>
@@ -317,5 +367,13 @@ export default function BrandsPage() {
 				</div>
 			)}
 		</main>
+	);
+}
+
+export default function BrandsPage() {
+	return (
+		<PermissionGuard permission="brand:see">
+			<BrandsPageContent />
+		</PermissionGuard>
 	);
 }

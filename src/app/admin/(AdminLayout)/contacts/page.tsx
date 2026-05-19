@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Search } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import {
 	Table,
@@ -14,6 +15,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { getData } from "@/services/services";
+import PermissionGuard from "@/components/admin/PermissionGuard";
 
 interface ContactMessage {
 	id: number;
@@ -24,7 +26,7 @@ interface ContactMessage {
 	createdAt: string;
 }
 
-export default function AdminContactsPage() {
+function AdminContactsPageContent() {
 	const [messages, setMessages] = useState<ContactMessage[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [search, setSearch] = useState("");
@@ -81,9 +83,26 @@ export default function AdminContactsPage() {
 					<Card>
 						<CardContent className="p-0">
 							{loading ? (
-								<div className="p-8 text-center text-muted-foreground">
-									در حال بارگذاری...
-								</div>
+								<Table>
+									<TableHeader>
+										<TableRow>
+											<TableHead>نام</TableHead>
+											<TableHead>ایمیل</TableHead>
+											<TableHead>موضوع</TableHead>
+											<TableHead>تاریخ</TableHead>
+										</TableRow>
+									</TableHeader>
+									<TableBody>
+										{Array.from({ length: 6 }).map((_, i) => (
+											<TableRow key={i}>
+												<TableCell><Skeleton className="h-4 w-24" /></TableCell>
+												<TableCell><Skeleton className="h-4 w-32" /></TableCell>
+												<TableCell><Skeleton className="h-4 w-40" /></TableCell>
+												<TableCell><Skeleton className="h-4 w-20" /></TableCell>
+											</TableRow>
+										))}
+									</TableBody>
+								</Table>
 							) : filtered.length === 0 ? (
 								<div className="p-8 text-center text-muted-foreground">
 									پیامی یافت نشد
@@ -177,5 +196,13 @@ export default function AdminContactsPage() {
 				</motion.div>
 			</div>
 		</main>
+	);
+}
+
+export default function AdminContactsPage() {
+	return (
+		<PermissionGuard permission="contact:see">
+			<AdminContactsPageContent />
+		</PermissionGuard>
 	);
 }

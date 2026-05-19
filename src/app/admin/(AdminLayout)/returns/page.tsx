@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { PackageX, Loader2, Check, X, RefreshCw } from "lucide-react";
+import { PackageX, Check, X, RefreshCw, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getAdminReturns, reviewReturn, processRefund } from "@/services/returnService";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/utils/formatPrice";
 import { formatDate } from "@/utils/formatDate";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
@@ -108,8 +109,28 @@ export default function AdminReturnsPage() {
 			</div>
 
 			{loading ? (
-				<div className="flex items-center justify-center py-20">
-					<Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+				<div className="space-y-4">
+					{Array.from({ length: 4 }).map((_, i) => (
+						<Card key={i}>
+							<CardHeader className="pb-3">
+								<div className="flex items-center justify-between flex-wrap gap-2">
+									<Skeleton className="h-5 w-40" />
+									<Skeleton className="h-5 w-24 rounded-full" />
+								</div>
+							</CardHeader>
+							<CardContent className="space-y-3">
+								<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+									{Array.from({ length: 4 }).map((__, j) => (
+										<div key={j}>
+											<Skeleton className="h-3 w-16 mb-1" />
+											<Skeleton className="h-4 w-20" />
+										</div>
+									))}
+								</div>
+								<Skeleton className="h-4 w-3/4" />
+							</CardContent>
+						</Card>
+					))}
 				</div>
 			) : returns.length === 0 ? (
 				<div className="text-center py-20 text-muted-foreground">

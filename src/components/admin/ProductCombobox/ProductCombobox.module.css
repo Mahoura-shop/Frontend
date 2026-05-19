@@ -98,6 +98,18 @@
   width: var(--anchor-width);
 }
 
+.popupLabel {
+  padding: 8px 12px 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+  direction: rtl;
+  text-align: right;
+  font-family: "Vazirmatn", sans-serif;
+  border-bottom: 1px solid hsl(var(--border));
+  margin-bottom: 4px;
+}
+
 .list {
   max-height: 288px;
   overflow-y: auto;

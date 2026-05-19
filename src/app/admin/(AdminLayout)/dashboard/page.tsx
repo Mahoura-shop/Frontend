@@ -24,6 +24,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import {
 	Table,
@@ -149,7 +150,19 @@ export default function AdminDashboard() {
 
 			{/* Stats Cards */}
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-				{stats?.map((stat, i) => (
+				{loading ? (
+					Array.from({ length: 3 }).map((_, i) => (
+						<Card key={i}>
+							<CardHeader className="pb-3">
+								<Skeleton className="w-12 h-12 rounded-lg" />
+							</CardHeader>
+							<CardContent>
+								<Skeleton className="h-4 w-24 mb-2" />
+								<Skeleton className="h-8 w-16" />
+							</CardContent>
+						</Card>
+					))
+				) : stats?.map((stat, i) => (
 					<motion.div
 						key={stat.title}
 						initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -213,7 +226,6 @@ export default function AdminDashboard() {
 								{(() => {
 									const tierNames: Record<string, string> = {
 										admin: "مدیر",
-										guest: "مهمان",
 										regular: "مشتری عادی",
 										shopkeeper: "فروشنده",
 										shopkeepercash: "فروشنده نقدی",

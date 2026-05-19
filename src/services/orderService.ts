@@ -1,4 +1,4 @@
-import { getData, postData } from "./services"
+import { getData, patchData, postData } from "./services"
 
 export const createOrder = (data: {
 	paymentMethod: number
@@ -29,8 +29,8 @@ export const getAllOrders = (status?: string) => {
 export const getAdminOrderDetail = (orderID: number) =>
 	getData({ endPoint: `v1/orders/${orderID}` })
 
-export const updateOrderStatus = (orderID: number, data: { status: number; note: string }) =>
-	postData({ endPoint: `v1/orders/${orderID}/status`, data })
+export const updateOrderStatus = (orderID: number, data: { status: number; note: string; trackingCode?: string }) =>
+	patchData({ endPoint: `v1/orders/${orderID}/status`, data })
 
 export const cancelOrder = (orderID: number) =>
 	postData({ endPoint: `v1/orders/${orderID}/cancel`, data: {} })

@@ -8,13 +8,12 @@ import {
 	ShieldCheck,
 	Ban,
 	CheckCircle2,
-	ChevronDown,
-	ChevronUp,
 	Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Table,
 	TableBody,
@@ -45,9 +44,12 @@ import {
 	banUser,
 	unbanUser,
 	changeUserType,
-	getUserAuditLogs,
 	getAdminUserWallet,
+	assignSubAdminRole,
 } from "@/services/userService";
+import { getRoles } from "@/services/roleService";
+import PermissionGuard from "@/components/admin/PermissionGuard";
+import { usePermission } from "@/hooks/usePermission";
 
 interface UserItem {
 	id: number;
@@ -58,14 +60,13 @@ interface UserItem {
 	status: string;
 	type: string;
 	isAdmin: boolean;
+	roleID?: number | null;
+	roleName?: string;
 }
 
-interface AuditLog {
+interface Role {
 	id: number;
-	oldType: string;
-	newType: string;
-	reason: string;
-	changedAt: string;
+	name: string;
 }
 
 interface WalletTransaction {
@@ -81,7 +82,6 @@ interface UserWallet {
 }
 
 const TYPE_LABELS: Record<string, string> = {
-	guest: "مهمان",
 	regular: "مشتری",
 	shopkeeper: "فروشنده",
 	fellow: "همکار",
@@ -89,7 +89,6 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const TYPE_TO_NUMERIC: Record<string, number> = {
-	guest: 1,
 	regular: 2,
 	shopkeeper: 4,
 	fellow: 5,
@@ -97,23 +96,26 @@ const TYPE_TO_NUMERIC: Record<string, number> = {
 };
 
 const TYPE_OPTIONS = [
-	{ value: "guest", label: "مهمان" },
 	{ value: "regular", label: "مشتری" },
 	{ value: "shopkeeper", label: "فروشنده" },
 	{ value: "fellow", label: "همکار" },
 	{ value: "admin", label: "مدیر" },
 ];
 
-export default function AdminUsersPage() {
+function AdminUsersPageContent() {
+	const canEditRole = usePermission("users:edit_role");
+	const canBan = usePermission("users:ban");
+	const canUnban = usePermission("users:unban");
+	const canWallet = usePermission("users:wallet");
 	const [users, setUsers] = useState<UserItem[] | null>(null);
+	const [roles, setRoles] = useState<Role[]>([]);
 	const [search, setSearch] = useState("");
-	const [expandedID, setExpandedID] = useState<number | null>(null);
-	const [auditLogs, setAuditLogs] = useState<Record<number, AuditLog[]>>({});
 	const [roleDialog, setRoleDialog] = useState<{
 		open: boolean;
 		user: UserItem | null;
 	}>({ open: false, user: null });
 	const [newType, setNewType] = useState("");
+	const [selectedRoleID, setSelectedRoleID] = useState("");
 	const [actionLoading, setActionLoading] = useState(false);
 	const [walletDialog, setWalletDialog] = useState<{
 		open: boolean;
@@ -124,14 +126,13 @@ export default function AdminUsersPage() {
 
 	const fetchUsers = useCallback(() => {
 		getUsers()
-			.then((res) => {
-				setUsers(res?.data ?? []);
-			})
+			.then((res) => setUsers(res?.data ?? []))
 			.catch(() => setUsers([]));
 	}, []);
 
 	useEffect(() => {
 		fetchUsers();
+		getRoles().then((res) => setRoles(res?.data ?? []));
 	}, [fetchUsers]);
 
 	const filtered = (users ?? []).filter((u) => {
@@ -180,22 +181,36 @@ export default function AdminUsersPage() {
 		setActionLoading(true);
 		try {
 			await changeUserType(roleDialog.user.id, TYPE_TO_NUMERIC[newType]);
+			let assignedRoleID: number | null = null;
+			let assignedRoleName = "";
+			if (newType === "admin" && selectedRoleID) {
+				const x = await assignSubAdminRole(
+					roleDialog.user.id,
+					Number(selectedRoleID),
+				);
+				console.log("x", x);
+				assignedRoleID = Number(selectedRoleID);
+				assignedRoleName =
+					roles.find((r) => r.id === assignedRoleID)?.name ?? "";
+			}
 			setUsers(
 				(prev) =>
 					prev?.map((u) =>
 						u.id === roleDialog.user!.id
-							? { ...u, type: newType, isAdmin: newType === "admin" }
+							? {
+									...u,
+									type: newType,
+									isAdmin: newType === "admin",
+									roleID: assignedRoleID,
+									roleName: assignedRoleName,
+								}
 							: u,
 					) ?? prev,
 			);
-			setAuditLogs((prev) => {
-				const copy = { ...prev };
-				delete copy[roleDialog.user!.id];
-				return copy;
-			});
 			CustomToast("نقش کاربر تغییر کرد", "success");
 			setRoleDialog({ open: false, user: null });
 			setNewType("");
+			setSelectedRoleID("");
 		} finally {
 			setActionLoading(false);
 		}
@@ -256,16 +271,30 @@ export default function AdminUsersPage() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{users === null && (
-								<TableRow>
-									<TableCell
-										colSpan={5}
-										className="text-center py-12 text-muted-foreground"
-									>
-										در حال بارگذاری...
-									</TableCell>
-								</TableRow>
-							)}
+							{users === null &&
+								Array.from({ length: 7 }).map((_, i) => (
+									<TableRow key={i}>
+										<TableCell>
+											<Skeleton className="h-4 w-28" />
+										</TableCell>
+										<TableCell>
+											<Skeleton className="h-4 w-28" />
+										</TableCell>
+										<TableCell>
+											<Skeleton className="h-5 w-20 rounded-full" />
+										</TableCell>
+										<TableCell>
+											<Skeleton className="h-5 w-14 rounded-full" />
+										</TableCell>
+										<TableCell>
+											<div className="flex items-center justify-center gap-2">
+												<Skeleton className="h-8 w-20 rounded-md" />
+												<Skeleton className="h-8 w-20 rounded-md" />
+												<Skeleton className="h-8 w-16 rounded-md" />
+											</div>
+										</TableCell>
+									</TableRow>
+								))}
 							{users?.length === 0 && (
 								<TableRow>
 									<TableCell
@@ -281,67 +310,71 @@ export default function AdminUsersPage() {
 							)}
 							{filtered.map((user, i) => {
 								const isBanned = user.status === "لیست سیاه";
-								const isExpanded = expandedID === user.id;
-								const logs = auditLogs[user.id] ?? [];
 								const fullName =
 									[user.firstName, user.lastName]
 										.filter(Boolean)
 										.join(" ") || "بدون نام";
 
 								return (
-									<>
-										<motion.tr
-											key={user.id}
-											initial={{ opacity: 0, x: -20 }}
-											animate={{ opacity: 1, x: 0 }}
-											transition={{ delay: i * 0.04 }}
-											className="group hover:bg-muted/50 border-b"
+									<motion.tr
+										key={user.id}
+										initial={{ opacity: 0, x: -20 }}
+										animate={{ opacity: 1, x: 0 }}
+										transition={{ delay: i * 0.04 }}
+										className="group hover:bg-muted/50 border-b"
+									>
+										<TableCell className="font-medium">
+											{fullName}
+										</TableCell>
+										<TableCell
+											className="text-sm text-muted-foreground"
+											dir="ltr"
 										>
-											<TableCell className="font-medium">
-												{fullName}
-											</TableCell>
-											<TableCell
-												className="text-sm text-muted-foreground"
-												dir="ltr"
-											>
-												{user.phone}
-											</TableCell>
-											<TableCell>
-												<div className="flex items-center gap-1">
-													<Badge
-														variant="secondary"
-														className="text-xs"
-													>
-														{TYPE_LABELS[user.type] ??
-															user.type}
-													</Badge>
-													{user.isAdmin && (
-														<Badge
-															variant="outline"
-															className="text-xs border-amber-500 text-amber-600"
-														>
-															<ShieldCheck className="w-3 h-3 ml-1" />
-															ادمین
-														</Badge>
-													)}
-												</div>
-											</TableCell>
-											<TableCell>
+											{user.phone}
+										</TableCell>
+										<TableCell>
+											<div className="flex flex-col gap-1">
 												<Badge
 													variant={
-														isBanned
-															? "destructive"
-															: "available"
+														user.isAdmin
+															? "outline"
+															: "secondary"
 													}
-													className="text-xs"
+													className={
+														user.isAdmin
+															? "text-xs border-amber-500 text-amber-600 w-fit"
+															: "text-xs w-fit"
+													}
 												>
-													{isBanned
-														? "مسدود"
-														: "فعال"}
+													{user.isAdmin && (
+														<ShieldCheck className="w-3 h-3 ml-1" />
+													)}
+													{TYPE_LABELS[user.type] ??
+														user.type}
 												</Badge>
-											</TableCell>
-											<TableCell>
-												<div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+												{user.isAdmin && (
+													<span className="text-xs text-muted-foreground">
+														{user.roleName ||
+															"دسترسی کامل"}
+													</span>
+												)}
+											</div>
+										</TableCell>
+										<TableCell>
+											<Badge
+												variant={
+													isBanned
+														? "destructive"
+														: "available"
+												}
+												className="text-xs"
+											>
+												{isBanned ? "مسدود" : "فعال"}
+											</Badge>
+										</TableCell>
+										<TableCell>
+											<div className="flex items-center justify-center gap-2">
+												{canEditRole && (
 													<Button
 														variant="outline"
 														size="sm"
@@ -353,47 +386,56 @@ export default function AdminUsersPage() {
 															setNewType(
 																user.type,
 															);
+															setSelectedRoleID(
+																"",
+															);
 														}}
 														className="text-xs gap-1"
 													>
 														<ShieldCheck className="w-3 h-3" />
 														تغییر نقش
 													</Button>
+												)}
 
-													{isBanned ? (
-														<Button
-															variant="outline"
-															size="sm"
-															onClick={() =>
-																handleUnban(
-																	user,
-																)
-															}
-															disabled={
-																actionLoading
-															}
-															className="text-xs gap-1 border-green-500 text-green-600 hover:bg-green-50"
-														>
-															<CheckCircle2 className="w-3 h-3" />
-															رفع مسدودیت
-														</Button>
-													) : (
-														<Button
-															variant="outline"
-															size="sm"
-															onClick={() =>
-																handleBan(user)
-															}
-															disabled={
-																actionLoading
-															}
-															className="text-xs gap-1 border-destructive text-destructive hover:bg-destructive/10"
-														>
-															<Ban className="w-3 h-3" />
-															مسدود
-														</Button>
-													)}
+												{isBanned
+													? canUnban && (
+															<Button
+																variant="outline"
+																size="sm"
+																onClick={() =>
+																	handleUnban(
+																		user,
+																	)
+																}
+																disabled={
+																	actionLoading
+																}
+																className="text-xs gap-1 border-green-500 text-green-600 hover:bg-green-50"
+															>
+																<CheckCircle2 className="w-3 h-3" />
+																رفع مسدودیت
+															</Button>
+														)
+													: canBan && (
+															<Button
+																variant="outline"
+																size="sm"
+																onClick={() =>
+																	handleBan(
+																		user,
+																	)
+																}
+																disabled={
+																	actionLoading
+																}
+																className="text-xs gap-1 border-destructive text-destructive hover:bg-destructive/10"
+															>
+																<Ban className="w-3 h-3" />
+																مسدود
+															</Button>
+														)}
 
+												{canWallet && (
 													<Button
 														variant="ghost"
 														size="sm"
@@ -407,10 +449,10 @@ export default function AdminUsersPage() {
 														<Wallet className="w-3 h-3" />
 														کیف پول
 													</Button>
-												</div>
-											</TableCell>
-										</motion.tr>
-									</>
+												)}
+											</div>
+										</TableCell>
+									</motion.tr>
 								);
 							})}
 						</TableBody>
@@ -418,6 +460,7 @@ export default function AdminUsersPage() {
 				</CardContent>
 			</Card>
 
+			{/* Role Dialog */}
 			<Dialog
 				open={roleDialog.open}
 				onOpenChange={(open) =>
@@ -433,26 +476,54 @@ export default function AdminUsersPage() {
 							{roleDialog.user?.firstName}{" "}
 							{roleDialog.user?.lastName} {roleDialog.user?.phone}
 						</p>
-						<div className="space-y-1">
-							{/* <label className="text-sm font-medium">
-								نقش فعلی کاربر: {roleDialog.user?.type}
-							</label> */}
-							<Select value={newType} onValueChange={setNewType}>
-								<SelectTrigger>
-									<SelectValue placeholder="انتخاب نقش" />
-								</SelectTrigger>
-								<SelectContent>
-									{TYPE_OPTIONS.map((opt) => (
-										<SelectItem
-											key={opt.value}
-											value={opt.value}
-										>
-											{opt.label}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</div>
+						<Select
+							value={newType}
+							onValueChange={(v) => {
+								setNewType(v);
+								setSelectedRoleID("");
+							}}
+						>
+							<SelectTrigger>
+								<SelectValue placeholder="انتخاب نوع حساب" />
+							</SelectTrigger>
+							<SelectContent>
+								{TYPE_OPTIONS.map((opt) => (
+									<SelectItem
+										key={opt.value}
+										value={opt.value}
+									>
+										{opt.label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+
+						{newType === "admin" && roles.length > 0 && (
+							<div className="space-y-1">
+								<p className="text-xs text-muted-foreground">
+									نقش مدیریتی (اختیاری — بدون نقش = دسترسی
+									کامل)
+								</p>
+								<Select
+									value={selectedRoleID}
+									onValueChange={setSelectedRoleID}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder="انتخاب نقش" />
+									</SelectTrigger>
+									<SelectContent>
+										{roles.map((r) => (
+											<SelectItem
+												key={r.id}
+												value={String(r.id)}
+											>
+												{r.name}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</div>
+						)}
 					</div>
 					<DialogFooter>
 						<Button
@@ -473,6 +544,7 @@ export default function AdminUsersPage() {
 				</DialogContent>
 			</Dialog>
 
+			{/* Wallet Dialog */}
 			<Dialog
 				open={walletDialog.open}
 				onOpenChange={(open) =>
@@ -560,5 +632,13 @@ export default function AdminUsersPage() {
 				</DialogContent>
 			</Dialog>
 		</main>
+	);
+}
+
+export default function AdminUsersPage() {
+	return (
+		<PermissionGuard permission="users:see">
+			<AdminUsersPageContent />
+		</PermissionGuard>
 	);
 }

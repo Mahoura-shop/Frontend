@@ -6,6 +6,7 @@ import { Formik, Form } from "formik"
 import * as Yup from "yup"
 import { Shield, Phone } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import Input from "@/components/Custom/Input/Input"
 import CustomToast from "@/components/Custom/CustomToast/CustomToast"
@@ -23,7 +24,6 @@ interface Profile {
 }
 
 const TYPE_LABELS: Record<string, string> = {
-	guest: "مهمان",
 	regular: "مشتری",
 	shopkeeperCheque: "فروشنده (چکی)",
 	shopkeeperCash: "فروشنده (نقدی)",
@@ -34,7 +34,6 @@ const TYPE_LABELS: Record<string, string> = {
 const schema = Yup.object({
 	firstName: Yup.string().max(50, "حداکثر ۵۰ کاراکتر"),
 	lastName: Yup.string().max(50, "حداکثر ۵۰ کاراکتر"),
-	email: Yup.string().email("ایمیل معتبر نیست").max(100),
 })
 
 export default function SettingsPage() {
@@ -49,9 +48,39 @@ export default function SettingsPage() {
 
 	if (profile === undefined) {
 		return (
-			<div className="space-y-4">
-				<h1 className="text-2xl font-bold gradient-text">تنظیمات حساب</h1>
-				<p className="text-muted-foreground text-sm">در حال بارگذاری...</p>
+			<div className="space-y-6">
+				<div>
+					<Skeleton className="h-8 w-44 mb-1" />
+					<Skeleton className="h-4 w-56" />
+				</div>
+				<Card className="overflow-hidden">
+					<CardContent className="p-5">
+						<div className="flex items-center gap-4">
+							<Skeleton className="w-14 h-14 rounded-full flex-shrink-0" />
+							<div className="space-y-2">
+								<Skeleton className="h-3 w-20" />
+								<Skeleton className="h-6 w-32" />
+							</div>
+							<div className="ms-auto">
+								<Skeleton className="h-4 w-28" />
+							</div>
+						</div>
+					</CardContent>
+				</Card>
+				<Card>
+					<CardHeader>
+						<Skeleton className="h-5 w-28" />
+					</CardHeader>
+					<CardContent className="space-y-4">
+						<div className="grid grid-cols-2 gap-4">
+							<Skeleton className="h-10 w-full rounded-md" />
+							<Skeleton className="h-10 w-full rounded-md" />
+						</div>
+						<div className="flex justify-end">
+							<Skeleton className="h-9 w-32 rounded-md" />
+						</div>
+					</CardContent>
+				</Card>
 			</div>
 		)
 	}
@@ -65,7 +94,7 @@ export default function SettingsPage() {
 		)
 	}
 
-	const handleSave = async (values: { firstName: string; lastName: string; email: string }) => {
+	const handleSave = async (values: { firstName: string; lastName: string }) => {
 		setSaving(true)
 		try {
 			const res = await updateMyProfile(values)
@@ -120,7 +149,6 @@ export default function SettingsPage() {
 							initialValues={{
 								firstName: profile.firstName ?? "",
 								lastName: profile.lastName ?? "",
-								email: profile.email ?? "",
 							}}
 							validationSchema={schema}
 							onSubmit={handleSave}
@@ -139,12 +167,6 @@ export default function SettingsPage() {
 										placeholder="نام خانوادگی خود را وارد کنید"
 									/>
 								</div>
-								<Input
-									name="email"
-									type="email"
-									label="ایمیل"
-									placeholder="example@email.com"
-								/>
 								<div className="p-3 bg-muted/40 rounded-lg text-xs text-muted-foreground">
 									شماره تماس قابل تغییر نیست — برای تغییر با پشتیبانی تماس بگیرید
 								</div>

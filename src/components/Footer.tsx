@@ -61,7 +61,7 @@ export default function Footer() {
 			{/* Gold top line */}
 			<div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-accent-gold to-transparent opacity-70" />
 
-			<div ref={ref} className="relative container mx-auto px-4 pt-16 pb-10">
+			<div ref={ref} className="relative container mx-auto px-4 pt-16 pb-28 md:pb-10">
 				<motion.div
 					variants={container}
 					initial="hidden"
@@ -132,7 +132,7 @@ export default function Footer() {
 					</motion.div>
 
 					{/* Contact */}
-					<motion.div variants={item}>
+					<motion.div variants={item} className="col-span-2 md:col-span-1">
 						<h4 className="text-accent-gold font-semibold text-sm mb-5 tracking-widest uppercase">
 							تماس
 						</h4>

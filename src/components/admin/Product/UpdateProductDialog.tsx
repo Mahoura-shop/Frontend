@@ -7,6 +7,14 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+	Drawer,
+	DrawerContent,
+	DrawerHeader,
+	DrawerTitle,
+	DrawerTrigger,
+} from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Formik, Form } from "formik";
 import {
 	createProductInitialValues,
@@ -55,20 +63,28 @@ interface UpdateProductDialogProps {
 	brands?: Array<{ id: number; name: string }>;
 }
 
-export default function UpdateProductDialog({
+interface ProductFormProps {
+	product?: Product;
+	fetchProducts: () => void;
+	mode: "update" | "create" | "copy";
+	categories: Array<{ id: number; name: string }>;
+	brands: Array<{ id: number; name: string }>;
+	currencies: Currency[];
+	onClose: () => void;
+	isMobile: boolean;
+}
+
+function ProductForm({
 	product,
 	fetchProducts,
-	mode = "create",
-	categories = [],
-	brands = [],
-}: UpdateProductDialogProps) {
-	const { currencies, fetchCurrencies } = useCurrencyStore();
-	const [productDialogOpen, setProductDialogOpen] = useState<boolean>(false);
+	mode,
+	categories,
+	brands,
+	currencies,
+	onClose,
+	isMobile,
+}: ProductFormProps) {
 	const [loading, setLoading] = useState<boolean>(false);
-
-	useEffect(() => {
-		fetchCurrencies();
-	}, []);
 
 	const updateProduct = async (
 		values: Product,
@@ -238,7 +254,6 @@ export default function UpdateProductDialog({
 			formData.append("step4Origin", values.step4Origin?.toString());
 		}
 
-		// Handle image upload
 		if (
 			values.productPic &&
 			!(mode === "update" && product?.productPic === values.productPic)
@@ -262,7 +277,7 @@ export default function UpdateProductDialog({
 		})
 			.then((data) => {
 				CustomToast(data.message, "success");
-				setProductDialogOpen(false);
+				onClose();
 				fetchProducts();
 			})
 			.catch((error) => {
@@ -273,453 +288,486 @@ export default function UpdateProductDialog({
 			.finally(() => setLoading(false));
 	};
 
+	const title = mode !== "update" ? "افزودن محصول جدید" : "ویرایش محصول";
+	const submitLabel = mode !== "update" ? "افزودن محصول" : "ذخیره تغییرات";
+
+	return (
+		<Formik
+			initialValues={
+				mode === "create" ? createProductInitialValues : product!
+			}
+			validationSchema={createProductSchema}
+			onSubmit={updateProduct}
+		>
+			{({ values, setFieldValue }) => {
+				const price = values["price"];
+				const irrPrice = values["irrPrice"];
+				const step1 = values["step1Percent"];
+				const step2 = values["step2Percent"];
+				const step3 = values["step3Percent"];
+				const step4 = values["step4Percent"];
+				const baseStep1 = values["step1Price"];
+				const baseStep2 = values["step2Price"];
+				const baseStep3 = values["step3Price"];
+				const step2Origin = values["step2Origin"];
+				const step3Origin = values["step3Origin"];
+				const step4Origin = values["step4Origin"];
+				const rate =
+					currencies.find(
+						(currency: Currency) =>
+							currency.id === Number(values["currencyID"]),
+					)?.convertRate || 1;
+
+				useEffect(() => {
+					if (price === undefined) return;
+					if (mode === "update" && price === product?.price) return;
+					setFieldValue("irrPrice", roundPrice(price * rate));
+				}, [price, rate]);
+
+				useEffect(() => {
+					if (irrPrice === undefined || step1 === undefined) return;
+					setFieldValue(
+						"step1Price",
+						roundPrice(irrPrice * (1 + Number(step1) / 100)),
+					);
+				}, [irrPrice, step1]);
+
+				useEffect(() => {
+					if (step2Origin) {
+						if (irrPrice === undefined || step2 === undefined)
+							return;
+						setFieldValue(
+							"step2Price",
+							roundPrice(irrPrice * (1 + Number(step2) / 100)),
+						);
+					} else {
+						if (baseStep1 === undefined || step2 === undefined)
+							return;
+						setFieldValue(
+							"step2Price",
+							roundPrice(baseStep1 * (1 + Number(step2) / 100)),
+						);
+					}
+				}, [step2Origin, irrPrice, baseStep1, step2]);
+
+				useEffect(() => {
+					if (step3Origin) {
+						if (irrPrice === undefined || step3 === undefined)
+							return;
+						setFieldValue(
+							"step3Price",
+							roundPrice(irrPrice * (1 + Number(step3) / 100)),
+						);
+					} else {
+						if (baseStep2 === undefined || step2 === undefined)
+							return;
+						setFieldValue(
+							"step3Price",
+							roundPrice(baseStep2 * (1 + Number(step3) / 100)),
+						);
+					}
+				}, [step3Origin, irrPrice, baseStep2, step3]);
+
+				useEffect(() => {
+					if (step4Origin) {
+						if (irrPrice === undefined || step4 === undefined)
+							return;
+						setFieldValue(
+							"step4Price",
+							roundPrice(irrPrice * (1 + Number(step4) / 100)),
+						);
+					} else {
+						if (baseStep3 === undefined || step3 === undefined)
+							return;
+						setFieldValue(
+							"step4Price",
+							roundPrice(baseStep3 * (1 + Number(step4) / 100)),
+						);
+					}
+				}, [step4Origin, irrPrice, baseStep3, step4]);
+
+				const priceViolations = (() => {
+					const s1 = Number(values.step1Price) || 0;
+					const s2 = Number(values.step2Price) || 0;
+					const s3 = Number(values.step3Price) || 0;
+					const s4 = Number(values.step4Price) || 0;
+					const cp = Number(values.consumerPrice) || 0;
+					const violations: string[] = [];
+					if (s1 && s2 && s1 > s2)
+						violations.push(
+							"قیمت همکار باید از قیمت مغازه نقدی کمتر یا مساوی باشد",
+						);
+					if (s2 && s3 && s2 > s3)
+						violations.push(
+							"قیمت مغازه نقدی باید از قیمت مغازه چکی کمتر یا مساوی باشد",
+						);
+					if (s3 && s4 && s3 > s4)
+						violations.push(
+							"قیمت مغازه چکی باید از قیمت تکی کمتر یا مساوی باشد",
+						);
+					if (s4 && cp && s4 > cp)
+						violations.push(
+							"قیمت تکی باید از قیمت مصرف کننده کمتر یا مساوی باشد",
+						);
+					return violations;
+				})();
+
+				return (
+					<Form className="grid gap-4">
+						{isMobile ? (
+							<DrawerHeader className="px-0 pt-2">
+								<DrawerTitle>{title}</DrawerTitle>
+							</DrawerHeader>
+						) : (
+							<DialogHeader>
+								<DialogTitle>{title}</DialogTitle>
+							</DialogHeader>
+						)}
+
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<Input
+								name="name"
+								icon={Package}
+								label="نام فارسی محصول"
+							/>
+							<Input
+								name="slug"
+								icon={Globe}
+								label="نام انگلیسی محصول"
+							/>
+						</div>
+
+						<div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+							<Input
+								name="price"
+								isPriceInput
+								label="قیمت"
+								icon={DollarSign}
+							/>
+							<Select
+								name="currencyID"
+								label="واحد پول"
+								icon={DollarSign}
+								options={currencies?.map(
+									(currency: Currency) => ({
+										value: currency.id.toString(),
+										label: `${currency.name} (${currency.code})`,
+									}),
+								)}
+							/>
+							<Input
+								name="irrPrice"
+								isPriceInput
+								icon={DollarSign}
+								label="معادل ریالی"
+							/>
+							<Input
+								name="consumerPrice"
+								isPriceInput
+								label="قیمت مصرف کننده"
+								icon={ShoppingBag}
+							/>
+						</div>
+
+						<div className="grid grid-cols-2 gap-4">
+							<Input
+								name="step1Percent"
+								isPriceInput
+								icon={Percent}
+								label="درصد همکار"
+							/>
+							<Input
+								name="step1Price"
+								isPriceInput
+								icon={UserStar}
+								label="قیمت همکار"
+							/>
+						</div>
+
+						<div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+							<Input
+								name="step2Percent"
+								isPriceInput
+								icon={Percent}
+								label="درصد مغازه نقدی"
+							/>
+							<Input
+								name="step2Price"
+								isPriceInput
+								icon={HandCoins}
+								label="قیمت مغازه نقدی"
+							/>
+							<Checkbox
+								name="step2Origin"
+								label="نسبت به قیمت اصلی"
+							/>
+						</div>
+
+						<div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+							<Input
+								name="step3Percent"
+								isPriceInput
+								icon={Percent}
+								label="درصد مغازه چکی"
+							/>
+							<Input
+								name="step3Price"
+								isPriceInput
+								icon={Banknote}
+								label="قیمت مغازه چکی"
+							/>
+							<Checkbox
+								name="step3Origin"
+								label="نسبت به قیمت اصلی"
+							/>
+						</div>
+
+						<div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+							<Input
+								name="step4Percent"
+								isPriceInput
+								icon={Percent}
+								label="درصد تکی"
+							/>
+							<Input
+								name="step4Price"
+								isPriceInput
+								icon={PercentCircle}
+								label="قیمت تکی"
+							/>
+							<Checkbox
+								name="step4Origin"
+								label="نسبت به قیمت اصلی"
+							/>
+						</div>
+
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<Input
+								name="quantity"
+								icon={Hash}
+								label="موجودی"
+							/>
+							<Input
+								name="quantityType"
+								icon={ShoppingCart}
+								label="واحد شمارش"
+							/>
+						</div>
+
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<Input
+								name="priority"
+								type="number"
+								icon={TrendingUp}
+								label="اولویت نمایش"
+							/>
+							<Input
+								name="minOrder"
+								type="number"
+								icon={ShoppingCart}
+								label="حداقل سفارش"
+							/>
+						</div>
+
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<Select
+								name="categoryID"
+								label="دسته‌بندی"
+								icon={FolderTree}
+								helper="انتخاب دسته‌بندی"
+								options={[
+									{
+										value: "",
+										label: "انتخاب دسته‌بندی",
+									},
+									...(categories?.map((cat) => ({
+										value: cat.id.toString(),
+										label: cat.name,
+									})) ?? []),
+								]}
+							/>
+							<Select
+								name="brandID"
+								label="برند"
+								icon={Tag}
+								helper="انتخاب برند"
+								options={[
+									{ value: "", label: "انتخاب برند" },
+									...(brands?.map((brand) => ({
+										value: brand.id.toString(),
+										label: brand.name,
+									})) ?? []),
+								]}
+							/>
+						</div>
+
+						<Textarea
+							name="description"
+							icon={List}
+							label="توضیحات محصول"
+						/>
+
+						<div>
+							<Textarea
+								name="offer"
+								icon={TicketPercent}
+								label="آفر"
+							/>
+						</div>
+
+						<div className="flex gap-6">
+							<Checkbox
+								name="isActive"
+								label="محصول فعال است"
+							/>
+							<Checkbox
+								name="isNew"
+								label="محصول جدید است"
+							/>
+						</div>
+
+						<ImageCropModal
+							name="productPic"
+							label="تصویر محصول"
+						/>
+
+						{priceViolations.length > 0 && (
+							<div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400">
+								<AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+								<div className="space-y-1">
+									<p className="text-sm font-semibold">
+										نقض ترتیب قیمت‌گذاری
+									</p>
+									{priceViolations.map((v, i) => (
+										<p key={i} className="text-xs">
+											{v}
+										</p>
+									))}
+								</div>
+							</div>
+						)}
+
+						{isMobile ? (
+							<div className="sticky bottom-0 py-4 bg-background flex flex-col gap-2 z-10">
+								<Button
+									className="bg-primary-rose hover:bg-primary-rose/80 text-black w-full"
+									type="submit"
+									loading={loading}
+								>
+									{submitLabel}
+								</Button>
+								<Button
+									onClick={onClose}
+									type="button"
+									variant="outline"
+									className="w-full"
+								>
+									انصراف
+								</Button>
+							</div>
+						) : (
+							<StickyDialogFooter>
+								<div className="flex gap-4">
+									<Button
+										onClick={onClose}
+										type="button"
+										variant="outline"
+									>
+										انصراف
+									</Button>
+									<Button
+										className="bg-primary-rose hover:bg-primary-rose/80 text-black"
+										type="submit"
+										loading={loading}
+									>
+										{submitLabel}
+									</Button>
+								</div>
+							</StickyDialogFooter>
+						)}
+					</Form>
+				);
+			}}
+		</Formik>
+	);
+}
+
+export default function UpdateProductDialog({
+	product,
+	fetchProducts,
+	mode = "create",
+	categories = [],
+	brands = [],
+}: UpdateProductDialogProps) {
+	const isMobile = useIsMobile();
+	const { currencies, fetchCurrencies } = useCurrencyStore();
+	const [productDialogOpen, setProductDialogOpen] = useState<boolean>(false);
+
+	useEffect(() => {
+		fetchCurrencies();
+	}, []);
+
+	const triggerButton =
+		mode === "create" ? (
+			<Button className="gap-2">
+				<Plus className="w-4 h-4" />
+				<p>افزودن محصول</p>
+			</Button>
+		) : mode === "update" ? (
+			<Button
+				size="icon"
+				variant="secondary"
+				className="h-8 w-8 hover:bg-background/80"
+			>
+				<Pencil className="w-4 h-4" />
+			</Button>
+		) : (
+			<Button
+				size="icon"
+				variant="secondary"
+				className="h-8 w-8 hover:bg-background/80"
+			>
+				<Copy className="w-4 h-4" />
+			</Button>
+		);
+
+	const formProps = {
+		product,
+		fetchProducts,
+		mode,
+		categories,
+		brands,
+		currencies,
+		onClose: () => setProductDialogOpen(false),
+	};
+
+	if (isMobile) {
+		return (
+			<Drawer
+				open={productDialogOpen}
+				onOpenChange={(value: boolean) => setProductDialogOpen(value)}
+			>
+				<DrawerTrigger asChild>{triggerButton}</DrawerTrigger>
+				<DrawerContent className="max-h-[90vh]">
+					<div className="flex-1 overflow-y-auto overscroll-contain px-4">
+						<ProductForm {...formProps} isMobile={true} />
+					</div>
+				</DrawerContent>
+			</Drawer>
+		);
+	}
+
 	return (
 		<Dialog
 			open={productDialogOpen}
 			onOpenChange={(value: boolean) => setProductDialogOpen(value)}
 		>
-			<DialogTrigger>
-				{mode === "create" ? (
-					<Button className="gap-2">
-						<Plus className="w-4 h-4" />
-						<p>افزودن محصول</p>
-					</Button>
-				) : mode === "update" ? (
-					<Button
-						size="icon"
-						variant="secondary"
-						className="h-8 w-8 hover:bg-background/80"
-					>
-						<Pencil className="w-4 h-4" />
-					</Button>
-				) : (
-					<Button
-						size="icon"
-						variant="secondary"
-						className="h-8 w-8 hover:bg-background/80"
-					>
-						<Copy className="w-4 h-4" />
-					</Button>
-				)}
-			</DialogTrigger>
-
+			<DialogTrigger>{triggerButton}</DialogTrigger>
 			<DialogContent
 				className="max-w-4xl max-h-[90vh] overflow-y-auto"
 				variant="action"
 			>
-				<Formik
-					initialValues={
-						mode === "create"
-							? createProductInitialValues
-							: product!
-					}
-					validationSchema={createProductSchema}
-					onSubmit={updateProduct}
-				>
-					{({ values, setFieldValue }) => {
-						const price = values["price"];
-						const irrPrice = values["irrPrice"];
-						const step1 = values["step1Percent"];
-						const step2 = values["step2Percent"];
-						const step3 = values["step3Percent"];
-						const step4 = values["step4Percent"];
-						const baseStep1 = values["step1Price"];
-						const baseStep2 = values["step2Price"];
-						const baseStep3 = values["step3Price"];
-						const baseStep4 = values["step4Price"];
-						const step1Origin = values["step1Origin"];
-						const step2Origin = values["step2Origin"];
-						const step3Origin = values["step3Origin"];
-						const step4Origin = values["step4Origin"];
-						const rate =
-							currencies.find(
-								(currency: Currency) =>
-									currency.id ===
-									Number(values["currencyID"]),
-							)?.convertRate || 1;
-						// Base rice
-						useEffect(() => {
-							if (price === undefined) return;
-							if (mode === "update" && price === product?.price)
-								return;
-							setFieldValue("irrPrice", roundPrice(price * rate));
-							// setFieldValue("irrPrice", Math.round(price * rate));
-						}, [price, rate]);
-
-						// Step 1 Price
-						useEffect(() => {
-							if (irrPrice === undefined || step1 === undefined)
-								return;
-							setFieldValue(
-								"step1Price",
-								roundPrice(
-									irrPrice * (1 + Number(step1) / 100),
-								),
-							);
-						}, [irrPrice, step1]);
-
-						// Step 2 Price
-						useEffect(() => {
-							if (step2Origin) {
-								if (
-									irrPrice === undefined ||
-									step2 === undefined
-								)
-									return;
-								setFieldValue(
-									"step2Price",
-									roundPrice(
-										irrPrice * (1 + Number(step2) / 100),
-									),
-								);
-							} else {
-								if (
-									baseStep1 === undefined ||
-									step2 === undefined
-								)
-									return;
-								setFieldValue(
-									"step2Price",
-									roundPrice(
-										baseStep1 * (1 + Number(step2) / 100),
-									),
-								);
-							}
-						}, [step2Origin, irrPrice, baseStep1, step2]);
-
-						// Step 3 Price
-						useEffect(() => {
-							if (step3Origin) {
-								if (
-									irrPrice === undefined ||
-									step3 === undefined
-								)
-									return;
-								setFieldValue(
-									"step3Price",
-									roundPrice(
-										irrPrice * (1 + Number(step3) / 100),
-									),
-								);
-							} else {
-								if (
-									baseStep2 === undefined ||
-									step2 === undefined
-								)
-									return;
-								setFieldValue(
-									"step3Price",
-									roundPrice(
-										baseStep2 * (1 + Number(step3) / 100),
-									),
-								);
-							}
-						}, [step3Origin, irrPrice, baseStep2, step3]);
-
-						// Step 4 Price
-						useEffect(() => {
-							if (step4Origin) {
-								if (
-									irrPrice === undefined ||
-									step4 === undefined
-								)
-									return;
-								setFieldValue(
-									"step4Price",
-									roundPrice(
-										irrPrice * (1 + Number(step4) / 100),
-									),
-								);
-							} else {
-								if (
-									baseStep3 === undefined ||
-									step3 === undefined
-								)
-									return;
-								setFieldValue(
-									"step4Price",
-									roundPrice(
-										baseStep3 * (1 + Number(step4) / 100),
-									),
-								);
-							}
-						}, [step4Origin, irrPrice, baseStep3, step4]);
-
-						return (
-							<Form className="grid gap-4">
-								<DialogHeader>
-									<DialogTitle>
-										{mode !== "update"
-											? "افزودن محصول جدید"
-											: "ویرایش محصول"}
-									</DialogTitle>
-								</DialogHeader>
-								<div className="grid grid-cols-2 gap-4">
-									<Input
-										name="name"
-										icon={Package}
-										label="نام فارسی محصول"
-									/>
-									<Input
-										name="slug"
-										icon={Globe}
-										label="نام انگلیسی محصول"
-									/>
-								</div>
-
-								<div className="grid grid-cols-4 gap-4">
-									<Input
-										name="price"
-										isPriceInput
-										label="قیمت"
-										icon={DollarSign}
-									/>
-									<Select
-										name="currencyID"
-										label="واحد پول"
-										icon={DollarSign}
-										options={currencies?.map(
-											(currency: Currency) => ({
-												value: currency.id.toString(),
-												label: `${currency.name} (${currency.code})`,
-											}),
-										)}
-									/>
-									<Input
-										name="irrPrice"
-										isPriceInput
-										icon={DollarSign}
-										label="معادل ریالی"
-									/>
-									<Input
-										name="consumerPrice"
-										isPriceInput
-										label="قیمت مصرف کننده"
-										icon={ShoppingBag}
-									/>
-								</div>
-
-								<div className="grid grid-cols-3 gap-4">
-									<Input
-										name="step1Percent"
-										isPriceInput
-										icon={Percent}
-										label="درصد همکار"
-									/>
-									<Input
-										name="step1Price"
-										isPriceInput
-										icon={UserStar}
-										label="قیمت همکار"
-									/>
-								</div>
-
-								{/* Step 2 */}
-								<div className="grid grid-cols-3 gap-4">
-									<Input
-										name="step2Percent"
-										isPriceInput
-										icon={Percent}
-										label="درصد مغازه نقدی"
-									/>
-									<Input
-										name="step2Price"
-										isPriceInput
-										icon={HandCoins}
-										label="قیمت مغازه نقدی"
-									/>
-									<Checkbox
-										name="step2Origin"
-										label="نسبت به قیمت اصلی"
-									/>
-								</div>
-
-								{/* Step 3 */}
-								<div className="grid grid-cols-3 gap-4">
-									<Input
-										name="step3Percent"
-										isPriceInput
-										icon={Percent}
-										label="درصد مغازه چکی"
-									/>
-									<Input
-										name="step3Price"
-										isPriceInput
-										icon={Banknote}
-										label="قیمت مغازه چکی"
-									/>
-									<Checkbox
-										name="step3Origin"
-										label="نسبت به قیمت اصلی"
-									/>
-								</div>
-
-								<div className="grid grid-cols-3 gap-4">
-									<Input
-										name="step4Percent"
-										isPriceInput
-										icon={Percent}
-										label="درصد تکی"
-									/>
-									<Input
-										name="step4Price"
-										isPriceInput
-										icon={PercentCircle}
-										label="قیمت تکی"
-									/>
-									<Checkbox
-										name="step4Origin"
-										label="نسبت به قیمت اصلی"
-									/>
-								</div>
-								<div className="grid grid-cols-2 gap-4">
-									<Input
-										name="quantity"
-										icon={Hash}
-										label="موجودی"
-									/>
-									<Input
-										name="quantityType"
-										icon={ShoppingCart}
-										label="واحد شمارش"
-									/>
-								</div>
-
-								{/* Quantity and Type */}
-								<div className="grid grid-cols-2 gap-4">
-									<Input
-										name="priority"
-										type="number"
-										icon={TrendingUp}
-										label="اولویت نمایش"
-									/>
-									<Input
-										name="minOrder"
-										type="number"
-										icon={ShoppingCart}
-										label="حداقل سفارش"
-									/>
-								</div>
-
-								{/* Category and Brand */}
-								<div className="grid grid-cols-2 gap-4">
-									<Select
-										name="categoryID"
-										label="دسته‌بندی"
-										icon={FolderTree}
-										helper="انتخاب دسته‌بندی"
-										options={[
-											{
-												value: "",
-												label: "انتخاب دسته‌بندی",
-											},
-											...(categories?.map((cat) => ({
-												value: cat.id.toString(),
-												label: cat.name,
-											})) ?? []),
-										]}
-									/>
-									<Select
-										name="brandID"
-										label="برند"
-										icon={Tag}
-										helper="انتخاب برند"
-										options={[
-											{ value: "", label: "انتخاب برند" },
-											...(brands?.map((brand) => ({
-												value: brand.id.toString(),
-												label: brand.name,
-											})) ?? []),
-										]}
-									/>
-								</div>
-
-								{/* Description */}
-								<Textarea
-									name="description"
-									icon={List}
-									label="توضیحات محصول"
-								/>
-
-								{/* Offer */}
-								<div>
-									<Textarea
-										name="offer"
-										icon={TicketPercent}
-										label="آفر"
-									/>
-								</div>
-								{/* Checkboxes */}
-								<div className="flex gap-6">
-									<Checkbox
-										name="isActive"
-										label="محصول فعال است"
-									/>
-									<Checkbox
-										name="isNew"
-										label="محصول جدید است"
-									/>
-								</div>
-
-								{/* Image Upload */}
-								<ImageCropModal
-									name="productPic"
-									label="تصویر محصول"
-								/>
-
-								{/* Price invariant warning */}
-								{(() => {
-									const s1 = Number(values.step1Price) || 0;
-									const s2 = Number(values.step2Price) || 0;
-									const s3 = Number(values.step3Price) || 0;
-									const s4 = Number(values.step4Price) || 0;
-									const cp = Number(values.consumerPrice) || 0;
-									const violations: string[] = [];
-									if (s1 && s2 && s1 > s2) violations.push("قیمت همکار باید از قیمت مغازه نقدی کمتر یا مساوی باشد");
-									if (s2 && s3 && s2 > s3) violations.push("قیمت مغازه نقدی باید از قیمت مغازه چکی کمتر یا مساوی باشد");
-									if (s3 && s4 && s3 > s4) violations.push("قیمت مغازه چکی باید از قیمت تکی کمتر یا مساوی باشد");
-									if (s4 && cp && s4 > cp) violations.push("قیمت تکی باید از قیمت مصرف کننده کمتر یا مساوی باشد");
-									if (violations.length === 0) return null;
-									return (
-										<div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400">
-											<AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-											<div className="space-y-1">
-												<p className="text-sm font-semibold">نقض ترتیب قیمت‌گذاری</p>
-												{violations.map((v, i) => (
-													<p key={i} className="text-xs">{v}</p>
-												))}
-											</div>
-										</div>
-									);
-								})()}
-
-								{/* Footer Buttons */}
-								<StickyDialogFooter>
-									<div className="flex gap-4">
-										<Button
-											onClick={() =>
-												setProductDialogOpen(false)
-											}
-											type="button"
-											variant="outline"
-										>
-											انصراف
-										</Button>
-										<Button
-											className="bg-primary-rose hover:bg-primary-rose/80 text-black"
-											type="submit"
-											loading={loading}
-										>
-											{mode !== "update"
-												? "افزودن محصول"
-												: "ذخیره تغییرات"}
-										</Button>
-									</div>
-								</StickyDialogFooter>
-							</Form>
-						);
-					}}
-				</Formik>
+				<ProductForm {...formProps} isMobile={false} />
 			</DialogContent>
 		</Dialog>
 	);

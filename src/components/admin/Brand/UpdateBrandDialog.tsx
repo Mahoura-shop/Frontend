@@ -1,35 +1,32 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
 	Dialog,
-	DialogBody,
 	DialogContent,
-	DialogDescription,
-	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+	Drawer,
+	DrawerContent,
+	DrawerHeader,
+	DrawerTitle,
+	DrawerTrigger,
+} from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Formik, Form } from "formik";
 import {
 	createBrandInitialValues,
 	createBrandSchema,
 } from "@/schemas/BrandSchemas";
-import {
-	Globe,
-	List,
-	MapPin,
-	Pencil,
-	Package,
-	PersonStanding,
-	Plus,
-} from "lucide-react";
+import { Globe, List, Pencil, Package, Plus } from "lucide-react";
 import Input from "@/components/Custom/Input/Input";
 import Textarea from "@/components/Custom/Textarea/Textarea";
 import Checkbox from "@/components/Custom/Checkbox/Checkbox";
 import ImageCropModal from "../ImageCropModal";
 import StickyDialogFooter from "@/components/StickyDialogFooter/StickyDialogFooter";
-import { postData, postImageData, putImageData } from "@/services/services";
+import { postImageData, putImageData } from "@/services/services";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import Button from "@/components/Custom/Button/Button";
 import { translateErrorObject } from "@/utils/translateErrorObject";
@@ -43,8 +40,10 @@ export default function UpdateBrandDialog({
 	fetchBrands: () => void;
 	mode: "update" | "create";
 }) {
+	const isMobile = useIsMobile();
 	const [brandDialogOpen, setBrandDialogOpen] = useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(false);
+
 	const updateBrand = async (
 		values: Brand,
 		{ setErrors }: { setErrors: any },
@@ -60,30 +59,17 @@ export default function UpdateBrandDialog({
 		if (!(mode === "update" && brand?.description === values.description)) {
 			formData.append("description", values.description || "");
 		}
-		// if (!(mode === "update" && brand?.isActive === values.isActive)) {
-		// }
 		formData.append("isActive", values.isActive.toString());
 		if (
 			values.brandPic &&
 			!(mode === "update" && brand?.brandPic === values.brandPic)
 		) {
-			// Convert base64 string to Blob/File
 			const base64Response = await fetch(values.brandPic);
 			const blob = await base64Response.blob();
-
-			// Create a File object from the Blob
 			const file = new File([blob], `brand-${Date.now()}.jpg`, {
 				type: "image/jpeg",
 			});
-
 			formData.append("brandPic", file);
-		}
-		console.log("FormData entries:");
-		for (let [key, value] of formData.entries()) {
-			console.log(
-				key,
-				value instanceof File ? `File: ${value.name}` : value,
-			);
 		}
 		const apiFunc = mode === "update" ? putImageData : postImageData;
 		apiFunc({
@@ -96,95 +82,138 @@ export default function UpdateBrandDialog({
 				fetchBrands();
 			})
 			.catch((error) => {
-				console.log(
-					"error",
-					translateErrorObject(error.response.data.messages),
-				);
 				setErrors(translateErrorObject(error.response.data.messages));
 			})
 			.finally(() => setLoading(false));
 	};
+
+	const title = mode === "create" ? "افزودن برند" : "ویرایش برند";
+	const submitLabel = mode === "create" ? "افزودن" : "ویرایش";
+
+	const triggerButton =
+		mode === "create" ? (
+			<Button className="gap-2">
+				<Plus className="w-4 h-4" />
+				<p>{title}</p>
+			</Button>
+		) : (
+			<Button
+				size="icon"
+				variant="secondary"
+				className="h-8 w-8 hover:bg-background/80"
+			>
+				<Pencil className="w-4 h-4" />
+			</Button>
+		);
+
+	const formContent = (
+		<Formik
+			initialValues={
+				mode === "create"
+					? createBrandInitialValues
+					: brand || createBrandInitialValues
+			}
+			validationSchema={createBrandSchema}
+			onSubmit={updateBrand}
+		>
+			<Form className="grid gap-4">
+				{isMobile ? (
+					<DrawerHeader className="px-0 pt-2">
+						<DrawerTitle>{title}</DrawerTitle>
+					</DrawerHeader>
+				) : (
+					<DialogHeader>
+						<DialogTitle>{title}</DialogTitle>
+					</DialogHeader>
+				)}
+
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<Input
+						name="name"
+						icon={Package}
+						label="نام فارسی برند"
+					/>
+					<Input
+						name="slug"
+						icon={Globe}
+						label="نام انگلیسی برند"
+					/>
+				</div>
+
+				<Textarea
+					name="description"
+					icon={List}
+					label="توضیحات برند"
+				/>
+
+				<Checkbox name="isActive" label="برند فعال است" />
+
+				<ImageCropModal name="brandPic" label="تصویر برند" />
+
+				{isMobile ? (
+					<div className="sticky bottom-0 py-4 bg-background flex flex-col gap-2 z-10">
+						<Button
+							className="bg-primary-rose hover:bg-primary-rose/80 text-black w-full"
+							type="submit"
+							loading={loading}
+						>
+							{submitLabel}
+						</Button>
+						<Button
+							onClick={() => setBrandDialogOpen(false)}
+							type="button"
+							variant="outline"
+							className="w-full"
+						>
+							انصراف
+						</Button>
+					</div>
+				) : (
+					<StickyDialogFooter>
+						<div className="flex gap-4">
+							<Button
+								onClick={() => setBrandDialogOpen(false)}
+								type="button"
+							>
+								انصراف
+							</Button>
+							<Button
+								className="bg-primary-rose hover:bg-primary-rose/80 text-black"
+								type="submit"
+								loading={loading}
+							>
+								{submitLabel}
+							</Button>
+						</div>
+					</StickyDialogFooter>
+				)}
+			</Form>
+		</Formik>
+	);
+
+	if (isMobile) {
+		return (
+			<Drawer
+				open={brandDialogOpen}
+				onOpenChange={(value: boolean) => setBrandDialogOpen(value)}
+			>
+				<DrawerTrigger asChild>{triggerButton}</DrawerTrigger>
+				<DrawerContent className="max-h-[90vh]">
+					<div className="flex-1 overflow-y-auto overscroll-contain px-4">
+						{formContent}
+					</div>
+				</DrawerContent>
+			</Drawer>
+		);
+	}
+
 	return (
 		<Dialog
 			open={brandDialogOpen}
 			onOpenChange={(value: boolean) => setBrandDialogOpen(value)}
 		>
-			<DialogTrigger>
-				{mode === "create" ? (
-					<Button className="gap-2">
-						<Plus className="w-4 h-4" />
-						<p>
-							{mode === "create" ? "افزودن برند" : "ویرایش برند"}
-						</p>
-					</Button>
-				) : (
-					<Button
-						size="icon"
-						variant="secondary"
-						className="h-8 w-8 hover:bg-background/80"
-					>
-						<Pencil className="w-4 h-4" />
-					</Button>
-				)}
-			</DialogTrigger>
-			<DialogContent variant="action">
-				<Formik
-					initialValues={
-						mode === "create"
-							? createBrandInitialValues
-							: brand || createBrandInitialValues
-					}
-					validationSchema={createBrandSchema}
-					onSubmit={updateBrand}
-				>
-					<Form className="grid gap-4">
-						<DialogHeader>
-							<DialogTitle>
-								{mode === "create"
-									? "افزودن برند"
-									: "ویرایش برند"}
-							</DialogTitle>
-						</DialogHeader>
-						<div className="flex gap-2">
-							<Input
-								name="name"
-								icon={Package}
-								label="نام فارسی برند"
-							/>
-							<Input
-								name="slug"
-								icon={Globe}
-								label="نام انگلیسی برند"
-							/>
-						</div>
-						<Textarea
-							name="description"
-							icon={List}
-							label="توضیحات برند"
-						/>
-						<Checkbox name="isActive" label="برند فعال است" />
-						<ImageCropModal name="brandPic" label="تصویر برند" />
-						{/* </DialogBody> */}
-						<StickyDialogFooter>
-							<div className="flex gap-4">
-								<Button
-									onClick={() => setBrandDialogOpen(false)}
-									type="button"
-								>
-									انصراف
-								</Button>
-								<Button
-									className="bg-primary-rose hover:bg-primary-rose/80 text-black"
-									type="submit"
-									loading={loading}
-								>
-									{mode === "create" ? "افزودن" : "ویرایش"}
-								</Button>
-							</div>
-						</StickyDialogFooter>
-					</Form>
-				</Formik>
-			</DialogContent>
+			<DialogTrigger>{triggerButton}</DialogTrigger>
+			<DialogContent variant="action">{formContent}</DialogContent>
 		</Dialog>
 	);
 }

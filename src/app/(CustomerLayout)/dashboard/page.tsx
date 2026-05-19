@@ -25,7 +25,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { translateNumber } from "@/utils/translateNumber";
 import { formatPrice } from "@/utils/formatPrice";
 import { formatDate } from "@/utils/formatDate";
 import { getMyOrders } from "@/services/orderService";
@@ -45,7 +44,6 @@ const STATUS_MAP: Record<number, { label: string; variant: "available" | "new" |
 	1: { label: "در انتظار پرداخت", variant: "outOfStock", icon: Clock },
 	2: { label: "پرداخت شده", variant: "new", icon: CreditCard },
 	3: { label: "ارسال شده", variant: "new", icon: Truck },
-	4: { label: "تحویل داده شده", variant: "available", icon: CheckCircle2 },
 	5: { label: "لغو شده", variant: "secondary", icon: XCircle },
 };
 
@@ -53,6 +51,7 @@ interface Profile {
 	firstName: string;
 	lastName: string;
 	email: string;
+	createdAt: string;
 }
 
 export default function DashboardPage() {
@@ -291,9 +290,13 @@ export default function DashboardPage() {
 								<Calendar className="w-8 h-8 text-amber-600" />
 							</div>
 							<h3 className="font-bold mb-2">تاریخ عضویت</h3>
-							<p className="text-sm text-muted-foreground">
-                                {translateNumber("1404/1/27")}
-							</p>
+							{profile === null ? (
+								<Skeleton className="h-4 w-24 mx-auto mt-1" />
+							) : (
+								<p className="text-sm text-muted-foreground">
+									{formatDate(profile.createdAt)}
+								</p>
+							)}
 						</CardContent>
 					</Card>
 				</div>

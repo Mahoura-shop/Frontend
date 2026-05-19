@@ -12,17 +12,21 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { getData, putData } from "@/services/services";
+import { Skeleton } from "@/components/ui/skeleton";
 import Input from "@/components/Custom/Input/Input";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import InputFree from "@/components/Custom/Input/InputFree";
+import PermissionGuard from "@/components/admin/PermissionGuard";
 
-export default function SettingsPage() {
+function SettingsPageContent() {
 	const [currencies, setCurrencies] = useState<Currency[]>([]);
+	const [loading, setLoading] = useState(true);
 
 	const fetchCurrencies = () => {
+		setLoading(true);
 		getData({ endPoint: `/v1/currency` }).then((data) => {
 			setCurrencies(data?.data);
-		});
+		}).finally(() => setLoading(false));
 	};
 
 	const saveAllCurrencies = async () => {
@@ -75,7 +79,17 @@ export default function SettingsPage() {
 					</CardHeader>
 					<CardContent>
 						<div className="grid md:grid-cols-2 gap-6">
-							{currencies?.map((currency, i) => (
+							{loading ? (
+								Array.from({ length: 4 }).map((_, i) => (
+									<div key={i} className="space-y-2">
+										<div className="flex items-center gap-2">
+											<Skeleton className="h-4 w-20" />
+											<Skeleton className="h-10 flex-1 rounded-md" />
+											<Skeleton className="h-4 w-8" />
+										</div>
+									</div>
+								))
+							) : currencies?.map((currency, i) => (
 								<motion.div
 									key={currency.code}
 									initial={{ opacity: 0, x: -20 }}
@@ -140,5 +154,13 @@ export default function SettingsPage() {
 				</Card>
 			</motion.div>
 		</main>
+	);
+}
+
+export default function SettingsPage() {
+	return (
+		<PermissionGuard permission="update:currencies">
+			<SettingsPageContent />
+		</PermissionGuard>
 	);
 }

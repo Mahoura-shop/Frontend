@@ -10,6 +10,7 @@ import ProductCombobox from "@/components/admin/ProductCombobox/ProductCombobox"
 import { getData } from "@/services/services";
 import { productService } from "@/services/productService";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
+import PermissionGuard from "@/components/admin/PermissionGuard";
 
 interface StockRow {
 	id: string;
@@ -21,7 +22,7 @@ function makeRow(): StockRow {
 	return { id: crypto.randomUUID(), productID: null, count: "" };
 }
 
-export default function InventoryPage() {
+function InventoryPageContent() {
 	const [products, setProducts] = useState<Product[]>([]);
 	const [operationType, setOperationType] = useState<"buy" | "sell">("buy");
 	const [rows, setRows] = useState<StockRow[]>([makeRow()]);
@@ -137,7 +138,7 @@ export default function InventoryPage() {
 							transition={{ delay: index * 0.05 }}
 							className="flex items-center gap-3"
 						>
-							<div className="flex-1">
+							<div className="flex-1 min-w-0">
 								<ProductCombobox
 									value={row.productID}
 									onChange={(id) =>
@@ -150,7 +151,7 @@ export default function InventoryPage() {
 									label="محصول"
 								/>
 							</div>
-							<div className="w-40 relative">
+							<div className="w-20 sm:w-40 relative shrink-0">
 								<Input
 									type="number"
 									min={1}
@@ -197,5 +198,13 @@ export default function InventoryPage() {
 				</Button>
 			</div>
 		</motion.div>
+	);
+}
+
+export default function InventoryPage() {
+	return (
+		<PermissionGuard permission="product:batch_inventory">
+			<InventoryPageContent />
+		</PermissionGuard>
 	);
 }

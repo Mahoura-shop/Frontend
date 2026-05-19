@@ -1,47 +1,38 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import {
-	LogOut,
-	Menu,
-	Home,
-	Package,
-	DollarSign,
-	FolderTree,
-	Tag,
-	ShoppingBag,
-	Users,
-	ClipboardList,
-	Shield,
-	Coins,
-	RotateCcw,
-	Settings,
-	LucideIcon,
-} from "lucide-react";
+import { LogOut, ChevronLeft, LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import logo from "@/assets/logo.png";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { useDashboardMenuStore } from "@/store/useDashboardMenuStore";
 import useUserStore from "@/store/userStore/userStore";
 
 interface Item {
 	title: string;
 	href: string;
-	icon: LucideIcon
+	icon: LucideIcon;
+	permission?: string;
 }
 
-export default function AdminSidebar({items}: {items: Item[]}) {
+export default function AdminSidebar({ items }: { items: Item[] }) {
 	const pathname = usePathname();
-	const { sidebarOpen, setSidebarOpen } = useDashboardMenuStore();
-	const { logout } = useUserStore();
+	const { logout, permissions, _hasHydrated } = useUserStore();
+	const { setSidebarOpen } = useDashboardMenuStore();
 
 	const isActive = (href: string) => {
-		if (href === "/admin/dashboard") {
-			return pathname === href;
-		}
+		if (href === "/admin/dashboard") return pathname === href;
 		return pathname?.startsWith(href);
+	};
+
+	const hasPermission = (item: Item) => {
+		if (!item.permission) return true;
+		if (!_hasHydrated) return true;
+		if (!permissions || permissions.length === 0) return true;
+		return permissions.includes(item.permission);
 	};
 
 	const handleLogout = () => {
@@ -50,75 +41,67 @@ export default function AdminSidebar({items}: {items: Item[]}) {
 	};
 
 	return (
-		<motion.aside
-			initial={false}
-			animate={{ width: sidebarOpen ? 256 : 0 }}
-			transition={{ type: "spring", stiffness: 300, damping: 30 }}
-			className="hidden lg:block fixed right-0 top-20 bg-card border-l border-border overflow-hidden shadow-lg"
-			style={{ height: "calc(100vh - 80px)" }}
-		>
-			<div className="w-64 h-full flex flex-col">
-				{/* Sidebar Header */}
-				<div className="p-6 border-b border-border">
-					<div className="flex items-center justify-center mb-2">
-						<Image
-							src={logo}
-							alt="Mahoura"
-							className="w-32 h-32 dark:invert"
-						/>
-					</div>
-					<p className="text-sm text-muted-foreground text-center">
-						پنل مدیریت
-					</p>
+		<div className="sticky top-[90px] flex flex-col gap-4 max-h-[calc(100vh-106px)] overflow-y-auto no-scrollbar">
+			<Card className="overflow-hidden">
+				<div className="p-6 flex flex-col items-center gap-2">
+					<Image src={logo} alt="Mahoura" className="w-20 h-20 dark:invert" />
+					<Separator />
+					<p className="text-sm text-muted-foreground">پنل مدیریت</p>
 				</div>
+			</Card>
 
-				{/* Navigation Menu */}
-				<nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-					{items.map((item, i) => {
+			<Card className="p-2">
+				<nav className="space-y-1">
+					{items.map((item) => {
 						const active = isActive(item.href);
-						return (
+						const allowed = hasPermission(item);
+						const content = (
 							<motion.div
-								key={item.href}
-								initial={{ opacity: 0, x: 50 }}
-								animate={{ opacity: 1, x: 0 }}
-								transition={{ delay: i * 0.05 }}
+								whileHover={allowed ? { x: -5, scale: 0.97 } : {}}
+								whileTap={allowed ? { scale: 0.94 } : {}}
+								className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
+									!allowed
+										? "opacity-40 cursor-not-allowed"
+										: active
+										? "bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/5 text-primary-rose font-semibold"
+										: "hover:bg-muted/50"
+								}`}
 							>
-								<Link href={item.href}>
-									<motion.button
-										whileHover={{ x: -5 }}
-										whileTap={{ scale: 0.98 }}
-										className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-											active
-												? "bg-gradient-to-r from-primary-rose to-secondary-plum text-white shadow-lg"
-												: "hover:bg-muted"
+								<div className="flex items-center gap-3">
+									<item.icon
+										className={`w-5 h-5 ${
+											active ? "text-primary-rose" : "text-muted-foreground"
 										}`}
-									>
-										<item.icon className="w-5 h-5" />
-										<span className="font-medium flex-1 text-right">
-											{item.title}
-										</span>
-									</motion.button>
-								</Link>
+									/>
+									<span className="text-sm">{item.title}</span>
+								</div>
+								{active && <ChevronLeft className="w-4 h-4" />}
 							</motion.div>
+						);
+						return allowed ? (
+							<Link key={item.href} href={item.href}>
+								{content}
+							</Link>
+						) : (
+							<div key={item.href} title="دسترسی لازم را ندارید">
+								{content}
+							</div>
 						);
 					})}
 				</nav>
+			</Card>
 
-				{/* Sidebar Footer */}
-				<div className="p-4 border-t border-border">
-					<motion.button
-						whileHover={{ x: -5 }}
-						whileTap={{ scale: 0.98 }}
-						onClick={handleLogout}
-						className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
-					>
-						<LogOut className="w-5 h-5" />
-						<span className="font-medium flex-1 text-right">
-							خروج
-						</span>
-					</motion.button>
-				</div>
-			</div>
-		</motion.aside>
+			<Card className="p-2">
+				<motion.button
+					whileHover={{ x: -5 }}
+					whileTap={{ scale: 0.98 }}
+					onClick={handleLogout}
+					className="w-full text-right flex items-center gap-3 p-3 rounded-lg text-destructive hover:bg-destructive/10 transition-colors"
+				>
+					<LogOut className="w-5 h-5 text-destructive" />
+					<span className="text-sm">خروج</span>
+				</motion.button>
+			</Card>
+		</div>
 	);
 }

@@ -35,13 +35,14 @@ import { useEffect } from "react";
 import { useCallback } from "react";
 import InputFree from "@/components/Custom/Input/InputFree";
 import { getCurrencies } from "@/services/currency";
-import Loading from "@/components/Loading/Loading";
+import { Skeleton } from "@/components/ui/skeleton";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
+import PermissionGuard from "@/components/admin/PermissionGuard";
 
 type ProductSortColumn = "name" | "price" | "irrPrice" | "newPrice" | null;
 type SortDirection = "asc" | "desc";
 
-export default function ProductsAdminPage() {
+function PriceGroupPageContent() {
 	const { formatPrice } = useSettingsStore();
 	const [searchQuery, setSearchQuery] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
@@ -278,8 +279,8 @@ export default function ProductsAdminPage() {
 			</div>
 
 			{/* Toolbar */}
-			<div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-				<div className="flex items-center gap-4 flex-1 flex-wrap">
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+				<div className="flex items-center gap-3 flex-wrap w-full sm:flex-1">
 					{/* Search */}
 					<InputFree
 						// isPriceInput
@@ -305,7 +306,7 @@ export default function ProductsAdminPage() {
 							setCurrentPage(1);
 						}}
 					>
-						<SelectTrigger className="w-[120px]">
+						<SelectTrigger className="w-full sm:w-[120px]">
 							<SelectValue placeholder="ارز" />
 						</SelectTrigger>
 						<SelectContent>
@@ -376,23 +377,29 @@ export default function ProductsAdminPage() {
 							</TableRow>
 						</TableHeader>
 						<TableBody className="no-scrollbar">
-							{paginatedProductPrices.length === 0 && (
+							{loading && (
+								Array.from({ length: 8 }).map((_, i) => (
+									<TableRow key={i}>
+										<TableCell><Skeleton className="h-4 w-36" /></TableCell>
+										<TableCell><Skeleton className="h-4 w-24" /></TableCell>
+										<TableCell><Skeleton className="h-4 w-24" /></TableCell>
+										<TableCell><Skeleton className="h-9 w-full rounded-md" /></TableCell>
+									</TableRow>
+								))
+							)}
+							{!loading && paginatedProductPrices.length === 0 && (
 								<TableRow>
 									<TableCell
 										colSpan={100}
 										className="text-center"
 									>
 										<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
-											{loading ? (
-												<Loading size={8} />
-											) : (
-												<p>هیچ محصولی یافت نشد.</p>
-											)}
+											<p>هیچ محصولی یافت نشد.</p>
 										</div>
 									</TableCell>
 								</TableRow>
 							)}
-							{paginatedProductPrices?.map((productPrice, i) => (
+							{!loading && paginatedProductPrices?.map((productPrice, i) => (
 								<motion.tr
 									key={productPrice.id}
 									initial={{ opacity: 0, x: -20 }}
@@ -468,5 +475,13 @@ export default function ProductsAdminPage() {
 				</div>
 			)}
 		</main>
+	);
+}
+
+export default function ProductsAdminPage() {
+	return (
+		<PermissionGuard permission="product:batch_price">
+			<PriceGroupPageContent />
+		</PermissionGuard>
 	);
 }

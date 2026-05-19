@@ -8,6 +8,7 @@ import * as Yup from "yup";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Dialog,
 	DialogContent,
@@ -93,16 +94,30 @@ export default function AddressesPage() {
 
 	if (loading) {
 		return (
-			<div className="flex items-center justify-center py-20">
-				<motion.div
-					animate={{ rotate: 360 }}
-					transition={{
-						repeat: Infinity,
-						duration: 1,
-						ease: "linear",
-					}}
-					className="w-10 h-10 border-4 border-primary-rose border-t-transparent rounded-full"
-				/>
+			<div className="space-y-4">
+				<div className="flex items-center justify-between">
+					<div>
+						<Skeleton className="h-8 w-36 mb-1" />
+						<Skeleton className="h-4 w-28" />
+					</div>
+					<Skeleton className="h-9 w-32 rounded-md" />
+				</div>
+				<div className="space-y-3">
+					{Array.from({ length: 3 }).map((_, i) => (
+						<Card key={i}>
+							<CardContent className="p-4">
+								<div className="flex items-start gap-4">
+									<Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />
+									<div className="flex-1 space-y-2">
+										<Skeleton className="h-4 w-40" />
+										<Skeleton className="h-3 w-56" />
+										<Skeleton className="h-3 w-32" />
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+					))}
+				</div>
 			</div>
 		);
 	}

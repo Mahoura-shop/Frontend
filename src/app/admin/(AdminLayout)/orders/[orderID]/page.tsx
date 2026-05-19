@@ -19,6 +19,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import {
 	Table,
@@ -55,6 +56,7 @@ interface OrderDetail {
 	totalAmount: number
 	shippingCost: number
 	refundFlag: boolean
+	trackingCode?: string
 	createdAt: string
 	items: { id: number; count: number; priceSnapshot: number; product: { id: number; name: string; productPic: string } }[]
 	user?: { id: number; phone: string; type: number }
@@ -63,8 +65,7 @@ interface OrderDetail {
 const STATUS_MAP: Record<number, { label: string; color: string; icon: React.ElementType; nextStates: number[] }> = {
 	1: { label: "در انتظار پرداخت", color: "from-amber-500 to-amber-600", icon: Clock, nextStates: [2, 5] },
 	2: { label: "پرداخت شده", color: "from-blue-500 to-blue-600", icon: CreditCard, nextStates: [3, 5] },
-	3: { label: "ارسال شده", color: "from-purple-500 to-purple-600", icon: Truck, nextStates: [4, 5] },
-	4: { label: "تحویل داده شده", color: "from-green-500 to-green-600", icon: CheckCircle2, nextStates: [] },
+	3: { label: "ارسال شده", color: "from-purple-500 to-purple-600", icon: Truck, nextStates: [] },
 	5: { label: "لغو شده", color: "from-gray-400 to-gray-500", icon: XCircle, nextStates: [] },
 }
 
@@ -78,7 +79,6 @@ const PAYMENT_METHOD_MAP: Record<number, string> = {
 const NEXT_STATUS_LABELS: Record<number, string> = {
 	2: "تایید پرداخت",
 	3: "ارسال سفارش",
-	4: "تایید تحویل",
 	5: "لغو سفارش",
 }
 
@@ -90,6 +90,7 @@ export default function AdminOrderDetailPage() {
 	const [instalments, setInstalments] = useState<Instalment[]>([])
 	const [updating, setUpdating] = useState(false)
 	const [statusNote, setStatusNote] = useState("")
+	const [trackingCode, setTrackingCode] = useState("")
 
 	const loadOrder = () =>
 		getAdminOrderDetail(orderID)
@@ -107,8 +108,13 @@ export default function AdminOrderDetailPage() {
 		if (!order) return
 		setUpdating(true)
 		try {
-			await updateOrderStatus(order.id, { status: newStatus, note: statusNote })
+			await updateOrderStatus(order.id, {
+				status: newStatus,
+				note: statusNote,
+				...(newStatus === 3 && trackingCode ? { trackingCode } : {}),
+			})
 			setStatusNote("")
+			setTrackingCode("")
 			await loadOrder()
 			CustomToast("وضعیت سفارش بروز شد", "success")
 		} catch {
@@ -149,7 +155,44 @@ export default function AdminOrderDetailPage() {
 	if (order === undefined) {
 		return (
 			<main className="p-6">
-				<p className="text-muted-foreground">در حال بارگذاری...</p>
+				<div className="space-y-8">
+					<div>
+						<Skeleton className="h-8 w-12 mb-4 rounded-md" />
+						<Skeleton className="h-9 w-64 mb-2" />
+						<Skeleton className="h-4 w-48" />
+					</div>
+					<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+						{Array.from({ length: 4 }).map((_, i) => (
+							<Card key={i}>
+								<CardHeader className="pb-3">
+									<Skeleton className="w-10 h-10 rounded-lg" />
+								</CardHeader>
+								<CardContent>
+									<Skeleton className="h-3 w-16 mb-2" />
+									<Skeleton className="h-5 w-24" />
+								</CardContent>
+							</Card>
+						))}
+					</div>
+					<Card>
+						<CardHeader>
+							<Skeleton className="h-6 w-32" />
+						</CardHeader>
+						<CardContent className="p-0">
+							{Array.from({ length: 3 }).map((_, i) => (
+								<div key={i} className="flex items-center gap-4 p-4 border-b last:border-b-0">
+									<Skeleton className="w-10 h-10 rounded flex-shrink-0" />
+									<div className="flex-1 space-y-2">
+										<Skeleton className="h-4 w-40" />
+									</div>
+									<Skeleton className="h-4 w-12" />
+									<Skeleton className="h-4 w-20" />
+									<Skeleton className="h-4 w-24" />
+								</div>
+							))}
+						</CardContent>
+					</Card>
+				</div>
 			</main>
 		)
 	}
@@ -215,6 +258,9 @@ export default function AdminOrderDetailPage() {
 					{formatDate(order.createdAt)}
 					{" · "}
 					{PAYMENT_METHOD_MAP[order.paymentMethod] ?? "—"}
+					{order.trackingCode && (
+						<span className="text-blue-600 font-medium">کد پیگیری: {order.trackingCode}</span>
+					)}
 					{order.refundFlag && (
 						<Badge variant="destructive" className="text-xs">درخواست استرجاع</Badge>
 					)}
@@ -383,6 +429,15 @@ export default function AdminOrderDetailPage() {
 								className="w-full p-3 border rounded-lg text-sm bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary-rose/50"
 								rows={2}
 							/>
+							{nextStates.includes(3) && (
+								<input
+									type="text"
+									value={trackingCode}
+									onChange={(e) => setTrackingCode(e.target.value)}
+									placeholder="کد پیگیری پستی (برای ارسال)"
+									className="w-full p-3 border rounded-lg text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary-rose/50"
+								/>
+							)}
 							<div className="flex gap-2 flex-wrap">
 								{nextStates
 									.filter((s) => s !== 5)

@@ -6,6 +6,7 @@ import { ShoppingBag, ChevronLeft, Clock, CreditCard, Truck, CheckCircle2, XCirc
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import {
 	Table,
@@ -18,6 +19,7 @@ import {
 import { formatPrice } from "@/utils/formatPrice"
 import { formatDate } from "@/utils/formatDate"
 import { getAllOrders } from "@/services/orderService"
+import PermissionGuard from "@/components/admin/PermissionGuard"
 
 interface Order {
 	id: number
@@ -35,7 +37,6 @@ const STATUS_MAP: Record<number, { label: string; variant: "available" | "new" |
 	1: { label: "در انتظار پرداخت", variant: "outOfStock", icon: Clock },
 	2: { label: "پرداخت شده", variant: "new", icon: CreditCard },
 	3: { label: "ارسال شده", variant: "new", icon: Truck },
-	4: { label: "تحویل داده شده", variant: "available", icon: CheckCircle2 },
 	5: { label: "لغو شده", variant: "secondary", icon: XCircle },
 }
 
@@ -51,11 +52,10 @@ const STATUS_FILTER_OPTIONS = [
 	{ value: "pending", label: "در انتظار" },
 	{ value: "paid", label: "پرداخت شده" },
 	{ value: "shipped", label: "ارسال شده" },
-	{ value: "delivered", label: "تحویل داده شده" },
 	{ value: "cancelled", label: "لغو شده" },
 ]
 
-export default function AdminOrdersPage() {
+function AdminOrdersPageContent() {
 	const [orders, setOrders] = useState<Order[] | null>(null)
 	const [statusFilter, setStatusFilter] = useState("")
 
@@ -78,7 +78,7 @@ export default function AdminOrdersPage() {
 				</div>
 			</div>
 
-			<div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+			<div className="flex flex-col sm:flex-row sm:items-center mb-6 gap-4">
 				<div className="flex gap-2 flex-wrap">
 					{STATUS_FILTER_OPTIONS.map((option) => (
 						<Button
@@ -111,11 +111,18 @@ export default function AdminOrdersPage() {
 						</TableHeader>
 						<TableBody>
 							{orders === null && (
-								<TableRow>
-									<TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
-										در حال بارگذاری...
-									</TableCell>
-								</TableRow>
+								Array.from({ length: 7 }).map((_, i) => (
+									<TableRow key={i}>
+										<TableCell><Skeleton className="h-4 w-16" /></TableCell>
+										<TableCell><Skeleton className="h-4 w-24" /></TableCell>
+										<TableCell><Skeleton className="h-5 w-20 rounded-full" /></TableCell>
+										<TableCell><Skeleton className="h-4 w-16" /></TableCell>
+										<TableCell><Skeleton className="h-4 w-12" /></TableCell>
+										<TableCell><Skeleton className="h-4 w-24" /></TableCell>
+										<TableCell><Skeleton className="h-4 w-20" /></TableCell>
+										<TableCell className="text-center"><Skeleton className="h-8 w-16 rounded-md mx-auto" /></TableCell>
+									</TableRow>
+								))
 							)}
 							{orders?.length === 0 && (
 								<TableRow>
@@ -168,7 +175,7 @@ export default function AdminOrdersPage() {
 											{formatDate(order.createdAt)}
 										</TableCell>
 										<TableCell>
-											<div className="flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+											<div className="flex items-center justify-center">
 												<Link href={`/admin/orders/${order.id}`}>
 													<Button variant="outline" size="sm" className="gap-1 text-xs">
 														جزئیات
@@ -185,5 +192,13 @@ export default function AdminOrdersPage() {
 				</CardContent>
 			</Card>
 		</main>
+	)
+}
+
+export default function AdminOrdersPage() {
+	return (
+		<PermissionGuard permission="order:see">
+			<AdminOrdersPageContent />
+		</PermissionGuard>
 	)
 }

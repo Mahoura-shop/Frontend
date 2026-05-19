@@ -11,6 +11,7 @@ const useUserStore = create<UserState>()(
 			lastName: undefined,
 			isAdmin: false,
 			userType: undefined,
+			permissions: [],
 			_hasHydrated: false,
 
 			setUsername: (username: string) =>
@@ -27,6 +28,8 @@ const useUserStore = create<UserState>()(
 				set((prev) => ({ ...prev, isAdmin: value })),
 			setUserType: (userType: string) =>
 				set((prev) => ({ ...prev, userType })),
+			setPermissions: (permissions: string[]) =>
+				set((prev) => ({ ...prev, permissions })),
 			logout: () =>
 				set(() => ({
 					username: undefined,
@@ -36,6 +39,7 @@ const useUserStore = create<UserState>()(
 					lastName: undefined,
 					isAdmin: false,
 					userType: undefined,
+					permissions: [],
 				})),
 		}),
 		{

@@ -19,6 +19,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/utils/formatPrice";
@@ -68,6 +69,7 @@ interface Order {
 	totalAmount: number;
 	shippingCost: number;
 	refundFlag: boolean;
+	trackingCode?: string;
 	createdAt: string;
 	items: OrderItem[];
 	statusHistory: StatusHistory[];
@@ -100,12 +102,6 @@ const STATUS_MAP: Record<
 		icon: Truck,
 		color: "text-blue-600",
 	},
-	4: {
-		label: "تحویل داده شده",
-		variant: "available",
-		icon: CheckCircle2,
-		color: "text-green-600",
-	},
 	5: {
 		label: "لغو شده",
 		variant: "secondary",
@@ -125,7 +121,6 @@ const STATUS_STEPS = [
 	{ status: 1, label: "ثبت سفارش" },
 	{ status: 2, label: "پرداخت شده" },
 	{ status: 3, label: "ارسال شده" },
-	{ status: 4, label: "تحویل داده شده" },
 ];
 
 const INSTALMENT_STATUS_MAP: Record<number, { label: string; color: string }> =
@@ -216,16 +211,59 @@ export default function OrderDetailPage() {
 
 	if (loading) {
 		return (
-			<div className="flex items-center justify-center py-20">
-				<motion.div
-					animate={{ rotate: 360 }}
-					transition={{
-						repeat: Infinity,
-						duration: 1,
-						ease: "linear",
-					}}
-					className="w-10 h-10 border-4 border-primary-rose border-t-transparent rounded-full"
-				/>
+			<div className="space-y-6">
+				<div>
+					<Skeleton className="h-4 w-32 mb-4" />
+					<div className="flex items-center justify-between">
+						<div className="space-y-2">
+							<Skeleton className="h-8 w-48" />
+							<Skeleton className="h-4 w-36" />
+						</div>
+						<Skeleton className="h-7 w-24 rounded-full" />
+					</div>
+				</div>
+				<Card>
+					<CardContent className="p-6">
+						<div className="flex items-center justify-between">
+							{Array.from({ length: 3 }).map((_, i) => (
+								<div key={i} className="flex flex-col items-center gap-2">
+									<Skeleton className="w-10 h-10 rounded-full" />
+									<Skeleton className="h-3 w-16" />
+								</div>
+							))}
+						</div>
+					</CardContent>
+				</Card>
+				<div className="grid md:grid-cols-3 gap-6">
+					<div className="md:col-span-2">
+						<Card>
+							<CardContent className="p-4 space-y-1">
+								{Array.from({ length: 3 }).map((_, i) => (
+									<div key={i} className="flex items-center gap-4 py-3 border-b last:border-b-0">
+										<Skeleton className="w-16 h-16 rounded-lg flex-shrink-0" />
+										<div className="flex-1 space-y-2">
+											<Skeleton className="h-4 w-40" />
+											<Skeleton className="h-3 w-24" />
+										</div>
+										<Skeleton className="h-5 w-20" />
+									</div>
+								))}
+							</CardContent>
+						</Card>
+					</div>
+					<div className="space-y-4">
+						<Card>
+							<CardContent className="p-4 space-y-3">
+								{Array.from({ length: 4 }).map((_, i) => (
+									<div key={i} className="flex justify-between">
+										<Skeleton className="h-4 w-24" />
+										<Skeleton className="h-4 w-20" />
+									</div>
+								))}
+							</CardContent>
+						</Card>
+					</div>
+				</div>
 			</div>
 		);
 	}
@@ -243,6 +281,7 @@ export default function OrderDetailPage() {
 
 	const status = STATUS_MAP[order.status] ?? STATUS_MAP[1];
 	const StatusIcon = status.icon;
+	const progressFraction = (Math.min(order.status, 3) - 1) / 2;
 
 	return (
 		<div className="space-y-6">
@@ -288,11 +327,11 @@ export default function OrderDetailPage() {
 					<Card>
 						<CardContent className="p-6">
 							<div className="flex items-center justify-between relative">
-								<div className="absolute top-5 left-8 right-8 h-0.5 bg-border" />
+								<div className="absolute top-5 left-5 right-5 h-0.5 bg-border" />
 								<div
-									className="absolute top-5 right-8 h-0.5 bg-gradient-to-l from-primary-rose to-accent-gold transition-all"
+									className="absolute top-5 right-5 h-0.5 bg-gradient-to-l from-primary-rose to-accent-gold transition-all"
 									style={{
-										width: `${((Math.min(order.status, 4) - 1) / 3) * (100 - 16)}%`,
+										width: `calc(${progressFraction * 100}% - ${progressFraction * 40}px)`,
 									}}
 								/>
 								{STATUS_STEPS.map((step) => {
@@ -325,6 +364,29 @@ export default function OrderDetailPage() {
 										</div>
 									);
 								})}
+							</div>
+						</CardContent>
+					</Card>
+				</motion.div>
+			)}
+
+			{/* Tracking code (shipped orders) */}
+			{order.status === 3 && order.trackingCode && (
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ delay: 0.15 }}
+				>
+					<Card className="border-blue-500/40 bg-blue-500/5">
+						<CardContent className="p-4 flex items-center gap-3">
+							<Truck className="w-5 h-5 text-blue-600 flex-shrink-0" />
+							<div>
+								<p className="font-semibold text-blue-700 dark:text-blue-400">
+									سفارش شما ارسال شد
+								</p>
+								<p className="text-sm text-muted-foreground">
+									کد پیگیری پستی: <span className="font-mono font-bold text-foreground">{order.trackingCode}</span>
+								</p>
 							</div>
 						</CardContent>
 					</Card>
@@ -447,7 +509,7 @@ export default function OrderDetailPage() {
 															item.count,
 													)}
 												</p>
-												{order.status === 4 && (
+												{order.status === 3 && (
 													<Button
 														variant="ghost"
 														size="sm"

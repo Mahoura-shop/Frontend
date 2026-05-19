@@ -37,12 +37,17 @@ import Button from "@/components/Custom/Button/Button";
 import CategoryInfoDialog from "@/components/admin/Category/CategoryInfoDialog";
 import GroupPriceUpdate from "@/components/GroupPriceUpdate/GroupPriceUpdate";
 import { useSettingsStore } from "@/store/useSettingsStore";
-import Loading from "@/components/Loading/Loading";
+import { Skeleton } from "@/components/ui/skeleton";
+import PermissionGuard from "@/components/admin/PermissionGuard";
+import { usePermission } from "@/hooks/usePermission";
 
 type CategorySortColumn = "name" | "count" | null;
 type SortDirection = "asc" | "desc";
 
-export default function CategoriesPage() {
+function CategoriesPageContent() {
+	const canCreate = usePermission("category:create");
+	const canEdit = usePermission("category:edit");
+	const canDelete = usePermission("category:delete");
 	const { formatPrice } = useSettingsStore();
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 	const [searchQuery, setSearchQuery] = useState("");
@@ -214,8 +219,8 @@ export default function CategoriesPage() {
 			</div>
 
 			{/* Toolbar */}
-			<div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-				<div className="flex items-center gap-4 flex-1">
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+				<div className="flex items-center gap-3 flex-wrap w-full sm:flex-1">
 					<div className="relative flex-1">
 						<Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
 						<Input
@@ -232,7 +237,7 @@ export default function CategoriesPage() {
 							setCurrentPage(1);
 						}}
 					>
-						<SelectTrigger className="w-[180px]">
+						<SelectTrigger className="w-full sm:w-[180px]">
 							<SelectValue placeholder="فیلتر وضعیت" />
 						</SelectTrigger>
 						<SelectContent>
@@ -261,43 +266,55 @@ export default function CategoriesPage() {
 					>
 						<List className="w-5 h-5" />
 					</Button>
-					<UpdateCategoryDialog
-						fetchCategories={fetchCategories}
-						mode="create"
-					/>
+					{canCreate && (
+						<UpdateCategoryDialog
+							fetchCategories={fetchCategories}
+							mode="create"
+						/>
+					)}
 				</div>
 			</div>
 
 			{/* Grid View */}
 			{viewMode === "grid" && (
 				<>
-					{loading ? (
-						<div className="h-[50vh] flex place-items-center col-span-4 place-self-center place-content-center">
-							<Loading />
+					{loading && (
+						<div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+							{Array.from({ length: 8 }).map((_, i) => (
+								<Card key={i} className="overflow-hidden">
+									<Skeleton className="h-48 w-full rounded-none" />
+									<CardContent className="p-4">
+										<Skeleton className="h-5 w-28 mb-3" />
+										<div className="flex items-center justify-between">
+											<Skeleton className="h-4 w-20" />
+											<Skeleton className="h-8 w-24 rounded-md" />
+										</div>
+									</CardContent>
+								</Card>
+							))}
 						</div>
-					) : (
-						paginatedCategories.length === 0 && (
-							<Card>
-								<CardContent className="p-0">
-									<Table>
-										<TableBody>
-											<TableRow>
-												<TableCell
-													colSpan={100}
-													className="text-center"
-												>
-													<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
-														هیچ دسته‌بندی یافت نشد.
-													</div>
-												</TableCell>
-											</TableRow>
-										</TableBody>
-									</Table>
-								</CardContent>
-							</Card>
-						)
 					)}
-					<div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+					{!loading && paginatedCategories.length === 0 && (
+						<Card>
+							<CardContent className="p-0">
+								<Table>
+									<TableBody>
+										<TableRow>
+											<TableCell
+												colSpan={100}
+												className="text-center"
+											>
+												<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
+													هیچ دسته‌بندی یافت نشد.
+												</div>
+											</TableCell>
+										</TableRow>
+									</TableBody>
+								</Table>
+							</CardContent>
+						</Card>
+					)}
+					{!loading && <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 						{paginatedCategories &&
 							paginatedCategories?.map((category, i) => (
 								<motion.div
@@ -319,23 +336,27 @@ export default function CategoriesPage() {
 											)}
 
 											{/* Quick Actions */}
-											<div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+											<div className="absolute top-2 left-2 flex gap-2">
 												<CategoryInfoDialog
 													category={category}
 												/>
-												<UpdateCategoryDialog
-													fetchCategories={
-														fetchCategories
-													}
-													mode="update"
-													category={category}
-												/>
-												<DeleteCategoryDialog
-													id={category?.id}
-													fetchCategories={
-														fetchCategories
-													}
-												/>
+												{canEdit && (
+													<UpdateCategoryDialog
+														fetchCategories={
+															fetchCategories
+														}
+														mode="update"
+														category={category}
+													/>
+												)}
+												{canDelete && (
+													<DeleteCategoryDialog
+														id={category?.id}
+														fetchCategories={
+															fetchCategories
+														}
+													/>
+												)}
 											</div>
 
 											{/* Status Badge */}
@@ -374,7 +395,7 @@ export default function CategoriesPage() {
 									</Card>
 								</motion.div>
 							))}
-					</div>
+					</div>}
 				</>
 			)}
 
@@ -400,7 +421,24 @@ export default function CategoriesPage() {
 								</TableRow>
 							</TableHeader>
 							<TableBody>
-								{paginatedCategories.length === 0 && (
+								{loading && (
+									Array.from({ length: 8 }).map((_, i) => (
+										<TableRow key={i}>
+											<TableCell><Skeleton className="h-4 w-28" /></TableCell>
+											<TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
+											<TableCell><Skeleton className="h-5 w-14 rounded-full" /></TableCell>
+											<TableCell>
+												<div className="flex items-center justify-center gap-2">
+													<Skeleton className="h-8 w-8 rounded-md" />
+													<Skeleton className="h-8 w-8 rounded-md" />
+													<Skeleton className="h-8 w-8 rounded-md" />
+													<Skeleton className="h-8 w-8 rounded-md" />
+												</div>
+											</TableCell>
+										</TableRow>
+									))
+								)}
+								{!loading && paginatedCategories.length === 0 && (
 									<TableRow>
 										<TableCell
 											colSpan={100}
@@ -412,7 +450,7 @@ export default function CategoriesPage() {
 										</TableCell>
 									</TableRow>
 								)}
-								{paginatedCategories?.map((category, i) => (
+								{!loading && paginatedCategories?.map((category, i) => (
 									<motion.tr
 										key={category.id}
 										initial={{ opacity: 0, x: -20 }}
@@ -443,7 +481,7 @@ export default function CategoriesPage() {
 											</Badge>
 										</TableCell>
 										<TableCell>
-											<div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+											<div className="flex items-center justify-center gap-2">
 												<GroupPriceUpdate
 													name={category?.name}
 													products={
@@ -454,19 +492,23 @@ export default function CategoriesPage() {
 												<CategoryInfoDialog
 													category={category}
 												/>
-												<UpdateCategoryDialog
-													fetchCategories={
-														fetchCategories
-													}
-													mode="update"
-													category={category}
-												/>
-												<DeleteCategoryDialog
-													id={category?.id}
-													fetchCategories={
-														fetchCategories
-													}
-												/>
+												{canEdit && (
+													<UpdateCategoryDialog
+														fetchCategories={
+															fetchCategories
+														}
+														mode="update"
+														category={category}
+													/>
+												)}
+												{canDelete && (
+													<DeleteCategoryDialog
+														id={category?.id}
+														fetchCategories={
+															fetchCategories
+														}
+													/>
+												)}
 											</div>
 										</TableCell>
 									</motion.tr>
@@ -488,5 +530,13 @@ export default function CategoriesPage() {
 				</div>
 			)}
 		</main>
+	);
+}
+
+export default function CategoriesPage() {
+	return (
+		<PermissionGuard permission="category:see">
+			<CategoriesPageContent />
+		</PermissionGuard>
 	);
 }

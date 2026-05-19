@@ -17,6 +17,9 @@ import InputFree from "@/components/Custom/Input/InputFree"
 import CreateUpdateRoleDialog from "@/components/admin/Role/CreateUpdateRoleDialog"
 import DeleteRoleDialog from "@/components/admin/Role/DeleteRoleDialog"
 import { getRoles, getPermissions } from "@/services/roleService"
+import { Skeleton } from "@/components/ui/skeleton"
+import PermissionGuard from "@/components/admin/PermissionGuard"
+import { usePermission } from "@/hooks/usePermission"
 
 interface Permission {
 	id: number
@@ -31,20 +34,25 @@ interface Role {
 	permissions: Permission[]
 }
 
-export default function RolesPage() {
+function RolesPageContent() {
+	const canCreate = usePermission("rbac:create");
+	const canEdit = usePermission("rbac:edit");
+	const canDelete = usePermission("rbac:delete");
 	const [roles, setRoles] = useState<Role[]>([])
 	const [permissions, setPermissions] = useState<Permission[]>([])
 	const [search, setSearch] = useState("")
+	const [loading, setLoading] = useState(true)
 
 	const filtered = roles.filter((r) =>
 		r.name.toLowerCase().includes(search.toLowerCase())
 	)
 
 	const fetchAll = useCallback(() => {
+		setLoading(true)
 		Promise.all([getRoles(), getPermissions()]).then(([rolesRes, permsRes]) => {
 			setRoles(rolesRes?.data ?? [])
 			setPermissions(permsRes?.data ?? [])
-		})
+		}).finally(() => setLoading(false))
 	}, [])
 
 	useEffect(() => {
@@ -73,7 +81,7 @@ export default function RolesPage() {
 						inputClassName="pr-10"
 					/>
 				</div>
-				<CreateUpdateRoleDialog mode="create" permissions={permissions} onDone={fetchAll} />
+				{canCreate && <CreateUpdateRoleDialog mode="create" permissions={permissions} onDone={fetchAll} />}
 			</div>
 
 			<Card>
@@ -88,7 +96,27 @@ export default function RolesPage() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{filtered.length === 0 && (
+							{loading && (
+								Array.from({ length: 6 }).map((_, i) => (
+									<TableRow key={i}>
+										<TableCell><Skeleton className="h-4 w-24" /></TableCell>
+										<TableCell><Skeleton className="h-4 w-40" /></TableCell>
+										<TableCell>
+											<div className="flex gap-1 flex-wrap">
+												<Skeleton className="h-5 w-16 rounded-full" />
+												<Skeleton className="h-5 w-20 rounded-full" />
+											</div>
+										</TableCell>
+										<TableCell>
+											<div className="flex items-center justify-center gap-2">
+												<Skeleton className="h-8 w-8 rounded-md" />
+												<Skeleton className="h-8 w-8 rounded-md" />
+											</div>
+										</TableCell>
+									</TableRow>
+								))
+							)}
+						{!loading && filtered.length === 0 && (
 								<TableRow>
 									<TableCell colSpan={4} className="text-center">
 										<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
@@ -97,7 +125,7 @@ export default function RolesPage() {
 									</TableCell>
 								</TableRow>
 							)}
-							{filtered.map((role, i) => (
+							{!loading && filtered.map((role, i) => (
 								<motion.tr
 									key={role.id}
 									initial={{ opacity: 0, x: -20 }}
@@ -124,17 +152,21 @@ export default function RolesPage() {
 									</TableCell>
 									<TableCell>
 										<div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-											<CreateUpdateRoleDialog
-												mode="update"
-												role={role}
-												permissions={permissions}
-												onDone={fetchAll}
-											/>
-											<DeleteRoleDialog
-												id={role.id}
-												name={role.name}
-												onDone={fetchAll}
-											/>
+											{canEdit && (
+												<CreateUpdateRoleDialog
+													mode="update"
+													role={role}
+													permissions={permissions}
+													onDone={fetchAll}
+												/>
+											)}
+											{canDelete && (
+												<DeleteRoleDialog
+													id={role.id}
+													name={role.name}
+													onDone={fetchAll}
+												/>
+											)}
 										</div>
 									</TableCell>
 								</motion.tr>
@@ -144,5 +176,13 @@ export default function RolesPage() {
 				</CardContent>
 			</Card>
 		</main>
+	)
+}
+
+export default function RolesPage() {
+	return (
+		<PermissionGuard permission="rbac:see">
+			<RolesPageContent />
+		</PermissionGuard>
 	)
 }

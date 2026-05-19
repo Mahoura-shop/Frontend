@@ -684,69 +684,54 @@ export default function ProductsPage() {
 														)}
 													</div>
 
-													{/* Wishlist button */}
-													<button
-														className="absolute top-3 left-3 z-20 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center border border-border hover:scale-110 transition-transform disabled:opacity-50"
-														onClick={(e) => handleToggleWishlist(e, product.id)}
-														disabled={wishlistingId === product.id}
+													{/* Wishlist + cart controls */}
+													<div
+														className="absolute top-3 left-3 z-20 flex items-center gap-1.5"
+														onClick={(e) => e.preventDefault()}
 													>
-														<Heart
-															className={`w-4 h-4 transition-colors ${wishlistIds.has(product.id) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
-														/>
-													</button>
-
-													{/* Hover add-to-cart */}
-													<motion.div
-														initial={{ y: "100%" }}
-														whileHover={{ y: 0 }}
-														transition={{
-															duration: 0.35,
-															ease: "easeOut",
-														}}
-														className="absolute bottom-0 inset-x-0 z-20 bg-card/95 backdrop-blur-sm p-3 flex justify-end"
-													>
-														<Button
-															variant="luxury"
-															size="sm"
-															className="gap-1.5 w-full"
-															disabled={
-																addingId ===
-																	product.id ||
-																product.quantity ===
-																	0
-															}
-															onClick={(e) =>
-																handleAddToCart(
-																	e,
-																	product.id,
-																)
-															}
+														<button
+															className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center border border-border hover:scale-110 transition-transform disabled:opacity-50"
+															onClick={(e) => handleToggleWishlist(e, product.id)}
+															disabled={wishlistingId === product.id}
 														>
-															{addingId ===
-															product.id ? (
-																<motion.div
-																	animate={{
-																		rotate: 360,
-																	}}
-																	transition={{
-																		repeat: Infinity,
-																		duration: 0.8,
-																		ease: "linear",
-																	}}
-																	className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
-																/>
-															) : (
-																<ShoppingBag className="w-4 h-4" />
-															)}
-															{product.quantity ===
-															0
-																? "ناموجود"
-																: addingId ===
-																	  product.id
-																	? "..."
-																	: "افزودن"}
-														</Button>
-													</motion.div>
+															<Heart
+																className={`w-4 h-4 transition-colors ${wishlistIds.has(product.id) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
+															/>
+														</button>
+
+														{getCartCount(product.id) > 0 ? (
+															<div className="flex items-center bg-background/80 backdrop-blur-sm rounded-full border border-border overflow-hidden">
+																<button
+																	className="w-7 h-8 flex items-center justify-center text-muted-foreground hover:text-primary-rose transition-colors text-sm font-bold"
+																	onClick={(e) => handleRemoveFromCart(e, product.id)}
+																>
+																	-
+																</button>
+																<span className="text-xs font-bold px-1 min-w-[1.25rem] text-center">
+																	{getCartCount(product.id)}
+																</span>
+																<button
+																	className="w-7 h-8 flex items-center justify-center text-muted-foreground hover:text-primary-rose transition-colors text-sm font-bold disabled:opacity-50"
+																	disabled={addingId === product.id || product.quantity === 0}
+																	onClick={(e) => handleAddToCart(e, product.id)}
+																>
+																	+
+																</button>
+															</div>
+														) : (
+															<button
+																className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center border border-border hover:scale-110 transition-transform disabled:opacity-50"
+																disabled={addingId === product.id || product.quantity === 0}
+																onClick={(e) => handleAddToCart(e, product.id)}
+															>
+																{addingId === product.id ? (
+																	<div className="w-3.5 h-3.5 border-2 border-primary-rose border-t-transparent rounded-full animate-spin" />
+																) : (
+																	<ShoppingBag className="w-4 h-4 text-muted-foreground" />
+																)}
+															</button>
+														)}
+													</div>
 												</div>
 
 												{/* Info footer — always visible */}

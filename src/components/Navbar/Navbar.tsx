@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "./Navbar.module.css";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
 	Moon,
@@ -10,9 +10,9 @@ import {
 	ShoppingBag,
 	User,
 	ShoppingCart,
-	Search,
 	LogOut,
 	LayoutDashboard,
+	Bell,
 } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
@@ -23,6 +23,10 @@ import Image from "next/image";
 import logo from "@/assets/logo.png";
 import { useCartStore } from "@/store/useCartStore";
 import useUserStore from "@/store/userStore/userStore";
+import { notificationService } from "@/services/notificationService";
+import { useNotificationStore } from "@/store/useNotificationStore";
+import { formatDate } from "@/utils/formatDate";
+import { Badge } from "@/components/ui/badge";
 import {
 	DropdownMenu,
 	DropdownMenuTrigger,
@@ -58,6 +62,15 @@ export default function Navbar() {
 		useUserStore();
 	const { fetchCart, getItemCount } = useCartStore();
 	const { setSidebarOpen } = useDashboardMenuStore();
+	const {
+		unreadCount,
+		recentNotifications,
+		initialize,
+		addNotification,
+		markAsRead,
+		markAllAsRead,
+		reset,
+	} = useNotificationStore();
 	const itemCount = getItemCount();
 	const [scrolled, setScrolled] = useState(false);
 	const [cartSheetOpen, setCartSheetOpen] = useState(false);
@@ -73,10 +86,19 @@ export default function Navbar() {
 	useEffect(() => {
 		if (accessToken) {
 			fetchCart();
+			initialize();
+			const es = notificationService.createSSEConnection(
+				accessToken,
+				addNotification,
+			);
+			return () => es.close();
+		} else {
+			reset();
 		}
 	}, [accessToken]);
 
 	const handleLogout = () => {
+		reset();
 		logout();
 		router.push("/");
 	};
@@ -115,6 +137,7 @@ export default function Navbar() {
 									src={logo}
 									alt="Mahoura"
 									className="w-11 h-11 dark:invert"
+									loading="eager"
 								/>
 							</motion.div>
 						</Link>
@@ -122,6 +145,7 @@ export default function Navbar() {
 						<div className="flex items-center gap-8">
 							{menuItems.map((item, i) => (
 								<Link
+									key={item.href}
 									href={item.href}
 									className={`relative text-sm font-medium transition-colors group ${
 										pathname === item.href
@@ -184,6 +208,110 @@ export default function Navbar() {
 									)}
 								</AnimatePresence>
 							</Button>
+
+							{accessToken && (
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button
+											variant="ghost"
+											size="icon"
+											className="rounded-full relative"
+										>
+											<Bell className="w-5 h-5" />
+											{unreadCount > 0 && (
+												<span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-primary-rose text-white text-[10px] font-bold flex items-center justify-center leading-none">
+													{unreadCount > 99
+														? "99+"
+														: unreadCount}
+												</span>
+											)}
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent
+										sideOffset={20}
+										align="center"
+										className="w-80 p-0"
+									>
+										<div className="flex items-center justify-between px-4 py-3 border-b">
+											<span className="text-sm font-semibold">
+												اعلان‌ها
+											</span>
+											<div className="flex items-center gap-2">
+												{unreadCount > 0 && (
+													<Badge
+														variant="destructive"
+														className="text-[10px] px-1.5 py-0"
+													>
+														{unreadCount} جدید
+													</Badge>
+												)}
+												{unreadCount > 0 && (
+													<button
+														onClick={() =>
+															markAllAsRead()
+														}
+														className="text-xs text-muted-foreground hover:text-primary-rose transition-colors"
+													>
+														همه خوانده شد
+													</button>
+												)}
+											</div>
+										</div>
+
+										{recentNotifications.length === 0 ? (
+											<div className="py-8 text-center text-sm text-muted-foreground">
+												اعلانی وجود ندارد
+											</div>
+										) : (
+											<div className="max-h-72 overflow-y-auto divide-y">
+												{recentNotifications
+													.slice(0, 5)
+													.map((n) => (
+														<div
+															key={n.id}
+															onClick={() =>
+																!n.isRead &&
+																markAsRead(n.id)
+															}
+															className={`flex gap-3 px-4 py-3 hover:bg-muted/50 transition-colors ${!n.isRead ? "cursor-pointer bg-primary-rose/5" : ""}`}
+														>
+															<div className="flex-shrink-0 mt-0.5">
+																{!n.isRead && (
+																	<span className="w-2 h-2 rounded-full bg-primary-rose block mt-1" />
+																)}
+																{n.isRead && (
+																	<span className="w-2 h-2 rounded-full bg-transparent block mt-1" />
+																)}
+															</div>
+															<div className="flex-1 min-w-0 text-right">
+																<p className="text-sm font-medium leading-snug">
+																	{n.title}
+																</p>
+																<p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+																	{n.body}
+																</p>
+																<p className="text-[10px] text-muted-foreground mt-1">
+																	{formatDate(
+																		n.createdAt,
+																	)}
+																</p>
+															</div>
+														</div>
+													))}
+											</div>
+										)}
+
+										<div className="border-t px-4 py-2.5">
+											<Link
+												href="/dashboard/notifications"
+												className="block text-center text-xs text-primary-rose hover:underline"
+											>
+												مشاهده همه اعلان‌ها
+											</Link>
+										</div>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							)}
 
 							{!accessToken ? (
 								<Magnet padding={5}>

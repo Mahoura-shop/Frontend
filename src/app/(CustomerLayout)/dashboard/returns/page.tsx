@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { PackageX, Loader2, Clock, Check, X, RefreshCw } from "lucide-react";
+import { PackageX, Clock, Check, X, RefreshCw } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getMyReturns } from "@/services/returnService";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/utils/formatPrice";
 import { formatDate } from "@/utils/formatDate";
 
@@ -51,8 +52,24 @@ export default function CustomerReturnsPage() {
 				</motion.div>
 
 				{loading ? (
-					<div className="flex items-center justify-center py-20">
-						<Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+					<div className="space-y-4">
+						{Array.from({ length: 3 }).map((_, i) => (
+							<Card key={i}>
+								<CardContent className="p-5">
+									<div className="flex items-start justify-between gap-4 flex-wrap">
+										<div className="flex-1 space-y-2">
+											<Skeleton className="h-5 w-48" />
+											<Skeleton className="h-4 w-64" />
+											<Skeleton className="h-3 w-28" />
+										</div>
+										<div className="space-y-2 shrink-0">
+											<Skeleton className="h-6 w-32" />
+											<Skeleton className="h-4 w-24" />
+										</div>
+									</div>
+								</CardContent>
+							</Card>
+						))}
 					</div>
 				) : returns.length === 0 ? (
 					<div className="text-center py-20 text-muted-foreground">

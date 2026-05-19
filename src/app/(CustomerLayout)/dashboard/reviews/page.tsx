@@ -7,6 +7,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { getData } from "@/services/services"
 import CustomToast from "@/components/Custom/CustomToast/CustomToast"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface MyReview {
 	id: number
@@ -40,14 +41,14 @@ export default function ReviewsPage() {
 
 			{loading && (
 				<div className="space-y-3">
-					{[1, 2, 3].map((i) => (
-						<div key={i} className="rounded-2xl border bg-card p-5 animate-pulse">
+					{Array.from({ length: 3 }).map((_, i) => (
+						<div key={i} className="rounded-2xl border bg-card p-5">
 							<div className="flex gap-4">
-								<div className="w-14 h-14 rounded-xl bg-muted shrink-0" />
+								<Skeleton className="w-14 h-14 rounded-xl shrink-0" />
 								<div className="flex-1 space-y-2">
-									<div className="h-4 bg-muted rounded w-1/3" />
-									<div className="h-3 bg-muted rounded w-1/4" />
-									<div className="h-3 bg-muted rounded w-2/3" />
+									<Skeleton className="h-4 w-1/3" />
+									<Skeleton className="h-3 w-1/4" />
+									<Skeleton className="h-3 w-2/3" />
 								</div>
 							</div>
 						</div>

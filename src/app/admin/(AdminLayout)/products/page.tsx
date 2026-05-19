@@ -34,9 +34,12 @@ import { getData } from "@/services/services";
 import { useEffect } from "react";
 import { useCallback } from "react";
 import DeleteProductDialog from "@/components/admin/Product/DeleteProductDialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import UpdateProductDialog from "@/components/admin/Product/UpdateProductDialog";
 import ProductInfoDialog from "@/components/admin/Product/ProductInfoDialog";
 import ProductImagesDialog from "@/components/admin/Product/ProductImagesDialog";
+import PermissionGuard from "@/components/admin/PermissionGuard";
+import { usePermission } from "@/hooks/usePermission";
 
 type ProductSortColumn =
 	| "name"
@@ -47,7 +50,10 @@ type ProductSortColumn =
 	| null;
 type SortDirection = "asc" | "desc";
 
-export default function ProductsAdminPage() {
+function ProductsAdminPageContent() {
+	const canCreate = usePermission("product:create");
+	const canEdit = usePermission("product:edit");
+	const canDelete = usePermission("product:delete");
 	const { formatPrice } = useSettingsStore();
 	const [searchQuery, setSearchQuery] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
@@ -62,6 +68,7 @@ export default function ProductsAdminPage() {
 	const itemsPerPage = 10;
 
 	const [products, setProducts] = useState<Product[]>([]);
+	const [loading, setLoading] = useState(true);
 
 	const fetchBrands = useCallback(() => {
 		getData({ endPoint: `/v1/brand` }).then((data) => {
@@ -74,6 +81,7 @@ export default function ProductsAdminPage() {
 		});
 	}, []);
 	const fetchProducts = useCallback(() => {
+		setLoading(true);
 		getData({ endPoint: `/v1/product` }).then((data) => {
 			const productsList =
 				data?.data?.map((product: Product) => ({
@@ -122,7 +130,7 @@ export default function ProductsAdminPage() {
 				})) ?? [];
 			setProducts(productsList);
 			console.log("products", productsList);
-		});
+		}).finally(() => setLoading(false));
 	}, []);
 
 	useEffect(() => {
@@ -322,8 +330,8 @@ export default function ProductsAdminPage() {
 			</div>
 
 			{/* Toolbar */}
-			<div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-				<div className="flex items-center gap-4 flex-1 flex-wrap">
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+				<div className="flex items-center gap-3 flex-wrap w-full sm:flex-1">
 					{/* Search */}
 					<div className="relative flex-1 min-w-[200px]">
 						<Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -344,7 +352,7 @@ export default function ProductsAdminPage() {
 							setCurrentPage(1);
 						}}
 					>
-						<SelectTrigger className="w-[180px]">
+						<SelectTrigger className="w-full sm:w-[180px]">
 							<SelectValue placeholder="انتخاب فیلتر" />
 						</SelectTrigger>
 						<SelectContent>
@@ -362,7 +370,7 @@ export default function ProductsAdminPage() {
 								setCurrentPage(1);
 							}}
 						>
-							<SelectTrigger className="w-[180px]">
+							<SelectTrigger className="w-full sm:w-[180px]">
 								<SelectValue placeholder="انتخاب مقدار" />
 							</SelectTrigger>
 							<SelectContent>
@@ -390,16 +398,14 @@ export default function ProductsAdminPage() {
 						</Button>
 					)}
 				</div>
-				<UpdateProductDialog
-					fetchProducts={fetchProducts}
-					mode="create"
-					categories={categories}
-					brands={brands}
-				/>
-				{/* <Button className="gap-2">
-					<Plus className="w-4 h-4" />
-					افزودن محصول
-				</Button> */}
+				{canCreate && (
+					<UpdateProductDialog
+						fetchProducts={fetchProducts}
+						mode="create"
+						categories={categories}
+						brands={brands}
+					/>
+				)}
 			</div>
 
 			{/* Table */}
@@ -430,7 +436,26 @@ export default function ProductsAdminPage() {
 							</TableRow>
 						</TableHeader>
 						<TableBody className="no-scrollbar">
-							{paginatedProducts.length === 0 && (
+							{loading && (
+								Array.from({ length: 8 }).map((_, i) => (
+									<TableRow key={i}>
+										<TableCell><Skeleton className="h-4 w-32" /></TableCell>
+										<TableCell><Skeleton className="h-4 w-20" /></TableCell>
+										<TableCell><Skeleton className="h-4 w-24" /></TableCell>
+										<TableCell><Skeleton className="h-4 w-20" /></TableCell>
+										<TableCell><Skeleton className="h-4 w-16" /></TableCell>
+										<TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
+										<TableCell>
+											<div className="flex items-center justify-center gap-2">
+												<Skeleton className="h-8 w-8 rounded-md" />
+												<Skeleton className="h-8 w-8 rounded-md" />
+												<Skeleton className="h-8 w-8 rounded-md" />
+											</div>
+										</TableCell>
+									</TableRow>
+								))
+							)}
+						{!loading && paginatedProducts.length === 0 && (
 								<TableRow>
 									<TableCell
 										colSpan={100}
@@ -442,7 +467,7 @@ export default function ProductsAdminPage() {
 									</TableCell>
 								</TableRow>
 							)}
-							{paginatedProducts?.map((product, i) => (
+							{!loading && paginatedProducts?.map((product, i) => (
 								<motion.tr
 									key={product.id}
 									initial={{ opacity: 0, x: -20 }}
@@ -490,33 +515,41 @@ export default function ProductsAdminPage() {
 										</Badge>
 									</TableCell>
 									<TableCell>
-										<div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+										<div className="flex items-center justify-center gap-2">
 											<ProductInfoDialog
 												product={product}
 											/>
-											<UpdateProductDialog
-												fetchProducts={fetchProducts}
-												product={product}
-												mode="copy"
-												categories={categories}
-												brands={brands}
-											/>
-											<UpdateProductDialog
-												fetchProducts={fetchProducts}
-												product={product}
-												mode="update"
-												categories={categories}
-												brands={brands}
-											/>
-											<ProductImagesDialog
-												productID={product?.id}
-												images={product?.imageObjects ?? []}
-												fetchProducts={fetchProducts}
-											/>
-											<DeleteProductDialog
-												id={product?.id}
-												fetchProducts={fetchProducts}
-											/>
+											{canEdit && (
+												<UpdateProductDialog
+													fetchProducts={fetchProducts}
+													product={product}
+													mode="copy"
+													categories={categories}
+													brands={brands}
+												/>
+											)}
+											{canEdit && (
+												<UpdateProductDialog
+													fetchProducts={fetchProducts}
+													product={product}
+													mode="update"
+													categories={categories}
+													brands={brands}
+												/>
+											)}
+											{canEdit && (
+												<ProductImagesDialog
+													productID={product?.id}
+													images={product?.imageObjects ?? []}
+													fetchProducts={fetchProducts}
+												/>
+											)}
+											{canDelete && (
+												<DeleteProductDialog
+													id={product?.id}
+													fetchProducts={fetchProducts}
+												/>
+											)}
 										</div>
 									</TableCell>
 								</motion.tr>
@@ -537,5 +570,13 @@ export default function ProductsAdminPage() {
 				</div>
 			)}
 		</main>
+	);
+}
+
+export default function ProductsAdminPage() {
+	return (
+		<PermissionGuard permission="product:see">
+			<ProductsAdminPageContent />
+		</PermissionGuard>
 	);
 }

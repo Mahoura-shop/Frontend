@@ -205,7 +205,7 @@ input[type="number"] {
 	/* Glassmorphism effect */
 
 	/* Hardware acceleration for smoother scrolling */
-	section {
+	section:not([data-sonner-toaster]) {
 		transform: translate3d(0, 0, 0);
 	}
 

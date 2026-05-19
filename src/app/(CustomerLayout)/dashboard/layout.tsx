@@ -289,23 +289,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 										)}
 									</nav>
 								</Card>
-
-								{/* Membership Info */}
-								<Card className="p-4 bg-gradient-to-br from-primary-rose/5 via-accent-gold/5 to-secondary-plum/5">
-									<div className="flex items-center gap-3">
-										<div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-rose to-accent-gold flex items-center justify-center">
-											<Star className="w-5 h-5 text-white" />
-										</div>
-										<div className="flex-1">
-											<p className="text-sm font-semibold">
-												عضویت از
-											</p>
-											<p className="text-xs text-muted-foreground" dir="ltr">
-												{profile?.phone ?? "—"}
-											</p>
-										</div>
-									</div>
-								</Card>
 							</div>
 						</aside>
 

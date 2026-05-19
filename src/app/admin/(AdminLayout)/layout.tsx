@@ -5,10 +5,8 @@ import Navbar from "@/components/Navbar/Navbar";
 import DashboardSidebar from "@/components/DashboardSidebar/DashboardSidebar";
 import AdminSidebar from "@/components/AdminSidebar/AdminSidebar";
 import { useDashboardMenuStore } from "@/store/useDashboardMenuStore";
-
+import { Button } from "@/components/ui/button";
 import {
-	LogOut,
-	Menu,
 	Home,
 	Package,
 	DollarSign,
@@ -16,76 +14,29 @@ import {
 	Tag,
 	ShoppingBag,
 	Users,
-	ClipboardList,
 	Shield,
-	Coins,
 	RotateCcw,
 	Settings,
 	Mail,
 	Warehouse,
+	ScrollText,
+	Menu,
 } from "lucide-react";
 
 const adminMenuItems = [
-	{
-		title: "داشبورد",
-		href: "/admin/dashboard",
-		icon: Home,
-	},
-	{
-		title: "مدیریت محصولات",
-		href: "/admin/products",
-		icon: Package,
-	},
-	{
-		title: "تغییر گروهی قیمت",
-		href: "/admin/price-group",
-		icon: DollarSign,
-	},
-	{
-		title: "دسته‌بندی‌ها",
-		href: "/admin/categories",
-		icon: FolderTree,
-	},
-	{
-		title: "برندها",
-		href: "/admin/brands",
-		icon: Tag,
-	},
-	{
-		title: "سفارش‌ها",
-		href: "/admin/orders",
-		icon: ShoppingBag,
-	},
-	{
-		title: "کاربران",
-		href: "/admin/users",
-		icon: Users,
-	},
-	{
-		title: "نقش‌ها و دسترسی‌ها",
-		href: "/admin/roles",
-		icon: Shield,
-	},
-	{
-		title: "مرجوعی‌ها",
-		href: "/admin/returns",
-		icon: RotateCcw,
-	},
-	{
-		title: "موجودی",
-		href: "/admin/inventory",
-		icon: Warehouse,
-	},
-	{
-		title: "پیام‌های تماس",
-		href: "/admin/contacts",
-		icon: Mail,
-	},
-	{
-		title: "تنظیمات",
-		href: "/admin/settings",
-		icon: Settings,
-	},
+	{ title: "داشبورد", href: "/admin/dashboard", icon: Home },
+	{ title: "مدیریت محصولات", href: "/admin/products", icon: Package, permission: "product:see" },
+	{ title: "تغییر گروهی قیمت", href: "/admin/price-group", icon: DollarSign, permission: "product:batch_price" },
+	{ title: "موجودی", href: "/admin/inventory", icon: Warehouse, permission: "product:batch_inventory" },
+	{ title: "دسته‌بندی‌ها", href: "/admin/categories", icon: FolderTree, permission: "category:see" },
+	{ title: "برندها", href: "/admin/brands", icon: Tag, permission: "brand:see" },
+	{ title: "سفارش‌ها", href: "/admin/orders", icon: ShoppingBag, permission: "order:see" },
+	{ title: "کاربران", href: "/admin/users", icon: Users, permission: "users:see" },
+	{ title: "نقش‌ها و دسترسی‌ها", href: "/admin/roles", icon: Shield, permission: "rbac:see" },
+	{ title: "مرجوعی‌ها", href: "/admin/returns", icon: RotateCcw },
+	{ title: "پیام‌های تماس", href: "/admin/contacts", icon: Mail, permission: "contact:see" },
+	{ title: "لاگ‌های ادمین", href: "/admin/admin-logs", icon: ScrollText, permission: "adminlogs:see" },
+	{ title: "تنظیمات", href: "/admin/settings", icon: Settings, permission: "update:currencies" },
 ];
 
 export default function AdminLayout({
@@ -93,19 +44,34 @@ export default function AdminLayout({
 }: {
 	children: React.ReactNode;
 }) {
-	const { sidebarOpen, setSidebarOpen } = useDashboardMenuStore();
+	const { setSidebarOpen } = useDashboardMenuStore();
 
 	return (
 		<AdminGuard>
-			<div className="min-h-screen bg-background flex flex-col" dir="rtl">
+			<div className="min-h-screen bg-background" dir="rtl">
 				<Navbar />
 				<DashboardSidebar items={adminMenuItems} />
-				<AdminSidebar items={adminMenuItems} />
-				<div
-					className="flex-1 transition-all duration-300 mt-20"
-					style={{ marginRight: sidebarOpen ? "256px" : "0" }}
-				>
-					{children}
+				<div className="container mx-auto px-4 pt-[90px] pb-8">
+					<div className="grid lg:grid-cols-4 gap-6">
+						<div className="lg:hidden">
+							<Button
+								variant="outline"
+								className="w-full gap-2"
+								onClick={() => setSidebarOpen(true)}
+							>
+								<Menu className="w-5 h-5" />
+								منوی مدیریت
+							</Button>
+						</div>
+
+						<aside className="hidden lg:block lg:col-span-1">
+							<AdminSidebar items={adminMenuItems} />
+						</aside>
+
+						<div className="lg:col-span-3">
+							{children}
+						</div>
+					</div>
 				</div>
 			</div>
 		</AdminGuard>

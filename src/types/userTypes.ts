@@ -6,6 +6,7 @@ interface UserState {
 	lastName?: string;
 	isAdmin?: boolean;
 	userType?: string;
+	permissions?: string[];
 	_hasHydrated?: boolean;
 	setUsername: (username: string) => void;
 	setAccessToken: (accessToken: string) => void;
@@ -14,5 +15,6 @@ interface UserState {
 	setLastName: (lastName: string) => void;
 	setIsAdmin: (value: boolean) => void;
 	setUserType: (type: string) => void;
+	setPermissions: (permissions: string[]) => void;
 	logout: () => void;
 }

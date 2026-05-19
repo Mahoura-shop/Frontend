@@ -54,6 +54,7 @@ interface Item {
 	href: string;
 	badge?: string;
 	icon: LucideIcon;
+	permission?: string;
 }
 
 export default function DashboardSidebar({ items }: { items: Item[] }) {
@@ -63,7 +64,14 @@ export default function DashboardSidebar({ items }: { items: Item[] }) {
 	const { theme, setTheme } = useTheme();
 	const { sidebarOpen, setSidebarOpen, isAdminView, toggleAdminView } =
 		useDashboardMenuStore();
-	const { isAdmin, logout, accessToken } = useUserStore();
+	const { isAdmin, logout, accessToken, permissions, _hasHydrated } = useUserStore();
+
+	const hasPermission = (item: Item) => {
+		if (!item.permission) return true;
+		if (!_hasHydrated) return true;
+		if (!permissions || permissions.length === 0) return true;
+		return permissions.includes(item.permission);
+	};
 
 	useEffect(() => {
 		if (accessToken) {
@@ -71,7 +79,16 @@ export default function DashboardSidebar({ items }: { items: Item[] }) {
 				.then((res) => setProfile(res?.data ?? null))
 				.catch(() => {});
 		}
-	}, []);
+	}, [accessToken]);
+
+	useEffect(() => {
+		if (sidebarOpen && window.innerWidth < 768) {
+			document.body.style.overflow = "hidden";
+		}
+		return () => {
+			document.body.style.overflow = "";
+		};
+	}, [sidebarOpen]);
 
 	const navigationItems = [
 		{
@@ -183,9 +200,9 @@ export default function DashboardSidebar({ items }: { items: Item[] }) {
 						}}
 						className="fixed right-0 top-0 h-screen z-50 md:hidden w-80"
 					>
-						<div className="h-full overflow-y-auto bg-background p-4 flex flex-col gap-4">
+						<div className="h-full bg-background flex flex-col overflow-hidden">
 							{/* Close Button */}
-							<div className="flex items-center justify-between mb-4">
+							<div className="flex items-center justify-between p-4 pb-2 flex-shrink-0">
 								<h2 className="text-xl font-bold">
 									منوی داشبورد
 								</h2>
@@ -258,222 +275,213 @@ export default function DashboardSidebar({ items }: { items: Item[] }) {
 								</div>
 							</div>
 
-							{/* User Profile Card */}
-							<Card className="overflow-hidden">
-								<div className="relative h-20 bg-gradient-to-br from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20" />
-								<div className="relative px-6 pb-6">
-									<div className="absolute -top-10 right-6">
-										<div className="w-20 h-20 rounded-full border-4 border-background bg-gradient-to-br from-primary-rose to-secondary-plum flex items-center justify-center overflow-hidden">
-											<User className="w-9 h-9 text-white" />
+							{/* Scrollable Content */}
+							<div className="flex-1 overflow-y-auto px-4 flex flex-col gap-4 pb-2">
+								{/* User Profile Card */}
+								<Card className="overflow-hidden">
+									<div className="h-20 bg-gradient-to-br from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20" />
+									<div className="relative px-6 pb-6">
+										<div className="absolute -top-10 right-6">
+											<div className="w-20 h-20 rounded-full border-4 border-background bg-gradient-to-br from-primary-rose to-secondary-plum flex items-center justify-center">
+												<User className="w-9 h-9 text-white" />
+											</div>
 										</div>
-									</div>
-									<div className="pt-12 space-y-2">
-										<div>
-											<h3 className="text-base font-bold leading-tight">
-												{profile
-													? [
-															profile.firstName,
-															profile.lastName,
-														]
-															.filter(Boolean)
-															.join(" ") ||
-														"بدون نام"
-													: "در حال بارگذاری..."}
-											</h3>
-											<p className="text-sm text-muted-foreground truncate">
-												{profile?.email || ""}
+										<div className="pt-14 space-y-2">
+											<div className="min-w-0">
+												<h3 className="text-base font-bold leading-tight truncate">
+													{profile
+														? [
+																profile.firstName,
+																profile.lastName,
+															]
+																.filter(Boolean)
+																.join(" ") ||
+															"بدون نام"
+														: "در حال بارگذاری..."}
+												</h3>
+												<p className="text-sm text-muted-foreground truncate">
+													{profile?.email || ""}
+												</p>
+											</div>
+											<Separator />
+											<p className="text-xs text-muted-foreground">
+												{profile?.phone && (
+													<span dir="ltr">
+														{profile.phone}
+													</span>
+												)}
 											</p>
 										</div>
-										<Separator />
-										<p className="text-xs text-muted-foreground">
-											{profile?.phone && (
-												<span dir="ltr">
-													{profile.phone}
-												</span>
-											)}
-										</p>
 									</div>
-								</div>
-							</Card>
-
-							{/* Admin View Toggle */}
-							{isAdmin && (
-								<Card className="p-3 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/20">
-									<button
-										onClick={handleAdminViewToggle}
-										className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-right"
-									>
-										<div className="flex items-center gap-2">
-											<ArrowRightLeft className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-											<span className="text-sm font-semibold text-amber-900 dark:text-amber-100">
-												{isAdminView
-													? "عودت به حساب"
-													: "رفتن به پنل مدیریت"}
-											</span>
-										</div>
-									</button>
 								</Card>
-							)}
 
-							{/* Navigation Menu */}
-							<Card className="p-2">
-								<nav className="space-y-1">
-									{(isAdminView
-										? items
-										: navigationItems
-									).map((item) => (
-										<Link
-											key={item.href}
-											href={item.href}
-											onClick={() =>
-												setSidebarOpen(false)
-											}
+								{/* Admin View Toggle */}
+								{isAdmin && (
+									<Card className="p-3 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-amber-500/20">
+										<button
+											onClick={handleAdminViewToggle}
+											className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-right"
 										>
-											<motion.div
-												whileHover={{
-													x: -5,
-													scale: 0.97,
-												}}
-												whileTap={{
-													scale: 0.94,
-												}}
-												className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
-													isActive(item.href)
-														? "bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/5 text-primary-rose font-semibold"
-														: "hover:bg-muted/50"
-												}`}
-											>
-												<div className="flex items-center gap-3">
-													<item.icon
-														className={`w-5 h-5 ${
-															isActive(item.href)
-																? "text-primary-rose"
-																: "text-muted-foreground"
-														}`}
-													/>
-													<span className="text-sm">
-														{item.title}
-													</span>
+											<div className="flex items-center gap-2">
+												<ArrowRightLeft className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+												<span className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+													{isAdminView
+														? "عودت به حساب"
+														: "رفتن به پنل مدیریت"}
+												</span>
+											</div>
+										</button>
+									</Card>
+								)}
+
+								{/* Navigation Menu */}
+								<Card className="p-2">
+									<nav className="space-y-1">
+										{(isAdminView
+											? items
+											: navigationItems
+										).map((item) => {
+											const allowed = hasPermission(item);
+											const content = (
+												<motion.div
+													whileHover={allowed ? { x: -5, scale: 0.97 } : {}}
+													whileTap={allowed ? { scale: 0.94 } : {}}
+													className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
+														!allowed
+															? "opacity-40 cursor-not-allowed"
+															: isActive(item.href)
+															? "bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/5 text-primary-rose font-semibold"
+															: "hover:bg-muted/50"
+													}`}
+												>
+													<div className="flex items-center gap-3">
+														<item.icon
+															className={`w-5 h-5 ${
+																isActive(item.href)
+																	? "text-primary-rose"
+																	: "text-muted-foreground"
+															}`}
+														/>
+														<span className="text-sm">
+															{item.title}
+														</span>
+													</div>
+													<div className="flex items-center gap-2">
+														{"badge" in item &&
+															item.badge !== null && (
+																<Badge
+																	variant={
+																		isActive(item.href)
+																			? "default"
+																			: "secondary"
+																	}
+																	className="text-xs"
+																>
+																	{new Intl.NumberFormat(
+																		"fa-IR",
+																	).format(
+																		item.badge,
+																	)}
+																</Badge>
+															)}
+														{isActive(item.href) && (
+															<ChevronLeft className="w-4 h-4" />
+														)}
+													</div>
+												</motion.div>
+											);
+											return allowed ? (
+												<Link
+													key={item.href}
+													href={item.href}
+													onClick={() => setSidebarOpen(false)}
+												>
+													{content}
+												</Link>
+											) : (
+												<div
+													key={item.href}
+													title="دسترسی لازم را ندارید"
+												>
+													{content}
 												</div>
-												<div className="flex items-center gap-2">
-													{"badge" in item &&
-														item.badge !== null && (
-															<Badge
-																variant={
+											);
+										})}
+									</nav>
+								</Card>
+							</div>
+
+							{/* Bottom Actions - always visible */}
+							<div className="px-4 pb-4 pt-2 flex-shrink-0">
+								<Card className="p-2">
+									<nav className="space-y-1">
+										{bottomNavigationItems.map((item) => {
+											const isLogout =
+												item.href === "/logout";
+											return (
+												<div
+													key={item.href}
+													onClick={() => {
+														if (isLogout) {
+															handleLogout();
+														} else {
+															setSidebarOpen(false);
+														}
+													}}
+												>
+													{!isLogout ? (
+														<Link href={item.href}>
+															<motion.div
+																whileHover={{
+																	x: -5,
+																}}
+																whileTap={{
+																	scale: 0.98,
+																}}
+																className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
 																	isActive(
 																		item.href,
 																	)
-																		? "default"
-																		: "secondary"
-																}
-																className="text-xs"
+																		? "bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/5 text-primary-rose font-semibold"
+																		: "hover:bg-muted/50"
+																}`}
 															>
-																{new Intl.NumberFormat(
-																	"fa-IR",
-																).format(
-																	item.badge,
-																)}
-															</Badge>
-														)}
-													{isActive(item.href) && (
-														<ChevronLeft className="w-4 h-4" />
-													)}
-												</div>
-											</motion.div>
-										</Link>
-									))}
-								</nav>
-							</Card>
-
-							{/* Bottom Actions */}
-							<Card className="p-2">
-								<nav className="space-y-1">
-									{bottomNavigationItems.map((item) => {
-										const isLogout =
-											item.href === "/logout";
-										return (
-											<div
-												key={item.href}
-												onClick={() => {
-													if (isLogout) {
-														handleLogout();
-													} else {
-														setSidebarOpen(false);
-													}
-												}}
-											>
-												{!isLogout ? (
-													<Link href={item.href}>
-														<motion.div
+																<item.icon
+																	className={`w-5 h-5 ${
+																		isActive(
+																			item.href,
+																		)
+																			? "text-primary-rose"
+																			: "text-muted-foreground"
+																	}`}
+																/>
+																<span className="text-sm">
+																	{item.title}
+																</span>
+															</motion.div>
+														</Link>
+													) : (
+														<motion.button
 															whileHover={{
 																x: -5,
 															}}
 															whileTap={{
 																scale: 0.98,
 															}}
-															className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
-																isActive(
-																	item.href,
-																)
-																	? "bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/5 text-primary-rose font-semibold"
-																	: "hover:bg-muted/50"
-															}`}
+															className="w-full text-right flex items-center gap-3 p-3 rounded-lg transition-colors text-destructive hover:bg-destructive/10"
 														>
-															<item.icon
-																className={`w-5 h-5 ${
-																	isActive(
-																		item.href,
-																	)
-																		? "text-primary-rose"
-																		: "text-muted-foreground"
-																}`}
-															/>
+															<item.icon className="w-5 h-5 text-destructive" />
 															<span className="text-sm">
 																{item.title}
 															</span>
-														</motion.div>
-													</Link>
-												) : (
-													<motion.button
-														whileHover={{
-															x: -5,
-														}}
-														whileTap={{
-															scale: 0.98,
-														}}
-														className="w-full text-right flex items-center gap-3 p-3 rounded-lg transition-colors text-destructive hover:bg-destructive/10"
-													>
-														<item.icon className="w-5 h-5 text-destructive" />
-														<span className="text-sm">
-															{item.title}
-														</span>
-													</motion.button>
-												)}
-											</div>
-										);
-									})}
-								</nav>
-							</Card>
-
-							{/* Membership Info */}
-							<Card className="p-4 bg-gradient-to-br from-primary-rose/5 via-accent-gold/5 to-secondary-plum/5">
-								<div className="flex items-center gap-3">
-									<div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-rose to-accent-gold flex items-center justify-center">
-										<Star className="w-5 h-5 text-white" />
-									</div>
-									<div className="flex-1">
-										<p className="text-sm font-semibold">
-											عضویت از
-										</p>
-										<p
-											className="text-xs text-muted-foreground"
-											dir="ltr"
-										>
-											{profile?.phone ?? "—"}
-										</p>
-									</div>
-								</div>
-							</Card>
+														</motion.button>
+													)}
+												</div>
+											);
+										})}
+									</nav>
+								</Card>
+							</div>
 						</div>
 					</motion.aside>
 				</>
