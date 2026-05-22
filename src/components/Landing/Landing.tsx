@@ -1,6 +1,6 @@
 "use client";
 import styles from "./Landing.module.css";
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { ShoppingBag, ArrowLeft, Stars } from "lucide-react";
 import { formatPrice } from "@/utils/formatPrice";
@@ -8,34 +8,18 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useProductStore } from "@/store/useProductStore";
-import { getData } from "@/services/services";
 import { useCategoryStore } from "@/store/useCategoryStore";
 import MagneticButton from "@/components/Custom/Button/MagneticButton";
 import Magnet from "../utils/Magnet";
 import CardStack from "./CardStack/CardStack";
 import TrustBar from "./TrustBar/TrustBar";
-import BorderGlow from "../ReactBits/BorderGlowCard/BorderGlowCard";
-import Aurora from "../ReactBits/Aurora/Aurora";
 import Grainient from "../ReactBits/Grainient/Grainient";
 
 export default function LandingPage() {
 	const { products } = useProductStore();
 	const { categories, fetchCategories } = useCategoryStore();
 
-	const [brandsCount, setBrandsCount] = useState<number>(20);
-	const [categoriesCount, setCategoriesCount] = useState<number>(20);
-	const [productsCount, setProductsCount] = useState<number>(20);
-
-	// const fetchSiteData = () => {
-	// 	getData({ endPoint: `/v1/admin/dashboard` }).then((data) => {
-	// 		setProductsCount(data?.data?.productsCount);
-	// 		setBrandsCount(data?.data?.brandsCount);
-	// 		setCategoriesCount(data?.data?.categoriesCount);
-	// 	});
-	// };
-
 	useEffect(() => {
-		// fetchSiteData();
 		fetchCategories();
 	}, []);
 
@@ -45,7 +29,6 @@ export default function LandingPage() {
 		<div>
 			{/* Hero Section */}
 			<section className="relative min-h-screen items-center justify-center overflow-hidden pt-32 will-change-transform">
-				{/* Mesh gradient background */}
 				<div>
 					<div className="absolute inset-0">
 						<div
@@ -68,10 +51,6 @@ export default function LandingPage() {
 						/>
 					</div>
 
-					{/* Floating orbs */}
-					<div className="absolute -top-[100px] -right-[100px] w-[500px] h-[500px] rounded-full bg-gradient-to-br from-primary-rose/12 to-transparent blur-[80px] pointer-events-none opacity-0 group-[] animate-pulse" />
-					<div className="absolute bottom-0 left-[10%] w-[400px] h-[400px] rounded-full bg-gradient-to-br from-secondary-plum/15 to-transparent blur-[80px] pointer-events-none opacity-0 animate-pulse" />
-
 					<div className="container mx-auto px-6 relative z-10 max-w-[1300px]">
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-20 items-end">
 							{/* Right Column */}
@@ -84,7 +63,7 @@ export default function LandingPage() {
 								<motion.div
 									initial={{ opacity: 0, y: 12 }}
 									animate={{ opacity: 1, y: 0 }}
-									transition={{ delay: 0.2, duration: 0.7 }}
+									transition={{ delay: 0.2, duration: 0.7, ease: [0.25, 1, 0.5, 1] }}
 									className="flex items-center gap-3 mb-7"
 								>
 									<div className="w-8 h-px bg-accent-gold" />
@@ -94,23 +73,11 @@ export default function LandingPage() {
 								</motion.div>
 
 								<motion.h1
-									initial={{ opacity: 0, scale: 0.85 }}
+									initial={{ opacity: 0, scale: 0.88 }}
 									animate={{ opacity: 1, scale: 1 }}
-									transition={{
-										delay: 0.4,
-										duration: 0.9,
-										type: "spring",
-										stiffness: 40,
-									}}
-									className="font-bold mb-8 leading-[1.00] no-select"
-									style={{
-										fontSize: "clamp(6rem, 11vw, 10.5rem)",
-										background:
-											"linear-gradient(135deg, var(--primary-rose) 0%, var(--accent-gold) 50%, rgba(107,78,113,.9) 100%)",
-										WebkitBackgroundClip: "text",
-										WebkitTextFillColor: "transparent",
-										backgroundClip: "text",
-									}}
+									transition={{ delay: 0.4, duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
+									className="font-bold mb-8 leading-[1.00] no-select text-foreground"
+									style={{ fontSize: "clamp(6rem, 11vw, 10.5rem)" }}
 								>
 									ماهورا
 								</motion.h1>
@@ -118,7 +85,7 @@ export default function LandingPage() {
 								<motion.p
 									initial={{ opacity: 0, y: 16 }}
 									animate={{ opacity: 1, y: 0 }}
-									transition={{ delay: 0.55, duration: 0.7 }}
+									transition={{ delay: 0.55, duration: 0.7, ease: [0.25, 1, 0.5, 1] }}
 									className="text-base text-foreground/60 max-w-sm mb-11 leading-[1.75] no-select"
 								>
 									تجربه زیبایی بی‌نظیر
@@ -127,7 +94,7 @@ export default function LandingPage() {
 								<motion.div
 									initial={{ opacity: 0, y: 16 }}
 									animate={{ opacity: 1, y: 0 }}
-									transition={{ delay: 0.7, duration: 0.7 }}
+									transition={{ delay: 0.7, duration: 0.7, ease: [0.25, 1, 0.5, 1] }}
 									className="flex gap-3 mb-12 flex-wrap"
 								>
 									<Magnet className="z-30">
@@ -141,7 +108,7 @@ export default function LandingPage() {
 									<Magnet className="z-20">
 										<Link href="/about">
 											<Button
-												className={`rounded-full h-16 w-48 hover:bg-transparent`}
+												className="rounded-full h-16 w-48 hover:bg-transparent"
 												variant="ghost"
 											>
 												<p>درباره ماهورا</p>
@@ -166,7 +133,7 @@ export default function LandingPage() {
 									<motion.div
 										initial={{ opacity: 0, y: 20 }}
 										animate={{ opacity: 1, y: 0 }}
-										transition={{ delay: 1.0 }}
+										transition={{ delay: 1.0, ease: [0.25, 1, 0.5, 1] }}
 										className={`absolute top-0 flex no-select border-pill-border bg-pill-bg place-items-center gap-2 right-0 place-self-end text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-lg border border-white/12 bg-white/8 whitespace-nowrap animate-float ${styles.pill}`}
 										style={{ animationDelay: "-4.8s" }}
 									>
@@ -177,28 +144,22 @@ export default function LandingPage() {
 									<motion.div
 										initial={{ opacity: 0, y: 20 }}
 										animate={{ opacity: 1, y: 0 }}
-										transition={{ delay: 1.0 }}
-										className={`absolute top-24 -left-10 no-select border-pill-border bg-pill-bg  text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-lg border border-white/12 bg-white/8 whitespace-nowrap animate-float ${styles.pill}`}
+										transition={{ delay: 1.0, ease: [0.25, 1, 0.5, 1] }}
+										className={`absolute top-24 -left-10 no-select border-pill-border bg-pill-bg text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-lg border border-white/12 bg-white/8 whitespace-nowrap animate-float ${styles.pill}`}
 										style={{ animationDelay: "-2.5s" }}
 									>
-										{/* <BorderGlow className="flex place-items-center gap-2 px-2 py-1" backgroundColor="#EEECEC"> */}
-										<div
-											className={`${styles.pillDot} ${styles.pillDotGreen}`}
-										/>
+										<div className={`${styles.pillDot} ${styles.pillDotGreen}`} />
 										<p>۱۰۰+ مشتری راضی</p>
-										{/* </BorderGlow> */}
 									</motion.div>
 
 									<motion.div
 										initial={{ opacity: 0, y: 20 }}
 										animate={{ opacity: 1, y: 0 }}
-										transition={{ delay: 1.0 }}
+										transition={{ delay: 1.0, ease: [0.25, 1, 0.5, 1] }}
 										className={`absolute bottom-[120px] no-select border-pill-border bg-pill-bg -right-10 flex place-items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full backdrop-blur-lg border border-white/12 bg-white/8 whitespace-nowrap animate-float ${styles.pill}`}
 										style={{ animationDelay: "-1.1s" }}
 									>
-										<div
-											className={`${styles.pillDot} ${styles.pillDotPink}`}
-										/>
+										<div className={`${styles.pillDot} ${styles.pillDotPink}`} />
 										بهترین کیفیت
 									</motion.div>
 								</div>
@@ -206,91 +167,52 @@ export default function LandingPage() {
 						</div>
 					</div>
 
-					{/* Scroll indicator */}
-					{/* <motion.div
-						animate={{ y: [0, 10, 0] }}
-						transition={{ repeat: Infinity, duration: 1.8 }}
-						className="absolute bottom-16 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2.5 opacity-50"
+					<motion.div
+						initial={{ opacity: 0, y: 16 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.9, duration: 0.7, ease: [0.25, 1, 0.5, 1] }}
+						className="border-t border-white/7 mt-8 py-12 flex gap-0"
 					>
-						<p className="text-xs text-white/50">
-							اسکرول کنید
-						</p>
-						<div className="w-px h-12 bg-gradient-to-b from-white/40 to-transparent" />
-					</motion.div> */}
-				</div>
-
-				<motion.div
-					initial={{ opacity: 0, y: 16 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.9, duration: 0.7 }}
-					className="border-t border-white/7 mt-8 py-12 flex gap-0"
-				>
-					{[
-						{
-							value: new Intl.NumberFormat("fa-IR").format(
-								productsCount,
-							),
-							label: "محصول",
-						},
-						{
-							value: new Intl.NumberFormat("fa-IR").format(
-								brandsCount,
-							),
-							label: "برند",
-						},
-						{ value: "۱۰۰+", label: "مشتری راضی" },
-					].map((stat, i) => (
-						<motion.div
-							key={stat.label}
-							initial={{ scale: 0 }}
-							animate={{ scale: 1 }}
-							transition={{
-								delay: 1.0 + i * 0.1,
-								type: "spring",
-								stiffness: 50,
-							}}
-							className="flex-1 pr-9 place-items-center"
-						>
-							<div
-								className="text-5xl font-bold mb-1 leading-none"
-								style={{
-									background:
-										"linear-gradient(90deg, var(--primary-rose), var(--accent-gold))",
-									WebkitBackgroundClip: "text",
-									WebkitTextFillColor: "transparent",
-									backgroundClip: "text",
-								}}
+						{[
+							{
+								value: new Intl.NumberFormat("fa-IR").format(20),
+								label: "محصول",
+							},
+							{
+								value: new Intl.NumberFormat("fa-IR").format(20),
+								label: "برند",
+							},
+							{ value: "۱۰۰+", label: "مشتری راضی" },
+						].map((stat, i) => (
+							<motion.div
+								key={stat.label}
+								initial={{ opacity: 0, y: 16 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ delay: 1.0 + i * 0.1, duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
+								className="flex-1 pr-9 place-items-center"
 							>
-								{stat.value}
-							</div>
-							<div className="text-xs text-foreground/50">
-								{stat.label}
-							</div>
-						</motion.div>
-					))}
-				</motion.div>
+								<div className="text-5xl font-bold mb-1 leading-none text-primary-rose">
+									{stat.value}
+								</div>
+								<div className="text-xs text-foreground/50">
+									{stat.label}
+								</div>
+							</motion.div>
+						))}
+					</motion.div>
+				</div>
 			</section>
 
 			{/* Marquee Container */}
 			<div className="bg-accent-gold overflow-hidden py-5 flex items-center no-select">
 				<motion.div
 					initial={{ x: "50%" }}
-					// We move to -50% to pull the "hidden" second batch into view from the right
 					animate={{ x: "0%" }}
-					transition={{
-						duration: 15,
-						repeat: Infinity,
-						ease: "linear",
-					}}
-					// Force LTR on the motion div so the X-axis math works correctly
-					// 'flex-row-reverse' ensures the Persian text sequence stays logical (Right to Left)
+					transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
 					className="flex flex-row-reverse whitespace-nowrap ltr w-fit"
 				>
 					{[...Array(2)].map((_, batch) => (
-						<div
-							key={batch}
-							className="flex flex-row-reverse items-center"
-						>
+						<div key={batch} className="flex flex-row-reverse items-center">
 							{[
 								"ماهورا",
 								"بهترین کیفیت",
@@ -334,16 +256,7 @@ export default function LandingPage() {
 								دسته‌بندی‌ها
 							</p>
 						</div>
-						<h2
-							className="text-5xl font-bold leading-tight"
-							style={{
-								background:
-									"linear-gradient(90deg, var(--primary-rose) 0%, var(--accent-gold) 50%, rgba(107,78,113,.9) 100%)",
-								WebkitBackgroundClip: "text",
-								WebkitTextFillColor: "transparent",
-								backgroundClip: "text",
-							}}
-						>
+						<h2 className="text-5xl font-bold leading-tight text-foreground">
 							دسته‌بندی محصولات
 						</h2>
 					</motion.div>
@@ -355,12 +268,8 @@ export default function LandingPage() {
 								initial={{ opacity: 0, y: 28 }}
 								whileInView={{ opacity: 1, y: 0 }}
 								viewport={{ once: true }}
-								transition={{
-									duration: 0.6,
-									ease: "easeOut",
-									delay: i * 0.1,
-								}}
-								className={`relative rounded-[20px] overflow-hidden cursor-pointer group bg-[#E8E6E3]  ${
+								transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1], delay: i * 0.1 }}
+								className={`relative rounded-[20px] overflow-hidden cursor-pointer group bg-[#E8E6E3] ${
 									i === 0 ? "md:row-span-2" : ""
 								}`}
 							>
@@ -412,16 +321,7 @@ export default function LandingPage() {
 								بهترین‌ها
 							</p>
 						</div>
-						<h2
-							className="text-5xl font-bold leading-tight text-white"
-							style={{
-								background:
-									"linear-gradient(90deg, var(--primary-rose) 0%, var(--accent-gold) 50%, rgba(107,78,113,.9) 100%)",
-								WebkitBackgroundClip: "text",
-								WebkitTextFillColor: "transparent",
-								backgroundClip: "text",
-							}}
-						>
+						<h2 className="text-5xl font-bold leading-tight text-foreground">
 							محصولات ویژه
 						</h2>
 					</motion.div>
@@ -433,11 +333,7 @@ export default function LandingPage() {
 								initial={{ opacity: 0, y: 28 }}
 								whileInView={{ opacity: 1, y: 0 }}
 								viewport={{ once: true }}
-								transition={{
-									duration: 0.6,
-									ease: "easeOut",
-									delay: i * 0.1,
-								}}
+								transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1], delay: i * 0.1 }}
 								className="rounded-2xl overflow-hidden bg-card border border-border cursor-pointer hover:shadow-[0_16px_48px_rgba(13,11,10,.10)] dark:hover:shadow-[0_16px_48px_rgba(0,0,0,.45)] transition-all duration-300 group"
 							>
 								<div className="relative aspect-square overflow-hidden bg-gradient-to-br from-neutral-warm to-primary-rose/20 dark:from-muted dark:to-primary-rose/10 flex items-center justify-center">
@@ -459,7 +355,7 @@ export default function LandingPage() {
 										{prod.isNew && (
 											<Badge
 												variant="new"
-												className="text-xs font-bold px-2.5 py-1 bg-gradient-to-r from-amber-400 to-orange-500 text-white animate-pulse-glow"
+												className="text-xs font-bold px-2.5 py-1 bg-accent-gold text-foreground"
 											>
 												جدید
 											</Badge>
@@ -469,10 +365,7 @@ export default function LandingPage() {
 									<motion.div
 										initial={{ translateY: "100%" }}
 										whileHover={{ translateY: 0 }}
-										transition={{
-											duration: 0.35,
-											ease: "easeOut",
-										}}
+										transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
 										className="absolute bottom-0 inset-x-0 bg-foreground/90 dark:bg-background/95 backdrop-blur-sm p-4 flex items-center gap-3"
 									>
 										<MagneticButton
@@ -515,16 +408,7 @@ export default function LandingPage() {
 				</div>
 			</section>
 
-			{/* Statement Section */}
-			{/* <Aurora
-				colorStops={["#D4A5A5", "#6B4E71", "#C9A875"]}
-				blend={0.5}
-				speed={0.8}
-			/> */}
-
-			<div
-				style={{ width: "100%", height: "600px", position: "absolute" }}
-			>
+			<div style={{ width: "100%", height: "600px", position: "absolute" }}>
 				<Grainient
 					color1="#D4A5A5"
 					color2="#6B4E71"
@@ -551,32 +435,20 @@ export default function LandingPage() {
 				/>
 			</div>
 			<section className="px-4 md:px-14 relative overflow-hidden h-screen m-auto flex place-items-center">
-				<div className="max-w-[900px]  mx-auto flex place-content-center align-middle place-items-center text-center relative z-10">
+				<div className="max-w-[900px] mx-auto flex place-content-center align-middle place-items-center text-center relative z-10">
 					<motion.div
 						initial={{ opacity: 0, y: 40 }}
 						whileInView={{ opacity: 1, y: 0 }}
 						viewport={{ once: true }}
-						transition={{ duration: 0.9 }}
+						transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
 					>
 						<div className="flex items-center justify-center gap-3.5 mb-8">
 							<div className="w-10 h-px bg-accent-gold/40" />
-							{/* <p className="text-xs font-bold text-accent-gold">
-								درباره برند
-							</p> */}
 							<p className="font-bold text-6xl">درباره برند</p>
 							<div className="w-10 h-px bg-accent-gold/40" />
 						</div>
 
-						<p
-							className="text-4xl font-bold mb-7 leading-tight"
-							// style={{
-							// 	background:
-							// 		"linear-gradient(135deg, var(--foreground) 0%, var(--primary-rose) 50%, var(--accent-gold) 100%)",
-							// 	WebkitBackgroundClip: "text",
-							// 	// WebkitTextFillColor: "transparent",
-							// 	backgroundClip: "text",
-							// }}
-						>
+						<p className="text-4xl font-bold mb-7 leading-tight">
 							زیبایی یک هنر است
 						</p>
 
@@ -589,10 +461,10 @@ export default function LandingPage() {
 						<Magnet>
 							<Link href="/products">
 								<Button
-									className={`rounded-full h-16 w-48 hover:bg-transparent`}
+									className="rounded-full h-16 w-48 hover:bg-transparent"
 									variant="ghost"
 								>
-									<p >کشف کنید</p>
+									<p>کشف کنید</p>
 									<Stars className="fill-foreground" />
 								</Button>
 							</Link>
@@ -618,16 +490,7 @@ export default function LandingPage() {
 										جدید‌ها
 									</p>
 								</div>
-								<h2
-									className="text-5xl font-bold leading-tight"
-									style={{
-										background:
-											"linear-gradient(90deg, var(--primary-rose) 0%, var(--accent-gold) 50%, rgba(107,78,113,.9) 100%)",
-										WebkitBackgroundClip: "text",
-										WebkitTextFillColor: "transparent",
-										backgroundClip: "text",
-									}}
-								>
+								<h2 className="text-5xl font-bold leading-tight text-foreground">
 									جدیدترین محصولات
 								</h2>
 							</div>
@@ -647,11 +510,7 @@ export default function LandingPage() {
 									initial={{ opacity: 0, y: 28 }}
 									whileInView={{ opacity: 1, y: 0 }}
 									viewport={{ once: true }}
-									transition={{
-										duration: 0.6,
-										ease: "easeOut",
-										delay: i * 0.1,
-									}}
+									transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1], delay: i * 0.1 }}
 									className="flex-shrink-0 w-[260px] rounded-[20px] overflow-hidden bg-white dark:bg-card border border-[#0D0B0A]/5 dark:border-border hover:shadow-[0_16px_48px_rgba(13,11,10,.1)] dark:hover:shadow-[0_16px_48px_rgba(0,0,0,.4)] hover:-translate-y-1.5 transition-all cursor-pointer group"
 								>
 									<div className="aspect-square overflow-hidden bg-gradient-to-br from-[#E8E6E3] to-[rgba(212,165,165,.25)] flex items-center justify-center">
@@ -662,7 +521,7 @@ export default function LandingPage() {
 												className="w-full h-full object-cover"
 											/>
 										) : (
-											<span className="text-5xl">💄</span>
+											<ShoppingBag className="w-12 h-12 text-primary-rose/30" />
 										)}
 									</div>
 									<div className="p-4">
@@ -682,7 +541,7 @@ export default function LandingPage() {
 													),
 												)}
 											</span>
-											<Badge className="text-[10px] font-bold px-2 py-0.5 bg-gradient-to-r from-amber-400 to-orange-500 text-white animate-pulse-glow">
+											<Badge className="text-[10px] font-bold px-2 py-0.5 bg-accent-gold text-foreground">
 												جدید
 											</Badge>
 										</div>
