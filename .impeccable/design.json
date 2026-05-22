@@ -1,0 +1,312 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-22T03:04:00Z",
+  "title": "Design System: Mahoura",
+  "extensions": {
+    "colorMeta": {
+      "faded-petal": {
+        "role": "primary",
+        "displayName": "Faded Petal",
+        "canonical": "oklch(73% 0.065 15)",
+        "tonalRamp": [
+          "oklch(15% 0.04 15)",
+          "oklch(25% 0.05 15)",
+          "oklch(38% 0.06 15)",
+          "oklch(50% 0.065 15)",
+          "oklch(62% 0.065 15)",
+          "oklch(73% 0.065 15)",
+          "oklch(84% 0.04 15)",
+          "oklch(94% 0.015 15)"
+        ]
+      },
+      "isfahan-violet": {
+        "role": "secondary",
+        "displayName": "Isfahan Violet",
+        "canonical": "oklch(40% 0.09 305)",
+        "tonalRamp": [
+          "oklch(12% 0.05 305)",
+          "oklch(22% 0.07 305)",
+          "oklch(32% 0.085 305)",
+          "oklch(40% 0.09 305)",
+          "oklch(52% 0.085 305)",
+          "oklch(64% 0.07 305)",
+          "oklch(76% 0.05 305)",
+          "oklch(90% 0.02 305)"
+        ]
+      },
+      "hammered-gold": {
+        "role": "tertiary",
+        "displayName": "Hammered Gold",
+        "canonical": "oklch(71% 0.075 65)",
+        "tonalRamp": [
+          "oklch(15% 0.04 65)",
+          "oklch(25% 0.055 65)",
+          "oklch(38% 0.065 65)",
+          "oklch(52% 0.075 65)",
+          "oklch(62% 0.075 65)",
+          "oklch(71% 0.075 65)",
+          "oklch(83% 0.045 65)",
+          "oklch(94% 0.015 65)"
+        ]
+      },
+      "aged-linen": {
+        "role": "neutral",
+        "displayName": "Aged Linen",
+        "canonical": "oklch(97% 0.006 65)",
+        "tonalRamp": [
+          "oklch(10% 0.006 65)",
+          "oklch(20% 0.006 65)",
+          "oklch(35% 0.006 65)",
+          "oklch(50% 0.006 65)",
+          "oklch(65% 0.006 65)",
+          "oklch(80% 0.006 65)",
+          "oklch(90% 0.006 65)",
+          "oklch(97% 0.006 65)"
+        ]
+      },
+      "raw-silk": {
+        "role": "neutral",
+        "displayName": "Raw Silk",
+        "canonical": "oklch(92% 0.006 65)",
+        "tonalRamp": [
+          "oklch(10% 0.006 65)",
+          "oklch(20% 0.006 65)",
+          "oklch(35% 0.006 65)",
+          "oklch(50% 0.006 65)",
+          "oklch(65% 0.006 65)",
+          "oklch(80% 0.006 65)",
+          "oklch(92% 0.006 65)",
+          "oklch(97% 0.006 65)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Surface",
+        "canonical": "oklch(98.5% 0.004 65)",
+        "tonalRamp": [
+          "oklch(10% 0.004 65)",
+          "oklch(22% 0.004 65)",
+          "oklch(38% 0.004 65)",
+          "oklch(55% 0.004 65)",
+          "oklch(70% 0.004 65)",
+          "oklch(85% 0.004 65)",
+          "oklch(93% 0.004 65)",
+          "oklch(98.5% 0.004 65)"
+        ]
+      },
+      "deep-ink": {
+        "role": "neutral",
+        "displayName": "Deep Ink",
+        "canonical": "oklch(4% 0.003 65)",
+        "tonalRamp": [
+          "oklch(4% 0.003 65)",
+          "oklch(12% 0.003 65)",
+          "oklch(25% 0.003 65)",
+          "oklch(40% 0.003 65)",
+          "oklch(55% 0.003 65)",
+          "oklch(70% 0.003 65)",
+          "oklch(85% 0.003 65)",
+          "oklch(95% 0.003 65)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero headlines and primary section statements. One per major section."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page titles, feature section headings, modal headers."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card headings, sidebar section titles, product names in context."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "All paragraph and descriptive text. Maximum line length 65ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Buttons, chips, input labels, navigation links, meta text."
+      }
+    },
+    "shadows": [
+      {
+        "name": "ambient",
+        "value": "0 4px 16px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04)",
+        "purpose": "Cards at rest. Barely perceptible; sets the surface off the ground without announcing it."
+      },
+      {
+        "name": "rose-focus",
+        "value": "0 0 0 3px rgba(212,165,165,0.12), 0 0 30px -10px rgba(212,165,165,0.5)",
+        "purpose": "Input and interactive element focus state. The Mahoura focus signature."
+      },
+      {
+        "name": "gold-hover",
+        "value": "0 0 18px #C9A875",
+        "purpose": "Navbar CTA and gold-accented elements on hover."
+      },
+      {
+        "name": "lift",
+        "value": "0 8px 28px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)",
+        "purpose": "Cards on hover and elevated containers."
+      },
+      {
+        "name": "glass",
+        "value": "0 8px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.06)",
+        "purpose": "Floating navbar and modal sheets only. Never on content cards."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-standard",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Default easing for all state transitions and UI feedback."
+      },
+      {
+        "name": "ease-spring-hero",
+        "value": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "purpose": "Micro-interactions on hero elements only (entrance animations, hero card 3D). Not for standard UI state transitions."
+      },
+      {
+        "name": "duration-fast",
+        "value": "0.2s",
+        "purpose": "Accordion, quick state changes."
+      },
+      {
+        "name": "duration-standard",
+        "value": "0.3s",
+        "purpose": "Button hover, chip state, border color changes."
+      },
+      {
+        "name": "duration-enter",
+        "value": "0.6s",
+        "purpose": "Entrance animations (fadeInUp, fadeInScale). Wrap in prefers-reduced-motion check."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "2xl", "value": "1400px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary CTA Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Pill-shaped, heavy weight. On dark surfaces (hero). The canonical Mahoura call-to-action.",
+      "html": "<button class=\"ds-btn-primary\">مشاهده محصولات</button>",
+      "css": ".ds-btn-primary { font-family: Vazirmatn, sans-serif; font-size: 14px; font-weight: 800; color: #0A0A0A; background: #FAFAF9; padding: 16px 34px; border-radius: 100px; border: none; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; position: relative; overflow: hidden; transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s; direction: rtl; } .ds-btn-primary::before { content: \"\"; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(201,168,117,0.2), rgba(212,165,165,0.2)); opacity: 0; transition: opacity 0.3s; border-radius: inherit; } .ds-btn-primary:hover { transform: scale(1.04); box-shadow: 0 10px 32px rgba(255,255,255,0.15); } .ds-btn-primary:hover::before { opacity: 1; } .ds-btn-primary:focus-visible { outline: 2px solid #D4A5A5; outline-offset: 3px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Transparent pill with low-opacity border. Secondary action on dark surfaces.",
+      "html": "<button class=\"ds-btn-ghost\">بیشتر بدانید</button>",
+      "css": ".ds-btn-ghost { font-family: Vazirmatn, sans-serif; font-size: 14px; font-weight: 600; color: rgba(250,250,249,0.75); background: transparent; padding: 16px 28px; border-radius: 100px; border: 1px solid rgba(255,255,255,0.2); display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: border-color 0.2s, color 0.2s, background 0.2s; direction: rtl; } .ds-btn-ghost:hover { border-color: rgba(255,255,255,0.5); color: #FAFAF9; background: rgba(255,255,255,0.05); } .ds-btn-ghost:focus-visible { outline: 2px solid #D4A5A5; outline-offset: 3px; }"
+    },
+    {
+      "name": "Floating Label Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "RTL input with floating label and rose focus glow. The Mahoura input signature.",
+      "html": "<div class=\"ds-input-wrapper\" dir=\"rtl\"><input class=\"ds-input\" type=\"text\" placeholder=\" \" id=\"ds-name\" /><label class=\"ds-input-label\" for=\"ds-name\">نام محصول</label></div>",
+      "css": ".ds-input-wrapper { position: relative; width: 280px; font-family: Vazirmatn, sans-serif; } .ds-input { font-family: Vazirmatn, sans-serif; width: 100%; height: 45px; padding: 14px 16px; font-size: 15px; line-height: 1.5; color: #0A0A0A; background: #FAFAF9; border: 1.5px solid #E4E2DF; border-radius: 12px; box-shadow: 0 0 25px -17px rgba(212,165,165,0.4); outline: none; direction: rtl; text-align: right; transition: border-color 0.25s cubic-bezier(0.22,1,0.36,1), box-shadow 0.25s cubic-bezier(0.22,1,0.36,1); } .ds-input::placeholder { color: transparent; } .ds-input:hover { border-color: rgba(228,226,223,0.7); box-shadow: 0 0 25px -15px rgba(212,165,165,0.6); } .ds-input:focus { border-color: #D4A5A5; box-shadow: 0 0 0 3px rgba(212,165,165,0.12), 0 0 30px -10px rgba(212,165,165,0.5); } .ds-input-label { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 15px; font-weight: 400; color: rgba(10,10,10,0.45); pointer-events: none; transition: all 0.25s cubic-bezier(0.4,0,0.2,1); background: transparent; padding: 0 4px; } .ds-input:focus ~ .ds-input-label, .ds-input:not(:placeholder-shown) ~ .ds-input-label { top: 0; transform: translateY(-50%); font-size: 12px; font-weight: 500; color: #D4A5A5; background: #FAFAF9; } .ds-input:focus-visible { outline: none; }"
+    },
+    {
+      "name": "Product Card",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "RTL product card with ambient shadow, tonal surface, and lift on hover.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-img\"></div><div class=\"ds-card-body\"><p class=\"ds-card-cat\">مراقبت از پوست</p><h3 class=\"ds-card-title\">کرم آبرسان</h3><p class=\"ds-card-price\">۲۴۰٬۰۰۰ تومان</p></div></div>",
+      "css": ".ds-card { font-family: Vazirmatn, sans-serif; background: #F8F6F4; border-radius: 16px; border: 1px solid rgba(0,0,0,0.08); overflow: hidden; direction: rtl; text-align: right; box-shadow: 0 4px 16px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04); transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s; width: 220px; } .ds-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06); } .ds-card-img { width: 100%; aspect-ratio: 1; background: linear-gradient(135deg, #E8E6E3 0%, #F0EDEA 100%); } .ds-card-body { padding: 16px; } .ds-card-cat { font-size: 12px; font-weight: 500; color: #C9A875; letter-spacing: 0.02em; margin-bottom: 4px; margin-top: 0; } .ds-card-title { font-size: 18px; font-weight: 600; color: #0A0A0A; line-height: 1.4; margin: 0 0 8px; } .ds-card-price { font-size: 15px; font-weight: 700; color: #6B4E71; margin: 0; }"
+    },
+    {
+      "name": "Floating Navbar",
+      "kind": "nav",
+      "refersTo": null,
+      "description": "Fixed glass pill, 14px from top, inset 20px. Multi-layer glass: blur + tint + specular rim.",
+      "html": "<nav class=\"ds-nav\" dir=\"rtl\"><div class=\"ds-nav-blur\"></div><div class=\"ds-nav-tint\"></div><div class=\"ds-nav-content\"><span class=\"ds-nav-brand\">ماهورا</span><div class=\"ds-nav-links\"><a href=\"#\" class=\"ds-nav-link\">محصولات</a><a href=\"#\" class=\"ds-nav-link\">درباره ما</a></div><button class=\"ds-nav-cta\">ورود</button></div></nav>",
+      "css": ".ds-nav { position: relative; display: flex; align-items: center; padding: 10px 28px; border-radius: 22px; overflow: hidden; isolation: isolate; direction: rtl; box-shadow: 0 6px 6px rgba(0,0,0,0.2), 0 0 20px rgba(0,0,0,0.1); width: 100%; max-width: 860px; font-family: Vazirmatn, sans-serif; } .ds-nav-blur { position: absolute; inset: 0; z-index: 0; border-radius: inherit; backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%); } .ds-nav-tint { position: absolute; inset: 0; z-index: 1; border-radius: inherit; background: rgba(255,255,255,0.5); box-shadow: inset 2px 2px 1px 0 rgba(255,255,255,0.5), inset -1px -1px 1px 1px rgba(255,255,255,0.5); } .ds-nav-content { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 24px; } .ds-nav-brand { font-size: 18px; font-weight: 800; color: #0A0A0A; } .ds-nav-links { display: flex; gap: 24px; align-items: center; } .ds-nav-link { font-size: 14px; font-weight: 500; color: rgba(10,10,10,0.65); text-decoration: none; transition: color 0.2s; } .ds-nav-link:hover { color: #0A0A0A; } .ds-nav-cta { font-family: Vazirmatn, sans-serif; font-size: 14px; font-weight: 700; color: #0A0A0A; background: #C9A875; padding: 8px 20px; border-radius: 100px; border: none; cursor: pointer; transition: transform 0.2s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s; } .ds-nav-cta:hover { transform: scale(1.03); box-shadow: 0 0 18px #C9A875; } .ds-nav-cta:focus-visible { outline: 2px solid #D4A5A5; outline-offset: 3px; }"
+    },
+    {
+      "name": "Status Chip",
+      "kind": "chip",
+      "refersTo": null,
+      "description": "Subdued pill with animated gold dot. Used for availability and live status indicators.",
+      "html": "<div class=\"ds-chip\" dir=\"rtl\"><span class=\"ds-chip-dot\"></span><span class=\"ds-chip-label\">موجود در انبار</span></div>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 100px; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.10); font-family: Vazirmatn, sans-serif; direction: rtl; } .ds-chip-dot { width: 8px; height: 8px; border-radius: 50%; background: #C9A875; flex-shrink: 0; animation: ds-chip-pulse 2s ease-in-out infinite; } @keyframes ds-chip-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } } .ds-chip-label { font-size: 12px; font-weight: 600; color: rgba(10,10,10,0.75); white-space: nowrap; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Persian Jewel Box",
+    "overview": "Mahoura is a curated object. Every screen is arranged like the inside of a lacquered box: each item has its place, nothing crowds anything else, and the container signals that what it holds was chosen with care. The palette — Faded Petal, Hammered Gold, Isfahan Violet — reads as pigment and patina, not brand color.\n\nThe system is light-primary. Physical scene: a young Iranian woman, mid-morning, scrolling through cosmetics on her phone by a sunlit window. The light is warm, the ambient color is cream, and the screen should feel continuous with that environment. Dark Ink surfaces appear only in hero sections.\n\nWhat this system explicitly rejects: the cluttered Persian e-commerce aesthetic of Digikala and Basalam — dense product grids, rainbow category banners, stacked promotions. Mahoura is a boutique, not a bazaar.",
+    "keyCharacteristics": [
+      "Warm cream light mode as the ambient state; Deep Ink only for hero contrast moments",
+      "Three brand pigments used sparingly: rose as glow, violet as depth anchor, gold as earned accent",
+      "Full RTL identity: Vazirmatn is the only typeface, layout flows right-to-left by default",
+      "Pill CTAs and floating glass navbar as the primary interaction signatures",
+      "Elevation expressed through rose-glow on focus and brand-tinted lift on hover"
+    ],
+    "rules": [
+      {
+        "name": "The Rarity Rule",
+        "body": "Hammered Gold appears on no more than 10% of any screen. Isfahan Violet is never a solid text color on light surfaces. Faded Petal is a glow and tint, not a fill. Three colors, each with one job.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Pure White Rule",
+        "body": "Page backgrounds use Aged Linen. Field backgrounds use Surface. Text on dark surfaces uses Surface. No surface in the system is #FFFFFF or #000000. Every neutral carries a faint warm tint toward the brand hue.",
+        "section": "colors"
+      },
+      {
+        "name": "The Single Font Rule",
+        "body": "Vazirmatn only. No decorative display face, no Latin font loaded alongside. Hierarchy comes from weight and size contrast, not typeface pairing.",
+        "section": "typography"
+      },
+      {
+        "name": "The RTL First Rule",
+        "body": "All layout and type flows right-to-left. Apply dir=\"ltr\" only on specific numeric content, phone fields, SKU codes, or Latin-script elements. Never apply LTR at the component or page level by default.",
+        "section": "typography"
+      },
+      {
+        "name": "The Brand Shadow Rule",
+        "body": "Focus rings and active glows use Faded Petal or Hammered Gold — never browser-default blue. Confirmation that the cursor is on a Mahoura surface.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Flat-At-Rest Rule",
+        "body": "Content cards have minimal ambient shadow at rest. Depth is a response to interaction, not a default posture. A card at rest should feel grounded, not floating.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use Aged Linen (#F8F6F4) as the page background. Never pure white (#FFFFFF).",
+      "Do limit Hammered Gold to the navbar CTA, chip dots, and category labels.",
+      "Do apply the rose focus ring to every interactive element.",
+      "Do keep all layout and type RTL by default. Apply dir=\"ltr\" only at the element level.",
+      "Do use pill radius (100px) for CTAs and navbar; 12px for inputs; 16px for cards.",
+      "Do treat glass effects as purposeful: floating navbar and modal sheets only.",
+      "Do vary card proportions by content role.",
+      "Do use full borders or background tints for separation — never a colored side stripe.",
+      "Do wrap entrance animations in a prefers-reduced-motion check."
+    ],
+    "donts": [
+      "Don't build cluttered product grids, rainbow banners, or stacked promotions. Digikala and Basalam are the anti-reference.",
+      "Don't use gradient text (background-clip: text with a gradient). The .gradient-text utility class should be retired.",
+      "Don't use Isfahan Violet as solid text on light surfaces — fails WCAG AA at body sizes.",
+      "Don't use cubic-bezier(0.34, 1.56, 0.64, 1) for standard UI state transitions. Reserve for hero micro-interactions only.",
+      "Don't animate CSS layout properties. Animate transform and opacity only.",
+      "Don't use identical card grids. Vary proportions and density by content role.",
+      "Don't use em dashes (— or --) in UI copy.",
+      "Don't open a modal as the first response to a user action. Exhaust inline alternatives first.",
+      "Don't use glassmorphism on content cards or list items."
+    ]
+  }
+}

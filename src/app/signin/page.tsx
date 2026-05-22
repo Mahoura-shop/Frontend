@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Phone, Loader, Sparkles, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -13,9 +13,9 @@ import { patchData } from "@/services/services";
 
 const spring = { type: "spring", stiffness: 400, damping: 30 };
 const stepVariants = {
-	enter: { opacity: 0, scale: 0.96, filter: "blur(4px)" },
-	center: { opacity: 1, scale: 1, filter: "blur(0px)" },
-	exit: { opacity: 0, scale: 1.03, filter: "blur(4px)" },
+	enter: { opacity: 0, scale: 0.96 },
+	center: { opacity: 1, scale: 1 },
+	exit: { opacity: 0, scale: 1.03 },
 };
 
 export default function SignIn() {
@@ -26,6 +26,8 @@ export default function SignIn() {
 	const [lastName, setLastName] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [resendTimer, setResendTimer] = useState(0);
+	const [stepAnnouncement, setStepAnnouncement] = useState("");
+	const shouldReduceMotion = useReducedMotion();
 	const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 	const { setAccessToken, setRefreshToken, setFirstName: storeSetFirstName, setLastName: storeSetLastName, setIsAdmin, setUserType, setPermissions } = useUserStore();
 	const router = useRouter();
@@ -35,6 +37,15 @@ export default function SignIn() {
 		const id = setTimeout(() => setResendTimer((t) => t - 1), 1000);
 		return () => clearTimeout(id);
 	}, [resendTimer]);
+
+	useEffect(() => {
+		const labels: Record<typeof step, string> = {
+			phone: "ورود یا ثبت‌نام: شماره موبایل خود را وارد کنید",
+			otp: "تایید شماره: کد ارسال شده را وارد کنید",
+			name: "تکمیل پروفایل: نام و نام خانوادگی خود را وارد کنید",
+		};
+		setStepAnnouncement(labels[step]);
+	}, [step]);
 
 	const handleSendOTP = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -46,12 +57,14 @@ export default function SignIn() {
 			setStep("otp");
 			setResendTimer(60);
 			setTimeout(() => otpRefs.current[0]?.focus(), 100);
+		} catch {
+			CustomToast("خطا در ارسال کد. لطفا دوباره امتحان کنید", "error");
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
-	const handleVerifyOTP = async (e: React.FormEvent) => {
+	const handleVerifyOTP = useCallback(async (e: React.FormEvent) => {
 		e.preventDefault();
 		const code = otp.join("");
 		if (code.length < 6) return;
@@ -75,10 +88,12 @@ export default function SignIn() {
 			} else {
 				router.push(data?.data?.isAdmin ? "/admin/dashboard" : "/");
 			}
+		} catch {
+			CustomToast("کد وارد شده اشتباه است. لطفا دوباره امتحان کنید", "error");
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [otp, phone, setAccessToken, setRefreshToken, storeSetFirstName, storeSetLastName, setIsAdmin, setUserType, setPermissions, router]);
 
 	const handleCompleteName = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -154,7 +169,7 @@ export default function SignIn() {
 		if (otp.every((d) => d !== "") && !isLoading) {
 			handleVerifyOTP({ preventDefault: () => {} } as React.FormEvent);
 		}
-	}, [otp]);
+	}, [otp, handleVerifyOTP]);
 
 	const handleResend = async () => {
 		if (resendTimer > 0) return;
@@ -171,34 +186,38 @@ export default function SignIn() {
 	};
 
 	return (
-		<div className="min-h-screen flex flex-col md:items-center md:justify-center relative overflow-hidden bg-[#1a0f1e]">
+		<div className="min-h-screen flex flex-col md:items-center md:justify-center relative overflow-x-hidden bg-[#1a0f1e]">
+
+			<div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+				{stepAnnouncement}
+			</div>
 
 			{/* Ambient orbs */}
 			<motion.div
 				className="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] md:w-[45vw] md:h-[45vw] rounded-full opacity-30"
-				style={{ background: "radial-gradient(circle, #6B4E71 0%, transparent 70%)" }}
-				animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
+				style={{ background: "radial-gradient(circle, #6B4E71 0%, transparent 70%)", willChange: "transform" }}
+				animate={shouldReduceMotion ? {} : { x: [0, 30, 0], y: [0, -20, 0] }}
 				transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
 			/>
 			<motion.div
 				className="absolute bottom-[-15%] right-[-10%] w-[65vw] h-[65vw] md:w-[40vw] md:h-[40vw] rounded-full opacity-25"
-				style={{ background: "radial-gradient(circle, #D4A5A5 0%, transparent 70%)" }}
-				animate={{ x: [0, -25, 0], y: [0, 25, 0] }}
+				style={{ background: "radial-gradient(circle, #D4A5A5 0%, transparent 70%)", willChange: "transform" }}
+				animate={shouldReduceMotion ? {} : { x: [0, -25, 0], y: [0, 25, 0] }}
 				transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 2 }}
 			/>
 			<motion.div
 				className="absolute top-[40%] right-[10%] w-[40vw] h-[40vw] md:w-[25vw] md:h-[25vw] rounded-full opacity-20"
-				style={{ background: "radial-gradient(circle, #C9A875 0%, transparent 70%)" }}
-				animate={{ x: [0, 15, 0], y: [0, -30, 0] }}
+				style={{ background: "radial-gradient(circle, #C9A875 0%, transparent 70%)", willChange: "transform" }}
+				animate={shouldReduceMotion ? {} : { x: [0, 15, 0], y: [0, -30, 0] }}
 				transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
 			/>
 
 			{/* Mobile brand header */}
-			<div className="md:hidden relative z-10 flex flex-col items-center pt-16 pb-10 px-6">
+			<div className="md:hidden landscape:hidden relative z-10 flex flex-col items-center pt-16 pb-10 px-6">
 				<motion.div
 					initial={{ opacity: 0, y: -16 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.6, ease: [0.34, 1.56, 0.64, 1] }}
+					transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
 					className="flex flex-col items-center"
 				>
 					<div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center mb-5 backdrop-blur-sm">
@@ -211,9 +230,9 @@ export default function SignIn() {
 
 			{/* Main card wrapper */}
 			<motion.div
-				initial={{ opacity: 0, y: 60, scale: 0.97 }}
+				initial={{ opacity: 0, y: 40, scale: 0.97 }}
 				animate={{ opacity: 1, y: 0, scale: 1 }}
-				transition={{ duration: 0.65, ease: [0.34, 1.56, 0.64, 1], delay: 0.15 }}
+				transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1], delay: 0.1 }}
 				className="w-full md:max-w-5xl md:mx-4 relative z-10 flex-1 md:flex-none"
 			>
 				<div className="grid md:grid-cols-2 gap-0 md:rounded-2xl overflow-hidden md:shadow-[0_32px_80px_rgba(0,0,0,0.6)] h-full md:h-auto">
@@ -331,12 +350,12 @@ export default function SignIn() {
 											<Button
 												type="submit"
 												disabled={isLoading || !firstName.trim() || !lastName.trim()}
-												className="relative w-full h-12 sm:h-13 text-base font-semibold overflow-hidden bg-gradient-to-r from-secondary-plum to-primary-rose border-0 hover:opacity-95 active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
+												className="relative w-full h-12 text-base font-semibold overflow-hidden bg-gradient-to-r from-secondary-plum to-primary-rose border-0 hover:opacity-95 active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
 											>
 												<span className="absolute inset-0 shimmer opacity-20 pointer-events-none" />
 												{isLoading ? (
 													<span className="flex items-center gap-2">
-														<Loader className="w-4 h-4 animate-spin" />
+														<Loader className="w-4 h-4 animate-spin" aria-hidden="true" />
 														در حال ذخیره...
 													</span>
 												) : (
@@ -389,6 +408,7 @@ export default function SignIn() {
 												icon={Phone}
 												value={phone}
 												autoFocus
+												autoComplete="tel"
 												onValueChange={setPhone}
 											/>
 										</motion.div>
@@ -401,12 +421,12 @@ export default function SignIn() {
 											<Button
 												type="submit"
 												disabled={isLoading || !phone}
-												className="relative w-full h-12 sm:h-13 text-base font-semibold overflow-hidden bg-gradient-to-r from-secondary-plum to-primary-rose border-0 hover:opacity-95 active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
+												className="relative w-full h-12 text-base font-semibold overflow-hidden bg-gradient-to-r from-secondary-plum to-primary-rose border-0 hover:opacity-95 active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
 											>
 												<span className="absolute inset-0 shimmer opacity-20 pointer-events-none" />
 												{isLoading ? (
 													<span className="flex items-center gap-2">
-														<Loader className="w-4 h-4 animate-spin" />
+														<Loader className="w-4 h-4 animate-spin" aria-hidden="true" />
 														در حال ارسال...
 													</span>
 												) : (
@@ -453,7 +473,9 @@ export default function SignIn() {
 									<form onSubmit={handleVerifyOTP} className="space-y-7">
 										{/* OTP boxes */}
 										<motion.div
-											className="flex justify-center gap-2 sm:gap-3"
+											role="group"
+											aria-label="کد تایید ۶ رقمی"
+											className="flex justify-center gap-1.5 sm:gap-3"
 											dir="ltr"
 											initial={{ opacity: 0, y: 12 }}
 											animate={{ opacity: 1, y: 0 }}
@@ -466,20 +488,21 @@ export default function SignIn() {
 													type="text"
 													inputMode="numeric"
 													maxLength={1}
+													aria-label={`رقم ${i + 1} از ۶`}
 													autoComplete={i === 0 ? "one-time-code" : "off"}
 													value={digit}
 													onChange={(e) => handleOtpChange(i, e.target.value)}
 													onKeyDown={(e) => handleOtpKeyDown(i, e)}
 													onPaste={i === 0 ? handleOtpPaste : undefined}
-													animate={digit ? { scale: [1, 1.08, 1] } : { scale: 1 }}
+													animate={shouldReduceMotion ? {} : (digit ? { scale: [1, 1.08, 1] } : { scale: 1 })}
 													transition={spring}
 													autoFocus={i === 0}
 													className={[
-														"w-11 h-13 sm:w-13 sm:h-15 text-center text-lg sm:text-xl font-bold rounded-xl border-2 outline-none transition-all duration-200",
+														"w-9 h-12 sm:w-12 sm:h-14 text-center text-base sm:text-xl font-bold rounded-xl border-2 outline-none transition-all duration-200",
 														"focus:ring-2 focus:ring-secondary-plum/30",
 														digit
 															? "border-secondary-plum bg-secondary-plum text-white shadow-[0_0_16px_rgba(107,78,113,0.35)]"
-															: "border-border bg-background text-foreground focus:border-secondary-plum dark:bg-gray-800 dark:border-gray-600 dark:text-white",
+															: "border-border bg-background text-foreground focus:border-secondary-plum dark:bg-card dark:border-border dark:text-foreground",
 													].join(" ")}
 												/>
 											))}
@@ -493,12 +516,12 @@ export default function SignIn() {
 											<Button
 												type="submit"
 												disabled={isLoading || otp.join("").length < 6}
-												className="relative w-full h-12 sm:h-13 text-base font-semibold overflow-hidden bg-gradient-to-r from-secondary-plum to-primary-rose border-0 hover:opacity-95 active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
+												className="relative w-full h-12 text-base font-semibold overflow-hidden bg-gradient-to-r from-secondary-plum to-primary-rose border-0 hover:opacity-95 active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
 											>
 												<span className="absolute inset-0 shimmer opacity-20 pointer-events-none" />
 												{isLoading ? (
 													<span className="flex items-center gap-2">
-														<Loader className="w-4 h-4 animate-spin" />
+														<Loader className="w-4 h-4 animate-spin" aria-hidden="true" />
 														در حال بررسی...
 													</span>
 												) : (
@@ -517,7 +540,7 @@ export default function SignIn() {
 												type="button"
 												onClick={handleResend}
 												disabled={resendTimer > 0}
-												className="text-sm text-secondary-plum disabled:text-muted-foreground disabled:cursor-not-allowed hover:underline transition-colors"
+												className="min-h-[44px] px-3 text-sm text-secondary-plum disabled:text-muted-foreground disabled:cursor-not-allowed hover:underline transition-colors"
 											>
 												{resendTimer > 0
 													? `ارسال مجدد پس از ${resendTimer} ثانیه`
@@ -526,7 +549,7 @@ export default function SignIn() {
 											<button
 												type="button"
 												onClick={() => { setStep("phone"); setOtp(["", "", "", "", "", ""]); }}
-												className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+												className="min-h-[44px] px-3 text-xs text-muted-foreground hover:text-foreground transition-colors"
 											>
 												تغییر شماره
 											</button>

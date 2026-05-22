@@ -45,6 +45,7 @@ import {
 	getOrderInstalments,
 } from "@/services/orderService";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
+import { usePermission } from "@/hooks/usePermission";
 
 interface Instalment {
 	id: number;
@@ -139,6 +140,8 @@ export default function AdminOrderDetailPage() {
 	const [updating, setUpdating] = useState(false);
 	const [statusNote, setStatusNote] = useState("");
 	const [trackingCode, setTrackingCode] = useState("");
+	const canUpdateStatus = usePermission("order:update_status");
+	const canCancel = usePermission("order:cancel");
 
 	const loadOrder = () =>
 		getAdminOrderDetail(orderID)
@@ -506,7 +509,7 @@ export default function AdminOrderDetailPage() {
 			)}
 
 			{/* Status Change */}
-			{nextStates.length > 0 && (
+			{nextStates.length > 0 && canUpdateStatus && (
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
@@ -562,7 +565,7 @@ export default function AdminOrderDetailPage() {
 			)}
 
 			{/* Danger Actions */}
-			{(order.status !== 5 || !order.refundFlag) && (
+			{canCancel && (order.status !== 5 || !order.refundFlag) && (
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}

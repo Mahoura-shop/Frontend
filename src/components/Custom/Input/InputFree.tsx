@@ -3,7 +3,7 @@ import styles from "./Input.module.css";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSettingsStore } from "@/store/useSettingsStore";
-import { useState, useEffect, useCallback, useRef } from "react"; // Added useRef
+import { useState, useEffect, useCallback, useRef, useId } from "react";
 import { isRTL } from "@/utils/isRTL";
 import { persianToAscii } from "@/utils/translateNumber";
 
@@ -23,7 +23,9 @@ interface Props {
 	value?: string | number | null | undefined;
 	onValueChange?: (value: string) => void; // Changed value type to string for consistency
 	disabled?: boolean;
-	isPriceInput?: boolean; // <-- این prop جدید اضافه شد
+	isPriceInput?: boolean;
+	autoComplete?: string;
+	placeholder?: string;
 }
 
 export default function InputFree({
@@ -45,7 +47,8 @@ export default function InputFree({
 	...props
 }: Props) {
 	const { formatPrice: formatPriceFromStore } = useSettingsStore();
-	const inputRef = useRef<HTMLInputElement>(null); // Ref for the input element
+	const inputRef = useRef<HTMLInputElement>(null);
+	const inputId = useId();
 
 	const formatPrice = useCallback(
 		(priceValue: string | number | null | undefined): string => {
@@ -234,9 +237,10 @@ export default function InputFree({
 		>
 			<div className={styles.inputWrapper}>
 				<input
-					ref={inputRef} // Attach ref to the input element
+					ref={inputRef}
+					id={inputId}
 					dir={currentDirection}
-					{...props} // Pass down other props like name, id, etc.
+					{...props}
 					autoFocus={autoFocus}
 					value={displayValue}
 					placeholder=" " // Essential for label animation
@@ -256,9 +260,10 @@ export default function InputFree({
 				/>
 				{label && (
 					<label
+						htmlFor={inputId}
 						className={cn(
 							styles.text,
-							errorClassName, // Use errorClassName for the label if applicable
+							errorClassName,
 							"font-vazirmatn",
 						)}
 					>
