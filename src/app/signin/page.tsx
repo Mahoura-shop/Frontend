@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Phone, Loader, Sparkles, ChevronRight } from "lucide-react";
+import { Phone, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import InputFree from "@/components/Custom/Input/InputFree";
@@ -115,9 +115,8 @@ export default function SignIn() {
 
 			const isAdmin = useUserStore.getState().isAdmin;
 			router.push(isAdmin ? "/admin/dashboard" : "/");
-		} catch (error) {
+		} catch {
 			CustomToast("خطایی در ذخیره اطلاعات رخ داد", "error");
-			console.error(error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -180,37 +179,22 @@ export default function SignIn() {
 			setOtp(["", "", "", "", "", ""]);
 			setResendTimer(60);
 			otpRefs.current[0]?.focus();
+		} catch {
+			CustomToast("خطا در ارسال مجدد کد. لطفا دوباره امتحان کنید", "error");
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
 	return (
-		<div className="min-h-screen flex flex-col md:items-center md:justify-center relative overflow-x-hidden bg-[#1a0f1e]">
+		<div
+			className="min-h-screen flex flex-col md:items-center md:justify-center relative overflow-x-hidden bg-[#1a0f1e]"
+			style={{ backgroundImage: "radial-gradient(ellipse 90% 60% at 0% 100%, oklch(20% 0.035 312) 0%, transparent 55%)" }}
+		>
 
 			<div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
 				{stepAnnouncement}
 			</div>
-
-			{/* Ambient orbs */}
-			<motion.div
-				className="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] md:w-[45vw] md:h-[45vw] rounded-full opacity-30"
-				style={{ background: "radial-gradient(circle, #6B4E71 0%, transparent 70%)", willChange: "transform" }}
-				animate={shouldReduceMotion ? {} : { x: [0, 30, 0], y: [0, -20, 0] }}
-				transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-			/>
-			<motion.div
-				className="absolute bottom-[-15%] right-[-10%] w-[65vw] h-[65vw] md:w-[40vw] md:h-[40vw] rounded-full opacity-25"
-				style={{ background: "radial-gradient(circle, #D4A5A5 0%, transparent 70%)", willChange: "transform" }}
-				animate={shouldReduceMotion ? {} : { x: [0, -25, 0], y: [0, 25, 0] }}
-				transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-			/>
-			<motion.div
-				className="absolute top-[40%] right-[10%] w-[40vw] h-[40vw] md:w-[25vw] md:h-[25vw] rounded-full opacity-20"
-				style={{ background: "radial-gradient(circle, #C9A875 0%, transparent 70%)", willChange: "transform" }}
-				animate={shouldReduceMotion ? {} : { x: [0, 15, 0], y: [0, -30, 0] }}
-				transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-			/>
 
 			{/* Mobile brand header */}
 			<div className="md:hidden landscape:hidden relative z-10 flex flex-col items-center pt-16 pb-10 px-6">
@@ -220,11 +204,8 @@ export default function SignIn() {
 					transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
 					className="flex flex-col items-center"
 				>
-					<div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center mb-5 backdrop-blur-sm">
-						<Sparkles className="w-7 h-7 text-accent-gold" />
-					</div>
-					<h1 className="text-3xl font-bold text-white tracking-wide mb-2">Mahoura</h1>
-					<p className="text-white/60 text-sm">زیبایی لوکس ایرانی</p>
+					<h1 className="text-4xl font-black text-white tracking-tight mb-2">Mahoura</h1>
+					<p className="text-white/40 text-xs tracking-[0.2em] uppercase">زیبایی لوکس ایرانی</p>
 				</motion.div>
 			</div>
 
@@ -238,50 +219,35 @@ export default function SignIn() {
 				<div className="grid md:grid-cols-2 gap-0 md:rounded-2xl overflow-hidden md:shadow-[0_32px_80px_rgba(0,0,0,0.6)] h-full md:h-auto">
 
 					{/* Left panel — desktop only */}
-					<div className="hidden md:flex bg-gradient-to-br from-[#2d1a33] via-[#3d2244] to-[#4a2a55] p-14 flex-col justify-between text-white relative overflow-hidden">
-						<div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(107,78,113,0.5),transparent_60%)]" />
-						<div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(201,168,117,0.15),transparent_60%)]" />
-
+					<div className="hidden md:flex bg-[oklch(13%_0.025_320)] p-14 flex-col justify-between text-white overflow-hidden">
 						<motion.div
-							initial={{ opacity: 0, x: -24 }}
-							animate={{ opacity: 1, x: 0 }}
-							transition={{ delay: 0.4, duration: 0.6 }}
-							className="relative z-10"
+							initial={{ opacity: 0, y: -20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: 0.3, duration: 0.55, ease: [0.25, 1, 0.5, 1] }}
 						>
-							<div className="w-12 h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center mb-8">
-								<Sparkles className="w-6 h-6 text-accent-gold" />
-							</div>
-							<h1 className="text-5xl font-bold mb-3 tracking-tight">Mahoura</h1>
-							<p className="text-white/60 text-lg">زیبایی لوکس ایرانی</p>
+							<p className="text-xs font-medium tracking-[0.22em] uppercase text-white/35 mb-10">
+								زیبایی لوکس ایرانی
+							</p>
+							<h1 className="text-[clamp(4.5rem,8vw,7rem)] font-black leading-[0.88] tracking-tight">
+								Mahoura
+							</h1>
 						</motion.div>
 
-						<div className="relative z-10 space-y-3">
-							{["محصولات لوکس", "تحویل سریع", "ضمانت اصالت", "پشتیبانی ۲۴/۷"].map((item, i) => (
-								<motion.div
-									key={item}
-									initial={{ opacity: 0, x: -16 }}
-									animate={{ opacity: 1, x: 0 }}
-									transition={{ delay: 0.6 + i * 0.1 }}
-									className="flex items-center gap-3 text-white/75"
-								>
-									<div className="w-1.5 h-1.5 bg-accent-gold rounded-full shrink-0 animate-pulse-glow" />
-									<span className="text-sm">{item}</span>
-								</motion.div>
-							))}
-						</div>
-
-						<motion.p
+						<motion.div
 							initial={{ opacity: 0 }}
 							animate={{ opacity: 1 }}
-							transition={{ delay: 1.1 }}
-							className="relative z-10 text-xs text-white/30"
+							transition={{ delay: 0.75, duration: 0.5 }}
 						>
-							ورود آسان با شماره موبایل
-						</motion.p>
+							<p className="text-sm text-white/45 leading-loose">
+								محصولات لوکس اصل.<br />
+								تحویل سریع.<br />
+								پشتیبانی دائم.
+							</p>
+						</motion.div>
 					</div>
 
 					{/* Right panel — form */}
-					<div className="bg-white/[0.06] md:bg-white backdrop-blur-2xl md:backdrop-blur-none dark:bg-gray-900/80 md:dark:bg-gray-900 rounded-t-[2rem] md:rounded-none px-7 pt-9 pb-10 sm:px-10 sm:pt-11 sm:pb-12 md:px-14 md:py-16">
+					<div className="bg-white dark:bg-[oklch(14%_0.025_320)] rounded-t-[2rem] md:rounded-none px-7 pt-9 pb-10 sm:px-10 sm:pt-11 sm:pb-12 md:px-14 md:py-16">
 
 						<AnimatePresence mode="wait">
 							{step === "name" ? (
@@ -350,20 +316,14 @@ export default function SignIn() {
 											<Button
 												type="submit"
 												disabled={isLoading || !firstName.trim() || !lastName.trim()}
-												className="relative w-full h-12 text-base font-semibold overflow-hidden bg-gradient-to-r from-secondary-plum to-primary-rose border-0 hover:opacity-95 active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
+												className="w-full h-12 text-base font-semibold bg-secondary-plum hover:bg-secondary-plum/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-40"
 											>
-												<span className="absolute inset-0 shimmer opacity-20 pointer-events-none" />
 												{isLoading ? (
 													<span className="flex items-center gap-2">
 														<Loader className="w-4 h-4 animate-spin" aria-hidden="true" />
 														در حال ذخیره...
 													</span>
-												) : (
-													<span className="flex items-center gap-2">
-														تایید و ورود
-														<ChevronRight className="w-4 h-4" />
-													</span>
-												)}
+												) : "تایید و ورود"}
 											</Button>
 										</motion.div>
 									</form>
@@ -421,20 +381,14 @@ export default function SignIn() {
 											<Button
 												type="submit"
 												disabled={isLoading || !phone}
-												className="relative w-full h-12 text-base font-semibold overflow-hidden bg-gradient-to-r from-secondary-plum to-primary-rose border-0 hover:opacity-95 active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
+												className="w-full h-12 text-base font-semibold bg-secondary-plum hover:bg-secondary-plum/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-40"
 											>
-												<span className="absolute inset-0 shimmer opacity-20 pointer-events-none" />
 												{isLoading ? (
 													<span className="flex items-center gap-2">
 														<Loader className="w-4 h-4 animate-spin" aria-hidden="true" />
 														در حال ارسال...
 													</span>
-												) : (
-													<span className="flex items-center gap-2">
-														دریافت کد تایید
-														<ChevronRight className="w-4 h-4" />
-													</span>
-												)}
+												) : "دریافت کد تایید"}
 											</Button>
 										</motion.div>
 									</form>
@@ -516,9 +470,8 @@ export default function SignIn() {
 											<Button
 												type="submit"
 												disabled={isLoading || otp.join("").length < 6}
-												className="relative w-full h-12 text-base font-semibold overflow-hidden bg-gradient-to-r from-secondary-plum to-primary-rose border-0 hover:opacity-95 active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
+												className="w-full h-12 text-base font-semibold bg-secondary-plum hover:bg-secondary-plum/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-40"
 											>
-												<span className="absolute inset-0 shimmer opacity-20 pointer-events-none" />
 												{isLoading ? (
 													<span className="flex items-center gap-2">
 														<Loader className="w-4 h-4 animate-spin" aria-hidden="true" />
