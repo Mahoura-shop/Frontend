@@ -65,54 +65,59 @@ export default function ProductInfoDialog({
 	variant = "eye",
 }: ProductInfoDialogProps) {
 	const [open, setOpen] = useState(false);
-	const [visitsPeriod, setVisitsPeriod] = useState<ChartPeriod>("week");
-	const [visitsChart, setVisitsChart] = useState<
-		Array<{ date: string; count: number }>
+	const [period, setPeriod] = useState<ChartPeriod>("week");
+	const [chartData, setChartData] = useState<
+		Array<{ date: string; visits: number; orders: number }>
 	>([]);
-	const [visitsChartLoading, setVisitsChartLoading] = useState(false);
-	const [ordersPeriod, setOrdersPeriod] = useState<ChartPeriod>("week");
-	const [ordersChart, setOrdersChart] = useState<
-		Array<{ date: string; count: number }>
-	>([]);
-	const [ordersChartLoading, setOrdersChartLoading] = useState(false);
+	const [chartLoading, setChartLoading] = useState(false);
 
-	const fetchVisitsChart = useCallback(
-		(period: ChartPeriod) => {
-			setVisitsChartLoading(true);
-			getData({
-				endPoint: `/v1/admin/products/${product.id}/visits?period=${period}`,
-			})
-				.then((data) => {
-					console.log("data", data);
-					setVisitsChart(data?.data ?? []);
+	const fetchChartData = useCallback(
+		(selectedPeriod: ChartPeriod) => {
+			setChartLoading(true);
+			Promise.all([
+				getData({
+					endPoint: `/v1/admin/products/${product.id}/visits?period=${selectedPeriod}`,
+				}),
+				getData({
+					endPoint: `/v1/admin/products/${product.id}/orders?period=${selectedPeriod}`,
+				}),
+			])
+				.then(([visitsRes, ordersRes]) => {
+					const visits = visitsRes?.data ?? [];
+					const orders = ordersRes?.data ?? [];
+
+					const visitsByDate = new Map(
+						visits.map((v: any) => [v.date, v.count]),
+					);
+					const ordersByDate = new Map(
+						orders.map((o: any) => [o.date, o.count]),
+					);
+
+					const allDates = new Set([
+						...visitsByDate.keys(),
+						...ordersByDate.keys(),
+					]);
+					const merged = Array.from(allDates)
+						.sort()
+						.map((date) => ({
+							date,
+							visits: visitsByDate.get(date as string) ?? 0,
+							orders: ordersByDate.get(date as string) ?? 0,
+						}));
+
+					setChartData(merged);
 				})
 				.catch(() => {})
-				.finally(() => setVisitsChartLoading(false));
-		},
-		[product.id],
-	);
-
-	const fetchOrdersChart = useCallback(
-		(period: ChartPeriod) => {
-			setOrdersChartLoading(true);
-			getData({
-				endPoint: `/v1/admin/products/${product.id}/orders?period=${period}`,
-			})
-				.then((data) => {
-					setOrdersChart(data?.data ?? []);
-				})
-				.catch(() => {})
-				.finally(() => setOrdersChartLoading(false));
+				.finally(() => setChartLoading(false));
 		},
 		[product.id],
 	);
 
 	useEffect(() => {
 		if (open) {
-			fetchVisitsChart(visitsPeriod);
-			fetchOrdersChart(ordersPeriod);
+			fetchChartData(period);
 		}
-	}, [open, visitsPeriod, ordersPeriod, fetchVisitsChart, fetchOrdersChart]);
+	}, [open, period, fetchChartData]);
 
 	const containerVariants = {
 		hidden: { opacity: 0, scale: 0.95 },
@@ -516,8 +521,7 @@ export default function ProductInfoDialog({
 									</div>
 								</motion.div>
 								<Separator />
-
-								{/* Visits Chart */}
+								{/* Combined Chart */}
 								<motion.div
 									variants={itemVariants}
 									className="space-y-4"
@@ -525,10 +529,10 @@ export default function ProductInfoDialog({
 									<div className="flex items-center justify-between flex-wrap gap-4">
 										<div>
 											<h3 className="text-sm font-semibold">
-												تعداد بازدید
+												بازدید و سفارشات
 											</h3>
 											<p className="text-xs text-muted-foreground">
-												{PERIOD_LABELS[visitsPeriod]}
+												{PERIOD_LABELS[period]}
 											</p>
 										</div>
 										<div className="flex gap-2">
@@ -543,13 +547,11 @@ export default function ProductInfoDialog({
 													key={p}
 													size="sm"
 													variant={
-														visitsPeriod === p
+														period === p
 															? "default"
 															: "outline"
 													}
-													onClick={() =>
-														setVisitsPeriod(p)
-													}
+													onClick={() => setPeriod(p)}
 												>
 													{PERIOD_LABELS[p]}
 												</Button>
@@ -557,11 +559,11 @@ export default function ProductInfoDialog({
 										</div>
 									</div>
 
-									{visitsChartLoading ? (
+									{chartLoading ? (
 										<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
 											در حال بارگذاری...
 										</div>
-									) : visitsChart.length === 0 ? (
+									) : chartData.length === 0 ? (
 										<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
 											داده‌ای یافت نشد
 										</div>
@@ -571,7 +573,7 @@ export default function ProductInfoDialog({
 											height={260}
 										>
 											<AreaChart
-												data={visitsChart}
+												data={chartData}
 												margin={{
 													top: 10,
 													right: 16,
@@ -598,118 +600,6 @@ export default function ProductInfoDialog({
 															stopOpacity={0}
 														/>
 													</linearGradient>
-												</defs>
-												<CartesianGrid
-													strokeDasharray="3 3"
-													className="stroke-muted"
-												/>
-												<XAxis
-													dataKey="date"
-													tick={{ fontSize: 11 }}
-													tickLine={false}
-													axisLine={false}
-													tickFormatter={
-														formatPersianDate
-													}
-												/>
-												<YAxis
-													allowDecimals={false}
-													tick={{ fontSize: 11 }}
-													tickLine={false}
-													axisLine={false}
-													width={32}
-												/>
-												<Tooltip
-													contentStyle={{
-														borderRadius: 8,
-														fontSize: 13,
-														backgroundColor:
-															"hsl(var(--card))",
-														border: "1px solid hsl(var(--border))",
-														color: "hsl(var(--card-foreground))",
-													}}
-													formatter={(
-														value: number,
-													) => [value, "بازدید"]}
-													labelFormatter={
-														formatPersianDate
-													}
-												/>
-												<Area
-													type="monotone"
-													dataKey="count"
-													stroke="#3b82f6"
-													strokeWidth={2}
-													fill="url(#visitsGradient)"
-												/>
-											</AreaChart>
-										</ResponsiveContainer>
-									)}
-								</motion.div>
-
-								{/* Orders Chart */}
-								<motion.div
-									variants={itemVariants}
-									className="space-y-4"
-								>
-									<div className="flex items-center justify-between flex-wrap gap-4">
-										<div>
-											<h3 className="text-sm font-semibold">
-												تعداد سفارشات
-											</h3>
-											<p className="text-xs text-muted-foreground">
-												{PERIOD_LABELS[ordersPeriod]}
-											</p>
-										</div>
-										<div className="flex gap-2">
-											{(
-												[
-													"week",
-													"month",
-													"year",
-												] as ChartPeriod[]
-											).map((p) => (
-												<Button
-													key={p}
-													size="sm"
-													variant={
-														ordersPeriod === p
-															? "default"
-															: "outline"
-													}
-													onClick={() =>
-														setOrdersPeriod(p)
-													}
-												>
-													{PERIOD_LABELS[p]}
-												</Button>
-											))}
-										</div>
-									</div>
-
-									{ordersChartLoading ? (
-										<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
-											در حال بارگذاری...
-										</div>
-									) : ordersChart.length === 0 ? (
-										<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
-											داده‌ای یافت نشد
-										</div>
-									) : (
-										<ResponsiveContainer
-											width="100%"
-											height={260}
-										>
-											<AreaChart
-												data={ordersChart}
-												margin={{
-													top: 10,
-													right: 16,
-													left: 0,
-													bottom: 0,
-												}}
-											>
-												<defs>
 													<linearGradient
 														id="ordersGradient"
 														x1="0"
@@ -760,17 +650,33 @@ export default function ProductInfoDialog({
 													}}
 													formatter={(
 														value: number,
-													) => [value, "سفارش"]}
+														name: string,
+													) => {
+														const label =
+															name === "visits"
+																? "بازدید"
+																: "سفارش";
+														return [value, label];
+													}}
 													labelFormatter={
 														formatPersianDate
 													}
 												/>
 												<Area
 													type="monotone"
-													dataKey="count"
+													dataKey="visits"
+													stroke="#3b82f6"
+													strokeWidth={2}
+													fill="url(#visitsGradient)"
+													name="visits"
+												/>
+												<Area
+													type="monotone"
+													dataKey="orders"
 													stroke="#e11d48"
 													strokeWidth={2}
 													fill="url(#ordersGradient)"
+													name="orders"
 												/>
 											</AreaChart>
 										</ResponsiveContainer>
