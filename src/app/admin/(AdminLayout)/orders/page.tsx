@@ -30,7 +30,7 @@ interface Order {
 	refundFlag: boolean
 	createdAt: string
 	items: { count: number; priceSnapshot: number; product: { name: string } }[]
-	user?: { phone: string; type: number }
+	user?: { firstName: string; lastName: string; phone: string }
 }
 
 const STATUS_MAP: Record<number, { label: string; variant: "available" | "new" | "outOfStock" | "default" | "secondary"; icon: React.ElementType }> = {
@@ -156,7 +156,11 @@ function AdminOrdersPageContent() {
 											)}
 										</TableCell>
 										<TableCell className="text-sm text-muted-foreground">
-											{order.user?.phone ?? "—"}
+											{order.user ? (
+												order.user.firstName || order.user.lastName
+													? `${order.user.firstName} ${order.user.lastName}${order.user.phone ? ` - ${order.user.phone}` : ""}`
+													: order.user.phone || "—"
+											) : "—"}
 										</TableCell>
 										<TableCell>
 											<Badge variant={status.variant} className="text-xs gap-1">

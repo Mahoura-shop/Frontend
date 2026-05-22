@@ -79,7 +79,7 @@ export default function AdminDashboard() {
 	const [loading, setLoading] = useState(true);
 	const [orderPeriod, setOrderPeriod] = useState<OrderPeriod>("week");
 	const [ordersChart, setOrdersChart] = useState<
-		Array<{ date: string; count: number }>
+		Array<{ date: string; visits: number; orders: number }>
 	>([]);
 	const [ordersChartLoading, setOrdersChartLoading] = useState(false);
 	const [salesPeriod, setSalesPeriod] = useState<OrderPeriod>("week");
@@ -101,9 +101,30 @@ export default function AdminDashboard() {
 
 	const fetchOrdersChart = useCallback((period: OrderPeriod) => {
 		setOrdersChartLoading(true);
-		getData({ endPoint: `/v1/admin/dashboard/orders?period=${period}` })
-			.then((data) => {
-				setOrdersChart(data?.data ?? []);
+		Promise.all([
+			getData({ endPoint: `/v1/admin/dashboard/visits?period=${period}` }),
+			getData({ endPoint: `/v1/admin/dashboard/orders?period=${period}` }),
+		])
+			.then(([visitsRes, ordersRes]) => {
+				const visitsByDate = new Map(
+					(visitsRes?.data ?? []).map(
+						(v: { date: string; count: number }) => [v.date, v.count],
+					),
+				);
+				const ordersByDate = new Map(
+					(ordersRes?.data ?? []).map(
+						(o: { date: string; count: number }) => [o.date, o.count],
+					),
+				);
+				const allDates = new Set([...visitsByDate.keys(), ...ordersByDate.keys()]);
+				const merged = Array.from(allDates)
+					.sort()
+					.map((date) => ({
+						date,
+						visits: visitsByDate.get(date) ?? 0,
+						orders: ordersByDate.get(date) ?? 0,
+					}));
+				setOrdersChart(merged);
 			})
 			.catch(() => {})
 			.finally(() => setOrdersChartLoading(false));
@@ -413,7 +434,7 @@ export default function AdminDashboard() {
 					<CardHeader>
 						<div className="flex items-center justify-between flex-wrap gap-4">
 							<div>
-								<CardTitle>تعداد سفارشات</CardTitle>
+								<CardTitle>بازدیدها و سفارشات</CardTitle>
 								<CardDescription>
 									{PERIOD_LABELS[orderPeriod]}
 								</CardDescription>
@@ -460,6 +481,24 @@ export default function AdminDashboard() {
 								>
 									<defs>
 										<linearGradient
+											id="visitsGradient"
+											x1="0"
+											y1="0"
+											x2="0"
+											y2="1"
+										>
+											<stop
+												offset="5%"
+												stopColor="#3b82f6"
+												stopOpacity={0.3}
+											/>
+											<stop
+												offset="95%"
+												stopColor="#3b82f6"
+												stopOpacity={0}
+											/>
+										</linearGradient>
+										<linearGradient
 											id="ordersGradient"
 											x1="0"
 											y1="0"
@@ -504,18 +543,29 @@ export default function AdminDashboard() {
 											border: "1px solid hsl(var(--border))",
 											color: "hsl(var(--card-foreground))",
 										}}
-										formatter={(value: number) => [
-											value,
-											"سفارش",
-										]}
+										formatter={(value: number, name: string) => {
+											if (name === "visits") {
+												return [value, "بازدید"];
+											}
+											return [value, "سفارش"];
+										}}
 										labelFormatter={formatPersianDate}
 									/>
 									<Area
 										type="monotone"
-										dataKey="count"
+										dataKey="visits"
+										stroke="#3b82f6"
+										strokeWidth={2}
+										fill="url(#visitsGradient)"
+										name="visits"
+									/>
+									<Area
+										type="monotone"
+										dataKey="orders"
 										stroke="#e11d48"
 										strokeWidth={2}
 										fill="url(#ordersGradient)"
+										name="orders"
 									/>
 								</AreaChart>
 							</ResponsiveContainer>

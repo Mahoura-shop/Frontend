@@ -16,9 +16,9 @@ export const metadata: Metadata = {
 	},
 };
 
-export const viewport: Viewport = {
-	themeColor: "#C8536A",
-};
+// export const viewport: Viewport = {
+// 	themeColor: "#C8536A",
+// };
 
 export default function RootLayout({
 	children,
@@ -35,7 +35,7 @@ export default function RootLayout({
 					disableTransitionOnChange
 				>
 					<TooltipProvider>{children}</TooltipProvider>
-					<Toaster richColors={true} />
+					<Toaster richColors={true} position="bottom-right" swipeDirections={["left", "right"]} />
 				</ThemeProvider>
 			</body>
 		</html>

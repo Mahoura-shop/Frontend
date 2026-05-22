@@ -9,6 +9,7 @@ import InputFree from "@/components/Custom/Input/InputFree";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import useUserStore from "@/store/userStore/userStore";
 import { sendOTP, verifyOTP } from "@/services/authService";
+import { patchData } from "@/services/services";
 
 const spring = { type: "spring", stiffness: 400, damping: 30 };
 const stepVariants = {
@@ -18,13 +19,15 @@ const stepVariants = {
 };
 
 export default function SignIn() {
-	const [step, setStep] = useState<"phone" | "otp">("phone");
+	const [step, setStep] = useState<"phone" | "otp" | "name">("phone");
 	const [phone, setPhone] = useState("");
 	const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+	const [firstName, setFirstName] = useState("");
+	const [lastName, setLastName] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [resendTimer, setResendTimer] = useState(0);
 	const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
-	const { setAccessToken, setRefreshToken, setFirstName, setLastName, setIsAdmin, setUserType, setPermissions } = useUserStore();
+	const { setAccessToken, setRefreshToken, setFirstName: storeSetFirstName, setLastName: storeSetLastName, setIsAdmin, setUserType, setPermissions } = useUserStore();
 	const router = useRouter();
 
 	useEffect(() => {
@@ -57,13 +60,49 @@ export default function SignIn() {
 			const data = await verifyOTP(phone, code);
 			setAccessToken(data?.data?.accessToken);
 			setRefreshToken(data?.data?.refreshToken);
-			setFirstName(data?.data?.firstName ?? "");
-			setLastName(data?.data?.lastName ?? "");
+			storeSetFirstName(data?.data?.firstName ?? "");
+			storeSetLastName(data?.data?.lastName ?? "");
 			setIsAdmin(data?.data?.isAdmin ?? false);
 			setUserType(data?.data?.type ?? "regular");
 			setPermissions(data?.data?.permissions ?? []);
 			CustomToast("خوش آمدید!", "success");
-			router.push(data?.data?.isAdmin ? "/admin/dashboard" : "/");
+
+			const returnedFirstName = data?.data?.firstName ?? "";
+			const returnedLastName = data?.data?.lastName ?? "";
+
+			if (!returnedFirstName || !returnedLastName) {
+				setStep("name");
+			} else {
+				router.push(data?.data?.isAdmin ? "/admin/dashboard" : "/");
+			}
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const handleCompleteName = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!firstName.trim() || !lastName.trim()) {
+			CustomToast("نام و نام خانوادگی را وارد کنید", "error");
+			return;
+		}
+
+		setIsLoading(true);
+		try {
+			await patchData({
+				endPoint: "/v1/profile",
+				data: { firstName, lastName },
+			});
+
+			storeSetFirstName(firstName);
+			storeSetLastName(lastName);
+			CustomToast("پروفایل شما تکمیل شد", "success");
+
+			const isAdmin = useUserStore.getState().isAdmin;
+			router.push(isAdmin ? "/admin/dashboard" : "/");
+		} catch (error) {
+			CustomToast("خطایی در ذخیره اطلاعات رخ داد", "error");
+			console.error(error);
 		} finally {
 			setIsLoading(false);
 		}
@@ -226,7 +265,91 @@ export default function SignIn() {
 					<div className="bg-white/[0.06] md:bg-white backdrop-blur-2xl md:backdrop-blur-none dark:bg-gray-900/80 md:dark:bg-gray-900 rounded-t-[2rem] md:rounded-none px-7 pt-9 pb-10 sm:px-10 sm:pt-11 sm:pb-12 md:px-14 md:py-16">
 
 						<AnimatePresence mode="wait">
-							{step === "phone" ? (
+							{step === "name" ? (
+								<motion.div
+									key="name-step"
+									variants={stepVariants}
+									initial="enter"
+									animate="center"
+									exit="exit"
+									transition={{ duration: 0.28, ease: "easeOut" }}
+								>
+									{/* Step header */}
+									<div className="mb-9">
+										<motion.h2
+											initial={{ opacity: 0, y: 10 }}
+											animate={{ opacity: 1, y: 0 }}
+											transition={{ delay: 0.1 }}
+											className="text-2xl sm:text-3xl font-bold text-foreground mb-2"
+										>
+											تکمیل پروفایل
+										</motion.h2>
+										<motion.p
+											initial={{ opacity: 0, y: 8 }}
+											animate={{ opacity: 1, y: 0 }}
+											transition={{ delay: 0.18 }}
+											className="text-muted-foreground text-sm sm:text-base"
+										>
+											نام و نام خانوادگی خود را وارد کنید
+										</motion.p>
+									</div>
+
+									<form onSubmit={handleCompleteName} className="space-y-4">
+										<motion.div
+											initial={{ opacity: 0, y: 12 }}
+											animate={{ opacity: 1, y: 0 }}
+											transition={{ delay: 0.22 }}
+										>
+											<InputFree
+												label="نام"
+												placeholder="نام شما"
+												value={firstName}
+												onValueChange={setFirstName}
+												disabled={isLoading}
+											/>
+										</motion.div>
+
+										<motion.div
+											initial={{ opacity: 0, y: 12 }}
+											animate={{ opacity: 1, y: 0 }}
+											transition={{ delay: 0.3 }}
+										>
+											<InputFree
+												label="نام خانوادگی"
+												placeholder="نام خانوادگی شما"
+												value={lastName}
+												onValueChange={setLastName}
+												disabled={isLoading}
+											/>
+										</motion.div>
+
+										<motion.div
+											initial={{ opacity: 0, y: 12 }}
+											animate={{ opacity: 1, y: 0 }}
+											transition={{ delay: 0.38 }}
+										>
+											<Button
+												type="submit"
+												disabled={isLoading || !firstName.trim() || !lastName.trim()}
+												className="relative w-full h-12 sm:h-13 text-base font-semibold overflow-hidden bg-gradient-to-r from-secondary-plum to-primary-rose border-0 hover:opacity-95 active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
+											>
+												<span className="absolute inset-0 shimmer opacity-20 pointer-events-none" />
+												{isLoading ? (
+													<span className="flex items-center gap-2">
+														<Loader className="w-4 h-4 animate-spin" />
+														در حال ذخیره...
+													</span>
+												) : (
+													<span className="flex items-center gap-2">
+														تایید و ورود
+														<ChevronRight className="w-4 h-4" />
+													</span>
+												)}
+											</Button>
+										</motion.div>
+									</form>
+								</motion.div>
+							) : step === "phone" ? (
 								<motion.div
 									key="phone-step"
 									variants={stepVariants}

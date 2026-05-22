@@ -16,8 +16,8 @@ input[type="number"] {
 
 @theme inline {
 	/* Font */
-	--font-sans: var(--font-pinar);
-	--font-heading: var(--font-pinar);
+	--font-sans: var(--font-Vazirmatn);
+	--font-heading: var(--font-Vazirmatn);
 	--font-weight-light: 300;
 	--font-weight-normal: 400;
 	--font-weight-medium: 500;
@@ -165,22 +165,6 @@ input[type="number"] {
 		direction: rtl;
 	}
 
-	/* Vazirmatn heading rhythm — Persian script needs more leading than Latin defaults */
-	h1,
-	h2,
-	h3,
-	h4 {
-		line-height: 1.45;
-		letter-spacing: 0;
-	}
-
-	/* Persian body text rhythm */
-	p,
-	li,
-	span {
-		letter-spacing: 0;
-	}
-
 	/* Smooth scrolling */
 
 	.no-scrollbar::-webkit-scrollbar {
@@ -200,8 +184,6 @@ input[type="number"] {
 	body {
 		overflow-x: hidden;
 		-webkit-font-smoothing: antialiased;
-		-webkit-backface-visibility: hidden;
-		backface-visibility: hidden;
 	}
 
 	.rtl {
@@ -221,11 +203,6 @@ input[type="number"] {
 
 @layer utilities {
 	/* Glassmorphism effect */
-
-	/* Hardware acceleration for smoother scrolling */
-	section:not([data-sonner-toaster]) {
-		transform: translate3d(0, 0, 0);
-	}
 
 	.no-select {
 		-webkit-user-select: none; /* Safari */

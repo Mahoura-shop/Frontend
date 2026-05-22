@@ -5,7 +5,7 @@ export default function CustomToast(
 ) {
 	function Toast(message: string) {
 		return (
-			<div data-test="sonner-toast" className="font-vazirmatn">
+			<div data-test="sonner-toastn" className="font-vazirmatn">
 				{message}
 			</div>
 		);

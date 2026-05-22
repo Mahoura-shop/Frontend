@@ -34,6 +34,7 @@ const TYPE_LABELS: Record<string, string> = {
 const schema = Yup.object({
 	firstName: Yup.string().max(50, "حداکثر ۵۰ کاراکتر"),
 	lastName: Yup.string().max(50, "حداکثر ۵۰ کاراکتر"),
+	email: Yup.string().email("ایمیل معتبر نیست").max(100, "حداکثر ۱۰۰ کاراکتر"),
 })
 
 export default function SettingsPage() {
@@ -94,7 +95,7 @@ export default function SettingsPage() {
 		)
 	}
 
-	const handleSave = async (values: { firstName: string; lastName: string }) => {
+	const handleSave = async (values: { firstName: string; lastName: string; email: string }) => {
 		setSaving(true)
 		try {
 			const res = await updateMyProfile(values)
@@ -149,6 +150,7 @@ export default function SettingsPage() {
 							initialValues={{
 								firstName: profile.firstName ?? "",
 								lastName: profile.lastName ?? "",
+								email: profile.email ?? "",
 							}}
 							validationSchema={schema}
 							onSubmit={handleSave}
@@ -165,6 +167,14 @@ export default function SettingsPage() {
 										name="lastName"
 										label="نام خانوادگی"
 										placeholder="نام خانوادگی خود را وارد کنید"
+									/>
+								</div>
+								<div>
+									<Input
+										name="email"
+										label="ایمیل"
+										placeholder="ایمیل خود را وارد کنید"
+										type="email"
 									/>
 								</div>
 								<div className="p-3 bg-muted/40 rounded-lg text-xs text-muted-foreground">
