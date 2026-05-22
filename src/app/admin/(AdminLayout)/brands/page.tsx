@@ -31,10 +31,12 @@ import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import BrandInfoDialog from "@/components/admin/Brand/BrandInfoDialog";
 import UpdateBrandDialog from "@/components/admin/Brand/UpdateBrandDialog";
 import DeleteBrandDialog from "@/components/admin/Brand/DeleteBrandDialog";
+import BrandProductsDialog from "@/components/admin/Brand/BrandProductsDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getData } from "@/services/services";
 import PermissionGuard from "@/components/admin/PermissionGuard";
 import { usePermission } from "@/hooks/usePermission";
+import GroupPriceUpdate from "@/components/GroupPriceUpdate/GroupPriceUpdate";
 
 function BrandsPageContent() {
 	const canCreate = usePermission("brand:create");
@@ -64,9 +66,12 @@ function BrandsPageContent() {
 
 	const fetchBrands = useCallback(() => {
 		setLoading(true);
-		getData({ endPoint: `/v1/brand` }).then((data) => {
-			setBrands(data.data ?? []);
-		}).finally(() => setLoading(false));
+		getData({ endPoint: `/v1/brand` })
+			.then((data) => {
+				console.log("data", data);
+				setBrands(data.data ?? []);
+			})
+			.finally(() => setLoading(false));
 	}, []);
 
 	useEffect(() => {
@@ -177,81 +182,89 @@ function BrandsPageContent() {
 							</CardContent>
 						</Card>
 					)}
-					{!loading && <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-						{paginatedBrands?.map((brand, i) => (
-							<motion.div
-								key={brand.id}
-								initial={{ opacity: 0, scale: 0.9 }}
-								animate={{ opacity: 1, scale: 1 }}
-								transition={{ delay: i * 0.05 }}
-							>
-								<Card className="overflow-hidden group hover:shadow-xl transition-all">
-									<div className="relative h-48 bg-muted flex items-center justify-center">
-										{brand.brandPic ? (
-											<img
-												src={brand.brandPic}
-												alt={brand.name}
-												className="w-full h-full object-cover"
-											/>
-										) : (
-											<ImageIcon className="w-16 h-16 text-muted-foreground" />
-										)}
+					{!loading && (
+						<div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+							{paginatedBrands?.map((brand, i) => (
+								<motion.div
+									key={brand.id}
+									initial={{ opacity: 0, scale: 0.9 }}
+									animate={{ opacity: 1, scale: 1 }}
+									transition={{ delay: i * 0.05 }}
+								>
+									<Card className="overflow-hidden group hover:shadow-xl transition-all">
+										<div className="relative h-48 bg-muted flex items-center justify-center">
+											{brand.brandPic ? (
+												<img
+													src={brand.brandPic}
+													alt={brand.name}
+													className="w-full h-full object-cover"
+												/>
+											) : (
+												<ImageIcon className="w-16 h-16 text-muted-foreground" />
+											)}
 
-										{/* Quick Actions */}
-										<div className="absolute top-2 left-2 flex gap-2">
-											<BrandInfoDialog brand={brand} />
-											{canEdit && (
-												<UpdateBrandDialog
-													fetchBrands={fetchBrands}
-													mode="update"
+											{/* Quick Actions */}
+											<div className="absolute top-2 left-2 flex gap-2">
+												<BrandInfoDialog
 													brand={brand}
 												/>
-											)}
-											{canDelete && (
-												<DeleteBrandDialog
-													id={brand?.id}
-													fetchBrands={fetchBrands}
+												{canEdit && (
+													<UpdateBrandDialog
+														fetchBrands={
+															fetchBrands
+														}
+														mode="update"
+														brand={brand}
+													/>
+												)}
+												{canDelete && (
+													<DeleteBrandDialog
+														id={brand?.id}
+														fetchBrands={
+															fetchBrands
+														}
+													/>
+												)}
+											</div>
+
+											{/* Status Badge */}
+											<div className="absolute top-2 right-2">
+												<Badge
+													variant={
+														brand.isActive
+															? "available"
+															: "outOfStock"
+													}
+												>
+													{brand.isActive
+														? "فعال"
+														: "غیرفعال"}
+												</Badge>
+											</div>
+										</div>
+
+										<CardContent className="p-4">
+											<h3 className="font-bold mb-2 text-lg">
+												{brand.name}
+											</h3>
+											<div className="flex items-center justify-between text-sm">
+												<span className="text-muted-foreground">
+													{brand.count} محصول
+												</span>
+												<GroupPriceUpdate
+													name={brand.name}
+													products={brand.products}
 												/>
-											)}
-										</div>
-
-										{/* Status Badge */}
-										<div className="absolute top-2 right-2">
-											<Badge
-												variant={
-													brand.isActive
-														? "available"
-														: "outOfStock"
-												}
-											>
-												{brand.isActive
-													? "فعال"
-													: "غیرفعال"}
-											</Badge>
-										</div>
-									</div>
-
-									<CardContent className="p-4">
-										<h3 className="font-bold mb-2 text-lg">
-											{brand.name}
-										</h3>
-										<div className="flex items-center justify-between text-sm">
-											<span className="text-muted-foreground">
-												{brand.count} محصول
-											</span>
-											<Button
-												variant="ghost"
-												size="sm"
-												className="h-8"
-											>
-												مشاهده محصولات
-											</Button>
-										</div>
-									</CardContent>
-								</Card>
-							</motion.div>
-						))}
-					</div>}
+												{/* <BrandProductsDialog
+													brand={brand}
+												/> */}
+											</div>
+										</CardContent>
+									</Card>
+								</motion.div>
+							))}
+						</div>
+					)}
 				</>
 			)}
 
@@ -271,12 +284,18 @@ function BrandsPageContent() {
 								</TableRow>
 							</TableHeader>
 							<TableBody>
-								{loading && (
+								{loading &&
 									Array.from({ length: 8 }).map((_, i) => (
 										<TableRow key={i}>
-											<TableCell><Skeleton className="h-4 w-28" /></TableCell>
-											<TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
-											<TableCell><Skeleton className="h-5 w-14 rounded-full" /></TableCell>
+											<TableCell>
+												<Skeleton className="h-4 w-28" />
+											</TableCell>
+											<TableCell>
+												<Skeleton className="h-5 w-16 rounded-full" />
+											</TableCell>
+											<TableCell>
+												<Skeleton className="h-5 w-14 rounded-full" />
+											</TableCell>
 											<TableCell>
 												<div className="flex items-center justify-center gap-2">
 													<Skeleton className="h-8 w-8 rounded-md" />
@@ -285,8 +304,7 @@ function BrandsPageContent() {
 												</div>
 											</TableCell>
 										</TableRow>
-									))
-								)}
+									))}
 								{!loading && paginatedBrands.length === 0 && (
 									<TableRow>
 										<TableCell
@@ -330,12 +348,19 @@ function BrandsPageContent() {
 										</TableCell>
 										<TableCell>
 											<div className="flex items-center justify-center gap-2">
+												<GroupPriceUpdate
+													name={brand?.name}
+													products={brand?.products}
+													variant="icon"
+												/>
 												<BrandInfoDialog
 													brand={brand}
 												/>
 												{canEdit && (
 													<UpdateBrandDialog
-														fetchBrands={fetchBrands}
+														fetchBrands={
+															fetchBrands
+														}
 														mode="update"
 														brand={brand}
 													/>
@@ -343,7 +368,9 @@ function BrandsPageContent() {
 												{canDelete && (
 													<DeleteBrandDialog
 														id={brand?.id}
-														fetchBrands={fetchBrands}
+														fetchBrands={
+															fetchBrands
+														}
 													/>
 												)}
 											</div>

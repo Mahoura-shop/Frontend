@@ -4,8 +4,16 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { formatIncome, formatPersianDate } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
-	PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
-	AreaChart, Area, XAxis, YAxis, CartesianGrid,
+	PieChart,
+	Pie,
+	Cell,
+	Tooltip,
+	ResponsiveContainer,
+	AreaChart,
+	Area,
+	XAxis,
+	YAxis,
+	CartesianGrid,
 } from "recharts";
 import {
 	Package,
@@ -65,19 +73,26 @@ const PERIOD_LABELS: Record<OrderPeriod, string> = {
 };
 
 export default function AdminDashboard() {
-	const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+	const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+		null,
+	);
 	const [loading, setLoading] = useState(true);
 	const [orderPeriod, setOrderPeriod] = useState<OrderPeriod>("week");
-	const [ordersChart, setOrdersChart] = useState<Array<{ date: string; count: number }>>([]);
+	const [ordersChart, setOrdersChart] = useState<
+		Array<{ date: string; count: number }>
+	>([]);
 	const [ordersChartLoading, setOrdersChartLoading] = useState(false);
 	const [salesPeriod, setSalesPeriod] = useState<OrderPeriod>("week");
-	const [salesChart, setSalesChart] = useState<Array<{ date: string; revenue: number }>>([]);
+	const [salesChart, setSalesChart] = useState<
+		Array<{ date: string; revenue: number }>
+	>([]);
 	const [salesChartLoading, setSalesChartLoading] = useState(false);
 
 	const fetchDashboardData = () => {
 		setLoading(true);
 		getData({ endPoint: `/v1/admin/dashboard` })
 			.then((data) => {
+				console.log("data", data);
 				setDashboardData(data?.data);
 			})
 			.catch(() => {})
@@ -150,60 +165,65 @@ export default function AdminDashboard() {
 
 			{/* Stats Cards */}
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-				{loading ? (
-					Array.from({ length: 3 }).map((_, i) => (
-						<Card key={i}>
-							<CardHeader className="pb-3">
-								<Skeleton className="w-12 h-12 rounded-lg" />
-							</CardHeader>
-							<CardContent>
-								<Skeleton className="h-4 w-24 mb-2" />
-								<Skeleton className="h-8 w-16" />
-							</CardContent>
-						</Card>
-					))
-				) : stats?.map((stat, i) => (
-					<motion.div
-						key={stat.title}
-						initial={{ opacity: 0, y: 20, scale: 0.95 }}
-						animate={{ opacity: 1, y: 0, scale: 1 }}
-						transition={{ delay: i * 0.1, type: "spring" }}
-						whileHover={{
-							y: -8,
-							transition: { type: "spring", stiffness: 400 },
-						}}
-					>
-						<Card className="overflow-hidden relative group">
-							<CardHeader className="pb-3">
-								<div className="flex items-center justify-between">
-									<div
-										className={`w-12 h-12 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center`}
-									>
-										<stat.icon className="w-6 h-6 text-white" />
-									</div>
-								</div>
-							</CardHeader>
-							<CardContent>
-								<div className="space-y-1">
-									<p className="text-sm text-muted-foreground">
-										{stat.title}
-									</p>
-									<motion.p
-										className="text-3xl font-bold"
-										initial={{ scale: 1 }}
-										whileInView={{ scale: [1, 1.1, 1] }}
-										viewport={{ once: true }}
-										transition={{ duration: 0.5 }}
-									>
-										{stat.value}
-									</motion.p>
-								</div>
-							</CardContent>
+				{loading
+					? Array.from({ length: 3 }).map((_, i) => (
+							<Card key={i}>
+								<CardHeader className="pb-3">
+									<Skeleton className="w-12 h-12 rounded-lg" />
+								</CardHeader>
+								<CardContent>
+									<Skeleton className="h-4 w-24 mb-2" />
+									<Skeleton className="h-8 w-16" />
+								</CardContent>
+							</Card>
+						))
+					: stats?.map((stat, i) => (
+							<motion.div
+								key={stat.title}
+								initial={{ opacity: 0, y: 20, scale: 0.95 }}
+								animate={{ opacity: 1, y: 0, scale: 1 }}
+								transition={{ delay: i * 0.1, type: "spring" }}
+								whileHover={{
+									y: -8,
+									transition: {
+										type: "spring",
+										stiffness: 400,
+									},
+								}}
+							>
+								<Card className="overflow-hidden relative group">
+									<CardHeader className="pb-3">
+										<div className="flex items-center justify-between">
+											<div
+												className={`w-12 h-12 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center`}
+											>
+												<stat.icon className="w-6 h-6 text-white" />
+											</div>
+										</div>
+									</CardHeader>
+									<CardContent>
+										<div className="space-y-1">
+											<p className="text-sm text-muted-foreground">
+												{stat.title}
+											</p>
+											<motion.p
+												className="text-3xl font-bold"
+												initial={{ scale: 1 }}
+												whileInView={{
+													scale: [1, 1.1, 1],
+												}}
+												viewport={{ once: true }}
+												transition={{ duration: 0.5 }}
+											>
+												{stat.value}
+											</motion.p>
+										</div>
+									</CardContent>
 
-							<div className="absolute inset-0 bg-gradient-to-br from-primary-rose/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-						</Card>
-					</motion.div>
-				))}
+									<div className="absolute inset-0 bg-gradient-to-br from-primary-rose/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+								</Card>
+							</motion.div>
+						))}
 			</div>
 
 			{/* Revenue Per Tier */}
@@ -249,7 +269,11 @@ export default function AdminDashboard() {
 									];
 									const chartData =
 										dashboardData.revenuePerTier
-											.filter((item) => item.tier !== "" && item.revenue > 0)
+											.filter(
+												(item) =>
+													item.tier !== "" &&
+													item.revenue > 0,
+											)
 											.map((item) => ({
 												name:
 													tierNames[
@@ -291,12 +315,53 @@ export default function AdminDashboard() {
 														)}
 													</Pie>
 													<Tooltip
-														formatter={(
-															value: number,
-														) => [
-															formatIncome(value),
-															"درآمد",
-														]}
+														content={({
+															active,
+															payload,
+														}) => {
+															if (
+																!active ||
+																!payload?.length
+															)
+																return null;
+															const {
+																name,
+																value,
+															} = payload[0];
+															return (
+																<div
+																	style={{
+																		background:
+																			"hsl(var(--card))",
+																		border: "1px solid hsl(var(--border))",
+																		borderRadius: 8,
+																		padding:
+																			"8px 12px",
+																		color: "hsl(var(--card-foreground))",
+																	}}
+																>
+																	<div
+																		style={{
+																			fontWeight: 600,
+																			marginBottom: 2,
+																		}}
+																	>
+																		{name}
+																	</div>
+																	<div
+																		style={{
+																			fontSize: 12,
+																			opacity: 0.75,
+																		}}
+																	>
+																		درآمد:{" "}
+																		{formatIncome(
+																			value as number,
+																		)}
+																	</div>
+																</div>
+															);
+														}}
 													/>
 												</PieChart>
 											</ResponsiveContainer>
@@ -349,14 +414,22 @@ export default function AdminDashboard() {
 						<div className="flex items-center justify-between flex-wrap gap-4">
 							<div>
 								<CardTitle>تعداد سفارشات</CardTitle>
-								<CardDescription>{PERIOD_LABELS[orderPeriod]}</CardDescription>
+								<CardDescription>
+									{PERIOD_LABELS[orderPeriod]}
+								</CardDescription>
 							</div>
 							<div className="flex gap-2">
-								{(["week", "month", "year"] as OrderPeriod[]).map((p) => (
+								{(
+									["week", "month", "year"] as OrderPeriod[]
+								).map((p) => (
 									<Button
 										key={p}
 										size="sm"
-										variant={orderPeriod === p ? "default" : "outline"}
+										variant={
+											orderPeriod === p
+												? "default"
+												: "outline"
+										}
 										onClick={() => setOrderPeriod(p)}
 									>
 										{PERIOD_LABELS[p]}
@@ -376,26 +449,66 @@ export default function AdminDashboard() {
 							</div>
 						) : (
 							<ResponsiveContainer width="100%" height={260}>
-								<AreaChart data={ordersChart} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
+								<AreaChart
+									data={ordersChart}
+									margin={{
+										top: 10,
+										right: 16,
+										left: 0,
+										bottom: 0,
+									}}
+								>
 									<defs>
-										<linearGradient id="ordersGradient" x1="0" y1="0" x2="0" y2="1">
-											<stop offset="5%" stopColor="#e11d48" stopOpacity={0.3} />
-											<stop offset="95%" stopColor="#e11d48" stopOpacity={0} />
+										<linearGradient
+											id="ordersGradient"
+											x1="0"
+											y1="0"
+											x2="0"
+											y2="1"
+										>
+											<stop
+												offset="5%"
+												stopColor="#e11d48"
+												stopOpacity={0.3}
+											/>
+											<stop
+												offset="95%"
+												stopColor="#e11d48"
+												stopOpacity={0}
+											/>
 										</linearGradient>
 									</defs>
-									<CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-									<XAxis dataKey="date" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={formatPersianDate} />
-									<YAxis allowDecimals={false} tick={{ fontSize: 11 }} tickLine={false} axisLine={false} width={32} />
+									<CartesianGrid
+										strokeDasharray="3 3"
+										className="stroke-muted"
+									/>
+									<XAxis
+										dataKey="date"
+										tick={{ fontSize: 11 }}
+										tickLine={false}
+										axisLine={false}
+										tickFormatter={formatPersianDate}
+									/>
+									<YAxis
+										allowDecimals={false}
+										tick={{ fontSize: 11 }}
+										tickLine={false}
+										axisLine={false}
+										width={32}
+									/>
 									<Tooltip
 										contentStyle={{
-										borderRadius: 8,
-										fontSize: 13,
-										backgroundColor: "hsl(var(--card))",
-										border: "1px solid hsl(var(--border))",
-										color: "hsl(var(--card-foreground))",
-									}}
-										formatter={(value: number) => [value, "سفارش"]}
-									labelFormatter={formatPersianDate}
+											borderRadius: 8,
+											fontSize: 13,
+											backgroundColor: "hsl(var(--card))",
+											border: "1px solid hsl(var(--border))",
+											color: "hsl(var(--card-foreground))",
+										}}
+										formatter={(value: number) => [
+											value,
+											"سفارش",
+										]}
+										labelFormatter={formatPersianDate}
 									/>
 									<Area
 										type="monotone"
@@ -412,87 +525,131 @@ export default function AdminDashboard() {
 			</motion.div>
 
 			{/* Sales Chart */}
-		<motion.div
-			initial={{ opacity: 0, y: 20 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ delay: 0.45 }}
-			className="mb-8"
-		>
-			<Card>
-				<CardHeader>
-					<div className="flex items-center justify-between flex-wrap gap-4">
-						<div>
-							<CardTitle>درآمد فروش</CardTitle>
-							<CardDescription>{PERIOD_LABELS[salesPeriod]}</CardDescription>
+			<motion.div
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ delay: 0.45 }}
+				className="mb-8"
+			>
+				<Card>
+					<CardHeader>
+						<div className="flex items-center justify-between flex-wrap gap-4">
+							<div>
+								<CardTitle>درآمد فروش</CardTitle>
+								<CardDescription>
+									{PERIOD_LABELS[salesPeriod]}
+								</CardDescription>
+							</div>
+							<div className="flex gap-2">
+								{(
+									["week", "month", "year"] as OrderPeriod[]
+								).map((p) => (
+									<Button
+										key={p}
+										size="sm"
+										variant={
+											salesPeriod === p
+												? "default"
+												: "outline"
+										}
+										onClick={() => setSalesPeriod(p)}
+									>
+										{PERIOD_LABELS[p]}
+									</Button>
+								))}
+							</div>
 						</div>
-						<div className="flex gap-2">
-							{(["week", "month", "year"] as OrderPeriod[]).map((p) => (
-								<Button
-									key={p}
-									size="sm"
-									variant={salesPeriod === p ? "default" : "outline"}
-									onClick={() => setSalesPeriod(p)}
-								>
-									{PERIOD_LABELS[p]}
-								</Button>
-							))}
-						</div>
-					</div>
-				</CardHeader>
-				<CardContent>
-					{salesChartLoading ? (
-						<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
-							در حال بارگذاری...
-						</div>
-					) : salesChart.length === 0 ? (
-						<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
-							داده‌ای یافت نشد
-						</div>
-					) : (
-						<ResponsiveContainer width="100%" height={260}>
-							<AreaChart data={salesChart} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
-								<defs>
-									<linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
-										<stop offset="5%" stopColor="#7c3aed" stopOpacity={0.3} />
-										<stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
-									</linearGradient>
-								</defs>
-								<CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-								<XAxis dataKey="date" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={formatPersianDate} />
-								<YAxis
-									allowDecimals={false}
-									tick={{ fontSize: 11 }}
-									tickLine={false}
-									axisLine={false}
-									width={48}
-									tickFormatter={(v: number) => formatIncome(v).split(" ")[0]}
-								/>
-								<Tooltip
-									contentStyle={{
-										borderRadius: 8,
-										fontSize: 13,
-										backgroundColor: "hsl(var(--card))",
-										border: "1px solid hsl(var(--border))",
-										color: "hsl(var(--card-foreground))",
+					</CardHeader>
+					<CardContent>
+						{salesChartLoading ? (
+							<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
+								در حال بارگذاری...
+							</div>
+						) : salesChart.length === 0 ? (
+							<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
+								داده‌ای یافت نشد
+							</div>
+						) : (
+							<ResponsiveContainer width="100%" height={260}>
+								<AreaChart
+									data={salesChart}
+									margin={{
+										top: 10,
+										right: 16,
+										left: 0,
+										bottom: 0,
 									}}
-									formatter={(value: number) => [formatIncome(value), "درآمد"]}
-									labelFormatter={formatPersianDate}
-								/>
-								<Area
-									type="monotone"
-									dataKey="revenue"
-									stroke="#7c3aed"
-									strokeWidth={2}
-									fill="url(#salesGradient)"
-								/>
-							</AreaChart>
-						</ResponsiveContainer>
-					)}
-				</CardContent>
-			</Card>
-		</motion.div>
+								>
+									<defs>
+										<linearGradient
+											id="salesGradient"
+											x1="0"
+											y1="0"
+											x2="0"
+											y2="1"
+										>
+											<stop
+												offset="5%"
+												stopColor="#7c3aed"
+												stopOpacity={0.3}
+											/>
+											<stop
+												offset="95%"
+												stopColor="#7c3aed"
+												stopOpacity={0}
+											/>
+										</linearGradient>
+									</defs>
+									<CartesianGrid
+										strokeDasharray="3 3"
+										className="stroke-muted"
+									/>
+									<XAxis
+										dataKey="date"
+										tick={{ fontSize: 11 }}
+										tickLine={false}
+										axisLine={false}
+										tickFormatter={formatPersianDate}
+									/>
+									<YAxis
+										allowDecimals={false}
+										tick={{ fontSize: 11 }}
+										tickLine={false}
+										axisLine={false}
+										width={48}
+										tickFormatter={(v: number) =>
+											formatIncome(v).split(" ")[0]
+										}
+									/>
+									<Tooltip
+										contentStyle={{
+											borderRadius: 8,
+											fontSize: 13,
+											backgroundColor: "hsl(var(--card))",
+											border: "1px solid hsl(var(--border))",
+											color: "hsl(var(--card-foreground))",
+										}}
+										formatter={(value: number) => [
+											formatIncome(value),
+											"درآمد",
+										]}
+										labelFormatter={formatPersianDate}
+									/>
+									<Area
+										type="monotone"
+										dataKey="revenue"
+										stroke="#7c3aed"
+										strokeWidth={2}
+										fill="url(#salesGradient)"
+									/>
+								</AreaChart>
+							</ResponsiveContainer>
+						)}
+					</CardContent>
+				</Card>
+			</motion.div>
 
-		{/* Low Stock Products */}
+			{/* Low Stock Products */}
 			{dashboardData?.lowStockProducts &&
 				dashboardData.lowStockProducts.length > 0 && (
 					<motion.div
@@ -589,8 +746,7 @@ export default function AdminDashboard() {
 														{product.name}
 													</TableCell>
 													<TableCell>
-														<div className="flex items-center gap-2">
-															<TrendingUp className="w-4 h-4 text-green-600" />
+														<div>
 															{product.quantity}
 														</div>
 													</TableCell>

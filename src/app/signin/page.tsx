@@ -265,6 +265,7 @@ export default function SignIn() {
 												label="شماره موبایل"
 												icon={Phone}
 												value={phone}
+												autoFocus
 												onValueChange={setPhone}
 											/>
 										</motion.div>

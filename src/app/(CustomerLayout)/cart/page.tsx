@@ -65,17 +65,17 @@ export default function CartPage() {
 		getShippingCost().then(setShippingCost).catch(() => {});
 	}, []);
 
-	const handleApplyCoupon = () => {
-		const lower = couponCode.toLowerCase();
-		if (lower in VALID_COUPONS) {
-			setAppliedCoupon({
-				code: couponCode,
-				discount: VALID_COUPONS[lower],
-			});
-		} else {
-			alert("کد تخفیف نامعتبر است");
-		}
-	};
+	// const handleApplyCoupon = () => {
+	// 	const lower = couponCode.toLowerCase();
+	// 	if (lower in VALID_COUPONS) {
+	// 		setAppliedCoupon({
+	// 			code: couponCode,
+	// 			discount: VALID_COUPONS[lower],
+	// 		});
+	// 	} else {
+	// 		alert("کد تخفیف نامعتبر است");
+	// 	}
+	// };
 
 	const subtotal = items.reduce(
 		(sum, item) => sum + resolvePrice(item.product, userType) * item.count,
@@ -338,7 +338,7 @@ export default function CartPage() {
 								</div>
 
 								<CardContent className="p-6 space-y-4">
-									<div className="space-y-2">
+									{/* <div className="space-y-2">
 										<label className="text-sm font-medium flex items-center gap-2">
 											<Tag className="w-4 h-4" />
 											کد تخفیف
@@ -384,7 +384,7 @@ export default function CartPage() {
 										)}
 									</div>
 
-									<Separator />
+									<Separator /> */}
 
 									<div className="space-y-3">
 										<div className="flex items-center justify-between">
@@ -396,7 +396,7 @@ export default function CartPage() {
 											</span>
 										</div>
 
-										{appliedCoupon && (
+										{/* {appliedCoupon && (
 											<div className="flex items-center justify-between text-green-600 dark:text-green-400">
 												<span className="flex items-center gap-1">
 													<Percent className="w-4 h-4" />
@@ -408,7 +408,7 @@ export default function CartPage() {
 													ریال
 												</span>
 											</div>
-										)}
+										)} */}
 
 										<div className="flex items-center justify-between">
 											<span className="text-muted-foreground">
@@ -431,7 +431,9 @@ export default function CartPage() {
 
 									<Separator />
 
-									<div className="flex items-center justify-between text-xl font-bold">
+<div className="flex flex-col gap-4">
+
+									<div className="flex items-center justify-between text-xl font-bold ">
 										<span>مجموع نهایی</span>
 										<span className="gradient-text">
 											{formatPrice(total)}
@@ -459,12 +461,13 @@ export default function CartPage() {
 											ادامه خرید
 										</Button>
 									</Link>
+</div>
 								</CardContent>
 							</Card>
 
 							<Card className="p-4">
 								<div className="space-y-3">
-									<div className="flex items-center gap-3">
+									{/* <div className="flex items-center gap-3">
 										<div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
 											<Gift className="w-5 h-5 text-green-600" />
 										</div>
@@ -477,7 +480,7 @@ export default function CartPage() {
 											</p>
 										</div>
 									</div>
-									<Separator />
+									<Separator /> */}
 									<div className="flex items-center gap-3">
 										<div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
 											<ShoppingBag className="w-5 h-5 text-blue-600" />

@@ -63,16 +63,17 @@ export default function InputFree({
 			// Note: The original logic used /[^\d.]/g. If your formatPriceFromStore handles decimals, keep '.', otherwise remove it.
 			// For Persian numbers, we might want to handle them more explicitly.
 			// Let's assume formatPriceFromStore expects ASCII digits.
+			const isNegative = stringValue.trimStart().startsWith("-");
 			let asciiValue = persianToAscii(stringValue);
-			let numericString = asciiValue.replace(/[^\d.]/g, ""); // Keep dot if decimals are supported
+			let numericString = asciiValue.replace(/[^\d.]/g, "");
 
-			if (numericString === "" || numericString === ".") return "";
+			if (numericString === "" || numericString === ".") return isNegative ? "-" : "";
 
 			const num = Number(numericString);
 			if (isNaN(num)) return "";
 
-			// formatPriceFromStore expects a number, returns a formatted string
-			return formatPriceFromStore(num);
+			const formatted = formatPriceFromStore(num);
+			return isNegative ? "-" + formatted : formatted;
 		},
 		[formatPriceFromStore],
 	);
@@ -116,27 +117,27 @@ export default function InputFree({
 			let newDisplayValue = originalValue;
 
 			if (isPriceInput) {
-				// 1. Extract and clean digits (Persian and ASCII)
+				// 1. Extract and clean digits (Persian and ASCII), preserving leading minus
+				const isNeg = originalValue.trimStart().startsWith("-");
 				const persianDigits = originalValue.replace(/[^\d۰-۹.]/g, "");
 				const asciiDigits = originalValue.replace(/[^\d0-9.]/g, "");
 
 				let rawDigits = "";
 				if (persianDigits.length > 0) {
-					// Prioritize Persian digits, convert to ASCII for processing
 					rawDigits = persianToAscii(persianDigits);
 				} else {
-					// Use ASCII digits if no Persian digits are found
 					rawDigits = asciiDigits;
 				}
+				if (isNeg) rawDigits = "-" + rawDigits;
 
 				// If no digits are left after cleaning, reset
-				if (rawDigits === "") {
-					valueToUpdateParent = "";
-					newDisplayValue = "";
+				if (rawDigits === "" || rawDigits === "-") {
+					valueToUpdateParent = rawDigits;
+					newDisplayValue = rawDigits;
 				} else {
 					// 2. Format the cleaned digits for display
 					newDisplayValue = formatPrice(rawDigits);
-					valueToUpdateParent = rawDigits; // Parent receives raw ASCII digits
+					valueToUpdateParent = rawDigits;
 				}
 
 				// --- Improved Relative Cursor Positioning Logic ---

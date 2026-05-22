@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { motion } from "framer-motion"
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import {
 	ArrowRight,
 	AlertCircle,
@@ -16,11 +16,17 @@ import {
 	XCircle,
 	PackageX,
 	Calendar,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Badge } from "@/components/ui/badge"
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+	CardDescription,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import {
 	Table,
 	TableBody,
@@ -28,129 +34,171 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/components/ui/table"
-import { formatPrice } from "@/utils/formatPrice"
-import { formatDate } from "@/utils/formatDate"
-import { getAdminOrderDetail, updateOrderStatus, cancelOrder, flagOrderRefund, getOrderInstalments } from "@/services/orderService"
-import CustomToast from "@/components/Custom/CustomToast/CustomToast"
+} from "@/components/ui/table";
+import { formatPrice } from "@/utils/formatPrice";
+import { formatDate } from "@/utils/formatDate";
+import {
+	getAdminOrderDetail,
+	updateOrderStatus,
+	cancelOrder,
+	flagOrderRefund,
+	getOrderInstalments,
+} from "@/services/orderService";
+import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 
 interface Instalment {
-	id: number
-	number: number
-	amount: number
-	dueDate: string
-	status: number
-	paidAt: string | null
+	id: number;
+	number: number;
+	amount: number;
+	dueDate: string;
+	status: number;
+	paidAt: string | null;
 }
 
-const INSTALMENT_STATUS_MAP: Record<number, { label: string; color: string }> = {
-	1: { label: "در انتظار", color: "text-amber-600" },
-	2: { label: "پرداخت شده", color: "text-green-600" },
-	3: { label: "سررسید گذشته", color: "text-red-600" },
-}
+const INSTALMENT_STATUS_MAP: Record<number, { label: string; color: string }> =
+	{
+		1: { label: "در انتظار", color: "text-amber-600" },
+		2: { label: "پرداخت شده", color: "text-green-600" },
+		3: { label: "سررسید گذشته", color: "text-red-600" },
+	};
 
 interface OrderDetail {
-	id: number
-	status: number
-	paymentMethod: number
-	totalAmount: number
-	shippingCost: number
-	refundFlag: boolean
-	trackingCode?: string
-	createdAt: string
-	items: { id: number; count: number; priceSnapshot: number; product: { id: number; name: string; productPic: string } }[]
-	user?: { id: number; phone: string; type: number }
+	id: number;
+	status: number;
+	paymentMethod: number;
+	totalAmount: number;
+	shippingCost: number;
+	refundFlag: boolean;
+	trackingCode?: string;
+	createdAt: string;
+	items: {
+		id: number;
+		count: number;
+		priceSnapshot: number;
+		product: { id: number; name: string; productPic: string };
+	}[];
+	user?: { id: number; phone: string; type: number };
 }
 
-const STATUS_MAP: Record<number, { label: string; color: string; icon: React.ElementType; nextStates: number[] }> = {
-	1: { label: "در انتظار پرداخت", color: "from-amber-500 to-amber-600", icon: Clock, nextStates: [2, 5] },
-	2: { label: "پرداخت شده", color: "from-blue-500 to-blue-600", icon: CreditCard, nextStates: [3, 5] },
-	3: { label: "ارسال شده", color: "from-purple-500 to-purple-600", icon: Truck, nextStates: [] },
-	5: { label: "لغو شده", color: "from-gray-400 to-gray-500", icon: XCircle, nextStates: [] },
-}
+const STATUS_MAP: Record<
+	number,
+	{
+		label: string;
+		color: string;
+		icon: React.ElementType;
+		nextStates: number[];
+	}
+> = {
+	1: {
+		label: "در انتظار پرداخت",
+		color: "from-amber-500 to-amber-600",
+		icon: Clock,
+		nextStates: [2, 5],
+	},
+	2: {
+		label: "پرداخت شده",
+		color: "from-blue-500 to-blue-600",
+		icon: CreditCard,
+		nextStates: [3, 5],
+	},
+	3: {
+		label: "ارسال شده",
+		color: "from-purple-500 to-purple-600",
+		icon: Truck,
+		nextStates: [],
+	},
+	5: {
+		label: "لغو شده",
+		color: "from-gray-400 to-gray-500",
+		icon: XCircle,
+		nextStates: [],
+	},
+};
 
 const PAYMENT_METHOD_MAP: Record<number, string> = {
 	1: "نقدی",
 	2: "اقساطی",
 	3: "آنلاین",
 	4: "کیف پول",
-}
+};
 
 const NEXT_STATUS_LABELS: Record<number, string> = {
 	2: "تایید پرداخت",
 	3: "ارسال سفارش",
 	5: "لغو سفارش",
-}
+};
 
 export default function AdminOrderDetailPage() {
-	const params = useParams()
-	const router = useRouter()
-	const orderID = Number(params.orderID)
-	const [order, setOrder] = useState<OrderDetail | null | undefined>(undefined)
-	const [instalments, setInstalments] = useState<Instalment[]>([])
-	const [updating, setUpdating] = useState(false)
-	const [statusNote, setStatusNote] = useState("")
-	const [trackingCode, setTrackingCode] = useState("")
+	const params = useParams();
+	const router = useRouter();
+	const orderID = Number(params.orderID);
+	const [order, setOrder] = useState<OrderDetail | null | undefined>(
+		undefined,
+	);
+	const [instalments, setInstalments] = useState<Instalment[]>([]);
+	const [updating, setUpdating] = useState(false);
+	const [statusNote, setStatusNote] = useState("");
+	const [trackingCode, setTrackingCode] = useState("");
 
 	const loadOrder = () =>
 		getAdminOrderDetail(orderID)
 			.then((res) => setOrder(res?.data ?? null))
-			.catch(() => setOrder(null))
+			.catch(() => setOrder(null));
 
 	useEffect(() => {
-		loadOrder()
+		loadOrder();
 		getOrderInstalments(orderID)
 			.then((res) => setInstalments(res?.data ?? []))
-			.catch(() => setInstalments([]))
-	}, [orderID])
+			.catch(() => setInstalments([]));
+	}, [orderID]);
 
 	const handleStatusChange = async (newStatus: number) => {
-		if (!order) return
-		setUpdating(true)
+		if (!order) return;
+		setUpdating(true);
 		try {
 			await updateOrderStatus(order.id, {
 				status: newStatus,
 				note: statusNote,
 				...(newStatus === 3 && trackingCode ? { trackingCode } : {}),
-			})
-			setStatusNote("")
-			setTrackingCode("")
-			await loadOrder()
-			CustomToast("وضعیت سفارش بروز شد", "success")
+			});
+			setStatusNote("");
+			setTrackingCode("");
+			await loadOrder();
+			CustomToast("وضعیت سفارش بروز شد", "success");
 		} catch {
-			CustomToast("خطا در بروزرسانی وضعیت", "error")
+			CustomToast("خطا در بروزرسانی وضعیت", "error");
 		} finally {
-			setUpdating(false)
+			setUpdating(false);
 		}
-	}
+	};
 
 	const handleCancel = async () => {
-		if (!order) return
-		setUpdating(true)
+		if (!order) return;
+		setUpdating(true);
 		try {
-			await cancelOrder(order.id)
-			await loadOrder()
-			CustomToast("سفارش لغو شد", "success")
+			await cancelOrder(order.id);
+			await loadOrder();
+			CustomToast("سفارش لغو شد", "success");
 		} catch {
-			CustomToast("خطا در لغو سفارش", "error")
+			CustomToast("خطا در لغو سفارش", "error");
 		} finally {
-			setUpdating(false)
+			setUpdating(false);
 		}
-	}
+	};
 
 	const handleFlagRefund = async () => {
-		if (!order) return
-		setUpdating(true)
+		if (!order) return;
+		setUpdating(true);
 		try {
-			await flagOrderRefund(order.id)
-			await loadOrder()
-			CustomToast("سفارش برای استرجاع علامت‌گذاری شد", "success")
+			await flagOrderRefund(order.id);
+			await loadOrder();
+			CustomToast("سفارش برای استرجاع علامت‌گذاری شد", "success");
 		} catch {
-			CustomToast("خطا در علامت‌گذاری استرجاع", "error")
+			CustomToast("خطا در علامت‌گذاری استرجاع", "error");
 		} finally {
-			setUpdating(false)
+			setUpdating(false);
 		}
-	}
+	};
 
 	if (order === undefined) {
 		return (
@@ -180,7 +228,10 @@ export default function AdminOrderDetailPage() {
 						</CardHeader>
 						<CardContent className="p-0">
 							{Array.from({ length: 3 }).map((_, i) => (
-								<div key={i} className="flex items-center gap-4 p-4 border-b last:border-b-0">
+								<div
+									key={i}
+									className="flex items-center gap-4 p-4 border-b last:border-b-0"
+								>
 									<Skeleton className="w-10 h-10 rounded flex-shrink-0" />
 									<div className="flex-1 space-y-2">
 										<Skeleton className="h-4 w-40" />
@@ -194,23 +245,27 @@ export default function AdminOrderDetailPage() {
 					</Card>
 				</div>
 			</main>
-		)
+		);
 	}
 
 	if (order === null) {
 		return (
 			<main className="p-6">
-				<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
+				<motion.div
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					className="text-center py-20"
+				>
 					<AlertCircle className="w-12 h-12 mx-auto mb-4 text-destructive" />
 					<p className="text-muted-foreground">سفارش یافت نشد</p>
 				</motion.div>
 			</main>
-		)
+		);
 	}
 
-	const statusInfo = STATUS_MAP[order.status] ?? STATUS_MAP[1]
-	const StatusIcon = statusInfo.icon
-	const nextStates = statusInfo.nextStates
+	const statusInfo = STATUS_MAP[order.status] ?? STATUS_MAP[1];
+	const StatusIcon = statusInfo.icon;
+	const nextStates = statusInfo.nextStates;
 
 	const statCards = [
 		{
@@ -237,7 +292,7 @@ export default function AdminOrderDetailPage() {
 			icon: User,
 			color: "from-purple-500 to-purple-600",
 		},
-	]
+	];
 
 	return (
 		<main className="p-6">
@@ -259,10 +314,14 @@ export default function AdminOrderDetailPage() {
 					{" · "}
 					{PAYMENT_METHOD_MAP[order.paymentMethod] ?? "—"}
 					{order.trackingCode && (
-						<span className="text-blue-600 font-medium">کد پیگیری: {order.trackingCode}</span>
+						<span className="text-blue-600 font-medium">
+							کد پیگیری: {order.trackingCode}
+						</span>
 					)}
 					{order.refundFlag && (
-						<Badge variant="destructive" className="text-xs">درخواست استرجاع</Badge>
+						<Badge variant="destructive" className="text-xs">
+							درخواست استرجاع
+						</Badge>
 					)}
 				</p>
 			</div>
@@ -275,17 +334,26 @@ export default function AdminOrderDetailPage() {
 						initial={{ opacity: 0, y: 20, scale: 0.95 }}
 						animate={{ opacity: 1, y: 0, scale: 1 }}
 						transition={{ delay: i * 0.08, type: "spring" }}
-						whileHover={{ y: -6, transition: { type: "spring", stiffness: 400 } }}
+						whileHover={{
+							y: -6,
+							transition: { type: "spring", stiffness: 400 },
+						}}
 					>
 						<Card className="overflow-hidden relative group">
 							<CardHeader className="pb-3">
-								<div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
+								<div
+									className={`w-10 h-10 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center`}
+								>
 									<stat.icon className="w-5 h-5 text-white" />
 								</div>
 							</CardHeader>
 							<CardContent>
-								<p className="text-xs text-muted-foreground mb-1">{stat.title}</p>
-								<p className="font-bold text-sm leading-snug">{stat.value}</p>
+								<p className="text-xs text-muted-foreground mb-1">
+									{stat.title}
+								</p>
+								<p className="font-bold text-sm leading-snug">
+									{stat.value}
+								</p>
 							</CardContent>
 							<div className="absolute inset-0 bg-gradient-to-br from-primary-rose/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 						</Card>
@@ -303,12 +371,15 @@ export default function AdminOrderDetailPage() {
 				<Card>
 					<CardHeader>
 						<CardTitle>محصولات سفارش</CardTitle>
-						<CardDescription>{order.items.length} قلم</CardDescription>
+						<CardDescription>
+							{order.items.length} قلم
+						</CardDescription>
 					</CardHeader>
 					<CardContent className="p-0">
 						<Table>
 							<TableHeader>
 								<TableRow>
+									<TableHead />
 									<TableHead>محصول</TableHead>
 									<TableHead>تعداد</TableHead>
 									<TableHead>قیمت واحد</TableHead>
@@ -323,25 +394,36 @@ export default function AdminOrderDetailPage() {
 										animate={{ opacity: 1, x: 0 }}
 										transition={{ delay: 0.4 + i * 0.05 }}
 										className="hover:bg-muted/50 border-b"
+										// onClick={() => router.push(`/products/${item.product.}`)}
 									>
 										<TableCell>
-											<div className="flex items-center gap-3">
+											<div className="flex place-items-center gap-3 justify-between place-content-center">
 												{item.product.productPic && (
 													<img
-														src={item.product.productPic}
+														src={
+															item.product
+																.productPic
+														}
 														alt={item.product.name}
 														className="w-10 h-10 rounded object-cover flex-shrink-0"
 													/>
 												)}
-												<span className="font-medium">{item.product.name}</span>
+												{/* <span className="font-medium">{item.product.name}</span> */}
 											</div>
+										</TableCell>
+										<TableCell>
+												<span className="font-medium">{item.product.name}</span>
 										</TableCell>
 										<TableCell>{item.count}</TableCell>
 										<TableCell className="text-muted-foreground">
-											{formatPrice(item.priceSnapshot)} ریال
+											{formatPrice(item.priceSnapshot)}{" "}
+											ریال
 										</TableCell>
 										<TableCell className="font-bold text-primary-rose">
-											{formatPrice(item.count * item.priceSnapshot)} ریال
+											{formatPrice(
+												item.count * item.priceSnapshot,
+											)}{" "}
+											ریال
 										</TableCell>
 									</motion.tr>
 								))}
@@ -363,7 +445,11 @@ export default function AdminOrderDetailPage() {
 						<CardHeader>
 							<CardTitle className="flex items-center gap-2">
 								<Calendar className="w-5 h-5" />
-								اقساط ({new Intl.NumberFormat("fa-IR").format(instalments.length)})
+								اقساط (
+								{new Intl.NumberFormat("fa-IR").format(
+									instalments.length,
+								)}
+								)
 							</CardTitle>
 						</CardHeader>
 						<CardContent className="p-0">
@@ -379,28 +465,38 @@ export default function AdminOrderDetailPage() {
 								</TableHeader>
 								<TableBody>
 									{instalments.map((inst) => {
-										const s = INSTALMENT_STATUS_MAP[inst.status]
+										const s =
+											INSTALMENT_STATUS_MAP[inst.status];
 										return (
 											<TableRow key={inst.id}>
 												<TableCell className="font-medium">
-													{new Intl.NumberFormat("fa-IR").format(inst.number)}
+													{new Intl.NumberFormat(
+														"fa-IR",
+													).format(inst.number)}
 												</TableCell>
-												<TableCell>{formatPrice(inst.amount)} ریال</TableCell>
+												<TableCell>
+													{formatPrice(inst.amount)}{" "}
+													ریال
+												</TableCell>
 												<TableCell className="text-muted-foreground">
 													{formatDate(inst.dueDate)}
 												</TableCell>
 												<TableCell>
-													<span className={`text-sm font-medium ${s?.color ?? ""}`}>
+													<span
+														className={`text-sm font-medium ${s?.color ?? ""}`}
+													>
 														{s?.label ?? "—"}
 													</span>
 												</TableCell>
 												<TableCell className="text-muted-foreground">
 													{inst.paidAt
-														? formatDate(inst.paidAt)
+														? formatDate(
+																inst.paidAt,
+															)
 														: "—"}
 												</TableCell>
 											</TableRow>
-										)
+										);
 									})}
 								</TableBody>
 							</Table>
@@ -433,7 +529,9 @@ export default function AdminOrderDetailPage() {
 								<input
 									type="text"
 									value={trackingCode}
-									onChange={(e) => setTrackingCode(e.target.value)}
+									onChange={(e) =>
+										setTrackingCode(e.target.value)
+									}
 									placeholder="کد پیگیری پستی (برای ارسال)"
 									className="w-full p-3 border rounded-lg text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary-rose/50"
 								/>
@@ -444,12 +542,17 @@ export default function AdminOrderDetailPage() {
 									.map((nextStatus) => (
 										<Button
 											key={nextStatus}
-											onClick={() => handleStatusChange(nextStatus)}
+											onClick={() =>
+												handleStatusChange(nextStatus)
+											}
 											disabled={updating}
 											className="gap-2"
 										>
-											{updating && <Loader2 className="w-4 h-4 animate-spin" />}
-											{NEXT_STATUS_LABELS[nextStatus] ?? STATUS_MAP[nextStatus]?.label}
+											{updating && (
+												<Loader2 className="w-4 h-4 animate-spin" />
+											)}
+											{NEXT_STATUS_LABELS[nextStatus] ??
+												STATUS_MAP[nextStatus]?.label}
 										</Button>
 									))}
 							</div>
@@ -467,7 +570,9 @@ export default function AdminOrderDetailPage() {
 				>
 					<Card className="border-destructive/20">
 						<CardHeader>
-							<CardTitle className="text-destructive">اقدامات</CardTitle>
+							<CardTitle className="text-destructive">
+								اقدامات
+							</CardTitle>
 						</CardHeader>
 						<CardContent className="flex gap-3 flex-wrap">
 							{order.status !== 5 && (
@@ -477,7 +582,11 @@ export default function AdminOrderDetailPage() {
 									disabled={updating}
 									className="gap-2"
 								>
-									{updating ? <Loader2 className="w-4 h-4 animate-spin" /> : <PackageX className="w-4 h-4" />}
+									{updating ? (
+										<Loader2 className="w-4 h-4 animate-spin" />
+									) : (
+										<PackageX className="w-4 h-4" />
+									)}
 									لغو سفارش
 								</Button>
 							)}
@@ -488,7 +597,9 @@ export default function AdminOrderDetailPage() {
 									disabled={updating}
 									className="gap-2 border-amber-400 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/20"
 								>
-									{updating && <Loader2 className="w-4 h-4 animate-spin" />}
+									{updating && (
+										<Loader2 className="w-4 h-4 animate-spin" />
+									)}
 									علامت‌گذاری برای استرجاع
 								</Button>
 							)}
@@ -497,5 +608,5 @@ export default function AdminOrderDetailPage() {
 				</motion.div>
 			)}
 		</main>
-	)
+	);
 }

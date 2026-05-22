@@ -4,21 +4,29 @@ import { motion } from 'framer-motion';
 import { Home, Search } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const PARTICLES = Array.from({ length: 18 }, (_, i) => ({
-	id: i,
-	x: Math.random() * 100,
-	y: Math.random() * 100,
-	size: 2 + Math.random() * 4,
-	duration: 4 + Math.random() * 6,
-	delay: Math.random() * 4,
-}));
+type Particle = { id: number; x: number; y: number; size: number; duration: number; delay: number };
 
 function FloatingParticles() {
+	const [particles, setParticles] = useState<Particle[]>([]);
+
+	useEffect(() => {
+		setParticles(
+			Array.from({ length: 18 }, (_, i) => ({
+				id: i,
+				x: Math.random() * 100,
+				y: Math.random() * 100,
+				size: 2 + Math.random() * 4,
+				duration: 4 + Math.random() * 6,
+				delay: Math.random() * 4,
+			}))
+		);
+	}, []);
+
 	return (
 		<div className="absolute inset-0 overflow-hidden pointer-events-none">
-			{PARTICLES.map((p) => (
+			{particles.map((p) => (
 				<motion.div
 					key={p.id}
 					className="absolute rounded-full bg-primary-rose/20"

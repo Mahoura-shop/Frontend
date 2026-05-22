@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { Vazirmatn } from "@/utils/fonts";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata: Metadata = {
@@ -26,7 +27,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="fa" dir="rtl" suppressHydrationWarning data-scroll-behavior="smooth">
-			<body className="antialiased no-scrollbar">
+			<body className={`${Vazirmatn.variable} antialiased no-scrollbar`}>
 				<ThemeProvider
 					attribute="class"
 					defaultTheme="system"

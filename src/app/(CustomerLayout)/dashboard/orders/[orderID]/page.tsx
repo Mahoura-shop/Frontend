@@ -339,7 +339,7 @@ export default function OrderDetailPage() {
 									return (
 										<div
 											key={step.status}
-											className="flex flex-col items-center gap-2 relative z-10"
+											className="flex flex-col items-center gap-2 relative"
 										>
 											<div
 												className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${
@@ -357,7 +357,7 @@ export default function OrderDetailPage() {
 												)}
 											</div>
 											<span
-												className={`text-xs text-center max-w-[60px] ${done ? "font-semibold text-primary-rose" : "text-muted-foreground"}`}
+												className={`text-xs text-nowrap text-center ${done ? "font-semibold text-primary-rose" : "text-muted-foreground"}`}
 											>
 												{step.label}
 											</span>

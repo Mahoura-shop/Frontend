@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { spring } from "@/lib/motion";
 import {
@@ -23,6 +23,17 @@ import {
 	Image,
 } from "lucide-react";
 import {
+	AreaChart,
+	Area,
+	XAxis,
+	YAxis,
+	CartesianGrid,
+	Tooltip,
+	ResponsiveContainer,
+} from "recharts";
+import { formatPersianDate } from "@/lib/utils";
+import { getData } from "@/services/services";
+import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
@@ -40,12 +51,68 @@ interface ProductInfoDialogProps {
 	className?: string;
 }
 
+type ChartPeriod = "week" | "month" | "year";
+
+const PERIOD_LABELS: Record<ChartPeriod, string> = {
+	week: "۷ روز اخیر",
+	month: "۳۰ روز اخیر",
+	year: "یک سال اخیر",
+};
+
 export default function ProductInfoDialog({
 	product,
 	className,
 	variant = "eye",
 }: ProductInfoDialogProps) {
 	const [open, setOpen] = useState(false);
+	const [visitsPeriod, setVisitsPeriod] = useState<ChartPeriod>("week");
+	const [visitsChart, setVisitsChart] = useState<
+		Array<{ date: string; count: number }>
+	>([]);
+	const [visitsChartLoading, setVisitsChartLoading] = useState(false);
+	const [ordersPeriod, setOrdersPeriod] = useState<ChartPeriod>("week");
+	const [ordersChart, setOrdersChart] = useState<
+		Array<{ date: string; count: number }>
+	>([]);
+	const [ordersChartLoading, setOrdersChartLoading] = useState(false);
+
+	const fetchVisitsChart = useCallback(
+		(period: ChartPeriod) => {
+			setVisitsChartLoading(true);
+			getData({
+				endPoint: `/v1/admin/products/${product.id}/visits?period=${period}`,
+			})
+				.then((data) => {
+					console.log("data", data);
+					setVisitsChart(data?.data ?? []);
+				})
+				.catch(() => {})
+				.finally(() => setVisitsChartLoading(false));
+		},
+		[product.id],
+	);
+
+	const fetchOrdersChart = useCallback(
+		(period: ChartPeriod) => {
+			setOrdersChartLoading(true);
+			getData({
+				endPoint: `/v1/admin/products/${product.id}/orders?period=${period}`,
+			})
+				.then((data) => {
+					setOrdersChart(data?.data ?? []);
+				})
+				.catch(() => {})
+				.finally(() => setOrdersChartLoading(false));
+		},
+		[product.id],
+	);
+
+	useEffect(() => {
+		if (open) {
+			fetchVisitsChart(visitsPeriod);
+			fetchOrdersChart(ordersPeriod);
+		}
+	}, [open, visitsPeriod, ordersPeriod, fetchVisitsChart, fetchOrdersChart]);
 
 	const containerVariants = {
 		hidden: { opacity: 0, scale: 0.95 },
@@ -83,7 +150,6 @@ export default function ProductInfoDialog({
 		},
 	};
 
-	// Format price with currency
 	const formatPrice = (price: number, currency: string) => {
 		const formatted = new Intl.NumberFormat("fa-IR").format(price);
 		const currencySymbol =
@@ -98,7 +164,6 @@ export default function ProductInfoDialog({
 		return `${formatted} ${currencySymbol}`;
 	};
 
-	// Format quantity with type
 	const formatQuantity = (quantity: number, type: string) => {
 		const formatted = new Intl.NumberFormat("fa-IR").format(quantity);
 		return `${formatted} ${type}`;
@@ -164,7 +229,6 @@ export default function ProductInfoDialog({
 											variants={itemVariants}
 											whileHover={{ scale: 1.05 }}
 											whileTap={{ scale: 0.95 }}
-											// className="flex flex-col gap-2 px-4"
 										>
 											<Badge
 												variant={
@@ -193,7 +257,6 @@ export default function ProductInfoDialog({
 												variants={itemVariants}
 												whileHover={{ scale: 1.05 }}
 												whileTap={{ scale: 0.95 }}
-												// className="flex flex-col gap-2 px-4"
 											>
 												<Badge
 													variant="outOfStock"
@@ -452,6 +515,267 @@ export default function ProductInfoDialog({
 										)}
 									</div>
 								</motion.div>
+								<Separator />
+
+								{/* Visits Chart */}
+								<motion.div
+									variants={itemVariants}
+									className="space-y-4"
+								>
+									<div className="flex items-center justify-between flex-wrap gap-4">
+										<div>
+											<h3 className="text-sm font-semibold">
+												تعداد بازدید
+											</h3>
+											<p className="text-xs text-muted-foreground">
+												{PERIOD_LABELS[visitsPeriod]}
+											</p>
+										</div>
+										<div className="flex gap-2">
+											{(
+												[
+													"week",
+													"month",
+													"year",
+												] as ChartPeriod[]
+											).map((p) => (
+												<Button
+													key={p}
+													size="sm"
+													variant={
+														visitsPeriod === p
+															? "default"
+															: "outline"
+													}
+													onClick={() =>
+														setVisitsPeriod(p)
+													}
+												>
+													{PERIOD_LABELS[p]}
+												</Button>
+											))}
+										</div>
+									</div>
+
+									{visitsChartLoading ? (
+										<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
+											در حال بارگذاری...
+										</div>
+									) : visitsChart.length === 0 ? (
+										<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
+											داده‌ای یافت نشد
+										</div>
+									) : (
+										<ResponsiveContainer
+											width="100%"
+											height={260}
+										>
+											<AreaChart
+												data={visitsChart}
+												margin={{
+													top: 10,
+													right: 16,
+													left: 0,
+													bottom: 0,
+												}}
+											>
+												<defs>
+													<linearGradient
+														id="visitsGradient"
+														x1="0"
+														y1="0"
+														x2="0"
+														y2="1"
+													>
+														<stop
+															offset="5%"
+															stopColor="#3b82f6"
+															stopOpacity={0.3}
+														/>
+														<stop
+															offset="95%"
+															stopColor="#3b82f6"
+															stopOpacity={0}
+														/>
+													</linearGradient>
+												</defs>
+												<CartesianGrid
+													strokeDasharray="3 3"
+													className="stroke-muted"
+												/>
+												<XAxis
+													dataKey="date"
+													tick={{ fontSize: 11 }}
+													tickLine={false}
+													axisLine={false}
+													tickFormatter={
+														formatPersianDate
+													}
+												/>
+												<YAxis
+													allowDecimals={false}
+													tick={{ fontSize: 11 }}
+													tickLine={false}
+													axisLine={false}
+													width={32}
+												/>
+												<Tooltip
+													contentStyle={{
+														borderRadius: 8,
+														fontSize: 13,
+														backgroundColor:
+															"hsl(var(--card))",
+														border: "1px solid hsl(var(--border))",
+														color: "hsl(var(--card-foreground))",
+													}}
+													formatter={(
+														value: number,
+													) => [value, "بازدید"]}
+													labelFormatter={
+														formatPersianDate
+													}
+												/>
+												<Area
+													type="monotone"
+													dataKey="count"
+													stroke="#3b82f6"
+													strokeWidth={2}
+													fill="url(#visitsGradient)"
+												/>
+											</AreaChart>
+										</ResponsiveContainer>
+									)}
+								</motion.div>
+
+								{/* Orders Chart */}
+								<motion.div
+									variants={itemVariants}
+									className="space-y-4"
+								>
+									<div className="flex items-center justify-between flex-wrap gap-4">
+										<div>
+											<h3 className="text-sm font-semibold">
+												تعداد سفارشات
+											</h3>
+											<p className="text-xs text-muted-foreground">
+												{PERIOD_LABELS[ordersPeriod]}
+											</p>
+										</div>
+										<div className="flex gap-2">
+											{(
+												[
+													"week",
+													"month",
+													"year",
+												] as ChartPeriod[]
+											).map((p) => (
+												<Button
+													key={p}
+													size="sm"
+													variant={
+														ordersPeriod === p
+															? "default"
+															: "outline"
+													}
+													onClick={() =>
+														setOrdersPeriod(p)
+													}
+												>
+													{PERIOD_LABELS[p]}
+												</Button>
+											))}
+										</div>
+									</div>
+
+									{ordersChartLoading ? (
+										<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
+											در حال بارگذاری...
+										</div>
+									) : ordersChart.length === 0 ? (
+										<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
+											داده‌ای یافت نشد
+										</div>
+									) : (
+										<ResponsiveContainer
+											width="100%"
+											height={260}
+										>
+											<AreaChart
+												data={ordersChart}
+												margin={{
+													top: 10,
+													right: 16,
+													left: 0,
+													bottom: 0,
+												}}
+											>
+												<defs>
+													<linearGradient
+														id="ordersGradient"
+														x1="0"
+														y1="0"
+														x2="0"
+														y2="1"
+													>
+														<stop
+															offset="5%"
+															stopColor="#e11d48"
+															stopOpacity={0.3}
+														/>
+														<stop
+															offset="95%"
+															stopColor="#e11d48"
+															stopOpacity={0}
+														/>
+													</linearGradient>
+												</defs>
+												<CartesianGrid
+													strokeDasharray="3 3"
+													className="stroke-muted"
+												/>
+												<XAxis
+													dataKey="date"
+													tick={{ fontSize: 11 }}
+													tickLine={false}
+													axisLine={false}
+													tickFormatter={
+														formatPersianDate
+													}
+												/>
+												<YAxis
+													allowDecimals={false}
+													tick={{ fontSize: 11 }}
+													tickLine={false}
+													axisLine={false}
+													width={32}
+												/>
+												<Tooltip
+													contentStyle={{
+														borderRadius: 8,
+														fontSize: 13,
+														backgroundColor:
+															"hsl(var(--card))",
+														border: "1px solid hsl(var(--border))",
+														color: "hsl(var(--card-foreground))",
+													}}
+													formatter={(
+														value: number,
+													) => [value, "سفارش"]}
+													labelFormatter={
+														formatPersianDate
+													}
+												/>
+												<Area
+													type="monotone"
+													dataKey="count"
+													stroke="#e11d48"
+													strokeWidth={2}
+													fill="url(#ordersGradient)"
+												/>
+											</AreaChart>
+										</ResponsiveContainer>
+									)}
+								</motion.div>
 							</div>
 						</motion.div>
 					)}
@@ -461,7 +785,6 @@ export default function ProductInfoDialog({
 	);
 }
 
-// Helper Component for Info Items
 function InfoItem({
 	icon,
 	label,

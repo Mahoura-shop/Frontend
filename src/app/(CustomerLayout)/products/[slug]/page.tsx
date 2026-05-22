@@ -25,14 +25,18 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useProductStore } from "@/store/useProductStore";
-import { getData } from "@/services/services";
+import { getData, postData } from "@/services/services";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import { useSettingsStore } from "@/store/useSettingsStore";
 import { useCartStore } from "@/store/useCartStore";
 import useUserStore from "@/store/userStore/userStore";
 import resolvePrice from "@/utils/resolvePrice";
 import { getProductReviews, submitReview } from "@/services/reviewService";
-import { getWishlist, addToWishlist, removeFromWishlist } from "@/services/wishlistService";
+import {
+	getWishlist,
+	addToWishlist,
+	removeFromWishlist,
+} from "@/services/wishlistService";
 
 interface Review {
 	id: number;
@@ -71,13 +75,22 @@ export default function ProductDetailPage() {
 	const [wishlisted, setWishlisted] = useState(false);
 	const [wishlistLoading, setWishlistLoading] = useState(false);
 
+	const trackVisit = (productID: number) => {
+		postData({ endPoint: `/v1/products/${productID}/visit` }).catch(
+			() => {},
+		);
+	};
+
 	const getProduct = () => {
 		setLoading(true);
 		getData({ endPoint: `/v1/products/slug/${params.slug}` })
 			.then((data) => {
 				const p = data?.data;
 				setProduct(p);
-				if (p?.id) fetchReviews(p.id);
+				if (p?.id) {
+					fetchReviews(p.id);
+					trackVisit(p.id);
+				}
 			})
 			.finally(() => setLoading(false));
 	};
@@ -109,11 +122,22 @@ export default function ProductDetailPage() {
 
 	const handleAddToCart = async () => {
 		if (!product) return;
+
+		if (cartCount >= product.quantity) {
+			CustomToast("موجودی کافی نیست", "error");
+			return;
+		}
+
 		setAdding(true);
 		try {
 			await addItem(product.id);
 			setAdded(true);
 			setTimeout(() => setAdded(false), 2000);
+		} catch (error: any) {
+			CustomToast(
+				error?.response?.data?.message || "خطایی رخ داد",
+				"error",
+			);
 		} finally {
 			setAdding(false);
 		}
@@ -124,13 +148,16 @@ export default function ProductDetailPage() {
 		await removeItem(product.id);
 	};
 
-	const cartCount = cartItems.find((i) => i.product.id === product?.id)?.count ?? 0;
+	const cartCount =
+		cartItems.find((i) => i.product.id === product?.id)?.count ?? 0;
 
 	useEffect(() => {
 		if (!product?.id || !accessToken) return;
 		getWishlist()
 			.then((res) => {
-				const ids: number[] = (res?.data ?? []).map((item: any) => item.product.id);
+				const ids: number[] = (res?.data ?? []).map(
+					(item: any) => item.product.id,
+				);
 				setWishlisted(ids.includes(product.id));
 			})
 			.catch(() => {});
@@ -331,8 +358,8 @@ export default function ProductDetailPage() {
 							animate={{ opacity: 1, x: 0 }}
 							className="space-y-6"
 						>
-							<div className="flex justify-between border-b">
-								<div>
+							<div className="flex justify-between pb-4 border-b">
+								<div className="flex flex-col gap-2">
 									<p className="text-muted-foreground mb-2">
 										{product?.brand?.name}
 									</p>
@@ -351,7 +378,11 @@ export default function ProductDetailPage() {
 													<Star
 														key={s}
 														className={`w-4 h-4 ${
-															s <= Math.round(product.averageRating ?? 0)
+															s <=
+															Math.round(
+																product.averageRating ??
+																	0,
+															)
 																? "fill-amber-400 text-amber-400"
 																: "text-muted-foreground/30"
 														}`}
@@ -359,7 +390,9 @@ export default function ProductDetailPage() {
 												))}
 											</div>
 											<span className="text-sm font-medium text-amber-500">
-												{(product.averageRating ?? 0).toFixed(1)}
+												{(
+													product.averageRating ?? 0
+												).toFixed(1)}
 											</span>
 											<span className="text-xs text-muted-foreground">
 												({product.reviewCount} نظر)
@@ -475,7 +508,9 @@ export default function ProductDetailPage() {
 													قیمت چکی
 												</p>
 												<p className="text-lg font-semibold text-accent-gold">
-													{formatPrice(product.step3Price)}{" "}
+													{formatPrice(
+														product.step3Price,
+													)}{" "}
 													ریال
 												</p>
 											</div>
@@ -525,10 +560,16 @@ export default function ProductDetailPage() {
 										>
 											<Minus className="w-4 h-4" />
 										</button>
-										<span className="text-xl font-bold">{cartCount}</span>
+										<span className="text-xl font-bold">
+											{cartCount}
+										</span>
 										<button
 											className="w-10 h-10 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-primary-rose hover:border-primary-rose transition-colors disabled:opacity-50"
-											disabled={adding || product.quantity === 0}
+											disabled={
+												adding ||
+												product.quantity === 0 ||
+												cartCount >= product.quantity
+											}
 											onClick={handleAddToCart}
 										>
 											{adding ? (
@@ -543,7 +584,11 @@ export default function ProductDetailPage() {
 										variant="luxury"
 										size="lg"
 										className="flex-1 gap-2"
-										disabled={adding || product.quantity === 0}
+										disabled={
+											adding ||
+											product.quantity === 0 ||
+											cartCount >= product.quantity
+										}
 										onClick={handleAddToCart}
 									>
 										<AnimatePresence mode="wait">
@@ -601,7 +646,9 @@ export default function ProductDetailPage() {
 						<div className="flex items-center justify-between mb-8">
 							<div className="flex items-center gap-3">
 								<MessageSquare className="w-6 h-6 text-primary-rose" />
-								<h2 className="text-2xl font-bold">نظرات کاربران</h2>
+								<h2 className="text-2xl font-bold">
+									نظرات کاربران
+								</h2>
 								{reviews.length > 0 && (
 									<span className="text-sm text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
 										{reviews.length} نظر
@@ -612,14 +659,26 @@ export default function ProductDetailPage() {
 							{reviews.length > 0 && (
 								<div className="flex items-center gap-2">
 									<span className="text-2xl font-bold text-primary-rose">
-										{(reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)}
+										{(
+											reviews.reduce(
+												(s, r) => s + r.rating,
+												0,
+											) / reviews.length
+										).toFixed(1)}
 									</span>
 									<div className="flex gap-0.5">
 										{[1, 2, 3, 4, 5].map((s) => (
 											<Star
 												key={s}
 												className={`w-4 h-4 ${
-													s <= Math.round(reviews.reduce((a, r) => a + r.rating, 0) / reviews.length)
+													s <=
+													Math.round(
+														reviews.reduce(
+															(a, r) =>
+																a + r.rating,
+															0,
+														) / reviews.length,
+													)
 														? "fill-amber-400 text-amber-400"
 														: "text-muted-foreground"
 												}`}
@@ -637,7 +696,9 @@ export default function ProductDetailPage() {
 								animate={{ opacity: 1, y: 0 }}
 								className="mb-10 rounded-2xl border bg-card p-6 space-y-4"
 							>
-								<h3 className="font-semibold text-base">ثبت نظر شما</h3>
+								<h3 className="font-semibold text-base">
+									ثبت نظر شما
+								</h3>
 
 								<div className="flex items-center gap-1">
 									{[1, 2, 3, 4, 5].map((s) => (
@@ -645,13 +706,19 @@ export default function ProductDetailPage() {
 											key={s}
 											type="button"
 											onClick={() => setReviewRating(s)}
-											onMouseEnter={() => setHoverRating(s)}
-											onMouseLeave={() => setHoverRating(0)}
+											onMouseEnter={() =>
+												setHoverRating(s)
+											}
+											onMouseLeave={() =>
+												setHoverRating(0)
+											}
 											className="transition-transform hover:scale-110"
 										>
 											<Star
 												className={`w-7 h-7 transition-colors ${
-													s <= (hoverRating || reviewRating)
+													s <=
+													(hoverRating ||
+														reviewRating)
 														? "fill-amber-400 text-amber-400"
 														: "text-muted-foreground"
 												}`}
@@ -660,14 +727,25 @@ export default function ProductDetailPage() {
 									))}
 									{reviewRating > 0 && (
 										<span className="mr-2 text-sm text-muted-foreground">
-											{["", "خیلی بد", "بد", "متوسط", "خوب", "عالی"][reviewRating]}
+											{
+												[
+													"",
+													"خیلی بد",
+													"بد",
+													"متوسط",
+													"خوب",
+													"عالی",
+												][reviewRating]
+											}
 										</span>
 									)}
 								</div>
 
 								<textarea
 									value={reviewComment}
-									onChange={(e) => setReviewComment(e.target.value)}
+									onChange={(e) =>
+										setReviewComment(e.target.value)
+									}
 									placeholder="نظر خود را بنویسید... (اختیاری)"
 									rows={4}
 									className="w-full rounded-xl border bg-background px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary-rose/40"
@@ -676,13 +754,19 @@ export default function ProductDetailPage() {
 								<Button
 									variant="luxury"
 									className="gap-2"
-									disabled={submittingReview || reviewRating === 0}
+									disabled={
+										submittingReview || reviewRating === 0
+									}
 									onClick={handleSubmitReview}
 								>
 									{submittingReview ? (
 										<motion.div
 											animate={{ rotate: 360 }}
-											transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
+											transition={{
+												repeat: Infinity,
+												duration: 0.8,
+												ease: "linear",
+											}}
 											className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
 										/>
 									) : (
@@ -696,7 +780,10 @@ export default function ProductDetailPage() {
 						{!accessToken && (
 							<div className="mb-10 rounded-2xl border border-dashed bg-muted/30 p-6 text-center text-sm text-muted-foreground">
 								برای ثبت نظر{" "}
-								<Link href="/signin" className="text-primary-rose font-medium hover:underline">
+								<Link
+									href="/signin"
+									className="text-primary-rose font-medium hover:underline"
+								>
 									وارد شوید
 								</Link>
 							</div>
@@ -729,7 +816,10 @@ export default function ProductDetailPage() {
 											{/* Avatar */}
 											<div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-rose/30 to-secondary-plum/30 flex items-center justify-center shrink-0 text-sm font-bold text-primary-rose">
 												{review.userFirstName
-													? review.userFirstName.slice(0, 1)
+													? review.userFirstName.slice(
+															0,
+															1,
+														)
 													: "ک"}
 											</div>
 
@@ -737,7 +827,8 @@ export default function ProductDetailPage() {
 												<div className="flex items-center justify-between flex-wrap gap-2 mb-2">
 													<div className="flex items-center gap-2">
 														<span className="text-sm font-medium">
-															{(review.userFirstName || review.userLastName)
+															{review.userFirstName ||
+															review.userLastName
 																? `${review.userFirstName} ${review.userLastName}`.trim()
 																: "کاربر"}
 														</span>
@@ -749,21 +840,28 @@ export default function ProductDetailPage() {
 														)}
 													</div>
 													<span className="text-xs text-muted-foreground">
-														{new Date(review.createdAt).toLocaleDateString("fa-IR")}
+														{new Date(
+															review.createdAt,
+														).toLocaleDateString(
+															"fa-IR",
+														)}
 													</span>
 												</div>
 
 												<div className="flex gap-0.5 mb-2">
-													{[1, 2, 3, 4, 5].map((s) => (
-														<Star
-															key={s}
-															className={`w-4 h-4 ${
-																s <= review.rating
-																	? "fill-amber-400 text-amber-400"
-																	: "text-muted-foreground/30"
-															}`}
-														/>
-													))}
+													{[1, 2, 3, 4, 5].map(
+														(s) => (
+															<Star
+																key={s}
+																className={`w-4 h-4 ${
+																	s <=
+																	review.rating
+																		? "fill-amber-400 text-amber-400"
+																		: "text-muted-foreground/30"
+																}`}
+															/>
+														),
+													)}
 												</div>
 
 												{review.comment && (
@@ -812,10 +910,16 @@ export default function ProductDetailPage() {
 								>
 									<Minus className="w-4 h-4" />
 								</button>
-								<span className="text-base font-bold min-w-[2rem] text-center">{cartCount}</span>
+								<span className="text-base font-bold min-w-[2rem] text-center">
+									{cartCount}
+								</span>
 								<button
 									className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-primary-rose hover:border-primary-rose transition-colors disabled:opacity-50"
-									disabled={adding || product.quantity === 0}
+									disabled={
+										adding ||
+										product.quantity === 0 ||
+										cartCount >= product.quantity
+									}
 									onClick={handleAddToCart}
 								>
 									{adding ? (
@@ -830,7 +934,11 @@ export default function ProductDetailPage() {
 								variant="luxury"
 								size="sm"
 								className="shrink-0 gap-2"
-								disabled={adding || product.quantity === 0}
+								disabled={
+									adding ||
+									product.quantity === 0 ||
+									cartCount >= product.quantity
+								}
 								onClick={handleAddToCart}
 							>
 								<AnimatePresence mode="wait">
@@ -842,7 +950,8 @@ export default function ProductDetailPage() {
 											exit={{ scale: 0 }}
 											className="flex items-center gap-1"
 										>
-											<Check className="w-4 h-4" /> اضافه شد
+											<Check className="w-4 h-4" /> اضافه
+											شد
 										</motion.span>
 									) : adding ? (
 										<motion.div

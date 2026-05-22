@@ -321,6 +321,7 @@ function ProductForm({
 				useEffect(() => {
 					if (price === undefined) return;
 					if (mode === "update" && price === product?.price) return;
+					console.log("price * rate", price * rate);
 					setFieldValue("irrPrice", roundPrice(price * rate));
 				}, [price, rate]);
 
@@ -472,7 +473,7 @@ function ProductForm({
 						<div className="grid grid-cols-2 gap-4">
 							<Input
 								name="step1Percent"
-								isPriceInput
+								// isPriceInput
 								icon={Percent}
 								label="درصد همکار"
 							/>
@@ -487,7 +488,7 @@ function ProductForm({
 						<div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
 							<Input
 								name="step2Percent"
-								isPriceInput
+								// isPriceInput
 								icon={Percent}
 								label="درصد مغازه نقدی"
 							/>
@@ -506,7 +507,7 @@ function ProductForm({
 						<div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
 							<Input
 								name="step3Percent"
-								isPriceInput
+								// isPriceInput
 								icon={Percent}
 								label="درصد مغازه چکی"
 							/>
@@ -525,7 +526,7 @@ function ProductForm({
 						<div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
 							<Input
 								name="step4Percent"
-								isPriceInput
+								// isPriceInput
 								icon={Percent}
 								label="درصد تکی"
 							/>
@@ -542,11 +543,7 @@ function ProductForm({
 						</div>
 
 						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-							<Input
-								name="quantity"
-								icon={Hash}
-								label="موجودی"
-							/>
+							<Input name="quantity" icon={Hash} label="موجودی" />
 							<Input
 								name="quantityType"
 								icon={ShoppingCart}
@@ -616,20 +613,11 @@ function ProductForm({
 						</div>
 
 						<div className="flex gap-6">
-							<Checkbox
-								name="isActive"
-								label="محصول فعال است"
-							/>
-							<Checkbox
-								name="isNew"
-								label="محصول جدید است"
-							/>
+							<Checkbox name="isActive" label="محصول فعال است" />
+							<Checkbox name="isNew" label="محصول جدید است" />
 						</div>
 
-						<ImageCropModal
-							name="productPic"
-							label="تصویر محصول"
-						/>
+						<ImageCropModal name="productPic" label="تصویر محصول" />
 
 						{priceViolations.length > 0 && (
 							<div className="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400">

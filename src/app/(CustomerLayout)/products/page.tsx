@@ -19,7 +19,6 @@ import {
 	Heart,
 } from "lucide-react";
 import Link from "next/link";
-import TiltedCard from "@/components/ReactBits/TiltedCard/TiltedCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -42,7 +41,11 @@ import InputFree from "@/components/Custom/Input/InputFree";
 import SelectFree from "@/components/Custom/Select/SelectFree";
 import useUserStore from "@/store/userStore/userStore";
 import resolvePrice from "@/utils/resolvePrice";
-import { getWishlist, addToWishlist, removeFromWishlist } from "@/services/wishlistService";
+import {
+	getWishlist,
+	addToWishlist,
+	removeFromWishlist,
+} from "@/services/wishlistService";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 
 export default function ProductsPage() {
@@ -72,6 +75,13 @@ export default function ProductsPage() {
 	const [currentPage, setCurrentPage] = useState(() =>
 		Number(searchParams.get("page") ?? "1"),
 	);
+	const [sliderBounds, setSliderBounds] = useState<{
+		min: number;
+		max: number;
+	}>({
+		min: 0,
+		max: 5000000,
+	});
 	const [priceRange, setPriceRange] = useState<number[]>([0, 100000]);
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 	const [showFilters, setShowFilters] = useState(false);
@@ -81,6 +91,22 @@ export default function ProductsPage() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [wishlistIds, setWishlistIds] = useState<Set<number>>(new Set());
 	const [wishlistingId, setWishlistingId] = useState<number | null>(null);
+
+	const calculatePriceBounds = useCallback(() => {
+		if (!products || products.length === 0) {
+			setSliderBounds({ min: 0, max: 5000000 });
+			return;
+		}
+
+		const resolvedPrices = products.map((p) => resolvePrice(p, userType));
+
+		const maxPrice = Math.max(...resolvedPrices);
+
+		setSliderBounds({
+			min: 0,
+			max: maxPrice,
+		});
+	}, [products, userType]);
 
 	const refreshProducts = useCallback(async () => {
 		setIsLoading(true);
@@ -113,15 +139,32 @@ export default function ProductsPage() {
 
 	const handleAddToCart = async (e: React.MouseEvent, productId: number) => {
 		e.preventDefault();
+		const product = products.find((p) => p.id === productId);
+		if (!product) return;
+
+		const currentCount = getCartCount(productId);
+		if (currentCount >= product.quantity) {
+			CustomToast("موجودی کافی نیست", "error");
+			return;
+		}
+
 		setAddingId(productId);
 		try {
 			await addItem(productId);
+		} catch (error: any) {
+			CustomToast(
+				error?.response?.data?.message || "خطایی رخ داد",
+				"error",
+			);
 		} finally {
 			setAddingId(null);
 		}
 	};
 
-	const handleRemoveFromCart = async (e: React.MouseEvent, productId: number) => {
+	const handleRemoveFromCart = async (
+		e: React.MouseEvent,
+		productId: number,
+	) => {
 		e.preventDefault();
 		await removeItem(productId);
 	};
@@ -129,7 +172,10 @@ export default function ProductsPage() {
 	const getCartCount = (productId: number) =>
 		cartItems.find((i) => i.product.id === productId)?.count ?? 0;
 
-	const handleToggleWishlist = async (e: React.MouseEvent, productId: number) => {
+	const handleToggleWishlist = async (
+		e: React.MouseEvent,
+		productId: number,
+	) => {
 		e.preventDefault();
 		if (!accessToken) {
 			CustomToast("برای افزودن به علاقه‌مندی‌ها وارد شوید", "error");
@@ -139,7 +185,11 @@ export default function ProductsPage() {
 		try {
 			if (wishlistIds.has(productId)) {
 				await removeFromWishlist(productId);
-				setWishlistIds((prev) => { const next = new Set(prev); next.delete(productId); return next; });
+				setWishlistIds((prev) => {
+					const next = new Set(prev);
+					next.delete(productId);
+					return next;
+				});
 				CustomToast("از علاقه‌مندی‌ها حذف شد", "success");
 			} else {
 				await addToWishlist(productId);
@@ -166,6 +216,10 @@ export default function ProductsPage() {
 				return "price_asc";
 			case "price-high":
 				return "price_desc";
+			case "popularity":
+				return "popularity";
+			case "most-visited":
+				return "most_visited";
 			case "newest":
 			default:
 				return "newest";
@@ -187,10 +241,20 @@ export default function ProductsPage() {
 	}, []);
 
 	useEffect(() => {
+		calculatePriceBounds();
+	}, [calculatePriceBounds]);
+
+	useEffect(() => {
+		setPriceRange([0, sliderBounds.max]);
+	}, [sliderBounds.max]);
+
+	useEffect(() => {
 		if (!accessToken) return;
 		getWishlist()
 			.then((res) => {
-				const ids: number[] = (res?.data ?? []).map((item: any) => item.product.id);
+				const ids: number[] = (res?.data ?? []).map(
+					(item: any) => item.product.id,
+				);
 				setWishlistIds(new Set(ids));
 			})
 			.catch(() => {});
@@ -295,121 +359,112 @@ export default function ProductsPage() {
 						{/* Desktop sidebar */}
 						<aside className="hidden lg:block lg:w-80 self-start sticky top-28">
 							<Card>
-									<CardContent className="flex flex-col gap-6 p-6">
-										<h3 className="text-xl font-bold flex items-center gap-2">
-											<Filter className="w-5 h-5" />
-											فیلترها
-										</h3>
+								<CardContent className="flex flex-col gap-6 p-6">
+									<h3 className="text-xl font-bold flex items-center gap-2">
+										<Filter className="w-5 h-5" />
+										فیلترها
+									</h3>
 
-										{/* Categories */}
-										<div>
-											<SelectFree
-												value={selectedCategory}
-												onValueChange={
-													setSelectedCategory
-												}
-												label="دسته‌بندی"
-												options={[
-													{
-														value: "0",
-														label: "تمام دسته‌بندی‌ها",
-													},
-													...categories.map(
-														(cat) => ({
-															value: String(
-																cat.id,
-															),
-															label: cat.name,
-														}),
-													),
-												]}
-											/>
-										</div>
+									{/* Categories */}
+									<div>
+										<SelectFree
+											value={selectedCategory}
+											onValueChange={setSelectedCategory}
+											label="دسته‌بندی"
+											options={[
+												{
+													value: "0",
+													label: "تمام دسته‌بندی‌ها",
+												},
+												...categories.map((cat) => ({
+													value: String(cat.id),
+													label: cat.name,
+												})),
+											]}
+										/>
+									</div>
 
-										{/* Brands */}
-										<div>
-											<SelectFree
-												value={selectedBrand}
-												onValueChange={(val) => {
-													setSelectedBrand(val);
-												}}
-												label="برند"
-												options={[
-													{
-														value: "0",
-														label: "تمام برندها",
-													},
-													...brands.map((brand) => ({
-														value: String(brand.id),
-														label: brand.name,
-													})),
-												]}
-											/>
-										</div>
-
-										{/* Price Range */}
-										<div className="space-y-4">
-											<div className="flex items-center justify-between">
-												<span className="text-sm font-medium">
-													محدوده قیمت
-												</span>
-											</div>
-
-											<Slider
-												value={priceRange}
-												onValueChange={
-													handlePriceChange
-												}
-												max={5000000}
-												min={0}
-												step={10000}
-											/>
-
-											<div className="grid grid-cols-2 gap-4">
-												<div className="p-3 rounded-lg bg-background border text-center">
-													<p className="text-xs text-muted-foreground mb-1">
-														حداکثر
-													</p>
-													<p className="font-bold gradient-text">
-														{formatPrice(
-															priceRange[1],
-														)}
-													</p>
-													<p className="font-bold gradient-text">
-														ریال
-													</p>
-												</div>
-												<div className="p-3 rounded-lg bg-background border text-center">
-													<p className="text-xs text-muted-foreground mb-1">
-														حداقل
-													</p>
-													<p className="font-bold gradient-text">
-														{formatPrice(
-															priceRange[0],
-														)}
-													</p>
-													<p className="font-bold gradient-text">
-														ریال
-													</p>
-												</div>
-											</div>
-										</div>
-
-										{/* Clear Filters */}
-										<Button
-											variant="outline"
-											className="w-full"
-											onClick={() => {
-												setSearchQuery("");
-												setSelectedCategory("0");
-												setSelectedBrand("0");
-												setPriceRange([0, 5000000]);
+									{/* Brands */}
+									<div>
+										<SelectFree
+											value={selectedBrand}
+											onValueChange={(val) => {
+												setSelectedBrand(val);
 											}}
-										>
-											پاک کردن فیلترها
-										</Button>
-									</CardContent>
-								</Card>
+											label="برند"
+											options={[
+												{
+													value: "0",
+													label: "تمام برندها",
+												},
+												...brands.map((brand) => ({
+													value: String(brand.id),
+													label: brand.name,
+												})),
+											]}
+										/>
+									</div>
+
+									{/* Price Range */}
+									<div className="space-y-4">
+										<div className="flex items-center justify-between">
+											<span className="text-sm font-medium">
+												محدوده قیمت
+											</span>
+										</div>
+
+										<Slider
+											value={priceRange}
+											onValueChange={handlePriceChange}
+											max={sliderBounds.max}
+											min={sliderBounds.min}
+											step={10000}
+										/>
+
+										<div className="grid grid-cols-2 gap-4">
+											<div className="p-3 rounded-lg bg-background border text-center">
+												<p className="text-xs text-muted-foreground mb-1">
+													حداکثر
+												</p>
+												<p className="font-bold gradient-text">
+													{formatPrice(priceRange[1])}
+												</p>
+												<p className="font-bold gradient-text">
+													ریال
+												</p>
+											</div>
+											<div className="p-3 rounded-lg bg-background border text-center">
+												<p className="text-xs text-muted-foreground mb-1">
+													حداقل
+												</p>
+												<p className="font-bold gradient-text">
+													{formatPrice(priceRange[0])}
+												</p>
+												<p className="font-bold gradient-text">
+													ریال
+												</p>
+											</div>
+										</div>
+									</div>
+
+									{/* Clear Filters */}
+									<Button
+										variant="outline"
+										className="w-full"
+										onClick={() => {
+											setSearchQuery("");
+											setSelectedCategory("0");
+											setSelectedBrand("0");
+											setPriceRange([
+												sliderBounds.min,
+												sliderBounds.max,
+											]);
+										}}
+									>
+										پاک کردن فیلترها
+									</Button>
+								</CardContent>
+							</Card>
 						</aside>
 
 						{/* Mobile filter bottom sheet */}
@@ -500,8 +555,8 @@ export default function ProductsPage() {
 													onValueChange={
 														handlePriceChange
 													}
-													max={5000000}
-													min={0}
+													max={sliderBounds.max}
+													min={sliderBounds.min}
 													step={10000}
 												/>
 												<div className="grid grid-cols-2 gap-4">
@@ -540,7 +595,10 @@ export default function ProductsPage() {
 													setSearchQuery("");
 													setSelectedCategory("0");
 													setSelectedBrand("0");
-													setPriceRange([0, 5000000]);
+													setPriceRange([
+														sliderBounds.min,
+														sliderBounds.max,
+													]);
 													setShowFilters(false);
 												}}
 											>
@@ -591,13 +649,19 @@ export default function ProductsPage() {
 												<SelectItem value="newest">
 													جدیدترین
 												</SelectItem>
+									<SelectItem value="popularity">
+										پرطرفدارترین
+									</SelectItem>
 												<SelectItem value="price-low">
 													ارزان‌ترین
 												</SelectItem>
-												<SelectItem value="price-high">
-													گران‌ترین
-												</SelectItem>
+										<SelectItem value="price-high">
+										گران‌ترین
+										</SelectItem>
 											</SelectGroup>
+									<SelectItem value="most-visited">
+										پربازدیدترین
+									</SelectItem>
 										</SelectContent>
 									</Select>
 								</div>
@@ -687,33 +751,70 @@ export default function ProductsPage() {
 													{/* Wishlist + cart controls */}
 													<div
 														className="absolute top-3 left-3 z-20 flex items-center gap-1.5"
-														onClick={(e) => e.preventDefault()}
+														onClick={(e) =>
+															e.preventDefault()
+														}
 													>
 														<button
 															className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center border border-border hover:scale-110 transition-transform disabled:opacity-50"
-															onClick={(e) => handleToggleWishlist(e, product.id)}
-															disabled={wishlistingId === product.id}
+															onClick={(e) =>
+																handleToggleWishlist(
+																	e,
+																	product.id,
+																)
+															}
+															disabled={
+																wishlistingId ===
+																product.id
+															}
 														>
 															<Heart
 																className={`w-4 h-4 transition-colors ${wishlistIds.has(product.id) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
 															/>
 														</button>
 
-														{getCartCount(product.id) > 0 ? (
+														{getCartCount(
+															product.id,
+														) > 0 ? (
 															<div className="flex items-center bg-background/80 backdrop-blur-sm rounded-full border border-border overflow-hidden">
 																<button
 																	className="w-7 h-8 flex items-center justify-center text-muted-foreground hover:text-primary-rose transition-colors text-sm font-bold"
-																	onClick={(e) => handleRemoveFromCart(e, product.id)}
+																	onClick={(
+																		e,
+																	) =>
+																		handleRemoveFromCart(
+																			e,
+																			product.id,
+																		)
+																	}
 																>
 																	-
 																</button>
 																<span className="text-xs font-bold px-1 min-w-[1.25rem] text-center">
-																	{getCartCount(product.id)}
+																	{getCartCount(
+																		product.id,
+																	)}
 																</span>
 																<button
 																	className="w-7 h-8 flex items-center justify-center text-muted-foreground hover:text-primary-rose transition-colors text-sm font-bold disabled:opacity-50"
-																	disabled={addingId === product.id || product.quantity === 0}
-																	onClick={(e) => handleAddToCart(e, product.id)}
+																	disabled={
+																		addingId ===
+																			product.id ||
+																		product.quantity ===
+																			0 ||
+																		getCartCount(
+																			product.id,
+																		) >=
+																			product.quantity
+																	}
+																	onClick={(
+																		e,
+																	) =>
+																		handleAddToCart(
+																			e,
+																			product.id,
+																		)
+																	}
 																>
 																	+
 																</button>
@@ -721,10 +822,25 @@ export default function ProductsPage() {
 														) : (
 															<button
 																className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center border border-border hover:scale-110 transition-transform disabled:opacity-50"
-																disabled={addingId === product.id || product.quantity === 0}
-																onClick={(e) => handleAddToCart(e, product.id)}
+																disabled={
+																	addingId ===
+																		product.id ||
+																	product.quantity ===
+																		0 ||
+																	getCartCount(
+																		product.id,
+																	) >=
+																		product.quantity
+																}
+																onClick={(e) =>
+																	handleAddToCart(
+																		e,
+																		product.id,
+																	)
+																}
 															>
-																{addingId === product.id ? (
+																{addingId ===
+																product.id ? (
 																	<div className="w-3.5 h-3.5 border-2 border-primary-rose border-t-transparent rounded-full animate-spin" />
 																) : (
 																	<ShoppingBag className="w-4 h-4 text-muted-foreground" />
