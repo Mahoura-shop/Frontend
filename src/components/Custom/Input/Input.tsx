@@ -70,15 +70,19 @@ const RawInput = React.forwardRef<HTMLInputElement, RawInputProps>(
 		ref,
 	) {
 		const inputRef = useRef<HTMLInputElement>(null);
+		const midDecimalRef = useRef(false);
 		React.useImperativeHandle(ref, () => inputRef.current!);
 
 		const formatPrice = useCallback((priceValue: string): string => {
 			if (!priceValue) return "";
 			const isNegative = priceValue.trimStart().startsWith("-");
-			const cleanedDigits = priceValue.replace(/\D/g, "");
-			if (!cleanedDigits) return isNegative ? "-" : "";
-			const formatted = formatPriceUtil(Number(cleanedDigits));
-			return isNegative ? "-" + formatted : formatted;
+			const cleaned = priceValue.replace(/[^\d.]/g, "");
+			if (!cleaned) return isNegative ? "-" : "";
+			const dotIndex = cleaned.indexOf(".");
+			const intPart = dotIndex >= 0 ? cleaned.slice(0, dotIndex) : cleaned;
+			const decPart = dotIndex >= 0 ? cleaned.slice(dotIndex) : "";
+			const formatted = intPart ? formatPriceUtil(Number(intPart)) : "";
+			return isNegative ? "-" + formatted + decPart : formatted + decPart;
 		}, []);
 
 		const [displayValue, setDisplayValue] = useState<string>(() => {
@@ -89,6 +93,7 @@ const RawInput = React.forwardRef<HTMLInputElement, RawInputProps>(
 		});
 
 		useEffect(() => {
+			if (midDecimalRef.current) return;
 			if (isPriceInput) {
 				setDisplayValue(formatPrice(String(value ?? "")));
 			} else {
@@ -122,8 +127,13 @@ const RawInput = React.forwardRef<HTMLInputElement, RawInputProps>(
 				if (isPriceInput) {
 					const isNegative = originalInputValue.trimStart().startsWith("-");
 					const asciiValue = persianToAscii(originalInputValue);
-					const cleanedDigits = asciiValue.replace(/\D/g, "");
+					const rawCleaned = asciiValue.replace(/[^\d.]/g, "");
+					const firstDot = rawCleaned.indexOf(".");
+					const cleanedDigits = firstDot >= 0
+						? rawCleaned.slice(0, firstDot + 1) + rawCleaned.slice(firstDot + 1).replace(/\./g, "")
+						: rawCleaned;
 					valueToUpdateParent = isNegative ? "-" + cleanedDigits : cleanedDigits;
+					midDecimalRef.current = cleanedDigits.endsWith(".");
 					formattedDisplayValue = formatPrice(valueToUpdateParent);
 
 					const digitsBeforeCursorInOriginal = countDigitsBeforeCursor(
@@ -150,11 +160,14 @@ const RawInput = React.forwardRef<HTMLInputElement, RawInputProps>(
 
 					if (digitsBeforeCursorInOriginal === 0) {
 						newCursorPos = 0;
-					} else if (
-						currentDigitCount <
-						digitsBeforeCursorInOriginal
-					) {
+					} else if (currentDigitCount < digitsBeforeCursorInOriginal) {
 						newCursorPos = formattedDisplayValue.length;
+					}
+
+					// If original cursor was past a ".", advance past "." in formatted string too
+					const hasDotBeforeCursor = asciiValue.slice(0, originalCursorPos).includes(".");
+					if (hasDotBeforeCursor && formattedDisplayValue[newCursorPos] === ".") {
+						newCursorPos++;
 					}
 
 					setDisplayValue(formattedDisplayValue);

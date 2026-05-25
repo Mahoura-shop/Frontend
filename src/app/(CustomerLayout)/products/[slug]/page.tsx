@@ -188,7 +188,7 @@ export default function ProductDetailPage() {
 
 	useEffect(() => {
 		getProduct();
-		fetchCart();
+		if (accessToken) fetchCart();
 	}, []);
 
 	useEffect(() => {
@@ -401,17 +401,19 @@ export default function ProductDetailPage() {
 									)}
 								</div>
 								<div className="flex gap-2">
-									<Button
-										variant="outline"
-										size="icon"
-										className="w-12 h-12"
-										onClick={handleToggleWishlist}
-										disabled={wishlistLoading}
-									>
-										<Heart
-											className={`w-5 h-5 transition-colors ${wishlisted ? "fill-red-500 text-red-500" : ""}`}
-										/>
-									</Button>
+									{accessToken && (
+										<Button
+											variant="outline"
+											size="icon"
+											className="w-12 h-12"
+											onClick={handleToggleWishlist}
+											disabled={wishlistLoading}
+										>
+											<Heart
+												className={`w-5 h-5 transition-colors ${wishlisted ? "fill-red-500 text-red-500" : ""}`}
+											/>
+										</Button>
+									)}
 									<Button
 										variant="outline"
 										size="icon"
@@ -552,7 +554,7 @@ export default function ProductDetailPage() {
 
 							{/* Actions */}
 							<div ref={addToCartRef} className="flex gap-4">
-								{cartCount > 0 ? (
+								{!accessToken ? null : cartCount > 0 ? (
 									<div className="flex-1 flex items-center justify-between rounded-xl border border-primary-rose/40 bg-primary-rose/5 px-4 py-3">
 										<button
 											className="w-10 h-10 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-primary-rose hover:border-primary-rose transition-colors"
@@ -902,19 +904,39 @@ export default function ProductDetailPage() {
 								{product.currency?.name ?? "ریال"}
 							</p>
 						</div>
-						{cartCount > 0 ? (
-							<div className="flex items-center gap-1 shrink-0">
-								<button
-									className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-primary-rose hover:border-primary-rose transition-colors"
-									onClick={handleRemoveFromCart}
-								>
-									<Minus className="w-4 h-4" />
-								</button>
-								<span className="text-base font-bold min-w-[2rem] text-center">
-									{cartCount}
-								</span>
-								<button
-									className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-primary-rose hover:border-primary-rose transition-colors disabled:opacity-50"
+						{accessToken &&
+							(cartCount > 0 ? (
+								<div className="flex items-center gap-1 shrink-0">
+									<button
+										className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-primary-rose hover:border-primary-rose transition-colors"
+										onClick={handleRemoveFromCart}
+									>
+										<Minus className="w-4 h-4" />
+									</button>
+									<span className="text-base font-bold min-w-[2rem] text-center">
+										{cartCount}
+									</span>
+									<button
+										className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-primary-rose hover:border-primary-rose transition-colors disabled:opacity-50"
+										disabled={
+											adding ||
+											product.quantity === 0 ||
+											cartCount >= product.quantity
+										}
+										onClick={handleAddToCart}
+									>
+										{adding ? (
+											<div className="w-3.5 h-3.5 border-2 border-primary-rose border-t-transparent rounded-full animate-spin" />
+										) : (
+											<Plus className="w-4 h-4" />
+										)}
+									</button>
+								</div>
+							) : (
+								<Button
+									variant="luxury"
+									size="sm"
+									className="shrink-0 gap-2"
 									disabled={
 										adding ||
 										product.quantity === 0 ||
@@ -922,65 +944,46 @@ export default function ProductDetailPage() {
 									}
 									onClick={handleAddToCart}
 								>
-									{adding ? (
-										<div className="w-3.5 h-3.5 border-2 border-primary-rose border-t-transparent rounded-full animate-spin" />
-									) : (
-										<Plus className="w-4 h-4" />
-									)}
-								</button>
-							</div>
-						) : (
-							<Button
-								variant="luxury"
-								size="sm"
-								className="shrink-0 gap-2"
-								disabled={
-									adding ||
-									product.quantity === 0 ||
-									cartCount >= product.quantity
-								}
-								onClick={handleAddToCart}
-							>
-								<AnimatePresence mode="wait">
-									{added ? (
-										<motion.span
-											key="added"
-											initial={{ scale: 0 }}
-											animate={{ scale: 1 }}
-											exit={{ scale: 0 }}
-											className="flex items-center gap-1"
-										>
-											<Check className="w-4 h-4" /> اضافه
-											شد
-										</motion.span>
-									) : adding ? (
-										<motion.div
-											key="spin"
-											animate={{ rotate: 360 }}
-											transition={{
-												repeat: Infinity,
-												duration: 0.8,
-												ease: "linear",
-											}}
-											className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
-										/>
-									) : (
-										<motion.span
-											key="add"
-											initial={{ scale: 0 }}
-											animate={{ scale: 1 }}
-											exit={{ scale: 0 }}
-											className="flex items-center gap-1"
-										>
-											<ShoppingBag className="w-4 h-4" />
-											{product.quantity === 0
-												? "ناموجود"
-												: "افزودن"}
-										</motion.span>
-									)}
-								</AnimatePresence>
-							</Button>
-						)}
+									<AnimatePresence mode="wait">
+										{added ? (
+											<motion.span
+												key="added"
+												initial={{ scale: 0 }}
+												animate={{ scale: 1 }}
+												exit={{ scale: 0 }}
+												className="flex items-center gap-1"
+											>
+												<Check className="w-4 h-4" />{" "}
+												اضافه شد
+											</motion.span>
+										) : adding ? (
+											<motion.div
+												key="spin"
+												animate={{ rotate: 360 }}
+												transition={{
+													repeat: Infinity,
+													duration: 0.8,
+													ease: "linear",
+												}}
+												className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+											/>
+										) : (
+											<motion.span
+												key="add"
+												initial={{ scale: 0 }}
+												animate={{ scale: 1 }}
+												exit={{ scale: 0 }}
+												className="flex items-center gap-1"
+											>
+												<ShoppingBag className="w-4 h-4" />
+												{product.quantity === 0
+													? "ناموجود"
+													: "افزودن"}
+											</motion.span>
+										)}
+									</AnimatePresence>
+								</Button>
+							))}
 					</motion.div>
 				)}
 			</AnimatePresence>

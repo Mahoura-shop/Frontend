@@ -48,35 +48,31 @@ export default function InputFree({
 }: Props) {
 	const { formatPrice: formatPriceFromStore } = useSettingsStore();
 	const inputRef = useRef<HTMLInputElement>(null);
+	const midDecimalRef = useRef(false);
 	const inputId = useId();
 
 	const formatPrice = useCallback(
 		(priceValue: string | number | null | undefined): string => {
-			if (
-				priceValue === null ||
-				priceValue === undefined ||
-				priceValue === ""
-			)
-				return "";
+			if (priceValue === null || priceValue === undefined || priceValue === "") return "";
 
-			// Ensure we're working with a string
 			const stringValue = String(priceValue);
-
-			// Extract only digits (Persian or ASCII) and dots for potential decimal part
-			// Note: The original logic used /[^\d.]/g. If your formatPriceFromStore handles decimals, keep '.', otherwise remove it.
-			// For Persian numbers, we might want to handle them more explicitly.
-			// Let's assume formatPriceFromStore expects ASCII digits.
 			const isNegative = stringValue.trimStart().startsWith("-");
-			let asciiValue = persianToAscii(stringValue);
-			let numericString = asciiValue.replace(/[^\d.]/g, "");
+			const asciiValue = persianToAscii(stringValue);
+			const cleaned = asciiValue.replace(/[^\d.]/g, "");
 
-			if (numericString === "" || numericString === ".") return isNegative ? "-" : "";
+			if (!cleaned) return isNegative ? "-" : "";
 
-			const num = Number(numericString);
-			if (isNaN(num)) return "";
+			const dotIndex = cleaned.indexOf(".");
+			const intStr = dotIndex >= 0 ? cleaned.slice(0, dotIndex) : cleaned;
+			const decPart = dotIndex >= 0 ? cleaned.slice(dotIndex) : "";
 
-			const formatted = formatPriceFromStore(num);
-			return isNegative ? "-" + formatted : formatted;
+			if (!intStr && !decPart) return isNegative ? "-" : "";
+
+			const intNum = Number(intStr || "0");
+			if (isNaN(intNum)) return "";
+
+			const formatted = formatPriceFromStore(intNum);
+			return isNegative ? "-" + formatted + decPart : formatted + decPart;
 		},
 		[formatPriceFromStore],
 	);
@@ -90,24 +86,14 @@ export default function InputFree({
 
 	// Sync local state with prop changes
 	useEffect(() => {
-		let formattedPropValue = "";
-		if (value !== undefined && value !== null && value !== "") {
-			formattedPropValue = isPriceInput
-				? formatPrice(value)
-				: String(value);
+		if (midDecimalRef.current) return;
+		if (value === null || value === undefined || value === "") {
+			setDisplayValue((prev) => (prev !== "" ? "" : prev));
+			return;
 		}
-
-		// Update displayValue only if it's different to avoid unnecessary re-renders/cursor resets
-		if (formattedPropValue !== displayValue) {
-			setDisplayValue(formattedPropValue);
-		} else if (
-			// Handle cases where the prop becomes empty/null/undefined
-			(value === null || value === undefined || value === "") &&
-			displayValue !== ""
-		) {
-			setDisplayValue("");
-		}
-	}, [value, formatPrice, displayValue, isPriceInput]);
+		const formatted = isPriceInput ? formatPrice(value) : String(value);
+		setDisplayValue((prev) => (prev !== formatted ? formatted : prev));
+	}, [value, formatPrice, isPriceInput]);
 
 	const handleChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,23 +108,21 @@ export default function InputFree({
 			if (isPriceInput) {
 				// 1. Extract and clean digits (Persian and ASCII), preserving leading minus
 				const isNeg = originalValue.trimStart().startsWith("-");
-				const persianDigits = originalValue.replace(/[^\d۰-۹.]/g, "");
-				const asciiDigits = originalValue.replace(/[^\d0-9.]/g, "");
-
-				let rawDigits = "";
-				if (persianDigits.length > 0) {
-					rawDigits = persianToAscii(persianDigits);
-				} else {
-					rawDigits = asciiDigits;
-				}
+				const asciiValue = persianToAscii(originalValue);
+				const rawCleaned = asciiValue.replace(/[^\d.]/g, "");
+				const firstDot = rawCleaned.indexOf(".");
+				let rawDigits = firstDot >= 0
+					? rawCleaned.slice(0, firstDot + 1) + rawCleaned.slice(firstDot + 1).replace(/\./g, "")
+					: rawCleaned;
 				if (isNeg) rawDigits = "-" + rawDigits;
 
 				// If no digits are left after cleaning, reset
 				if (rawDigits === "" || rawDigits === "-") {
 					valueToUpdateParent = rawDigits;
 					newDisplayValue = rawDigits;
+					midDecimalRef.current = false;
 				} else {
-					// 2. Format the cleaned digits for display
+					midDecimalRef.current = rawDigits.replace(/^-/, "").endsWith(".");
 					newDisplayValue = formatPrice(rawDigits);
 					valueToUpdateParent = rawDigits;
 				}
@@ -194,6 +178,12 @@ export default function InputFree({
 					// This might happen if originalDigitsBeforeCursor > 0 but digitsEncountered < originalDigitsBeforeCursor
 					// Or if break condition wasn't met for some reason. Fallback to end.
 					formattedCursorPos = newDisplayValue.length;
+				}
+
+				// If original cursor was past a ".", advance past "." in formatted string too
+				const hasDotBeforeCursor = originalValue.slice(0, originalCursorPos).includes(".");
+				if (hasDotBeforeCursor && newDisplayValue[formattedCursorPos] === ".") {
+					formattedCursorPos++;
 				}
 
 				// Ensure the calculated position is within the valid bounds of the new string length

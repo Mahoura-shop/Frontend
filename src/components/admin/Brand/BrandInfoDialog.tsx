@@ -1,8 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { spring } from "@/lib/motion";
+import { formatPersianDate } from "@/lib/utils";
+import {
+	AreaChart,
+	Area,
+	XAxis,
+	YAxis,
+	CartesianGrid,
+	Tooltip,
+	ResponsiveContainer,
+} from "recharts";
 import {
 	Package,
 	Globe,
@@ -23,19 +33,70 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getData } from "@/services/services";
 
 interface BrandInfoDialogProps {
 	brand: Brand;
 }
 
+type ChartPeriod = "week" | "month" | "year";
+
+const PERIOD_LABELS: Record<ChartPeriod, string> = {
+	week: "۷ روز اخیر",
+	month: "۳۰ روز اخیر",
+	year: "یک سال اخیر",
+};
+
 export default function BrandInfoDialog({
 	brand,
 }: BrandInfoDialogProps) {
 	const [open, setOpen] = useState(false);
+	const [period, setPeriod] = useState<ChartPeriod>("week");
+	const [chartData, setChartData] = useState<
+		Array<{ date: string; visits: number; orders: number }>
+	>([]);
+	const [chartLoading, setChartLoading] = useState(false);
+
+	const fetchChartData = useCallback((selectedPeriod: ChartPeriod) => {
+		setChartLoading(true);
+		Promise.all([
+			getData({ endPoint: `/v1/brand/${brand.id}/visits?period=${selectedPeriod}` }),
+			getData({ endPoint: `/v1/brand/${brand.id}/orders?period=${selectedPeriod}` }),
+		])
+			.then(([visitsRes, ordersRes]) => {
+				const visitsByDate = new Map(
+					(visitsRes?.data ?? []).map(
+						(v: { date: string; count: number }) => [v.date, v.count],
+					),
+				);
+				const ordersByDate = new Map(
+					(ordersRes?.data ?? []).map(
+						(o: { date: string; count: number }) => [o.date, o.count],
+					),
+				);
+				const allDates = new Set([...visitsByDate.keys(), ...ordersByDate.keys()]);
+				const merged = Array.from(allDates)
+					.sort()
+					.map((date) => ({
+						date,
+						visits: visitsByDate.get(date) ?? 0,
+						orders: ordersByDate.get(date) ?? 0,
+					}));
+				setChartData(merged);
+			})
+			.catch(() => {})
+			.finally(() => setChartLoading(false));
+	}, [brand.id]);
+
+	useEffect(() => {
+		if (open) {
+			fetchChartData(period);
+		}
+	}, [open, period, fetchChartData]);
 
 	const containerVariants = {
 		hidden: { opacity: 0, scale: 0.95 },
@@ -278,6 +339,10 @@ export default function BrandInfoDialog({
 													setOpen(false);
 												}}
 												className="gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+
+									<Separator />
+
+
 											>
 												<Trash2 className="w-4 h-4" />
 												حذف
@@ -285,6 +350,178 @@ export default function BrandInfoDialog({
 										</motion.div>
 									)}
 								</motion.div> */}
+									{/* Analytics Chart */}
+									<motion.div variants={itemVariants}>
+										<div className="flex items-center justify-between flex-wrap gap-4 mb-4">
+											<div>
+												<h3 className="text-sm font-semibold">
+													بازدیدها و سفارشات
+												</h3>
+												<p className="text-xs text-muted-foreground mt-1">
+													{PERIOD_LABELS[period]}
+												</p>
+											</div>
+											<div className="flex gap-2">
+												{(
+													["week", "month", "year"] as ChartPeriod[]
+												).map((p) => (
+													<Button
+														key={p}
+														size="sm"
+														variant={
+															period === p
+																? "default"
+																: "outline"
+														}
+														onClick={() =>
+															setPeriod(p)
+														}
+													>
+														{PERIOD_LABELS[p]}
+													</Button>
+												))}
+											</div>
+										</div>
+
+										{chartLoading ? (
+											<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
+												در حال بارگذاری...
+											</div>
+										) : chartData.length === 0 ? (
+											<div className="h-[260px] flex items-center justify-center text-muted-foreground text-sm">
+												داده‌ای یافت نشد
+											</div>
+										) : (
+											<ResponsiveContainer
+												width="100%"
+												height={260}
+											>
+												<AreaChart
+													data={chartData}
+													margin={{
+														top: 10,
+														right: 16,
+														left: 0,
+														bottom: 0,
+													}}
+												>
+													<defs>
+														<linearGradient
+															id="visitsGradient"
+															x1="0"
+															y1="0"
+															x2="0"
+															y2="1"
+														>
+															<stop
+																offset="5%"
+																stopColor="#3b82f6"
+																stopOpacity={
+																	0.3
+																}
+															/>
+															<stop
+																offset="95%"
+																stopColor="#3b82f6"
+																stopOpacity={0}
+															/>
+														</linearGradient>
+														<linearGradient
+															id="ordersGradient"
+															x1="0"
+															y1="0"
+															x2="0"
+															y2="1"
+														>
+															<stop
+																offset="5%"
+																stopColor="#e11d48"
+																stopOpacity={
+																	0.3
+																}
+															/>
+															<stop
+																offset="95%"
+																stopColor="#e11d48"
+																stopOpacity={0}
+															/>
+														</linearGradient>
+													</defs>
+													<CartesianGrid
+														strokeDasharray="3 3"
+														className="stroke-muted"
+													/>
+													<XAxis
+														dataKey="date"
+														tick={{
+															fontSize: 11,
+														}}
+														tickLine={false}
+														axisLine={false}
+														tickFormatter={
+															formatPersianDate
+														}
+													/>
+													<YAxis
+														allowDecimals={false}
+														tick={{
+															fontSize: 11,
+														}}
+														tickLine={false}
+														axisLine={false}
+														width={32}
+													/>
+													<Tooltip
+														contentStyle={{
+															borderRadius: 8,
+															fontSize: 13,
+															backgroundColor:
+																"hsl(var(--card))",
+															border: "1px solid hsl(var(--border))",
+															color: "hsl(var(--card-foreground))",
+														}}
+														formatter={(
+															value: number,
+															name: string,
+														) => {
+															if (
+																name ===
+																"visits"
+															) {
+																return [
+																	value,
+																	"بازدید",
+																];
+															}
+															return [
+																value,
+																"سفارش",
+															];
+														}}
+														labelFormatter={
+															formatPersianDate
+														}
+													/>
+													<Area
+														type="monotone"
+														dataKey="visits"
+														stroke="#3b82f6"
+														strokeWidth={2}
+														fill="url(#visitsGradient)"
+														name="visits"
+													/>
+													<Area
+														type="monotone"
+														dataKey="orders"
+														stroke="#e11d48"
+														strokeWidth={2}
+														fill="url(#ordersGradient)"
+														name="orders"
+													/>
+												</AreaChart>
+											</ResponsiveContainer>
+										)}
+									</motion.div>
 							</div>
 						</motion.div>
 					)}

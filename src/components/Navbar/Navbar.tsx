@@ -313,6 +313,19 @@ export default function Navbar() {
 								</DropdownMenu>
 							)}
 
+							<Button
+								variant="ghost"
+								size="icon"
+								className="rounded-full"
+							>
+								<Link
+									href="/cart"
+									className="flex items-center justify-end gap-2 cursor-pointer"
+								>
+									<ShoppingCart className="w-4 h-4" />
+								</Link>
+							</Button>
+
 							{!accessToken ? (
 								<Magnet padding={5}>
 									<Link href="/signin">
@@ -343,7 +356,7 @@ export default function Navbar() {
 											<DropdownMenuLabel className="text-right">
 												{firstName || lastName
 													? `${firstName} ${lastName}`.trim()
-													: "مستخدم"}
+													: "بی نام"}
 											</DropdownMenuLabel>
 											<DropdownMenuSeparator />
 											{isAdmin && (
@@ -366,7 +379,7 @@ export default function Navbar() {
 													<User className="w-4 h-4" />
 												</Link>
 											</DropdownMenuItem>
-											<DropdownMenuItem asChild>
+											{/* <DropdownMenuItem asChild>
 												<Link
 													href="/cart"
 													className="flex items-center justify-end gap-2 cursor-pointer"
@@ -374,7 +387,7 @@ export default function Navbar() {
 													<p>سبد خرید</p>
 													<ShoppingCart className="w-4 h-4" />
 												</Link>
-											</DropdownMenuItem>
+											</DropdownMenuItem> */}
 											<DropdownMenuSeparator />
 											<DropdownMenuItem
 												onClick={handleLogout}

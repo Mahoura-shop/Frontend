@@ -32,8 +32,8 @@ export const getAdminOrderDetail = (orderID: number) =>
 export const updateOrderStatus = (orderID: number, data: { status: number; note: string; trackingCode?: string }) =>
 	patchData({ endPoint: `v1/orders/${orderID}/status`, data })
 
-export const cancelOrder = (orderID: number) =>
-	postData({ endPoint: `v1/orders/${orderID}/cancel`, data: {} })
+export const cancelOrder = (orderID: number, reason: string) =>
+	postData({ endPoint: `v1/orders/${orderID}/cancel`, data: { reason } })
 
 export const flagOrderRefund = (orderID: number) =>
 	postData({ endPoint: `v1/orders/${orderID}/refund-flag`, data: {} })

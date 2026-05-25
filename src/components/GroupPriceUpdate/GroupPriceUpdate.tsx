@@ -34,7 +34,7 @@ export default function GroupPriceUpdate({
 
 	useEffect(() => {
 		setLoading(true);
-		console.log("products", products);
+		// console.log("products", products);
 		getCurrencies()
 			.then((data) => {
 				const currencies = data?.data;
@@ -114,12 +114,13 @@ export default function GroupPriceUpdate({
 							<InputFree
 								label="قیمت ریالی"
 								containerClassName="col-span-1"
+								isPriceInput
 								value={product.irrPrice}
 								icon={DollarSign}
 							/>
 							<InputFree
 								label="قیمت جدید"
-								type="number"
+								isPriceInput
 								value={newProducts[index]?.irrPrice}
 								onValueChange={(value) => {
 									setNewProducts((prev) => {

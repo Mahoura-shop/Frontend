@@ -176,10 +176,10 @@ export default function OrderDetailPage() {
 		if (!order) return;
 		setPaying(true);
 		try {
-			const res = await initiatePayment(order.id);
-			const url: string = res?.data?.gatewayURL;
-			if (url) window.location.href = url;
-			else CustomToast("خطا در اتصال به درگاه", "error");
+			await initiatePayment(order.id);
+			CustomToast("پرداخت با موفقیت انجام شد!", "success");
+			const res = await getOrderDetail(order.id);
+			setOrder(res?.data ?? order);
 		} catch {
 		} finally {
 			setPaying(false);
@@ -369,6 +369,28 @@ export default function OrderDetailPage() {
 					</Card>
 				</motion.div>
 			)}
+
+			{/* Cancellation reason banner */}
+			{order.status === 5 && (() => {
+				const cancelEntry = order.statusHistory?.find(h => h.status === 5)
+				return cancelEntry?.note ? (
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.1 }}
+					>
+						<Card className="border-destructive/40 bg-destructive/5">
+							<CardContent className="p-4 flex items-start gap-3">
+								<XCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+								<div>
+									<p className="font-semibold text-destructive">سفارش لغو شد</p>
+									<p className="text-sm text-muted-foreground mt-1">{cancelEntry.note}</p>
+								</div>
+							</CardContent>
+						</Card>
+					</motion.div>
+				) : null
+			})()}
 
 			{/* Tracking code (shipped orders) */}
 			{order.status === 3 && order.trackingCode && (

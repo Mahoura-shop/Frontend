@@ -14,6 +14,7 @@ import type {
 } from "../types/apiTypes";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 
+// export const baseURL = "http://192.168.1.115:8080/"; // backend URL
 export const baseURL = "http://localhost:8080/"; // backend URL
 
 const apiClient: AxiosInstance = axios.create({

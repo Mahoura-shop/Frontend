@@ -26,7 +26,6 @@ import { Badge } from "@/components/ui/badge";
 import { useCartStore } from "@/store/useCartStore";
 import useUserStore from "@/store/userStore/userStore";
 import { useRouter } from "next/navigation";
-import { getShippingCost } from "@/services/shippingService";
 
 const VALID_COUPONS: Record<string, number> = {
 	welcome10: 10,
@@ -58,11 +57,8 @@ export default function CartPage() {
 		code: string;
 		discount: number;
 	} | null>(null);
-	const [shippingCost, setShippingCost] = useState(0);
-
 	useEffect(() => {
 		fetchCart();
-		getShippingCost().then(setShippingCost).catch(() => {});
 	}, []);
 
 	// const handleApplyCoupon = () => {
@@ -81,12 +77,10 @@ export default function CartPage() {
 		(sum, item) => sum + resolvePrice(item.product, userType) * item.count,
 		0,
 	);
-	const shipping = subtotal > 0 ? shippingCost : 0;
 	const discount = appliedCoupon
 		? (subtotal * appliedCoupon.discount) / 100
 		: 0;
-	const tax = (subtotal - discount) * 0.09;
-	const total = subtotal - discount + shipping + tax;
+	const total = subtotal - discount;
 
 	if (loading && items.length === 0) {
 		return (
@@ -412,19 +406,10 @@ export default function CartPage() {
 
 										<div className="flex items-center justify-between">
 											<span className="text-muted-foreground">
-												هزینه ارسال
+												بسته‌بندی و ارسال
 											</span>
-											<span className="font-medium">
-												{`${formatPrice(shipping)} ریال`}
-											</span>
-										</div>
-
-										<div className="flex items-center justify-between">
-											<span className="text-muted-foreground">
-												مالیات (۹٪)
-											</span>
-											<span className="font-medium">
-												{formatPrice(tax)} ریال
+											<span className="font-medium text-green-600 dark:text-green-400">
+												رایگان
 											</span>
 										</div>
 									</div>
@@ -452,7 +437,7 @@ export default function CartPage() {
 										</Button>
 									</Link>
 
-									<Link href="/products">
+									{/* <Link href="/products">
 										<Button
 											variant="outline"
 											className="w-full gap-2"
@@ -460,7 +445,7 @@ export default function CartPage() {
 											<ArrowLeft className="w-4 h-4" />
 											ادامه خرید
 										</Button>
-									</Link>
+									</Link> */}
 </div>
 								</CardContent>
 							</Card>

@@ -237,7 +237,7 @@ export default function ProductsPage() {
 	useEffect(() => {
 		fetchCategories();
 		fetchBrands();
-		fetchCart();
+		if (accessToken) fetchCart();
 	}, []);
 
 	useEffect(() => {
@@ -649,19 +649,19 @@ export default function ProductsPage() {
 												<SelectItem value="newest">
 													جدیدترین
 												</SelectItem>
-									<SelectItem value="popularity">
-										پرطرفدارترین
-									</SelectItem>
+												<SelectItem value="popularity">
+													پرطرفدارترین
+												</SelectItem>
 												<SelectItem value="price-low">
 													ارزان‌ترین
 												</SelectItem>
-										<SelectItem value="price-high">
-										گران‌ترین
-										</SelectItem>
+												<SelectItem value="price-high">
+													گران‌ترین
+												</SelectItem>
 											</SelectGroup>
-									<SelectItem value="most-visited">
-										پربازدیدترین
-									</SelectItem>
+											<SelectItem value="most-visited">
+												پربازدیدترین
+											</SelectItem>
 										</SelectContent>
 									</Select>
 								</div>
@@ -748,148 +748,83 @@ export default function ProductsPage() {
 														)}
 													</div>
 
-													{/* Wishlist + cart controls */}
+													{/* Wishlist button */}
 													<div
-														className="absolute top-3 left-3 z-20 flex items-center gap-1.5"
-														onClick={(e) =>
-															e.preventDefault()
-														}
+														className="absolute top-3 left-3 z-20"
+														onClick={(e) => e.preventDefault()}
 													>
-														<button
-															className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center border border-border hover:scale-110 transition-transform disabled:opacity-50"
-															onClick={(e) =>
-																handleToggleWishlist(
-																	e,
-																	product.id,
-																)
-															}
-															disabled={
-																wishlistingId ===
-																product.id
-															}
-														>
-															<Heart
-																className={`w-4 h-4 transition-colors ${wishlistIds.has(product.id) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
-															/>
-														</button>
-
-														{getCartCount(
-															product.id,
-														) > 0 ? (
-															<div className="flex items-center bg-background/80 backdrop-blur-sm rounded-full border border-border overflow-hidden">
-																<button
-																	className="w-7 h-8 flex items-center justify-center text-muted-foreground hover:text-primary-rose transition-colors text-sm font-bold"
-																	onClick={(
-																		e,
-																	) =>
-																		handleRemoveFromCart(
-																			e,
-																			product.id,
-																		)
-																	}
-																>
-																	-
-																</button>
-																<span className="text-xs font-bold px-1 min-w-[1.25rem] text-center">
-																	{getCartCount(
-																		product.id,
-																	)}
-																</span>
-																<button
-																	className="w-7 h-8 flex items-center justify-center text-muted-foreground hover:text-primary-rose transition-colors text-sm font-bold disabled:opacity-50"
-																	disabled={
-																		addingId ===
-																			product.id ||
-																		product.quantity ===
-																			0 ||
-																		getCartCount(
-																			product.id,
-																		) >=
-																			product.quantity
-																	}
-																	onClick={(
-																		e,
-																	) =>
-																		handleAddToCart(
-																			e,
-																			product.id,
-																		)
-																	}
-																>
-																	+
-																</button>
-															</div>
-														) : (
+														{accessToken && (
 															<button
 																className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center border border-border hover:scale-110 transition-transform disabled:opacity-50"
-																disabled={
-																	addingId ===
-																		product.id ||
-																	product.quantity ===
-																		0 ||
-																	getCartCount(
-																		product.id,
-																	) >=
-																		product.quantity
-																}
-																onClick={(e) =>
-																	handleAddToCart(
-																		e,
-																		product.id,
-																	)
-																}
+																onClick={(e) => handleToggleWishlist(e, product.id)}
+																disabled={wishlistingId === product.id}
 															>
-																{addingId ===
-																product.id ? (
-																	<div className="w-3.5 h-3.5 border-2 border-primary-rose border-t-transparent rounded-full animate-spin" />
-																) : (
-																	<ShoppingBag className="w-4 h-4 text-muted-foreground" />
-																)}
+																<Heart
+																	className={`w-4 h-4 transition-colors ${wishlistIds.has(product.id) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
+																/>
 															</button>
 														)}
 													</div>
 												</div>
 
 												{/* Info footer — always visible */}
-												<Link
-													href={`/products/${product.slug}`}
-												>
-													<div className="p-4">
-														<p className="text-xs text-muted-foreground font-semibold mb-1 truncate">
-															{
-																product.brand
-																	?.name
-															}
-														</p>
-														<p className="text-sm font-bold text-foreground leading-snug line-clamp-2 mb-3">
-															{product.name}
-														</p>
-														<p className="text-base font-bold text-primary-rose">
-															{formatPrice(
-																resolvePrice(
-																	product,
-																	userType,
-																),
+												<div className="p-4">
+													<Link href={`/products/${product.slug}`}>
+														<div className="flex items-center gap-2 mb-1">
+															{product.brand?.name && (
+																<p className="text-xs text-muted-foreground font-semibold truncate">{product.brand.name}</p>
 															)}
-															<span className="text-xs text-muted-foreground ms-1">
-																ریال
-															</span>
-														</p>
-														{!!product.consumerPrice &&
-															product.consumerPrice !==
-																resolvePrice(
-																	product,
-																	userType,
-																) && (
-																<p className="text-sm text-muted-foreground line-through mt-1">
-																	{formatPrice(
-																		product.consumerPrice,
-																	)}{" "}
-																	ریال
+															{product.category?.name && (
+																<Badge variant="outline" className="text-xs px-1.5 py-0 shrink-0">{product.category.name}</Badge>
+															)}
+														</div>
+														<p className="text-sm font-bold text-foreground leading-snug line-clamp-2 mb-3">{product.name}</p>
+													</Link>
+													<div className="flex items-center justify-between gap-2">
+														<Link href={`/products/${product.slug}`} className="flex-1 min-w-0">
+															<p className="text-base font-bold text-primary-rose">
+																{formatPrice(resolvePrice(product, userType))}
+																<span className="text-xs text-muted-foreground ms-1">ریال</span>
+															</p>
+															{!!product.consumerPrice && product.consumerPrice !== resolvePrice(product, userType) && (
+																<p className="text-xs text-muted-foreground line-through">
+																	{formatPrice(product.consumerPrice)} ریال
 																</p>
 															)}
+														</Link>
+														{accessToken && (
+															<div className="shrink-0" onClick={(e) => e.preventDefault()}>
+																{getCartCount(product.id) > 0 ? (
+																	<div className="flex items-center bg-muted rounded-full border border-border overflow-hidden">
+																		<button
+																			className="w-7 h-8 flex items-center justify-center text-muted-foreground hover:text-primary-rose transition-colors text-sm font-bold"
+																			onClick={(e) => handleRemoveFromCart(e, product.id)}
+																		>-</button>
+																		<span className="text-xs font-bold px-1 min-w-[1.25rem] text-center">{getCartCount(product.id)}</span>
+																		<button
+																			className="w-7 h-8 flex items-center justify-center text-muted-foreground hover:text-primary-rose transition-colors text-sm font-bold disabled:opacity-50"
+																			disabled={addingId === product.id || product.quantity === 0 || getCartCount(product.id) >= product.quantity}
+																			onClick={(e) => handleAddToCart(e, product.id)}
+																		>+</button>
+																	</div>
+																) : (
+																	<button
+																		className="flex items-center gap-1.5 px-3 h-8 rounded-full bg-primary-rose/10 hover:bg-primary-rose/20 border border-primary-rose/30 text-primary-rose text-xs font-semibold transition-colors disabled:opacity-50"
+																		disabled={addingId === product.id || product.quantity === 0}
+																		onClick={(e) => handleAddToCart(e, product.id)}
+																	>
+																		{addingId === product.id ? (
+																			<div className="w-3.5 h-3.5 border-2 border-primary-rose border-t-transparent rounded-full animate-spin" />
+																		) : (
+																			<ShoppingBag className="w-3.5 h-3.5" />
+																		)}
+																		افزودن
+																	</button>
+																)}
+															</div>
+														)}
 													</div>
-												</Link>
+												</div>
 											</motion.div>
 										))}
 								</div>

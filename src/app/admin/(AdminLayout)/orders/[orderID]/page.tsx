@@ -140,6 +140,7 @@ export default function AdminOrderDetailPage() {
 	const [updating, setUpdating] = useState(false);
 	const [statusNote, setStatusNote] = useState("");
 	const [trackingCode, setTrackingCode] = useState("");
+	const [cancelReason, setCancelReason] = useState("");
 	const canUpdateStatus = usePermission("order:update_status");
 	const canCancel = usePermission("order:cancel");
 
@@ -177,9 +178,14 @@ export default function AdminOrderDetailPage() {
 
 	const handleCancel = async () => {
 		if (!order) return;
+		if (!cancelReason.trim()) {
+			CustomToast("دلیل لغو سفارش را وارد کنید", "error");
+			return;
+		}
 		setUpdating(true);
 		try {
-			await cancelOrder(order.id);
+			await cancelOrder(order.id, cancelReason.trim());
+			setCancelReason("");
 			await loadOrder();
 			CustomToast("سفارش لغو شد", "success");
 		} catch {
@@ -577,21 +583,32 @@ export default function AdminOrderDetailPage() {
 								اقدامات
 							</CardTitle>
 						</CardHeader>
-						<CardContent className="flex gap-3 flex-wrap">
+						<CardContent className="space-y-3">
 							{order.status !== 5 && (
-								<Button
-									variant="destructive"
-									onClick={handleCancel}
-									disabled={updating}
-									className="gap-2"
-								>
-									{updating ? (
-										<Loader2 className="w-4 h-4 animate-spin" />
-									) : (
-										<PackageX className="w-4 h-4" />
-									)}
-									لغو سفارش
-								</Button>
+								<>
+									<textarea
+										value={cancelReason}
+										onChange={(e) => setCancelReason(e.target.value)}
+										placeholder="دلیل لغو سفارش (اجباری)"
+										className="w-full p-3 border border-destructive/30 rounded-lg text-sm bg-background resize-none focus:outline-none focus:ring-2 focus:ring-destructive/50"
+										rows={2}
+									/>
+									<div className="flex gap-3 flex-wrap">
+										<Button
+											variant="destructive"
+											onClick={handleCancel}
+											disabled={updating}
+											className="gap-2"
+										>
+											{updating ? (
+												<Loader2 className="w-4 h-4 animate-spin" />
+											) : (
+												<PackageX className="w-4 h-4" />
+											)}
+											لغو سفارش
+										</Button>
+									</div>
+								</>
 							)}
 							{!order.refundFlag && order.status !== 5 && (
 								<Button
