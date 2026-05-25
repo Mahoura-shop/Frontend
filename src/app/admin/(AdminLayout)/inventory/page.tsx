@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Trash2, ArrowDownCircle, ArrowUpCircle } from "lucide-react";
+import { Plus, Trash2, ArrowDownCircle, ArrowUpCircle, FileSpreadsheet } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Button from "@/components/Custom/Button/Button";
@@ -27,6 +27,8 @@ function InventoryPageContent() {
 	const [operationType, setOperationType] = useState<"buy" | "sell">("buy");
 	const [rows, setRows] = useState<StockRow[]>([makeRow()]);
 	const [submitting, setSubmitting] = useState(false);
+	const [excelFile, setExcelFile] = useState<File | null>(null);
+	const [uploadingExcel, setUploadingExcel] = useState(false);
 
 	useEffect(() => {
 		getData({ endPoint: "/v1/product" }).then((res) => {
@@ -49,6 +51,23 @@ function InventoryPageContent() {
 		setRows((prev) =>
 			prev?.map((r) => (r.id === id ? { ...r, ...patch } : r)),
 		);
+	}
+
+	async function handleExcelUpload() {
+		if (!excelFile) {
+			CustomToast("لطفا یک فایل اکسل انتخاب کنید", "error");
+			return;
+		}
+		setUploadingExcel(true);
+		try {
+			const result = await productService.uploadInventoryExcel(excelFile);
+			CustomToast(`${result.updated} محصول با موفقیت بروزرسانی شد`, "success");
+			setExcelFile(null);
+		} catch (err: any) {
+			CustomToast(err?.message ?? "خطا در پردازش فایل اکسل", "error");
+		} finally {
+			setUploadingExcel(false);
+		}
 	}
 
 	async function handleSubmit() {
@@ -121,6 +140,42 @@ function InventoryPageContent() {
 							<ArrowUpCircle className="size-4" />
 							فروش (خروجی)
 						</button>
+					</div>
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader>
+					<CardTitle className="flex items-center gap-2">
+						<FileSpreadsheet className="size-5" />
+						بروزرسانی موجودی از فایل اکسل
+					</CardTitle>
+				</CardHeader>
+				<CardContent className="space-y-4">
+					<p className="text-sm text-muted-foreground">
+						فایل اکسل باید دارای دو ستون با عنوان <span className="font-mono font-bold">id</span> و <span className="font-mono font-bold">inventory</span> باشد.
+					</p>
+					<div className="flex items-center gap-3">
+						<label className="flex-1 flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-dashed border-border hover:border-primary cursor-pointer transition-colors">
+							<input
+								type="file"
+								accept=".xlsx,.xls"
+								className="hidden"
+								onChange={(e) => setExcelFile(e.target.files?.[0] ?? null)}
+							/>
+							<FileSpreadsheet className="size-4 text-muted-foreground shrink-0" />
+							<span className="text-sm text-muted-foreground truncate">
+								{excelFile ? excelFile.name : "انتخاب فایل اکسل..."}
+							</span>
+						</label>
+						<Button
+							variant="primary"
+							onClick={handleExcelUpload}
+							disabled={uploadingExcel || !excelFile}
+							className="shrink-0"
+						>
+							{uploadingExcel ? "در حال پردازش..." : "بارگذاری"}
+						</Button>
 					</div>
 				</CardContent>
 			</Card>

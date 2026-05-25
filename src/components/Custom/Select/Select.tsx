@@ -71,6 +71,7 @@ export default function Select({
 				value={field.value || ""}
 				onValueChange={(value) => {
 					const actualValue = value === "empty_value" ? "" : value;
+					console.log("new select", actualValue);
 					helpers.setValue(actualValue);
 				}}
 				onOpenChange={(open) => {
@@ -113,7 +114,11 @@ export default function Select({
 						<TooltipTrigger asChild>
 							<Icon
 								onClick={onIconClick}
-								className={cn(styles.icon, iconClassName, "text-destructive")}
+								className={cn(
+									styles.icon,
+									iconClassName,
+									"text-destructive",
+								)}
 							/>
 						</TooltipTrigger>
 						<TooltipContent className="rtl">

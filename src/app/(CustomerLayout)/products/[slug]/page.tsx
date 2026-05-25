@@ -129,18 +129,17 @@ export default function ProductDetailPage() {
 		}
 
 		setAdding(true);
-		try {
-			await addItem(product.id);
-			setAdded(true);
-			setTimeout(() => setAdded(false), 2000);
-		} catch (error: any) {
-			CustomToast(
-				error?.response?.data?.message || "خطایی رخ داد",
-				"error",
-			);
-		} finally {
-			setAdding(false);
-		}
+		addItem(product.id)
+			.catch((error: any) => {
+				console.log("error", error);
+				CustomToast(
+					error?.response?.data?.message || "خطایی رخ داد",
+					"error",
+				);
+			})
+			.finally(() => {
+				setAdding(false);
+			});
 	};
 
 	const handleRemoveFromCart = async () => {

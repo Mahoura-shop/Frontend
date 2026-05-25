@@ -1,8 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { formatIncome, formatPersianDate } from "@/lib/utils";
 import { motion } from "framer-motion";
+import type { ProvinceStat } from "@/components/IranMap/IranMap";
+
+const IranMap = dynamic(() => import("@/components/IranMap/IranMap"), {
+	ssr: false,
+	loading: () => (
+		<div className="h-[400px] flex items-center justify-center text-muted-foreground text-sm">
+			در حال بارگذاری نقشه...
+		</div>
+	),
+});
 import {
 	PieChart,
 	Pie,
@@ -87,6 +98,16 @@ export default function AdminDashboard() {
 		Array<{ date: string; revenue: number }>
 	>([]);
 	const [salesChartLoading, setSalesChartLoading] = useState(false);
+	const [provinceStats, setProvinceStats] = useState<ProvinceStat[]>([]);
+	const [provinceStatsLoading, setProvinceStatsLoading] = useState(true);
+
+	const fetchProvinceStats = useCallback(() => {
+		setProvinceStatsLoading(true);
+		getData({ endPoint: `/v1/admin/dashboard/province-stats` })
+			.then((data) => setProvinceStats(data?.data ?? []))
+			.catch(() => {})
+			.finally(() => setProvinceStatsLoading(false));
+	}, []);
 
 	const fetchDashboardData = () => {
 		setLoading(true);
@@ -132,7 +153,8 @@ export default function AdminDashboard() {
 
 	useEffect(() => {
 		fetchDashboardData();
-	}, []);
+		fetchProvinceStats();
+	}, [fetchProvinceStats]);
 
 	const fetchSalesChart = useCallback((period: OrderPeriod) => {
 		setSalesChartLoading(true);
@@ -694,6 +716,32 @@ export default function AdminDashboard() {
 									/>
 								</AreaChart>
 							</ResponsiveContainer>
+						)}
+					</CardContent>
+				</Card>
+			</motion.div>
+
+			{/* Province Stats Map */}
+			<motion.div
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ delay: 0.5 }}
+				className="mb-8"
+			>
+				<Card>
+					<CardHeader>
+						<CardTitle>سفارشات بر اساس استان</CardTitle>
+						<CardDescription>
+							توزیع جغرافیایی سفارشات و فروش در سطح کشور
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						{provinceStatsLoading ? (
+							<div className="h-[400px] flex items-center justify-center text-muted-foreground text-sm">
+								در حال بارگذاری...
+							</div>
+						) : (
+							<IranMap data={provinceStats} />
 						)}
 					</CardContent>
 				</Card>

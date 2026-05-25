@@ -372,6 +372,17 @@ export default function ProductInfoDialog({
 											/>
 										)}
 
+										{/* Excel ID */}
+										{product.externalID && (
+											<InfoItem
+												icon={
+													<Hash className="w-4 h-4" />
+												}
+												label="شناسه اکسل"
+												value={product.externalID}
+											/>
+										)}
+
 										{/* IrrPrice */}
 										{product.irrPrice && (
 											<InfoItem

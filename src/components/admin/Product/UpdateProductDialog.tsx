@@ -93,6 +93,11 @@ function ProductForm({
 		setLoading(true);
 		const formData = new FormData();
 
+		if (!(mode === "update" && product?.externalID === values.externalID)) {
+			if (values.externalID) {
+				formData.append("externalID", values.externalID);
+			}
+		}
 		if (!(mode === "update" && product?.name === values.name)) {
 			formData.append("name", values.name);
 		}
@@ -143,84 +148,97 @@ function ProductForm({
 		) {
 			formData.append("quantityType", values.quantityType);
 		}
-		if (!(mode === "update" && product?.currencyID === values.currencyID)) {
-			formData.append("currencyID", values.currencyID.toString());
-		}
+		formData.append("currencyID", values.currencyID.toString());
+		// if (!(mode === "update" && product?.currencyID === values.currencyID)) {
+		// 	formData.append("currencyID", values.currencyID.toString());
+		// }
 		if (
 			!(mode === "update" && product?.irrPrice === values.irrPrice) &&
 			values.irrPrice
 		) {
 			formData.append("irrPrice", values.irrPrice?.toString());
 		}
-		if (
-			!(
-				mode === "update" &&
-				product?.consumerPrice === values.consumerPrice
-			) &&
-			values.consumerPrice
-		) {
-			formData.append("consumerPrice", values.consumerPrice?.toString());
-		}
-		if (
-			!(
-				mode === "update" &&
-				product?.step1Percent === values.step1Percent
-			) &&
-			values.step1Percent
-		) {
-			formData.append("step1Percent", values.step1Percent?.toString());
-		}
-		if (
-			!(
-				mode === "update" &&
-				product?.step2Percent === values.step2Percent
-			) &&
-			values.step2Percent
-		) {
-			formData.append("step2Percent", values.step2Percent?.toString());
-		}
-		if (
-			!(
-				mode === "update" &&
-				product?.step3Percent === values.step3Percent
-			) &&
-			values.step3Percent
-		) {
-			formData.append("step3Percent", values.step3Percent?.toString());
-		}
-		if (
-			!(
-				mode === "update" &&
-				product?.step4Percent === values.step4Percent
-			) &&
-			values.step4Percent
-		) {
-			formData.append("step4Percent", values.step4Percent?.toString());
-		}
-		if (
-			!(mode === "update" && product?.step1Price === values.step1Price) &&
-			values.step1Price
-		) {
-			formData.append("step1Price", values.step1Price?.toString());
-		}
-		if (
-			!(mode === "update" && product?.step2Price === values.step2Price) &&
-			values.step2Price
-		) {
-			formData.append("step2Price", values.step2Price?.toString());
-		}
-		if (
-			!(mode === "update" && product?.step3Price === values.step3Price) &&
-			values.step3Price
-		) {
-			formData.append("step3Price", values.step3Price?.toString());
-		}
-		if (
-			!(mode === "update" && product?.step4Price === values.step4Price) &&
-			values.step4Price
-		) {
-			formData.append("step4Price", values.step4Price?.toString());
-		}
+		formData.append(
+			"consumerPrice",
+			values.consumerPrice?.toString() ?? "",
+		);
+		formData.append("step1Percent", values.step1Percent?.toString() ?? "");
+		formData.append("step2Percent", values.step2Percent?.toString() ?? "");
+		formData.append("step3Percent", values.step3Percent?.toString() ?? "");
+		formData.append("step4Percent", values.step4Percent?.toString() ?? "");
+		formData.append("step1Price", values.step1Price?.toString() ?? "");
+		formData.append("step2Price", values.step2Price?.toString() ?? "");
+		formData.append("step3Price", values.step3Price?.toString() ?? "");
+		formData.append("step4Price", values.step4Price?.toString() ?? "");
+		// if (
+		// 	!(
+		// 		mode === "update" &&
+		// 		product?.consumerPrice === values.consumerPrice
+		// 	) &&
+		// 	values.consumerPrice
+		// ) {
+		// 	formData.append("consumerPrice", values.consumerPrice?.toString());
+		// }
+		// if (
+		// 	!(
+		// 		mode === "update" &&
+		// 		product?.step1Percent === values.step1Percent
+		// 	) &&
+		// 	values.step1Percent
+		// ) {
+		// 	formData.append("step1Percent", values.step1Percent?.toString());
+		// }
+		// if (
+		// 	!(
+		// 		mode === "update" &&
+		// 		product?.step2Percent === values.step2Percent
+		// 	) &&
+		// 	values.step2Percent
+		// ) {
+		// 	formData.append("step2Percent", values.step2Percent?.toString());
+		// }
+		// if (
+		// 	!(
+		// 		mode === "update" &&
+		// 		product?.step3Percent === values.step3Percent
+		// 	) &&
+		// 	values.step3Percent
+		// ) {
+		// 	formData.append("step3Percent", values.step3Percent?.toString());
+		// }
+		// if (
+		// 	!(
+		// 		mode === "update" &&
+		// 		product?.step4Percent === values.step4Percent
+		// 	) &&
+		// 	values.step4Percent
+		// ) {
+		// 	formData.append("step4Percent", values.step4Percent?.toString());
+		// }
+		// if (
+		// 	!(mode === "update" && product?.step1Price === values.step1Price) &&
+		// 	values.step1Price
+		// ) {
+		// 	formData.append("step1Price", values.step1Price?.toString());
+		// }
+		// if (
+		// 	!(mode === "update" && product?.step2Price === values.step2Price) &&
+		// 	values.step2Price
+		// ) {
+		// 	formData.append("step2Price", values.step2Price?.toString());
+		// }
+		// if (
+		// 	!(mode === "update" && product?.step3Price === values.step3Price) &&
+		// 	values.step3Price
+		// ) {
+		// 	formData.append("step3Price", values.step3Price?.toString());
+		// }
+		// if (
+		// 	!(mode === "update" && product?.step4Price === values.step4Price) &&
+		// 	values.step4Price
+		// ) {
+		// 	formData.append("step4Price", values.step4Price?.toString());
+		// }
 		if (
 			!(
 				mode === "update" && product?.step1Origin === values.step1Origin
@@ -269,7 +287,10 @@ function ProductForm({
 				formData.append("productPic", file);
 			}
 		}
-
+		console.log(
+			"Form Data Values:",
+			Object.fromEntries(formData.entries()),
+		);
 		const apiFunc = mode === "update" ? putImageData : postImageData;
 		apiFunc({
 			endPoint: `/v1/product${mode === "update" ? "/" + product?.id : ""}`,
@@ -312,38 +333,46 @@ function ProductForm({
 				const step2Origin = values["step2Origin"];
 				const step3Origin = values["step3Origin"];
 				const step4Origin = values["step4Origin"];
+				const currentCurrencyId = Number(values.currencyID);
 				const rate =
 					currencies.find(
 						(currency: Currency) =>
-							currency.id === Number(values["currencyID"]),
+							currency.id === currentCurrencyId,
 					)?.convertRate || 1;
 
 				useEffect(() => {
 					if (price === undefined) return;
-					if (mode === "update" && price === product?.price) return;
+					// if (mode === "update" && price === product?.price) return;
 					console.log("price * rate", price * rate);
 					setFieldValue("irrPrice", roundPrice(price * rate));
-				}, [price, rate]);
+				}, [price, rate, mode, setFieldValue, values["currencyID"]]);
 
 				useEffect(() => {
-					if (irrPrice === undefined || step1 === undefined) return;
+					if (!irrPrice || !step1) {
+						setFieldValue("step1Price", "");
+						return;
+					}
 					setFieldValue(
 						"step1Price",
 						roundPrice(irrPrice * (1 + Number(step1) / 100)),
 					);
-				}, [irrPrice, step1]);
+				}, [irrPrice, step1, setFieldValue]);
 
 				useEffect(() => {
 					if (step2Origin) {
-						if (irrPrice === undefined || step2 === undefined)
+						if (!irrPrice || !step2) {
+							setFieldValue("step2Price", "");
 							return;
+						}
 						setFieldValue(
 							"step2Price",
 							roundPrice(irrPrice * (1 + Number(step2) / 100)),
 						);
 					} else {
-						if (baseStep1 === undefined || step2 === undefined)
+						if (!baseStep1 || !step2) {
+							setFieldValue("step2Price", "");
 							return;
+						}
 						setFieldValue(
 							"step2Price",
 							roundPrice(baseStep1 * (1 + Number(step2) / 100)),
@@ -353,15 +382,19 @@ function ProductForm({
 
 				useEffect(() => {
 					if (step3Origin) {
-						if (irrPrice === undefined || step3 === undefined)
+						if (!irrPrice || !step3) {
+							setFieldValue("step3Price", "");
 							return;
+						}
 						setFieldValue(
 							"step3Price",
 							roundPrice(irrPrice * (1 + Number(step3) / 100)),
 						);
 					} else {
-						if (baseStep2 === undefined || step2 === undefined)
+						if (!baseStep2 || !step3) {
+							setFieldValue("step3Price", "");
 							return;
+						}
 						setFieldValue(
 							"step3Price",
 							roundPrice(baseStep2 * (1 + Number(step3) / 100)),
@@ -371,15 +404,19 @@ function ProductForm({
 
 				useEffect(() => {
 					if (step4Origin) {
-						if (irrPrice === undefined || step4 === undefined)
+						if (!irrPrice || !step4) {
+							setFieldValue("step4Price", "");
 							return;
+						}
 						setFieldValue(
 							"step4Price",
 							roundPrice(irrPrice * (1 + Number(step4) / 100)),
 						);
 					} else {
-						if (baseStep3 === undefined || step3 === undefined)
+						if (!baseStep3 || !step4) {
+							setFieldValue("step4Price", "");
 							return;
+						}
 						setFieldValue(
 							"step4Price",
 							roundPrice(baseStep3 * (1 + Number(step4) / 100)),
@@ -424,6 +461,12 @@ function ProductForm({
 								<DialogTitle>{title}</DialogTitle>
 							</DialogHeader>
 						)}
+
+						<Input
+							name="externalID"
+							icon={Hash}
+							label="شناسه اکسل (Excel ID)"
+						/>
 
 						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 							<Input

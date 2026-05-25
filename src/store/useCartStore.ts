@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { getCart, addToCart, removeFromCart } from "@/services/cartService";
 import { toast } from "sonner";
+import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 
 interface CartProduct {
 	id: number;
@@ -64,7 +65,9 @@ export const useCartStore = create<CartStore>((set, get) => ({
 			});
 		}
 		try {
-			await addToCart(productID);
+			await addToCart(productID).then((data) => {
+				CustomToast(data.message, "success");
+			});
 			await get().fetchCart();
 		} catch {
 			set({ items: prev });
@@ -84,7 +87,9 @@ export const useCartStore = create<CartStore>((set, get) => ({
 				.filter((i) => i.count > 0),
 		});
 		try {
-			await removeFromCart(productID);
+			await removeFromCart(productID).then((data) => {
+				CustomToast(data.message, "success");
+			});
 			await get().fetchCart();
 		} catch {
 			set({ items: prev });

@@ -31,6 +31,7 @@ interface Product {
 	quantityType: string;
 	currency: Currency;
 	currencyID: string;
+	externalID?: string;
 	productPic: string | undefined;
 	images?: string[];
 	imageObjects?: { id: number; path: string }[];
