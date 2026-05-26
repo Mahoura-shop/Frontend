@@ -43,6 +43,8 @@ import { useDashboardMenuStore } from "@/store/useDashboardMenuStore";
 
 const menuItems = [
 	{ label: "محصولات", href: "/products" },
+	{ label: "برندها", href: "/brands" },
+	{ label: "دسته‌بندی‌ها", href: "/categories" },
 	{ label: "درباره ما", href: "/about" },
 	{ label: "تماس با ما", href: "/contact" },
 ];

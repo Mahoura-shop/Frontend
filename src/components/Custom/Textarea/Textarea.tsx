@@ -102,7 +102,7 @@ export default function Textarea({
 									className={cn(style.icon, iconClassName)}
 								/>
 							</TooltipTrigger>
-							<TooltipContent className="rtl">
+							<TooltipContent className="rtl z-[400]">
 								<p>{meta.error}</p>
 							</TooltipContent>
 						</Tooltip>

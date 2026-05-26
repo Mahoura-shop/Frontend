@@ -248,7 +248,7 @@ const RawInput = React.forwardRef<HTMLInputElement, RawInputProps>(
 										)}
 									/>
 								</TooltipTrigger>
-								<TooltipContent className="rtl">
+								<TooltipContent className="rtl z-[400]">
 									<p>{error}</p>
 								</TooltipContent>
 							</Tooltip>

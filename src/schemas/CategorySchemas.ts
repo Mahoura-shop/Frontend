@@ -8,7 +8,7 @@ export const createCategorySchema = Yup.object({
 			/^[a-zA-Z0-9-_\s]+$/,
 			"فقط حروف انگلیسی و اعداد مجاز است",
 		),
-	description: Yup.string().max(500, "توضیحات نباید بیشتر از 500 حرف باشد"),
+	description: Yup.string(),
 	isActive: Yup.bool().required("وضعیت فعال بودن دسته‌بندی الزامی است"),
 	categoryPic: Yup.mixed()
 		.nullable()

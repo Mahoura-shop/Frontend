@@ -10,8 +10,8 @@ import logo from "@/assets/logo.png";
 const LINKS = {
 	products: [
 		{ label: "همه محصولات", href: "/products" },
-		{ label: "جدیدترین‌ها", href: "/products?filter=new" },
-		{ label: "پرفروش‌ترین‌ها", href: "/products?filter=popular" },
+		{ label: "پربازدیدترین‌ها", href: "/products?sort=most-visited" },
+		{ label: "پرفروش‌ترین‌ها", href: "/products?sort=popularity" },
 	],
 	support: [
 		{ label: "درباره ما", href: "/about" },

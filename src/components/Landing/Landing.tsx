@@ -1,6 +1,6 @@
 "use client";
 import styles from "./Landing.module.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ShoppingBag, ArrowLeft, Stars } from "lucide-react";
 import { formatPrice } from "@/utils/formatPrice";
@@ -14,13 +14,23 @@ import Magnet from "../utils/Magnet";
 import CardStack from "./CardStack/CardStack";
 import TrustBar from "./TrustBar/TrustBar";
 import Grainient from "../ReactBits/Grainient/Grainient";
+import { getPublicStats, type PublicStats } from "@/services/statsService";
+
+function roundUsersCount(count: number): string {
+	if (count < 100) {
+		return new Intl.NumberFormat("fa-IR").format(Math.floor(count / 10) * 10) + "+";
+	}
+	return new Intl.NumberFormat("fa-IR").format(Math.floor(count / 100) * 100) + "+";
+}
 
 export default function LandingPage() {
 	const { products } = useProductStore();
 	const { categories, fetchCategories } = useCategoryStore();
+	const [stats, setStats] = useState<PublicStats | null>(null);
 
 	useEffect(() => {
 		fetchCategories();
+		getPublicStats().then(setStats).catch(() => {});
 	}, []);
 
 	const newProducts = products.filter((p) => p.isNew).slice(0, 6);
@@ -175,14 +185,17 @@ export default function LandingPage() {
 					>
 						{[
 							{
-								value: new Intl.NumberFormat("fa-IR").format(20),
+								value: stats ? new Intl.NumberFormat("fa-IR").format(stats.productsCount) : "—",
 								label: "محصول",
 							},
 							{
-								value: new Intl.NumberFormat("fa-IR").format(20),
+								value: stats ? new Intl.NumberFormat("fa-IR").format(stats.brandsCount) : "—",
 								label: "برند",
 							},
-							{ value: "۱۰۰+", label: "مشتری راضی" },
+							{
+								value: stats ? roundUsersCount(stats.usersCount) : "—",
+								label: "مشتری راضی",
+							},
 						].map((stat, i) => (
 							<motion.div
 								key={stat.label}

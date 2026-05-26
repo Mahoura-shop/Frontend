@@ -775,7 +775,7 @@ export default function ProductsPage() {
 																<p className="text-xs text-muted-foreground font-semibold truncate">{product.brand.name}</p>
 															)}
 															{product.category?.name && (
-																<Badge variant="outline" className="text-xs px-1.5 py-0 shrink-0">{product.category.name}</Badge>
+																<Badge variant="outline" className="text-[10px] px-2 py-0.5 shrink-0 bg-secondary-plum/10 border-secondary-plum/30 text-secondary-plum font-semibold tracking-wide rounded-full">{product.category.name}</Badge>
 															)}
 														</div>
 														<p className="text-sm font-bold text-foreground leading-snug line-clamp-2 mb-3">{product.name}</p>

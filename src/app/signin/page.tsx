@@ -24,6 +24,7 @@ export default function SignIn() {
 	const [otp, setOtp] = useState(["", "", "", "", "", ""]);
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
+	const [phoneError, setPhoneError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [resendTimer, setResendTimer] = useState(0);
 	const [stepAnnouncement, setStepAnnouncement] = useState("");
@@ -47,9 +48,19 @@ export default function SignIn() {
 		setStepAnnouncement(labels[step]);
 	}, [step]);
 
+	const normalizePhone = (p: string) =>
+		p.replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - "۰".charCodeAt(0)));
+
+	const isValidPhone = (p: string) => /^09[0-9]{9}$/.test(normalizePhone(p));
+
 	const handleSendOTP = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!phone) return;
+		if (!isValidPhone(phone)) {
+			setPhoneError("شماره موبایل باید با ۰۹ شروع شده و ۱۱ رقم باشد");
+			return;
+		}
+		setPhoneError("");
 		setIsLoading(true);
 		try {
 			await sendOTP(phone);
@@ -369,8 +380,11 @@ export default function SignIn() {
 												value={phone}
 												autoFocus
 												autoComplete="tel"
-												onValueChange={setPhone}
+												onValueChange={(v) => { setPhone(v); setPhoneError(""); }}
 											/>
+											{phoneError && (
+												<p className="mt-1.5 text-xs text-red-500 text-right">{phoneError}</p>
+											)}
 										</motion.div>
 
 										<motion.div
@@ -380,7 +394,7 @@ export default function SignIn() {
 										>
 											<Button
 												type="submit"
-												disabled={isLoading || !phone}
+												disabled={isLoading || !phone || !isValidPhone(phone)}
 												className="w-full h-12 text-base font-semibold bg-secondary-plum hover:bg-secondary-plum/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-40"
 											>
 												{isLoading ? (
