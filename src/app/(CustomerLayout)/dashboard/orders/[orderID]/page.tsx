@@ -176,10 +176,15 @@ export default function OrderDetailPage() {
 		if (!order) return;
 		setPaying(true);
 		try {
-			await initiatePayment(order.id);
-			CustomToast("پرداخت با موفقیت انجام شد!", "success");
-			const res = await getOrderDetail(order.id);
-			setOrder(res?.data ?? order);
+			const payRes = await initiatePayment(order.id);
+			const gatewayURL: string = payRes?.data?.gatewayURL;
+			if (gatewayURL) {
+				window.location.href = gatewayURL;
+			} else {
+				CustomToast("پرداخت با موفقیت انجام شد!", "success");
+				const res = await getOrderDetail(order.id);
+				setOrder(res?.data ?? order);
+			}
 		} catch {
 		} finally {
 			setPaying(false);

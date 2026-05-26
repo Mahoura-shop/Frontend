@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { motion, TargetAndTransition } from "framer-motion";
-import BorderGlow from "@/components/ReactBits/BorderGlowCard/BorderGlowCard";
-
+import portrait from "@/assets/landing/7385752.jpeg";
+import woman1 from "@/assets/landing/woman1.jpeg";
+import woman2 from "@/assets/landing/woman2.jpeg";
 // --- Types ---
 interface CardData {
 	id: number;
-	emoji: string;
-	badge: string;
-	name: string;
-	price: string;
-	// gradient: string;
-	// borderColor: string;
+	label: string;
+	title: string;
+	description: string;
 	hue: number;
 	hex: string;
 }
@@ -21,74 +19,36 @@ interface SlotVariants {
 }
 
 interface CardItemProps extends CardData {
-	// Make initial optional if you want, or just ensure it's passed
 	initial?: TargetAndTransition;
-	animate: any; // Using any here briefly to handle the complex dynamic object
+	animate: any;
 	transition: any;
-	zIndex: number;
 }
 
 // --- Component Data ---
-// const PRODUCTS: CardData[] = [
-// 	{
-// 		id: 3,
-// 		emoji: "🌿",
-// 		badge: "مراقبت پوست",
-// 		name: "ماسک صورت سبز",
-// 		price: "۹۵,۰۰۰",
-// 		gradient: "linear-gradient(160deg, #2a1f2e, #1a1218)",
-// 		borderColor: "rgba(107,78,113,.3)",
-// 	},
-// 	{
-// 		id: 2,
-// 		emoji: "💄",
-// 		badge: "آرایش صورت",
-// 		name: "رژلب مات ولوت",
-// 		price: "۱۸۰,۰۰۰",
-// 		gradient: "linear-gradient(160deg, #281e1a, #1a1210)",
-// 		borderColor: "rgba(212,165,165,.2)",
-// 	},
-// 	{
-// 		id: 1,
-// 		emoji: "✨",
-// 		badge: "ویژه ماهورا",
-// 		name: "سرم روشن‌کننده",
-// 		price: "۴۵۰,۰۰۰ ریال",
-// 		gradient: "linear-gradient(160deg, #2e2420, #1c1410)",
-// 		borderColor: "rgba(201,168,117,.15)",
-// 	},
-// ];
-
-const PRODUCTS: CardData[] = [
+const CARDS: CardData[] = [
 	{
 		id: 3,
-		emoji: "🌿",
-		badge: "مراقبت پوست",
-		name: "ماسک صورت سبز",
-		price: "۹۵,۰۰۰",
-		hue: 0,
-		hex: "#111A14"
-		// hue: 142, // Green hue
+		label: "زیبایی شما",
+		title: "درخشش هر روز",
+		description: "پوستی شاداب و اعتمادی که هر روز همراه توست",
+		hue: 142,
+		hex: "#111A14",
 	},
 	{
 		id: 2,
-		emoji: "💄",
-		badge: "آرایش صورت",
-		name: "رژلب مات ولوت",
-		price: "۱۸۰,۰۰۰",
-		hue: 283,
-		hex: "#16111A"
-		// hue: 350, // Pink/Red hue
+		label: "پوست درخشان",
+		title: "آبرسانی عمیق",
+		description: "رطوبت پایدار ۲۴ ساعته برای پوستی شاداب و جوان",
+		hue: 340,
+		hex: "#16111A",
 	},
 	{
 		id: 1,
-		emoji: "✨",
-		badge: "ویژه ماهورا",
-		name: "سرم روشن‌کننده",
-		price: "۴۵۰,۰۰۰ ریال",
+		label: "ویژه ماهورا",
+		title: "زیبایی لوکس",
+		description: "تجربه‌ای بی‌نظیر از مراقبت پوست با برترین برندهای جهانی",
 		hue: 38,
 		hex: "#1A1711",
-		// hue: 35, // Gold/Orange hue
 	},
 ];
 
@@ -146,15 +106,40 @@ const SLOT_TRANSITIONS = [
 	{ type: "spring" as const, stiffness: y, damping: x, delay: m },
 ];
 
+// --- Card Icons ---
+const cardIcons: Record<number, (hue: number) => React.ReactNode> = {
+	3: (_hue) => (
+		<img
+			src={portrait.src}
+			alt=""
+			className="w-[88%] object-contain mix-blend-multiply dark:invert dark:mix-blend-screen opacity-80 dark:opacity-70"
+		/>
+	),
+	2: (_hue) => (
+		<img
+			src={woman2.src}
+			alt=""
+			className="w-[88%] object-contain mix-blend-multiply dark:invert dark:mix-blend-screen opacity-80 dark:opacity-70"
+		/>
+	),
+	1: (_hue) => (
+		<img
+			src={woman1.src}
+			alt=""
+			className="w-[88%] object-contain mix-blend-multiply dark:invert dark:mix-blend-screen opacity-80 dark:opacity-70"
+		/>
+	),
+};
+
 const CardStack: React.FC = () => {
 	const [rotation, setRotation] = useState(0);
 	const [isHovered, setIsHovered] = useState(false);
 	const [isTransitioning, setIsTransitioning] = useState(false);
 
 	const orderedProducts = [
-		PRODUCTS[(rotation + 2) % 3],
-		PRODUCTS[(rotation + 1) % 3],
-		PRODUCTS[rotation % 3],
+		CARDS[(rotation + 2) % 3],
+		CARDS[(rotation + 1) % 3],
+		CARDS[rotation % 3],
 	];
 	useEffect(() => {
 		if (!isHovered) return;
@@ -396,18 +381,16 @@ const CardStack: React.FC = () => {
 	);
 };
 
-// --- Main Component ---
+// --- Card Item ---
 const CardItem: React.FC<CardItemProps> = ({
 	initial,
 	animate,
 	transition,
-	// We can ignore the zIndex prop here and let Framer Motion handle it via 'animate'
-	emoji,
-	badge,
-	name,
-	price,
+	id,
+	label,
+	title,
+	description,
 	hue,
-	hex
 }) => {
 	return (
 		<motion.div
@@ -417,19 +400,44 @@ const CardItem: React.FC<CardItemProps> = ({
 			className="absolute left-1/2 rounded-[24px] cursor-pointer overflow-hidden border-[1px] shadow-2xl"
 			style={{
 				bottom: 0,
-				// Do NOT set a static zIndex here; animateTarget.zIndex handles it
 				transitionProperty: "background-color, border-color",
 				transitionDuration: "500ms",
-				background: `linear-gradient(160deg, 
-                    hsl(${hue} var(--card-saturation) var(--card-bg-l-top)), 
+				background: `linear-gradient(160deg,
+                    hsl(${hue} var(--card-saturation) var(--card-bg-l-top)),
                     hsl(${hue} var(--card-saturation) var(--card-bg-l-bottom)))`,
 				borderColor: `hsl(${hue} 40% 50% / var(--card-border-opacity))`,
 			}}
 		>
-			{/* <BorderGlow className="w-full h-full" backgroundColor={hex}> */}
-				
-			{/* Content... */}
-			{/* </BorderGlow> */}
+			<div className="relative w-full h-full flex flex-col p-5" dir="rtl">
+				{/* Label */}
+				<div className="flex items-center gap-2">
+					<div
+						className="w-4 h-px"
+						style={{ backgroundColor: `hsl(${hue} 55% 60% / 0.7)` }}
+					/>
+					<span
+						className="text-[10px] font-bold tracking-widest"
+						style={{ color: `hsl(${hue} 55% 62% / 0.85)` }}
+					>
+						{label}
+					</span>
+				</div>
+
+				{/* SVG illustration */}
+				<div className="flex-1 flex items-center justify-center">
+					{cardIcons[id]?.(hue)}
+				</div>
+
+				{/* Title + description */}
+				<div className="space-y-2">
+					<h3 className="text-base font-bold text-foreground leading-tight">
+						{title}
+					</h3>
+					<p className="text-[11px] leading-relaxed opacity-60 text-foreground">
+						{description}
+					</p>
+				</div>
+			</div>
 		</motion.div>
 	);
 };

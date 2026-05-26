@@ -13,6 +13,9 @@ export const payByWallet = (orderID: number) =>
 export const initiatePayment = (orderID: number) =>
 	postData({ endPoint: `v1/order/${orderID}/pay/gateway`, data: {} })
 
+export const verifyPayment = (authority: string, status: string) =>
+	getData({ endPoint: `v1/order/pay/verify`, params: { Authority: authority, Status: status } })
+
 export const getMyOrders = () => getData({ endPoint: "v1/order" })
 
 export const getOrderDetail = (orderID: number) =>
