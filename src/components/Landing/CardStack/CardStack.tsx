@@ -112,21 +112,21 @@ const cardIcons: Record<number, (hue: number) => React.ReactNode> = {
 		<img
 			src={portrait.src}
 			alt=""
-			className="w-[88%] object-contain mix-blend-multiply dark:invert dark:mix-blend-screen opacity-80 dark:opacity-70"
+			className="w-[88%] max-h-full object-contain mix-blend-multiply dark:invert dark:mix-blend-screen opacity-80 dark:opacity-70"
 		/>
 	),
 	2: (_hue) => (
 		<img
 			src={woman2.src}
 			alt=""
-			className="w-[88%] object-contain mix-blend-multiply dark:invert dark:mix-blend-screen opacity-80 dark:opacity-70"
+			className="w-[88%] max-h-full object-contain mix-blend-multiply dark:invert dark:mix-blend-screen opacity-80 dark:opacity-70"
 		/>
 	),
 	1: (_hue) => (
 		<img
 			src={woman1.src}
 			alt=""
-			className="w-[88%] object-contain mix-blend-multiply dark:invert dark:mix-blend-screen opacity-80 dark:opacity-70"
+			className="w-[88%] max-h-full object-contain mix-blend-multiply dark:invert dark:mix-blend-screen opacity-80 dark:opacity-70"
 		/>
 	),
 };
@@ -424,7 +424,7 @@ const CardItem: React.FC<CardItemProps> = ({
 				</div>
 
 				{/* SVG illustration */}
-				<div className="flex-1 flex items-center justify-center">
+				<div className="flex-1 min-h-0 flex items-center justify-center overflow-hidden">
 					{cardIcons[id]?.(hue)}
 				</div>
 
