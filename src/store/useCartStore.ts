@@ -71,7 +71,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
 			await get().fetchCart();
 		} catch {
 			set({ items: prev });
-			toast.error("افزودن به سبد خرید با خطا مواجه شد");
+			CustomToast("افزودن به سبد خرید با خطا مواجه شد", "error");
 		}
 	},
 
@@ -93,7 +93,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
 			await get().fetchCart();
 		} catch {
 			set({ items: prev });
-			toast.error("حذف از سبد خرید با خطا مواجه شد");
+			CustomToast("حذف از سبد خرید با خطا مواجه شد", "error");
 		}
 	},
 

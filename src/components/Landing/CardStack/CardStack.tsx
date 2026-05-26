@@ -28,11 +28,11 @@ interface CardItemProps extends CardData {
 const CARDS: CardData[] = [
 	{
 		id: 3,
-		label: "زیبایی شما",
-		title: "درخشش هر روز",
-		description: "پوستی شاداب و اعتمادی که هر روز همراه توست",
-		hue: 142,
-		hex: "#111A14",
+		label: "ویژه ماهورا",
+		title: "زیبایی لوکس",
+		description: "تجربه‌ای بی‌نظیر از مراقبت پوست با برترین برندهای جهانی",
+		hue: 38,
+		hex: "#1A1711",
 	},
 	{
 		id: 2,
@@ -44,11 +44,11 @@ const CARDS: CardData[] = [
 	},
 	{
 		id: 1,
-		label: "ویژه ماهورا",
-		title: "زیبایی لوکس",
-		description: "تجربه‌ای بی‌نظیر از مراقبت پوست با برترین برندهای جهانی",
-		hue: 38,
-		hex: "#1A1711",
+		label: "زیبایی شما",
+		title: "درخشش هر روز",
+		description: "پوستی شاداب و اعتمادی که هر روز همراه توست",
+		hue: 142,
+		hex: "#111A14",
 	},
 ];
 
@@ -110,7 +110,7 @@ const SLOT_TRANSITIONS = [
 const cardIcons: Record<number, (hue: number) => React.ReactNode> = {
 	3: (_hue) => (
 		<img
-			src={portrait.src}
+			src={woman1.src}
 			alt=""
 			className="w-[88%] max-h-full object-contain mix-blend-multiply dark:invert dark:mix-blend-screen opacity-80 dark:opacity-70"
 		/>
@@ -124,7 +124,7 @@ const cardIcons: Record<number, (hue: number) => React.ReactNode> = {
 	),
 	1: (_hue) => (
 		<img
-			src={woman1.src}
+			src={portrait.src}
 			alt=""
 			className="w-[88%] max-h-full object-contain mix-blend-multiply dark:invert dark:mix-blend-screen opacity-80 dark:opacity-70"
 		/>
@@ -221,161 +221,6 @@ const CardStack: React.FC = () => {
 						/>
 					);
 				})}
-				{/* {orderedProducts.map((product, index) => {
-					const slot = SLOT_CONFIGS[index];
-					const variantSet = cardVariants[slot.cardKey];
-					const isTopMovingToBack = isTransitioning && (index === 2);
-
-					const animateTarget = {
-						...variantSet.idle,
-						...(isHovered ? variantSet.hover : {}),
-						// --- LEFT EXIT LOGIC ---
-						// Change "140%" to "-140%" to move to the left
-						x: isTopMovingToBack
-							? "-220%"
-							: isHovered
-								? variantSet.hover.x
-								: variantSet.idle.x,
-						y: isTopMovingToBack
-							? -60
-							: isHovered
-								? variantSet.hover.y
-								: variantSet.idle.y,
-						// Flip the rotation to -25 so it tilts "outward" to the left
-						rotate: isTopMovingToBack
-							? -25
-							: isHovered
-								? variantSet.hover.rotate
-								: variantSet.idle.rotate,
-						scale: isTopMovingToBack ? 0.85 : 1,
-						zIndex: isTopMovingToBack ? 0 : slot.zIndex,
-					};
-
-					return (
-						<CardItem
-							key={product.id}
-							{...product}
-							initial={variantSet.idle}
-							animate={animateTarget}
-							transition={
-								isTopMovingToBack
-									? {
-											default: {
-												type: "spring",
-												stiffness: 40,
-												damping: 15,
-											},
-											// Using your preferred 0.5s delay for the zIndex flip
-											zIndex: { delay: 0.9, duration: 0 },
-										}
-									: {
-											type: "spring",
-											stiffness: 100,
-											damping: 20,
-										}
-							}
-						/>
-					);
-				})} */}
-				{/* {orderedProducts.map((product, index) => {
-					const slot = SLOT_CONFIGS[index];
-					const variantSet = cardVariants[slot.cardKey];
-					const isTopMovingToBack = isTransitioning && index === 2;
-					const animateTarget = {
-						...variantSet.idle,
-						...(isHovered ? variantSet.hover : {}),
-						x: isTopMovingToBack
-							? "140%"
-							: isHovered
-								? variantSet.hover.x
-								: variantSet.idle.x,
-						y: isTopMovingToBack
-							? -60
-							: isHovered
-								? variantSet.hover.y
-								: variantSet.idle.y,
-						rotate: isTopMovingToBack
-							? 25
-							: isHovered
-								? variantSet.hover.rotate
-								: variantSet.idle.rotate,
-						scale: isTopMovingToBack ? 0.85 : 1,
-						// We move zIndex into the animate object so we can control its transition
-						zIndex: isTopMovingToBack ? 0 : slot.zIndex,
-					};
-					// const animateTarget = {
-					// 	...variantSet.idle,
-					// 	...(isHovered ? variantSet.hover : {}),
-					// 	// FLY OUT LOGIC
-					// 	x: isTopMovingToBack
-					// 		? "140%"
-					// 		: isHovered
-					// 			? variantSet.hover.x
-					// 			: variantSet.idle.x,
-					// 	y: isTopMovingToBack
-					// 		? -60
-					// 		: isHovered
-					// 			? variantSet.hover.y
-					// 			: variantSet.idle.y,
-					// 	rotate: isTopMovingToBack
-					// 		? 25
-					// 		: isHovered
-					// 			? variantSet.hover.rotate
-					// 			: variantSet.idle.rotate,
-					// 	scale: isTopMovingToBack ? 0.85 : 1,
-					// };
-					return (
-						<CardItem
-							key={product.id}
-							{...product}
-							initial={variantSet.idle}
-							animate={animateTarget}
-							// IMPORTANT: Remove the static zIndex prop if it's fighting the animation
-							transition={
-								isTopMovingToBack
-									? {
-											// Movement transition
-											default: {
-												type: "spring",
-												stiffness: 40,
-												damping: 15,
-											},
-											// Delay the zIndex flip so it stays on top for 200ms
-											// while it's moving to the side
-											zIndex: { delay: 0.5, duration: 0 },
-										}
-									: {
-											type: "spring",
-											stiffness: 100,
-											damping: 20,
-										}
-							}
-						/>
-					);
-					return (
-						<CardItem
-							key={product.id}
-							{...product}
-							initial={variantSet.idle}
-							animate={animateTarget}
-							zIndex={isTopMovingToBack ? 0 : slot.zIndex}
-							transition={
-								isTopMovingToBack
-									? {
-											type: "spring",
-											stiffness: 40, // Lower stiffness = slower movement
-											damping: 15, // Higher damping = less oscillation/harshness
-											mass: 0.8,
-										}
-									: {
-											type: "spring",
-											stiffness: 100, // Smooth movement for the cards sliding up
-											damping: 20,
-										}
-							}
-						/>
-					);
-				})} */}
 			</motion.div>
 		</section>
 	);

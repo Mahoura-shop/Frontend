@@ -13,9 +13,13 @@ import type {
 	PutParams,
 } from "../types/apiTypes";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
-
+const isClient = typeof window !== "undefined";
+// export const baseURL = "https://rotten-glasses-run.loca.lt/"; // backend URL
 // export const baseURL = "http://192.168.1.115:8080/"; // backend URL
 export const baseURL = "http://localhost:8080/"; // backend URL
+// export const baseURL = isClient
+// 	? "http://192.168.1.115:8080/" // Tells your phone's browser where to send requests
+// 	: "http://127.0.0.1:8080/";
 
 const apiClient: AxiosInstance = axios.create({
 	baseURL,
@@ -45,19 +49,22 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
 	(response: AxiosResponse) => response,
 	(error) => {
-		if (error?.response?.status === 401 && typeof window !== 'undefined') {
+		if (error?.response?.status === 401 && typeof window !== "undefined") {
 			try {
-				const raw = localStorage.getItem('user-storage');
+				const raw = localStorage.getItem("user-storage");
 				if (raw) {
 					const parsed = JSON.parse(raw);
 					parsed.state.accessToken = undefined;
 					parsed.state.refreshToken = undefined;
 					parsed.state.isAdmin = false;
-					localStorage.setItem('user-storage', JSON.stringify(parsed));
+					localStorage.setItem(
+						"user-storage",
+						JSON.stringify(parsed),
+					);
 				}
 			} catch {}
-			const isAdminRoute = window.location.pathname.startsWith('/admin');
-			window.location.replace(isAdminRoute ? '/admin' : '/signin');
+			const isAdminRoute = window.location.pathname.startsWith("/admin");
+			window.location.replace(isAdminRoute ? "/admin" : "/signin");
 		}
 		return Promise.reject(error);
 	},
