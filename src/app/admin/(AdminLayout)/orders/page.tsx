@@ -67,9 +67,9 @@ function AdminOrdersPageContent() {
 	}, [statusFilter])
 
 	return (
-		<main className="p-6">
+		<main className="p-4 sm:p-6">
 			<div className="mb-6">
-				<h1 className="text-3xl font-bold mb-2">مدیریت سفارش‌ها</h1>
+				<h1 className="text-2xl sm:text-3xl font-bold mb-2">مدیریت سفارش‌ها</h1>
 				<div className="flex items-center gap-4 text-sm">
 					<span className="text-muted-foreground">
 						مجموع:{" "}
@@ -94,7 +94,86 @@ function AdminOrdersPageContent() {
 				</div>
 			</div>
 
-			<Card>
+			{/* Mobile Cards */}
+			<div className="sm:hidden space-y-3">
+				{orders === null &&
+					Array.from({ length: 5 }).map((_, i) => (
+						<Card key={i}>
+							<CardContent className="p-4 space-y-3">
+								<div className="flex justify-between">
+									<Skeleton className="h-4 w-20" />
+									<Skeleton className="h-5 w-24 rounded-full" />
+								</div>
+								<Skeleton className="h-3 w-36" />
+								<div className="flex justify-between items-center">
+									<Skeleton className="h-4 w-24" />
+									<Skeleton className="h-8 w-16 rounded-md" />
+								</div>
+							</CardContent>
+						</Card>
+					))}
+				{orders?.length === 0 && (
+					<div className="flex flex-col items-center gap-2 text-muted-foreground py-12">
+						<ShoppingBag className="w-10 h-10" />
+						<span>سفارشی یافت نشد</span>
+					</div>
+				)}
+				{orders?.map((order, i) => {
+					const status = STATUS_MAP[order.status] ?? STATUS_MAP[1]
+					const StatusIcon = status.icon
+					const itemCount = order.items?.reduce((s, item) => s + item.count, 0) ?? 0
+					const customerName = order.user
+						? order.user.firstName || order.user.lastName
+							? `${order.user.firstName} ${order.user.lastName}`
+							: order.user.phone || "—"
+						: "—"
+					return (
+						<motion.div
+							key={order.id}
+							initial={{ opacity: 0, y: 12 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: i * 0.04 }}
+						>
+							<Card>
+								<CardContent className="p-4">
+									<div className="flex items-start justify-between gap-2 mb-2">
+										<div className="flex items-center gap-2">
+											<span className="font-medium text-sm">
+												#{new Intl.NumberFormat("fa-IR").format(order.id)}
+											</span>
+											{order.refundFlag && (
+												<Badge variant="destructive" className="text-xs">استرجاع</Badge>
+											)}
+										</div>
+										<Badge variant={status.variant} className="text-xs gap-1 shrink-0">
+											<StatusIcon className="w-3 h-3" />
+											{status.label}
+										</Badge>
+									</div>
+									<p className="text-sm text-muted-foreground mb-3">
+										{customerName} · {itemCount} عدد · {PAYMENT_METHOD_MAP[order.paymentMethod] ?? "—"}
+									</p>
+									<div className="flex items-center justify-between">
+										<div>
+											<p className="font-bold text-sm text-primary-rose">{formatPrice(order.totalAmount)}</p>
+											<p className="text-xs text-muted-foreground mt-0.5">{formatDate(order.createdAt)}</p>
+										</div>
+										<Link href={`/admin/orders/${order.id}`}>
+											<Button variant="outline" size="sm" className="gap-1 text-xs">
+												جزئیات
+												<ChevronLeft className="w-3 h-3" />
+											</Button>
+										</Link>
+									</div>
+								</CardContent>
+							</Card>
+						</motion.div>
+					)
+				})}
+			</div>
+
+			{/* Desktop Table */}
+			<Card className="hidden sm:block">
 				<CardContent className="p-0">
 					<Table>
 						<TableHeader>
@@ -110,7 +189,7 @@ function AdminOrdersPageContent() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{orders === null && (
+							{orders === null &&
 								Array.from({ length: 7 }).map((_, i) => (
 									<TableRow key={i}>
 										<TableCell><Skeleton className="h-4 w-16" /></TableCell>
@@ -122,8 +201,7 @@ function AdminOrdersPageContent() {
 										<TableCell><Skeleton className="h-4 w-20" /></TableCell>
 										<TableCell className="text-center"><Skeleton className="h-8 w-16 rounded-md mx-auto" /></TableCell>
 									</TableRow>
-								))
-							)}
+								))}
 							{orders?.length === 0 && (
 								<TableRow>
 									<TableCell colSpan={8} className="text-center py-12">
@@ -138,7 +216,6 @@ function AdminOrdersPageContent() {
 								const status = STATUS_MAP[order.status] ?? STATUS_MAP[1]
 								const StatusIcon = status.icon
 								const itemCount = order.items?.reduce((s, item) => s + item.count, 0) ?? 0
-
 								return (
 									<motion.tr
 										key={order.id}
@@ -150,9 +227,7 @@ function AdminOrdersPageContent() {
 										<TableCell className="font-medium">
 											#{new Intl.NumberFormat("fa-IR").format(order.id)}
 											{order.refundFlag && (
-												<Badge variant="destructive" className="text-xs mr-2">
-													استرجاع
-												</Badge>
+												<Badge variant="destructive" className="text-xs mr-2">استرجاع</Badge>
 											)}
 										</TableCell>
 										<TableCell className="text-sm text-muted-foreground">
@@ -168,16 +243,10 @@ function AdminOrdersPageContent() {
 												{status.label}
 											</Badge>
 										</TableCell>
-										<TableCell className="text-sm">
-											{PAYMENT_METHOD_MAP[order.paymentMethod] ?? "—"}
-										</TableCell>
+										<TableCell className="text-sm">{PAYMENT_METHOD_MAP[order.paymentMethod] ?? "—"}</TableCell>
 										<TableCell className="text-sm">{itemCount} عدد</TableCell>
-										<TableCell className="font-bold text-primary-rose">
-											{formatPrice(order.totalAmount)}
-										</TableCell>
-										<TableCell className="text-sm text-muted-foreground">
-											{formatDate(order.createdAt)}
-										</TableCell>
+										<TableCell className="font-bold text-primary-rose">{formatPrice(order.totalAmount)}</TableCell>
+										<TableCell className="text-sm text-muted-foreground">{formatDate(order.createdAt)}</TableCell>
 										<TableCell>
 											<div className="flex items-center justify-center">
 												<Link href={`/admin/orders/${order.id}`}>

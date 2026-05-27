@@ -303,10 +303,10 @@ function ProductsAdminPageContent() {
 	};
 
 	return (
-		<main className="p-6 no-scrollbar">
+		<main className="p-4 sm:p-6 no-scrollbar">
 			{/* Header with Counts */}
 			<div className="mb-6">
-				<h1 className="text-3xl font-bold mb-2">مدیریت محصولات</h1>
+				<h1 className="text-2xl sm:text-3xl font-bold mb-2">مدیریت محصولات</h1>
 				<div className="flex items-center gap-4 text-sm">
 					<span className="text-muted-foreground">
 						مجموع:{" "}
@@ -330,10 +330,10 @@ function ProductsAdminPageContent() {
 			</div>
 
 			{/* Toolbar */}
-			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-				<div className="flex items-center gap-3 flex-wrap w-full sm:flex-1">
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
+				<div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:flex-1">
 					{/* Search */}
-					<div className="relative flex-1 min-w-[200px]">
+					<div className="relative flex-1 min-w-0">
 						<Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
 						<Input
 							placeholder="جستجوی محصول..."
@@ -343,60 +343,62 @@ function ProductsAdminPageContent() {
 						/>
 					</div>
 
-					{/* Two-Step Filter */}
-					<Select
-						value={filterColumn}
-						onValueChange={(val: any) => {
-							setFilterColumn(val);
-							setFilterValue("");
-							setCurrentPage(1);
-						}}
-					>
-						<SelectTrigger className="w-full sm:w-[180px]">
-							<SelectValue placeholder="انتخاب فیلتر" />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="brand">برند</SelectItem>
-							<SelectItem value="category">دسته‌بندی</SelectItem>
-							<SelectItem value="isActive">وضعیت</SelectItem>
-						</SelectContent>
-					</Select>
-
-					{filterColumn && (
+					<div className="flex gap-3">
+						{/* Two-Step Filter */}
 						<Select
-							value={filterValue}
-							onValueChange={(value) => {
-								setFilterValue(value);
-								setCurrentPage(1);
-							}}
-						>
-							<SelectTrigger className="w-full sm:w-[180px]">
-								<SelectValue placeholder="انتخاب مقدار" />
-							</SelectTrigger>
-							<SelectContent>
-								{getFilterOptions()?.map((option) => (
-									<SelectItem key={option} value={option}>
-										{option}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					)}
-
-					{(filterColumn || searchQuery) && (
-						<Button
-							variant="outline"
-							className="h-10"
-							onClick={() => {
-								setSearchQuery("");
-								setFilterColumn("");
+							value={filterColumn}
+							onValueChange={(val: any) => {
+								setFilterColumn(val);
 								setFilterValue("");
 								setCurrentPage(1);
 							}}
 						>
-							پاک کردن فیلترها
-						</Button>
-					)}
+							<SelectTrigger className="flex-1 sm:w-[160px]">
+								<SelectValue placeholder="فیلتر" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="brand">برند</SelectItem>
+								<SelectItem value="category">دسته‌بندی</SelectItem>
+								<SelectItem value="isActive">وضعیت</SelectItem>
+							</SelectContent>
+						</Select>
+
+						{filterColumn && (
+							<Select
+								value={filterValue}
+								onValueChange={(value) => {
+									setFilterValue(value);
+									setCurrentPage(1);
+								}}
+							>
+								<SelectTrigger className="flex-1 sm:w-[160px]">
+									<SelectValue placeholder="مقدار" />
+								</SelectTrigger>
+								<SelectContent>
+									{getFilterOptions()?.map((option) => (
+										<SelectItem key={option} value={option}>
+											{option}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						)}
+
+						{(filterColumn || searchQuery) && (
+							<Button
+								variant="outline"
+								className="h-10 shrink-0"
+								onClick={() => {
+									setSearchQuery("");
+									setFilterColumn("");
+									setFilterValue("");
+									setCurrentPage(1);
+								}}
+							>
+								پاک
+							</Button>
+						)}
+					</div>
 				</div>
 				{canCreate && (
 					<UpdateProductDialog
@@ -408,117 +410,66 @@ function ProductsAdminPageContent() {
 				)}
 			</div>
 
-			{/* Table */}
-			<Card>
-				<CardContent className="p-0">
-					<Table className="no-scrollbar">
-						<TableHeader>
-							<TableRow>
-								<TableHeadItem
-									title="نام محصول"
-									column="name"
-								/>
-								<TableHeadItem title="برند" column="brand" />
-								<TableHeadItem
-									title="دسته‌بندی"
-									column="category"
-								/>
-								<TableHeadItem
-									title="قیمت"
-									column="price"
-								/>
-								<TableHeadItem
-									title="موجودی"
-									column="quantity"
-								/>
-								<TableHead>وضعیت</TableHead>
-								<TableHead>عملیات</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody className="no-scrollbar">
-							{loading && (
-								Array.from({ length: 8 }).map((_, i) => (
-									<TableRow key={i}>
-										<TableCell><Skeleton className="h-4 w-32" /></TableCell>
-										<TableCell><Skeleton className="h-4 w-20" /></TableCell>
-										<TableCell><Skeleton className="h-4 w-24" /></TableCell>
-										<TableCell><Skeleton className="h-4 w-20" /></TableCell>
-										<TableCell><Skeleton className="h-4 w-16" /></TableCell>
-										<TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
-										<TableCell>
-											<div className="flex items-center justify-center gap-2">
-												<Skeleton className="h-8 w-8 rounded-md" />
-												<Skeleton className="h-8 w-8 rounded-md" />
-												<Skeleton className="h-8 w-8 rounded-md" />
-											</div>
-										</TableCell>
-									</TableRow>
-								))
-							)}
-						{!loading && paginatedProducts.length === 0 && (
-								<TableRow>
-									<TableCell
-										colSpan={100}
-										className="text-center"
-									>
-										<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
-											هیچ محصولی یافت نشد.
-										</div>
-									</TableCell>
-								</TableRow>
-							)}
-							{!loading && paginatedProducts?.map((product, i) => (
-								<motion.tr
-									key={product.id}
-									initial={{ opacity: 0, x: -20 }}
-									animate={{ opacity: 1, x: 0 }}
-									transition={{ delay: i * 0.05 }}
-									className="group hover:bg-muted/50"
-								>
-									<TableCell className="font-medium">
-										{product.name}
-									</TableCell>
-									<TableCell>
-										{product.brand?.name || "-"}
-									</TableCell>
-									<TableCell>
-										{product.category?.name || "-"}
-									</TableCell>
-									<TableCell className="font-bold text-primary-rose">
-										{formatPrice(
-											product.irrPrice as number,
-										)} ریال
-									</TableCell>
-									<TableCell>
-										<span
-											className={
-												product.quantity === 0
-													? "text-red-500"
-													: ""
-											}
-										>
-											{formatPrice(product.quantity)}{" "}
-											{product.quantityType}
-										</span>
-									</TableCell>
-									<TableCell>
+			{/* Mobile Cards */}
+			<div className="sm:hidden space-y-3">
+				{loading &&
+					Array.from({ length: 6 }).map((_, i) => (
+						<Card key={i}>
+							<CardContent className="p-4 space-y-3">
+								<div className="flex justify-between">
+									<Skeleton className="h-4 w-40" />
+									<Skeleton className="h-5 w-16 rounded-full" />
+								</div>
+								<Skeleton className="h-3 w-32" />
+								<div className="flex justify-between">
+									<Skeleton className="h-4 w-24" />
+									<div className="flex gap-2">
+										<Skeleton className="h-8 w-8 rounded-md" />
+										<Skeleton className="h-8 w-8 rounded-md" />
+										<Skeleton className="h-8 w-8 rounded-md" />
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+					))}
+				{!loading && paginatedProducts.length === 0 && (
+					<div className="flex justify-center items-center text-lg min-h-[40vh] text-muted-foreground">
+						هیچ محصولی یافت نشد.
+					</div>
+				)}
+				{!loading &&
+					paginatedProducts.map((product, i) => (
+						<motion.div
+							key={product.id}
+							initial={{ opacity: 0, y: 12 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: i * 0.04 }}
+						>
+							<Card>
+								<CardContent className="p-4">
+									<div className="flex items-start justify-between gap-2 mb-2">
+										<p className="font-medium leading-snug">{product.name}</p>
 										<Badge
-											variant={
-												product.isActive
-													? "available"
-													: "outOfStock"
-											}
+											variant={product.isActive ? "available" : "outOfStock"}
+											className="shrink-0"
 										>
-											{product.isActive
-												? "فعال"
-												: "غیرفعال"}
+											{product.isActive ? "فعال" : "غیرفعال"}
 										</Badge>
-									</TableCell>
-									<TableCell>
-										<div className="flex items-center justify-center gap-2">
-											<ProductInfoDialog
-												product={product}
-											/>
+									</div>
+									<p className="text-sm text-muted-foreground mb-3">
+										{product.brand?.name || "-"} · {product.category?.name || "-"}
+									</p>
+									<div className="flex items-end justify-between">
+										<div>
+											<p className="text-sm font-bold text-primary-rose">
+												{formatPrice(product.irrPrice as number)} ریال
+											</p>
+											<p className={`text-xs mt-0.5 ${product.quantity === 0 ? "text-red-500" : "text-muted-foreground"}`}>
+												موجودی: {formatPrice(product.quantity)} {product.quantityType}
+											</p>
+										</div>
+										<div className="flex items-center gap-1.5">
+											<ProductInfoDialog product={product} />
 											{canEdit && (
 												<UpdateProductDialog
 													fetchProducts={fetchProducts}
@@ -551,9 +502,119 @@ function ProductsAdminPageContent() {
 												/>
 											)}
 										</div>
+									</div>
+								</CardContent>
+							</Card>
+						</motion.div>
+					))}
+			</div>
+
+			{/* Desktop Table */}
+			<Card className="hidden sm:block">
+				<CardContent className="p-0">
+					<Table className="no-scrollbar">
+						<TableHeader>
+							<TableRow>
+								<TableHeadItem title="نام محصول" column="name" />
+								<TableHeadItem title="برند" column="brand" />
+								<TableHeadItem title="دسته‌بندی" column="category" />
+								<TableHeadItem title="قیمت" column="price" />
+								<TableHeadItem title="موجودی" column="quantity" />
+								<TableHead>وضعیت</TableHead>
+								<TableHead>عملیات</TableHead>
+							</TableRow>
+						</TableHeader>
+						<TableBody className="no-scrollbar">
+							{loading &&
+								Array.from({ length: 8 }).map((_, i) => (
+									<TableRow key={i}>
+										<TableCell><Skeleton className="h-4 w-32" /></TableCell>
+										<TableCell><Skeleton className="h-4 w-20" /></TableCell>
+										<TableCell><Skeleton className="h-4 w-24" /></TableCell>
+										<TableCell><Skeleton className="h-4 w-20" /></TableCell>
+										<TableCell><Skeleton className="h-4 w-16" /></TableCell>
+										<TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
+										<TableCell>
+											<div className="flex items-center justify-center gap-2">
+												<Skeleton className="h-8 w-8 rounded-md" />
+												<Skeleton className="h-8 w-8 rounded-md" />
+												<Skeleton className="h-8 w-8 rounded-md" />
+											</div>
+										</TableCell>
+									</TableRow>
+								))}
+							{!loading && paginatedProducts.length === 0 && (
+								<TableRow>
+									<TableCell colSpan={100} className="text-center">
+										<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
+											هیچ محصولی یافت نشد.
+										</div>
 									</TableCell>
-								</motion.tr>
-							))}
+								</TableRow>
+							)}
+							{!loading &&
+								paginatedProducts?.map((product, i) => (
+									<motion.tr
+										key={product.id}
+										initial={{ opacity: 0, x: -20 }}
+										animate={{ opacity: 1, x: 0 }}
+										transition={{ delay: i * 0.05 }}
+										className="group hover:bg-muted/50"
+									>
+										<TableCell className="font-medium">{product.name}</TableCell>
+										<TableCell>{product.brand?.name || "-"}</TableCell>
+										<TableCell>{product.category?.name || "-"}</TableCell>
+										<TableCell className="font-bold text-primary-rose">
+											{formatPrice(product.irrPrice as number)} ریال
+										</TableCell>
+										<TableCell>
+											<span className={product.quantity === 0 ? "text-red-500" : ""}>
+												{formatPrice(product.quantity)} {product.quantityType}
+											</span>
+										</TableCell>
+										<TableCell>
+											<Badge variant={product.isActive ? "available" : "outOfStock"}>
+												{product.isActive ? "فعال" : "غیرفعال"}
+											</Badge>
+										</TableCell>
+										<TableCell>
+											<div className="flex items-center justify-center gap-2">
+												<ProductInfoDialog product={product} />
+												{canEdit && (
+													<UpdateProductDialog
+														fetchProducts={fetchProducts}
+														product={product}
+														mode="copy"
+														categories={categories}
+														brands={brands}
+													/>
+												)}
+												{canEdit && (
+													<UpdateProductDialog
+														fetchProducts={fetchProducts}
+														product={product}
+														mode="update"
+														categories={categories}
+														brands={brands}
+													/>
+												)}
+												{canEdit && (
+													<ProductImagesDialog
+														productID={product?.id}
+														images={product?.imageObjects ?? []}
+														fetchProducts={fetchProducts}
+													/>
+												)}
+												{canDelete && (
+													<DeleteProductDialog
+														id={product?.id}
+														fetchProducts={fetchProducts}
+													/>
+												)}
+											</div>
+										</TableCell>
+									</motion.tr>
+								))}
 						</TableBody>
 					</Table>
 				</CardContent>
@@ -561,7 +622,7 @@ function ProductsAdminPageContent() {
 
 			{/* Pagination */}
 			{totalPages > 1 && (
-				<div className="mt-8">
+				<div className="mt-6 sm:mt-8">
 					<Pagination
 						currentPage={currentPage}
 						totalPages={totalPages}

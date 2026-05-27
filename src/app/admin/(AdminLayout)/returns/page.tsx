@@ -89,10 +89,10 @@ export default function AdminReturnsPage() {
 	];
 
 	return (
-		<main className="p-6">
+		<main className="p-4 sm:p-6">
 			<div className="mb-8 flex items-center gap-3">
 				<PackageX className="w-7 h-7 text-primary-rose" />
-				<h1 className="text-3xl font-bold">مدیریت مرجوعی‌ها</h1>
+				<h1 className="text-2xl sm:text-3xl font-bold">مدیریت مرجوعی‌ها</h1>
 			</div>
 
 			<div className="flex gap-2 flex-wrap mb-6">

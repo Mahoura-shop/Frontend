@@ -65,9 +65,9 @@ function SubAdminsPageContent() {
 	}, [fetchAll])
 
 	return (
-		<main className="p-6">
+		<main className="p-4 sm:p-6">
 			<div className="mb-6">
-				<h1 className="text-3xl font-bold mb-2">مدیریت زیرمدیران</h1>
+				<h1 className="text-2xl sm:text-3xl font-bold mb-2">مدیریت زیرمدیران</h1>
 				<div className="flex items-center gap-4 text-sm">
 					<span className="text-muted-foreground">
 						مجموع:{" "}
@@ -89,7 +89,56 @@ function SubAdminsPageContent() {
 				<CreateSubAdminDialog roles={roles} onDone={fetchAll} />
 			</div>
 
-			<Card>
+			{/* Mobile Cards */}
+			<div className="sm:hidden space-y-3">
+				{loading && Array.from({ length: 5 }).map((_, i) => (
+					<Card key={i}>
+						<CardContent className="p-4 space-y-3">
+							<div className="flex justify-between">
+								<Skeleton className="h-4 w-32" />
+								<Skeleton className="h-5 w-20 rounded-full" />
+							</div>
+							<Skeleton className="h-3 w-28" />
+							<div className="flex justify-end gap-2">
+								<Skeleton className="h-8 w-20 rounded-md" />
+								<Skeleton className="h-8 w-20 rounded-md" />
+							</div>
+						</CardContent>
+					</Card>
+				))}
+				{!loading && filtered.length === 0 && (
+					<div className="flex flex-col items-center gap-2 text-muted-foreground py-12">
+						<ShieldCheck className="w-10 h-10" />
+						<span>زیرمدیری یافت نشد</span>
+					</div>
+				)}
+				{!loading && filtered.map((user, i) => {
+					const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ") || "بدون نام"
+					return (
+						<motion.div key={user.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+							<Card>
+								<CardContent className="p-4">
+									<div className="flex items-start justify-between gap-2 mb-2">
+										<p className="font-medium">{fullName}</p>
+										{user.roleName
+											? <Badge variant="secondary" className="text-xs shrink-0">{user.roleName}</Badge>
+											: <span className="text-xs text-muted-foreground">بدون نقش</span>}
+									</div>
+									<p className="text-sm text-muted-foreground mb-1" dir="ltr">{user.phone}</p>
+									<p className="text-sm text-muted-foreground mb-3">{user.email || "—"}</p>
+									<div className="flex justify-end gap-2">
+										<AssignRoleDialog userID={user.id} currentRoleID={user.roleID} roles={roles} onDone={fetchAll} />
+										<RevokeSubAdminDialog userID={user.id} name={fullName} onDone={fetchAll} />
+									</div>
+								</CardContent>
+							</Card>
+						</motion.div>
+					)
+				})}
+			</div>
+
+			{/* Desktop Table */}
+			<Card className="hidden sm:block">
 				<CardContent className="p-0">
 					<Table>
 						<TableHeader>
@@ -102,23 +151,21 @@ function SubAdminsPageContent() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{loading && (
-								Array.from({ length: 6 }).map((_, i) => (
-									<TableRow key={i}>
-										<TableCell><Skeleton className="h-4 w-28" /></TableCell>
-										<TableCell><Skeleton className="h-4 w-28" /></TableCell>
-										<TableCell><Skeleton className="h-4 w-36" /></TableCell>
-										<TableCell><Skeleton className="h-5 w-20 rounded-full" /></TableCell>
-										<TableCell>
-											<div className="flex items-center justify-center gap-2">
-												<Skeleton className="h-8 w-20 rounded-md" />
-												<Skeleton className="h-8 w-20 rounded-md" />
-											</div>
-										</TableCell>
-									</TableRow>
-								))
-							)}
-						{!loading && filtered.length === 0 && (
+							{loading && Array.from({ length: 6 }).map((_, i) => (
+								<TableRow key={i}>
+									<TableCell><Skeleton className="h-4 w-28" /></TableCell>
+									<TableCell><Skeleton className="h-4 w-28" /></TableCell>
+									<TableCell><Skeleton className="h-4 w-36" /></TableCell>
+									<TableCell><Skeleton className="h-5 w-20 rounded-full" /></TableCell>
+									<TableCell>
+										<div className="flex items-center justify-center gap-2">
+											<Skeleton className="h-8 w-20 rounded-md" />
+											<Skeleton className="h-8 w-20 rounded-md" />
+										</div>
+									</TableCell>
+								</TableRow>
+							))}
+							{!loading && filtered.length === 0 && (
 								<TableRow>
 									<TableCell colSpan={5} className="text-center py-12">
 										<div className="flex flex-col items-center gap-2 text-muted-foreground">
@@ -129,45 +176,21 @@ function SubAdminsPageContent() {
 								</TableRow>
 							)}
 							{!loading && filtered.map((user, i) => {
-								const fullName =
-									[user.firstName, user.lastName].filter(Boolean).join(" ") || "بدون نام"
+								const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ") || "بدون نام"
 								return (
-									<motion.tr
-										key={user.id}
-										initial={{ opacity: 0, x: -20 }}
-										animate={{ opacity: 1, x: 0 }}
-										transition={{ delay: i * 0.04 }}
-										className="group hover:bg-muted/50 border-b"
-									>
+									<motion.tr key={user.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04 }} className="group hover:bg-muted/50 border-b">
 										<TableCell className="font-medium">{fullName}</TableCell>
-										<TableCell className="text-sm text-muted-foreground" dir="ltr">
-											{user.phone}
-										</TableCell>
-										<TableCell className="text-sm text-muted-foreground">
-											{user.email || "—"}
-										</TableCell>
+										<TableCell className="text-sm text-muted-foreground" dir="ltr">{user.phone}</TableCell>
+										<TableCell className="text-sm text-muted-foreground">{user.email || "—"}</TableCell>
 										<TableCell>
-											{user.roleName ? (
-												<Badge variant="secondary" className="text-xs">
-													{user.roleName}
-												</Badge>
-											) : (
-												<span className="text-xs text-muted-foreground">بدون نقش</span>
-											)}
+											{user.roleName
+												? <Badge variant="secondary" className="text-xs">{user.roleName}</Badge>
+												: <span className="text-xs text-muted-foreground">بدون نقش</span>}
 										</TableCell>
 										<TableCell>
 											<div className="flex items-center justify-center gap-2">
-												<AssignRoleDialog
-													userID={user.id}
-													currentRoleID={user.roleID}
-													roles={roles}
-													onDone={fetchAll}
-												/>
-												<RevokeSubAdminDialog
-													userID={user.id}
-													name={fullName}
-													onDone={fetchAll}
-												/>
+												<AssignRoleDialog userID={user.id} currentRoleID={user.roleID} roles={roles} onDone={fetchAll} />
+												<RevokeSubAdminDialog userID={user.id} name={fullName} onDone={fetchAll} />
 											</div>
 										</TableCell>
 									</motion.tr>

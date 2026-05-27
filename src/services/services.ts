@@ -23,7 +23,7 @@ export const baseURL = "http://localhost:8080/"; // backend URL
 
 const apiClient: AxiosInstance = axios.create({
 	baseURL,
-	timeout: 20000,
+	timeout: 200000,
 	headers: {
 		"Content-Type": "application/json",
 	},

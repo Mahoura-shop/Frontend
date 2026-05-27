@@ -51,9 +51,9 @@ function AdminContactsPageContent() {
 		: messages;
 
 	return (
-		<main className="p-6">
+		<main className="p-4 sm:p-6">
 			<div className="mb-8">
-				<h1 className="text-3xl font-bold mb-2">پیام‌های تماس</h1>
+				<h1 className="text-2xl sm:text-3xl font-bold mb-2">پیام‌های تماس</h1>
 				<p className="text-muted-foreground">
 					پیام‌هایی که کاربران از طریق فرم تماس ارسال کرده‌اند
 				</p>
@@ -82,75 +82,92 @@ function AdminContactsPageContent() {
 				>
 					<Card>
 						<CardContent className="p-0">
-							{loading ? (
-								<Table>
-									<TableHeader>
-										<TableRow>
-											<TableHead>نام</TableHead>
-											<TableHead>ایمیل</TableHead>
-											<TableHead>موضوع</TableHead>
-											<TableHead>تاریخ</TableHead>
-										</TableRow>
-									</TableHeader>
-									<TableBody>
-										{Array.from({ length: 6 }).map((_, i) => (
-											<TableRow key={i}>
-												<TableCell><Skeleton className="h-4 w-24" /></TableCell>
-												<TableCell><Skeleton className="h-4 w-32" /></TableCell>
-												<TableCell><Skeleton className="h-4 w-40" /></TableCell>
-												<TableCell><Skeleton className="h-4 w-20" /></TableCell>
+							{/* Mobile list */}
+							<div className="sm:hidden divide-y">
+								{loading && Array.from({ length: 4 }).map((_, i) => (
+									<div key={i} className="p-4 space-y-2">
+										<div className="flex justify-between">
+											<Skeleton className="h-4 w-28" />
+											<Skeleton className="h-3 w-16" />
+										</div>
+										<Skeleton className="h-3 w-48" />
+										<Skeleton className="h-3 w-32" />
+									</div>
+								))}
+								{!loading && filtered.length === 0 && (
+									<div className="p-8 text-center text-muted-foreground">پیامی یافت نشد</div>
+								)}
+								{!loading && filtered.map((msg) => (
+									<div
+										key={msg.id}
+										className={`p-4 cursor-pointer transition-colors ${selected?.id === msg.id ? "bg-muted" : "hover:bg-muted/50"}`}
+										onClick={() => setSelected(selected?.id === msg.id ? null : msg)}
+									>
+										<div className="flex items-start justify-between gap-2 mb-1">
+											<p className="font-medium text-sm">{msg.name}</p>
+											<p className="text-xs text-muted-foreground shrink-0">
+												{new Date(msg.createdAt).toLocaleDateString("fa-IR")}
+											</p>
+										</div>
+										<p className="text-sm truncate">{msg.subject}</p>
+										<p className="text-xs text-muted-foreground">{msg.email}</p>
+									</div>
+								))}
+							</div>
+							{/* Desktop table */}
+							<div className="hidden sm:block">
+								{loading ? (
+									<Table>
+										<TableHeader>
+											<TableRow>
+												<TableHead>نام</TableHead>
+												<TableHead>ایمیل</TableHead>
+												<TableHead>موضوع</TableHead>
+												<TableHead>تاریخ</TableHead>
 											</TableRow>
-										))}
-									</TableBody>
-								</Table>
-							) : filtered.length === 0 ? (
-								<div className="p-8 text-center text-muted-foreground">
-									پیامی یافت نشد
-								</div>
-							) : (
-								<Table>
-									<TableHeader>
-										<TableRow>
-											<TableHead>نام</TableHead>
-											<TableHead>ایمیل</TableHead>
-											<TableHead>موضوع</TableHead>
-											<TableHead>تاریخ</TableHead>
-										</TableRow>
-									</TableHeader>
-									<TableBody>
-										{filtered.map((msg) => (
-											<TableRow
-												key={msg.id}
-												className={`cursor-pointer transition-colors ${selected?.id === msg.id ? "bg-muted" : "hover:bg-muted/50"}`}
-												onClick={() =>
-													setSelected(
-														selected?.id === msg.id
-															? null
-															: msg,
-													)
-												}
-											>
-												<TableCell className="font-medium">
-													{msg.name}
-												</TableCell>
-												<TableCell className="text-muted-foreground">
-													{msg.email}
-												</TableCell>
-												<TableCell>
-													{msg.subject}
-												</TableCell>
-												<TableCell className="text-muted-foreground text-sm">
-													{new Date(
-														msg.createdAt,
-													).toLocaleDateString(
-														"fa-IR",
-													)}
-												</TableCell>
+										</TableHeader>
+										<TableBody>
+											{Array.from({ length: 6 }).map((_, i) => (
+												<TableRow key={i}>
+													<TableCell><Skeleton className="h-4 w-24" /></TableCell>
+													<TableCell><Skeleton className="h-4 w-32" /></TableCell>
+													<TableCell><Skeleton className="h-4 w-40" /></TableCell>
+													<TableCell><Skeleton className="h-4 w-20" /></TableCell>
+												</TableRow>
+											))}
+										</TableBody>
+									</Table>
+								) : filtered.length === 0 ? (
+									<div className="p-8 text-center text-muted-foreground">پیامی یافت نشد</div>
+								) : (
+									<Table>
+										<TableHeader>
+											<TableRow>
+												<TableHead>نام</TableHead>
+												<TableHead>ایمیل</TableHead>
+												<TableHead>موضوع</TableHead>
+												<TableHead>تاریخ</TableHead>
 											</TableRow>
-										))}
-									</TableBody>
-								</Table>
-							)}
+										</TableHeader>
+										<TableBody>
+											{filtered.map((msg) => (
+												<TableRow
+													key={msg.id}
+													className={`cursor-pointer transition-colors ${selected?.id === msg.id ? "bg-muted" : "hover:bg-muted/50"}`}
+													onClick={() => setSelected(selected?.id === msg.id ? null : msg)}
+												>
+													<TableCell className="font-medium">{msg.name}</TableCell>
+													<TableCell className="text-muted-foreground">{msg.email}</TableCell>
+													<TableCell>{msg.subject}</TableCell>
+													<TableCell className="text-muted-foreground text-sm">
+														{new Date(msg.createdAt).toLocaleDateString("fa-IR")}
+													</TableCell>
+												</TableRow>
+											))}
+										</TableBody>
+									</Table>
+								)}
+							</div>
 						</CardContent>
 					</Card>
 				</motion.div>

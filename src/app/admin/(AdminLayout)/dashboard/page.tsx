@@ -198,9 +198,9 @@ export default function AdminDashboard() {
 	);
 
 	return (
-		<main className="p-6">
+		<main className="p-4 sm:p-6">
 			<div className="mb-8">
-				<h1 className="text-3xl font-bold mb-2">داشبورد</h1>
+				<h1 className="text-2xl sm:text-3xl font-bold mb-2">داشبورد</h1>
 				<p className="text-muted-foreground">
 					خلاصه‌ای از وضعیت فروشگاه شما
 				</p>

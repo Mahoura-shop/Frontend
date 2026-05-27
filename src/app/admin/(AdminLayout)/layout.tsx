@@ -51,9 +51,9 @@ export default function AdminLayout({
 			<div className="min-h-screen bg-background" dir="rtl">
 				<Navbar />
 				<DashboardSidebar items={adminMenuItems} />
-				<div className="container mx-auto px-4 pt-[90px] pb-8">
+				<div className="container mx-auto px-0 mt-4 lg:pt-[90px] pb-8">
 					<div className="grid lg:grid-cols-4 gap-6">
-						<div className="lg:hidden">
+						{/* <div className="lg:hidden">
 							<Button
 								variant="outline"
 								className="w-full gap-2"
@@ -62,13 +62,13 @@ export default function AdminLayout({
 								<Menu className="w-5 h-5" />
 								منوی مدیریت
 							</Button>
-						</div>
+						</div> */}
 
 						<aside className="hidden lg:block lg:col-span-1">
 							<AdminSidebar items={adminMenuItems} />
 						</aside>
 
-						<div className="lg:col-span-3">
+						<div className="lg:col-span-3 pb-14">
 							{children}
 						</div>
 					</div>

@@ -252,10 +252,10 @@ function PriceGroupPageContent() {
 	};
 
 	return (
-		<main className="p-6 no-scrollbar">
-			{/* Header with Counts */}
+		<main className="p-4 sm:p-6 no-scrollbar">
+			{/* Header */}
 			<div className="mb-6">
-				<h1 className="text-3xl font-bold mb-2">مدیریت محصولات</h1>
+				<h1 className="text-2xl sm:text-3xl font-bold mb-2">مدیریت گروه قیمت</h1>
 				<div className="flex items-center gap-4 text-sm">
 					<span className="text-muted-foreground">
 						مجموع:{" "}
@@ -263,42 +263,19 @@ function PriceGroupPageContent() {
 							{productPrices.length}
 						</span>
 					</span>
-					{/* <span className="text-muted-foreground">
-						فعال:{" "}
-						<span className="font-bold text-green-600">
-							{activeCount}
-						</span>
-					</span>
-					<span className="text-muted-foreground">
-						غیرفعال:{" "}
-						<span className="font-bold text-red-600">
-							{inactiveCount}
-						</span>
-					</span> */}
 				</div>
 			</div>
 
 			{/* Toolbar */}
-			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-				<div className="flex items-center gap-3 flex-wrap w-full sm:flex-1">
-					{/* Search */}
+			<div className="flex flex-col gap-3 mb-6">
+				<div className="flex gap-3">
 					<InputFree
-						// isPriceInput
-						containerClassName="flex-1"
+						containerClassName="flex-1 min-w-0"
 						icon={Search}
 						label="جستجوی محصول..."
 						value={searchQuery}
 						onValueChange={(val) => setSearchQuery(val)}
 					/>
-					{/* <div className="relative flex-1 min-w-[200px]">
-						<Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-						<Input
-							placeholder="جستجوی محصول..."
-							value={searchQuery}
-							onChange={(e) => setSearchQuery(e.target.value)}
-							className="pr-10"
-						/>
-					</div> */}
 					<Select
 						value={currencyFilter}
 						onValueChange={(value) => {
@@ -306,78 +283,116 @@ function PriceGroupPageContent() {
 							setCurrentPage(1);
 						}}
 					>
-						<SelectTrigger className="w-full sm:w-[120px]">
+						<SelectTrigger className="w-[110px] shrink-0">
 							<SelectValue placeholder="ارز" />
 						</SelectTrigger>
 						<SelectContent>
 							{currencies?.map((currency) => (
-								<SelectItem
-									key={currency.id}
-									value={String(currency.id)}
-								>
+								<SelectItem key={currency.id} value={String(currency.id)}>
 									{currency.name}
 								</SelectItem>
 							))}
 						</SelectContent>
 					</Select>
+				</div>
+				<div className="flex items-center gap-3">
 					{currencyFilter && (
-						<Button variant="ghost">
+						<span className="text-sm text-muted-foreground">
 							{getCurrency(currencyFilter)?.name}:{" "}
-							{formatPrice(
-								getCurrency(currencyFilter)
-									?.convertRate as number,
-							)}{" "}
-							ریال
-						</Button>
+							<span className="font-medium text-foreground">
+								{formatPrice(getCurrency(currencyFilter)?.convertRate as number)} ریال
+							</span>
+						</span>
 					)}
-					<Button className="gap-2" onClick={updateProductPrices}>
+					<Button className="gap-2 mr-auto" onClick={updateProductPrices}>
 						<Save className="w-4 h-4" />
-						<p>اعمال گروهی تغییر قیمت</p>
+						اعمال گروهی تغییر قیمت
 					</Button>
 				</div>
-				{/* <UpdateProductDialog
-					fetchProducts={fetchProducts}
-					mode="create"
-					categories={categories}
-					brands={brands}
-				/> */}
-				{/* <Button className="gap-2">
-					<Plus className="w-4 h-4" />
-					افزودن محصول
-				</Button> */}
 			</div>
 
-			{/* Table */}
-			{/* <Formik
-				initialValues={productPrices}
-				validationSchema={updateProductPriceSchema}
-				onSubmit={updateProducts}
-			> */}
-			<Card>
+			{/* Mobile Cards */}
+			<div className="sm:hidden space-y-3">
+				{loading &&
+					Array.from({ length: 6 }).map((_, i) => (
+						<Card key={i}>
+							<CardContent className="p-4 space-y-3">
+								<Skeleton className="h-4 w-40" />
+								<div className="flex justify-between">
+									<Skeleton className="h-3 w-28" />
+									<Skeleton className="h-3 w-24" />
+								</div>
+								<Skeleton className="h-10 w-full rounded-md" />
+							</CardContent>
+						</Card>
+					))}
+				{!loading && paginatedProductPrices.length === 0 && (
+					<div className="flex justify-center items-center text-lg min-h-[40vh] text-muted-foreground">
+						هیچ محصولی یافت نشد.
+					</div>
+				)}
+				{!loading &&
+					paginatedProductPrices.map((productPrice, i) => (
+						<motion.div
+							key={productPrice.id}
+							initial={{ opacity: 0, y: 12 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: i * 0.04 }}
+						>
+							<Card>
+								<CardContent className="p-4 space-y-3">
+									<p className="font-medium">{productPrice.name}</p>
+									<div className="flex items-center justify-between text-sm text-muted-foreground">
+										<span>
+											قیمت اصلی:{" "}
+											<span className="text-foreground font-medium">
+												{formatPrice(productPrice.price as number)} {productPrice.currency?.name}
+											</span>
+										</span>
+										<span>
+											ریالی:{" "}
+											<span className="text-foreground font-medium">
+												{formatPrice(productPrice.irrPrice as number)}
+											</span>
+										</span>
+									</div>
+									<InputFree
+										label="قیمت جدید (ریال)"
+										isPriceInput
+										value={productPrice.newIrrPrice}
+										onValueChange={(value) => {
+											const newValue = value ? value : "";
+											setProductPrices((prev) => {
+												const newProductPrices = [...prev];
+												newProductPrices[i] = {
+													...newProductPrices[i],
+													newIrrPrice: Number(newValue),
+												};
+												return newProductPrices;
+											});
+										}}
+										icon={DollarSign}
+									/>
+								</CardContent>
+							</Card>
+						</motion.div>
+					))}
+			</div>
+
+			{/* Desktop Table */}
+			<Card className="hidden sm:block">
 				<CardContent className="p-0">
 					<Table className="no-scrollbar">
 						<TableHeader>
 							<TableRow>
-								<TableHeadItem
-									title="نام محصول"
-									column="name"
-								/>
-								<TableHeadItem
-									title="قیمت اصلی"
-									column="price"
-								/>
-								<TableHeadItem
-									title="قیمت ریالی"
-									column="irrPrice"
-								/>
-								<TableHeadItem
-									title="قیمت جدید"
-									column="price"
-								/>
+								<TableHeadItem title="نام محصول" column="name" />
+								<TableHeadItem title="قیمت اصلی" column="price" />
+								<TableHeadItem title="قیمت ریالی" column="irrPrice" />
+								<TableHeadItem title="قیمت جدید" column="price" />
 							</TableRow>
 						</TableHeader>
 						<TableBody className="no-scrollbar">
-							{loading && (
+							{loading &&
 								Array.from({ length: 8 }).map((_, i) => (
 									<TableRow key={i}>
 										<TableCell><Skeleton className="h-4 w-36" /></TableCell>
@@ -385,88 +400,72 @@ function PriceGroupPageContent() {
 										<TableCell><Skeleton className="h-4 w-24" /></TableCell>
 										<TableCell><Skeleton className="h-9 w-full rounded-md" /></TableCell>
 									</TableRow>
-								))
-							)}
+								))}
 							{!loading && paginatedProductPrices.length === 0 && (
 								<TableRow>
-									<TableCell
-										colSpan={100}
-										className="text-center"
-									>
+									<TableCell colSpan={100} className="text-center">
 										<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
 											<p>هیچ محصولی یافت نشد.</p>
 										</div>
 									</TableCell>
 								</TableRow>
 							)}
-							{!loading && paginatedProductPrices?.map((productPrice, i) => (
-								<motion.tr
-									key={productPrice.id}
-									initial={{ opacity: 0, x: -20 }}
-									animate={{ opacity: 1, x: 0 }}
-									transition={{ delay: i * 0.05 }}
-									className="group hover:bg-muted/50"
-								>
-									<TableCell className="font-medium">
-										{productPrice.name}
-									</TableCell>
-									<TableCell>
-										{formatPrice(
-											productPrice.price as number,
-										)}{" "}
-										{productPrice.currency?.name}
-									</TableCell>
-									<TableCell>
-										{formatPrice(
-											productPrice.irrPrice as number,
-										)}
-									</TableCell>
-									<TableCell className="font-bold text-primary-rose">
-										<InputFree
-											label="ریال"
-											isPriceInput
-											value={productPrice.newIrrPrice}
-											onValueChange={(value) => {
-												const newValue = value
-													? value
-													: "";
-												// setProductPrices((prev) => [
-												// 	...prev.slice(0, i),
-												// 	{
-												// 		...prev[i],
-												// 		newIrrPrice:
-												// 			Number(newValue),
-												// 	},
-												// 	...prev.slice(i + 1),
-												// ]);
-												setProductPrices((prev) => {
-													// Create a new array to avoid direct mutation
-													const newProductPrices = [
-														...prev,
-													];
-													// Update the specific item at index 'i'
-													newProductPrices[i] = {
-														...newProductPrices[i], // Copy existing properties
-														newIrrPrice:
-															Number(newValue), // Update the newIrrPrice
-													};
-													return newProductPrices; // Return the new array
-												});
-											}}
-											icon={DollarSign}
-										/>
-									</TableCell>
-								</motion.tr>
-							))}
+							{!loading &&
+								paginatedProductPrices?.map((productPrice, i) => (
+									<motion.tr
+										key={productPrice.id}
+										initial={{ opacity: 0, x: -20 }}
+										animate={{ opacity: 1, x: 0 }}
+										transition={{ delay: i * 0.05 }}
+										className="group hover:bg-muted/50"
+									>
+										<TableCell className="font-medium">{productPrice.name}</TableCell>
+										<TableCell>
+											{formatPrice(productPrice.price as number)} {productPrice.currency?.name}
+										</TableCell>
+										<TableCell>
+											{formatPrice(productPrice.irrPrice as number)}
+										</TableCell>
+										<TableCell className="font-bold text-primary-rose">
+											<InputFree
+												label="ریال"
+												isPriceInput
+												value={productPrice.newIrrPrice}
+												onValueChange={(value) => {
+													const newValue = value ? value : "";
+													// setProductPrices((prev) => [
+													// 	...prev.slice(0, i),
+													// 	{
+													// 		...prev[i],
+													// 		newIrrPrice:
+													// 			Number(newValue),
+													// 	},
+													// 	...prev.slice(i + 1),
+													// ]);
+													setProductPrices((prev) => {
+														// Create a new array to avoid direct mutation
+														const newProductPrices = [...prev];
+														// Update the specific item at index 'i'
+														newProductPrices[i] = {
+															...newProductPrices[i], // Copy existing properties
+															newIrrPrice: Number(newValue), // Update the newIrrPrice
+														};
+														return newProductPrices; // Return the new array
+													});
+												}}
+												icon={DollarSign}
+											/>
+										</TableCell>
+									</motion.tr>
+								))}
 						</TableBody>
 					</Table>
 				</CardContent>
 			</Card>
-			{/* </Formik> */}
 
 			{/* Pagination */}
 			{totalPages > 1 && (
-				<div className="mt-8">
+				<div className="mt-6 sm:mt-8">
 					<Pagination
 						currentPage={currentPage}
 						totalPages={totalPages}

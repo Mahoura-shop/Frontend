@@ -60,9 +60,9 @@ function RolesPageContent() {
 	}, [fetchAll])
 
 	return (
-		<main className="p-6">
+		<main className="p-4 sm:p-6">
 			<div className="mb-6">
-				<h1 className="text-3xl font-bold mb-2">مدیریت نقش‌ها</h1>
+				<h1 className="text-2xl sm:text-3xl font-bold mb-2">مدیریت نقش‌ها</h1>
 				<div className="flex items-center gap-4 text-sm">
 					<span className="text-muted-foreground">
 						مجموع:{" "}
@@ -84,7 +84,58 @@ function RolesPageContent() {
 				{canCreate && <CreateUpdateRoleDialog mode="create" permissions={permissions} onDone={fetchAll} />}
 			</div>
 
-			<Card>
+			{/* Mobile Cards */}
+			<div className="sm:hidden space-y-3">
+				{loading && Array.from({ length: 4 }).map((_, i) => (
+					<Card key={i}>
+						<CardContent className="p-4 space-y-3">
+							<div className="flex justify-between">
+								<Skeleton className="h-4 w-24" />
+								<div className="flex gap-2">
+									<Skeleton className="h-8 w-8 rounded-md" />
+									<Skeleton className="h-8 w-8 rounded-md" />
+								</div>
+							</div>
+							<Skeleton className="h-3 w-40" />
+							<div className="flex gap-1 flex-wrap">
+								<Skeleton className="h-5 w-16 rounded-full" />
+								<Skeleton className="h-5 w-20 rounded-full" />
+							</div>
+						</CardContent>
+					</Card>
+				))}
+				{!loading && filtered.length === 0 && (
+					<div className="flex justify-center items-center text-lg min-h-[40vh] text-muted-foreground">
+						هیچ نقشی یافت نشد.
+					</div>
+				)}
+				{!loading && filtered.map((role, i) => (
+					<motion.div key={role.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+						<Card>
+							<CardContent className="p-4">
+								<div className="flex items-start justify-between gap-2 mb-2">
+									<p className="font-medium">{role.name}</p>
+									<div className="flex items-center gap-2 shrink-0">
+										{canEdit && <CreateUpdateRoleDialog mode="update" role={role} permissions={permissions} onDone={fetchAll} />}
+										{canDelete && <DeleteRoleDialog id={role.id} name={role.name} onDone={fetchAll} />}
+									</div>
+								</div>
+								{role.description && <p className="text-sm text-muted-foreground mb-3">{role.description}</p>}
+								<div className="flex flex-wrap gap-1">
+									{role.permissions.length === 0
+										? <span className="text-xs text-muted-foreground">بدون دسترسی</span>
+										: role.permissions.map((p) => (
+											<Badge key={p.id} variant="secondary" className="text-xs">{p.name}</Badge>
+										))}
+								</div>
+							</CardContent>
+						</Card>
+					</motion.div>
+				))}
+			</div>
+
+			{/* Desktop Table */}
+			<Card className="hidden sm:block">
 				<CardContent className="p-0">
 					<Table>
 						<TableHeader>
@@ -96,27 +147,25 @@ function RolesPageContent() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{loading && (
-								Array.from({ length: 6 }).map((_, i) => (
-									<TableRow key={i}>
-										<TableCell><Skeleton className="h-4 w-24" /></TableCell>
-										<TableCell><Skeleton className="h-4 w-40" /></TableCell>
-										<TableCell>
-											<div className="flex gap-1 flex-wrap">
-												<Skeleton className="h-5 w-16 rounded-full" />
-												<Skeleton className="h-5 w-20 rounded-full" />
-											</div>
-										</TableCell>
-										<TableCell>
-											<div className="flex items-center justify-center gap-2">
-												<Skeleton className="h-8 w-8 rounded-md" />
-												<Skeleton className="h-8 w-8 rounded-md" />
-											</div>
-										</TableCell>
-									</TableRow>
-								))
-							)}
-						{!loading && filtered.length === 0 && (
+							{loading && Array.from({ length: 6 }).map((_, i) => (
+								<TableRow key={i}>
+									<TableCell><Skeleton className="h-4 w-24" /></TableCell>
+									<TableCell><Skeleton className="h-4 w-40" /></TableCell>
+									<TableCell>
+										<div className="flex gap-1 flex-wrap">
+											<Skeleton className="h-5 w-16 rounded-full" />
+											<Skeleton className="h-5 w-20 rounded-full" />
+										</div>
+									</TableCell>
+									<TableCell>
+										<div className="flex items-center justify-center gap-2">
+											<Skeleton className="h-8 w-8 rounded-md" />
+											<Skeleton className="h-8 w-8 rounded-md" />
+										</div>
+									</TableCell>
+								</TableRow>
+							))}
+							{!loading && filtered.length === 0 && (
 								<TableRow>
 									<TableCell colSpan={4} className="text-center">
 										<div className="flex justify-center items-center text-2xl w-full min-h-[50vh]">
@@ -126,47 +175,22 @@ function RolesPageContent() {
 								</TableRow>
 							)}
 							{!loading && filtered.map((role, i) => (
-								<motion.tr
-									key={role.id}
-									initial={{ opacity: 0, x: -20 }}
-									animate={{ opacity: 1, x: 0 }}
-									transition={{ delay: i * 0.05 }}
-									className="group hover:bg-muted/50"
-								>
+								<motion.tr key={role.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="group hover:bg-muted/50">
 									<TableCell className="font-medium">{role.name}</TableCell>
-									<TableCell className="text-muted-foreground text-sm">
-										{role.description || "—"}
-									</TableCell>
+									<TableCell className="text-muted-foreground text-sm">{role.description || "—"}</TableCell>
 									<TableCell>
 										<div className="flex flex-wrap gap-1">
-											{role.permissions.length === 0 ? (
-												<span className="text-xs text-muted-foreground">بدون دسترسی</span>
-											) : (
-												role.permissions.map((p) => (
-													<Badge key={p.id} variant="secondary" className="text-xs">
-														{p.name}
-													</Badge>
-												))
-											)}
+											{role.permissions.length === 0
+												? <span className="text-xs text-muted-foreground">بدون دسترسی</span>
+												: role.permissions.map((p) => (
+													<Badge key={p.id} variant="secondary" className="text-xs">{p.name}</Badge>
+												))}
 										</div>
 									</TableCell>
 									<TableCell>
 										<div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-											{canEdit && (
-												<CreateUpdateRoleDialog
-													mode="update"
-													role={role}
-													permissions={permissions}
-													onDone={fetchAll}
-												/>
-											)}
-											{canDelete && (
-												<DeleteRoleDialog
-													id={role.id}
-													name={role.name}
-													onDone={fetchAll}
-												/>
-											)}
+											{canEdit && <CreateUpdateRoleDialog mode="update" role={role} permissions={permissions} onDone={fetchAll} />}
+											{canDelete && <DeleteRoleDialog id={role.id} name={role.name} onDone={fetchAll} />}
 										</div>
 									</TableCell>
 								</motion.tr>

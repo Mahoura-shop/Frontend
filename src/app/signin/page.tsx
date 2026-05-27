@@ -199,7 +199,7 @@ export default function SignIn() {
 
 	return (
 		<div
-			className="min-h-screen flex flex-col md:items-center md:justify-center relative overflow-x-hidden bg-[#1a0f1e]"
+			className="min-h-[100dvh] flex flex-col md:items-center md:justify-center relative overflow-x-hidden overflow-y-auto bg-[#1a0f1e]"
 			style={{ backgroundImage: "radial-gradient(ellipse 90% 60% at 0% 100%, oklch(20% 0.035 312) 0%, transparent 55%)" }}
 		>
 
@@ -208,14 +208,14 @@ export default function SignIn() {
 			</div>
 
 			{/* Mobile brand header */}
-			<div className="md:hidden landscape:hidden relative z-10 flex flex-col items-center pt-16 pb-10 px-6">
+			<div className="md:hidden relative z-10 flex flex-col items-center pt-12 pb-8 px-6 landscape:pt-4 landscape:pb-4">
 				<motion.div
 					initial={{ opacity: 0, y: -16 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
 					className="flex flex-col items-center"
 				>
-					<h1 className="text-4xl font-black text-white tracking-tight mb-2">Mahoura</h1>
+					<h1 className="text-4xl landscape:text-2xl font-black text-white tracking-tight mb-2 landscape:mb-1">Mahoura</h1>
 					<p className="text-white/40 text-xs tracking-[0.2em] uppercase">زیبایی لوکس ایرانی</p>
 				</motion.div>
 			</div>
@@ -258,7 +258,10 @@ export default function SignIn() {
 					</div>
 
 					{/* Right panel — form */}
-					<div className="bg-white dark:bg-[oklch(14%_0.025_320)] rounded-t-[2rem] md:rounded-none px-7 pt-9 pb-10 sm:px-10 sm:pt-11 sm:pb-12 md:px-14 md:py-16">
+					<div
+						className="bg-white dark:bg-[oklch(14%_0.025_320)] rounded-t-[2rem] landscape:rounded-t-none md:rounded-none px-7 pt-9 pb-10 sm:px-10 sm:pt-11 sm:pb-12 md:px-14 md:py-16 flex flex-col justify-center md:block"
+						style={{ paddingBottom: "max(2.5rem, env(safe-area-inset-bottom))" }}
+					>
 
 						<AnimatePresence mode="wait">
 							{step === "name" ? (
@@ -443,7 +446,7 @@ export default function SignIn() {
 										<motion.div
 											role="group"
 											aria-label="کد تایید ۶ رقمی"
-											className="flex justify-center gap-1.5 sm:gap-3"
+											className="flex justify-center gap-2 sm:gap-3"
 											dir="ltr"
 											initial={{ opacity: 0, y: 12 }}
 											animate={{ opacity: 1, y: 0 }}
@@ -466,7 +469,7 @@ export default function SignIn() {
 													transition={spring}
 													autoFocus={i === 0}
 													className={[
-														"w-9 h-12 sm:w-12 sm:h-14 text-center text-base sm:text-xl font-bold rounded-xl border-2 outline-none transition-all duration-200",
+														"w-10 h-12 sm:w-12 sm:h-14 text-center text-base sm:text-xl font-bold rounded-xl border-2 outline-none transition-all duration-200",
 														"focus:ring-2 focus:ring-secondary-plum/30",
 														digit
 															? "border-secondary-plum bg-secondary-plum text-white shadow-[0_0_16px_rgba(107,78,113,0.35)]"

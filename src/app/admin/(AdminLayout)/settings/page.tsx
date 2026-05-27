@@ -55,9 +55,9 @@ function SettingsPageContent() {
 	};
 
 	return (
-		<main className="p-6">
+		<main className="p-4 sm:p-6">
 			<div className="mb-8">
-				<h1 className="text-3xl font-bold mb-2">تنظیمات</h1>
+				<h1 className="text-2xl sm:text-3xl font-bold mb-2">تنظیمات</h1>
 				<p className="text-muted-foreground">مدیریت تنظیمات فروشگاه</p>
 			</div>
 

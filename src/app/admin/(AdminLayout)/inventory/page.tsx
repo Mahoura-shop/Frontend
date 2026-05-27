@@ -103,7 +103,7 @@ function InventoryPageContent() {
 			initial={{ opacity: 0, y: 20 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.4 }}
-			className="container mx-auto p-6 space-y-6 font-vazirmatn"
+			className="container mx-auto p-4 sm:p-6 space-y-6 font-vazirmatn"
 			dir="rtl"
 		>
 			<div className="flex items-center justify-between">

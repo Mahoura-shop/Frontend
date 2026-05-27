@@ -59,9 +59,9 @@ function AdminLogsPageContent() {
 		: logs
 
 	return (
-		<main className="p-6">
+		<main className="p-4 sm:p-6">
 			<div className="mb-8">
-				<h1 className="text-3xl font-bold mb-2">لاگ‌های ادمین</h1>
+				<h1 className="text-2xl sm:text-3xl font-bold mb-2">لاگ‌های ادمین</h1>
 				<p className="text-muted-foreground">تمام فعالیت‌های مدیران سیستم</p>
 			</div>
 
@@ -81,7 +81,57 @@ function AdminLogsPageContent() {
 			</div>
 
 			<motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-				<Card>
+				{/* Mobile Cards */}
+				<div className="sm:hidden space-y-3">
+					{loading && Array.from({ length: 5 }).map((_, i) => (
+						<Card key={i}>
+							<CardContent className="p-4 space-y-2">
+								<div className="flex justify-between">
+									<Skeleton className="h-4 w-28" />
+									<Skeleton className="h-5 w-12 rounded" />
+								</div>
+								<Skeleton className="h-3 w-48" />
+								<div className="flex justify-between">
+									<Skeleton className="h-3 w-24" />
+									<Skeleton className="h-3 w-20" />
+								</div>
+							</CardContent>
+						</Card>
+					))}
+					{!loading && filtered.length === 0 && (
+						<div className="p-8 text-center text-muted-foreground">هیچ لاگی یافت نشد</div>
+					)}
+					{!loading && filtered.map((log, i) => (
+						<motion.div key={log.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
+							<Card>
+								<CardContent className="p-4">
+									<div className="flex items-start justify-between gap-2 mb-2">
+										<div>
+											<p className="text-sm font-medium">{log.adminPhone}</p>
+											{log.adminName.trim() && <p className="text-xs text-muted-foreground">{log.adminName}</p>}
+										</div>
+										<div className="flex items-center gap-2 shrink-0">
+											<span className={`px-2 py-0.5 rounded text-xs font-mono font-semibold ${methodColors[log.method] ?? "bg-muted text-muted-foreground"}`}>
+												{log.method}
+											</span>
+											<Badge variant={log.statusCode >= 400 ? "destructive" : "secondary"} className="text-xs">
+												{log.statusCode}
+											</Badge>
+										</div>
+									</div>
+									<p className="font-mono text-xs text-muted-foreground truncate mb-2">{log.path}</p>
+									<div className="flex items-center justify-between text-xs text-muted-foreground">
+										<span>{log.ipAddress}</span>
+										<span>{new Date(log.createdAt).toLocaleString("fa-IR")}</span>
+									</div>
+								</CardContent>
+							</Card>
+						</motion.div>
+					))}
+				</div>
+
+				{/* Desktop Table */}
+				<Card className="hidden sm:block">
 					<CardContent className="p-0">
 						{loading ? (
 							<Table>
@@ -109,9 +159,7 @@ function AdminLogsPageContent() {
 								</TableBody>
 							</Table>
 						) : filtered.length === 0 ? (
-							<div className="p-8 text-center text-muted-foreground">
-								هیچ لاگی یافت نشد
-							</div>
+							<div className="p-8 text-center text-muted-foreground">هیچ لاگی یافت نشد</div>
 						) : (
 							<Table>
 								<TableHeader>
@@ -126,37 +174,20 @@ function AdminLogsPageContent() {
 								</TableHeader>
 								<TableBody>
 									{filtered.map((log, i) => (
-										<motion.tr
-											key={log.id}
-											initial={{ opacity: 0, x: -20 }}
-											animate={{ opacity: 1, x: 0 }}
-											transition={{ delay: i * 0.03 }}
-											className="group hover:bg-muted/50"
-										>
+										<motion.tr key={log.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }} className="group hover:bg-muted/50">
 											<TableCell>
 												<div className="text-sm font-medium">{log.adminPhone}</div>
-												{log.adminName.trim() && (
-													<div className="text-xs text-muted-foreground">{log.adminName}</div>
-												)}
+												{log.adminName.trim() && <div className="text-xs text-muted-foreground">{log.adminName}</div>}
 											</TableCell>
 											<TableCell>
-												<span
-													className={`inline-block px-2 py-0.5 rounded text-xs font-mono font-semibold ${methodColors[log.method] ?? "bg-muted text-muted-foreground"}`}
-												>
+												<span className={`inline-block px-2 py-0.5 rounded text-xs font-mono font-semibold ${methodColors[log.method] ?? "bg-muted text-muted-foreground"}`}>
 													{log.method}
 												</span>
 											</TableCell>
-											<TableCell className="font-mono text-xs text-muted-foreground max-w-xs truncate">
-												{log.path}
-											</TableCell>
-											<TableCell className="text-xs text-muted-foreground">
-												{log.ipAddress}
-											</TableCell>
+											<TableCell className="font-mono text-xs text-muted-foreground max-w-xs truncate">{log.path}</TableCell>
+											<TableCell className="text-xs text-muted-foreground">{log.ipAddress}</TableCell>
 											<TableCell>
-												<Badge
-													variant={log.statusCode >= 400 ? "destructive" : "secondary"}
-													className="text-xs"
-												>
+												<Badge variant={log.statusCode >= 400 ? "destructive" : "secondary"} className="text-xs">
 													{log.statusCode}
 												</Badge>
 											</TableCell>

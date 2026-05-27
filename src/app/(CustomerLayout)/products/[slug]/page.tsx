@@ -221,7 +221,7 @@ export default function ProductDetailPage() {
 
 	return (
 		<>
-			<div className="min-h-screen bg-background pt-20">
+			<div className="min-h-screen bg-background lg:pt-20">
 				{/* Breadcrumb */}
 				<div className="bg-background border-b">
 					<div className="container mx-auto px-4 py-4">
@@ -881,7 +881,7 @@ export default function ProductDetailPage() {
 			</div>
 
 			{/* Sticky add-to-cart bar — mobile only */}
-			<AnimatePresence>
+			{/* <AnimatePresence>
 				{showStickyBar && product && (
 					<motion.div
 						initial={{ y: 100, opacity: 0 }}
@@ -985,7 +985,7 @@ export default function ProductDetailPage() {
 							))}
 					</motion.div>
 				)}
-			</AnimatePresence>
+			</AnimatePresence> */}
 		</>
 	);
 }
