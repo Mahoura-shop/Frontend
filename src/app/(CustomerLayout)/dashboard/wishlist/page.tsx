@@ -11,7 +11,7 @@ import { formatPrice } from "@/utils/formatPrice"
 import CustomToast from "@/components/Custom/CustomToast/CustomToast"
 import { getWishlist, removeFromWishlist } from "@/services/wishlistService"
 import resolvePrice from "@/utils/resolvePrice"
-import useUserStore from "@/store/userStore/userStore"
+import useUserStore from "@/store/useUserStore"
 
 interface WishlistItem {
 	id: number

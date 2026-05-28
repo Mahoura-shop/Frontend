@@ -38,7 +38,7 @@ import { useCartStore } from "@/store/useCartStore"
 import { createOrder, payByWallet, initiatePayment } from "@/services/orderService"
 import { getAddresses, createAddress } from "@/services/addressService"
 import { getWalletBalance, depositWallet } from "@/services/walletService"
-import useUserStore from "@/store/userStore/userStore"
+import useUserStore from "@/store/useUserStore"
 
 const depositSchema = Yup.object({
 	amount: Yup.number()

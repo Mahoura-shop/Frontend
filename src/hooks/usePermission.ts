@@ -1,4 +1,4 @@
-import useUserStore from "@/store/userStore/userStore";
+import useUserStore from "@/store/useUserStore";
 
 export function usePermission(permission: string): boolean {
 	const { isAdmin, permissions, _hasHydrated } = useUserStore();

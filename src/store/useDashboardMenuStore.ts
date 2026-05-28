@@ -9,7 +9,7 @@ interface DashboardMenuStore {
 }
 
 export const useDashboardMenuStore = create<DashboardMenuStore>((set) => ({
-	sidebarOpen: true,
+	sidebarOpen: false,
 	isAdminView: false,
 	setSidebarOpen: (open: boolean) => set({ sidebarOpen: open }),
 	toggleAdminView: () => set((state) => ({ isAdminView: !state.isAdminView })),

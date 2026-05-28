@@ -6,7 +6,7 @@ import { X, ShoppingCart, Plus, Minus, Trash2, CreditCard, Package, ShoppingBag 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/useCartStore";
-import useUserStore from "@/store/userStore/userStore";
+import useUserStore from "@/store/useUserStore";
 import { formatPrice } from "@/utils/formatPrice";
 import resolvePrice from "@/utils/resolvePrice";
 

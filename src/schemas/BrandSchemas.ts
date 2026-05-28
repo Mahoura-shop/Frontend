@@ -16,6 +16,6 @@ export const createBrandInitialValues = {
 	slug: "",
 	description: "",
 	count: 0,
-	isActive: false,
+	isActive: true,
 	brandPic: null,
 };

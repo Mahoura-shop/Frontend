@@ -150,7 +150,7 @@ export default function ContactPage() {
 				<div className="absolute inset-0 bg-gradient-to-r from-primary-rose/15 via-accent-gold/10 to-secondary-plum/15" />
 				<div className="absolute inset-0 backdrop-blur-3xl" />
 
-				<div className="relative py-20 md:py-32">
+				<div className="relative py-20 pt-36">
 					<div className="container mx-auto px-4">
 						<motion.div
 							initial={{ opacity: 0, y: 30 }}

@@ -22,7 +22,7 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import logo from "@/assets/logo.png";
 import { useCartStore } from "@/store/useCartStore";
-import useUserStore from "@/store/userStore/userStore";
+import useUserStore from "@/store/useUserStore";
 import { notificationService } from "@/services/notificationService";
 import { useNotificationStore } from "@/store/useNotificationStore";
 import { formatDate } from "@/utils/formatDate";
@@ -36,7 +36,7 @@ import {
 	DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import Magnet from "../utils/Magnet";
-import CartSheet from "@/components/CartSheet";
+import CartSheet from "@/components/CartSheet/CartSheet";
 import { spring } from "@/lib/motion";
 import GlassSurface from "../ReactBits/GlassSurface/GlassSurface";
 import { useDashboardMenuStore } from "@/store/useDashboardMenuStore";
@@ -129,7 +129,7 @@ export default function Navbar() {
 			>
 				<div className={styles.navContent}>
 					<div className="flex items-center justify-between">
-						<Link href="/">
+						<Link href="/" className="min-w-48">
 							<motion.div
 								whileHover={{ scale: 1.05 }}
 								whileTap={{ scale: 0.95 }}
@@ -171,7 +171,7 @@ export default function Navbar() {
 							initial={{ opacity: 0, scale: 0.8 }}
 							animate={{ opacity: 1, scale: 1 }}
 							transition={{ delay: 0.4 }}
-							className="flex items-center gap-3"
+							className="flex items-center gap-3 min-w-48"
 						>
 							<Button
 								variant="ghost"
@@ -314,19 +314,20 @@ export default function Navbar() {
 									</DropdownMenuContent>
 								</DropdownMenu>
 							)}
-
-							<Button
-								variant="ghost"
-								size="icon"
-								className="rounded-full"
-							>
-								<Link
-									href="/cart"
-									className="flex items-center justify-end gap-2 cursor-pointer"
+							{accessToken && (
+								<Button
+									variant="ghost"
+									size="icon"
+									className="rounded-full"
 								>
-									<ShoppingCart className="w-4 h-4" />
-								</Link>
-							</Button>
+									<Link
+										href="/cart"
+										className="flex items-center justify-end gap-2 cursor-pointer"
+									>
+										<ShoppingCart className="w-4 h-4" />
+									</Link>
+								</Button>
+							)}
 
 							{!accessToken ? (
 								<Magnet padding={5}>

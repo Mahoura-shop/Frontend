@@ -26,6 +26,7 @@ function roundUsersCount(count: number): string {
 export default function LandingPage() {
 	const { products } = useProductStore();
 	const { categories, fetchCategories } = useCategoryStore();
+	
 	const [stats, setStats] = useState<PublicStats | null>(null);
 
 	useEffect(() => {
@@ -347,6 +348,7 @@ export default function LandingPage() {
 								whileInView={{ opacity: 1, y: 0 }}
 								viewport={{ once: true }}
 								transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1], delay: i * 0.1 }}
+								onClick={() => router}
 								className="rounded-2xl overflow-hidden bg-card border border-border cursor-pointer hover:shadow-[0_16px_48px_rgba(13,11,10,.10)] dark:hover:shadow-[0_16px_48px_rgba(0,0,0,.45)] transition-all duration-300 group"
 							>
 								<div className="relative aspect-square overflow-hidden bg-gradient-to-br from-neutral-warm to-primary-rose/20 dark:from-muted dark:to-primary-rose/10 flex items-center justify-center">

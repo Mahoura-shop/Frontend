@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import useUserStore from '@/store/userStore/userStore';
+import useUserStore from '@/store/useUserStore';
 
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
 	const { accessToken, isAdmin, _hasHydrated } = useUserStore();

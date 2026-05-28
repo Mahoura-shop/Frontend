@@ -1,4 +1,4 @@
-import { getData, patchData } from "./services"
+import { getData, patchData, baseURL } from "./services"
 import type { Notification, UnreadCountResponse } from "@/types/Notification"
 
 export const notificationService = {
@@ -21,7 +21,7 @@ export const notificationService = {
 	},
 
 	createSSEConnection: (token: string, onEvent: (n: Notification) => void): EventSource => {
-		const url = `http://localhost:8080/v1/notifications/stream?token=${encodeURIComponent(token)}`
+		const url = `${baseURL}v1/notifications/stream?token=${encodeURIComponent(token)}`
 		const es = new EventSource(url)
 		es.onmessage = (e) => {
 			try {

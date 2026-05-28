@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { motion, TargetAndTransition } from "framer-motion";
 import portrait from "@/assets/landing/7385752.jpeg";
@@ -30,7 +31,7 @@ const CARDS: CardData[] = [
 		id: 3,
 		label: "ویژه ماهورا",
 		title: "زیبایی لوکس",
-		description: "تجربه‌ای بی‌نظیر از مراقبت پوست با برترین برندهای جهانی",
+		description: "تجربه‌ای بی‌نظیر از مراقبت پوست با برترین برندها",
 		hue: 38,
 		hex: "#1A1711",
 	},

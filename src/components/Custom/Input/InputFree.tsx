@@ -26,6 +26,8 @@ interface Props {
 	isPriceInput?: boolean;
 	autoComplete?: string;
 	placeholder?: string;
+	maxLength?: number;
+	onlyDigits?: boolean;
 }
 
 export default function InputFree({
@@ -43,7 +45,8 @@ export default function InputFree({
 	value,
 	onValueChange,
 	disabled = false,
-	isPriceInput = false, // مقدار پیش‌فرض: false (یعنی حالت جستجو/متن)
+	isPriceInput = false,
+	onlyDigits = false,
 	...props
 }: Props) {
 	const { formatPrice: formatPriceFromStore } = useSettingsStore();
@@ -104,6 +107,15 @@ export default function InputFree({
 
 			let valueToUpdateParent = originalValue;
 			let newDisplayValue = originalValue;
+
+			if (onlyDigits) {
+				const digitsOnly = originalValue.replace(/\D/g, "");
+				valueToUpdateParent = digitsOnly;
+				newDisplayValue = digitsOnly;
+				setDisplayValue(newDisplayValue);
+				if (onValueChange) onValueChange(valueToUpdateParent);
+				return;
+			}
 
 			if (isPriceInput) {
 				// 1. Extract and clean digits (Persian and ASCII), preserving leading minus
@@ -236,7 +248,7 @@ export default function InputFree({
 					placeholder=" " // Essential for label animation
 					type="text" // Keep as text for better control with mixed characters
 					// Use "decimal" for mobile keyboards that support it well for prices
-					inputMode={isPriceInput ? "decimal" : "text"}
+					inputMode={onlyDigits ? "numeric" : isPriceInput ? "decimal" : "text"}
 					disabled={loading || disabled}
 					className={cn(
 						"font-vazirmatn", // Ensure font is applied

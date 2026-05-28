@@ -19,7 +19,7 @@ export default function CategoriesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/20 py-24">
+      <div className="bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/20 pt-36 py-24">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -47,7 +47,8 @@ export default function CategoriesPage() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
               >
-                <Link href={`/products?category=${category.id}`}>
+                <Link href={`/categories/${category.slug}`}>
+                {/* <Link href={`/products?category=${category.id}`}> */}
                   <Card className="h-full hover:shadow-xl transition-shadow cursor-pointer group">
                     <CardContent className="p-6 flex flex-col items-center gap-3">
                       <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center overflow-hidden group-hover:ring-2 ring-primary-rose transition-all">

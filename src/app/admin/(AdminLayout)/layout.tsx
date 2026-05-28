@@ -1,6 +1,6 @@
 "use client";
 
-import AdminGuard from "@/components/AdminGuard";
+import AdminGuard from "@/components/AdminGuard/AdminGuard";
 import Navbar from "@/components/Navbar/Navbar";
 import DashboardSidebar from "@/components/DashboardSidebar/DashboardSidebar";
 import AdminSidebar from "@/components/AdminSidebar/AdminSidebar";

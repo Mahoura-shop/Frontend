@@ -12,10 +12,27 @@ const nextConfig: NextConfig = {
 				hostname: "mahoura-product-pic.s3.ir-thr-at1.arvanstorage.ir",
 			},
 			{
+				protocol: "https",
+				hostname: "mahoura-category-pic.s3.ir-thr-at1.arvanstorage.ir",
+			},
+			{
+				protocol: "https",
+				hostname: "mahoura-brand-pic.s3.ir-thr-at1.arvanstorage.ir",
+			},
+			{
 				protocol: "http",
 				hostname: "localhost",
 			},
 		],
+	},
+	allowedDevOrigins: ["192.168.1.115"],
+	async rewrites() {
+		return [
+			{
+				source: "/backend/:path*",
+				destination: "http://127.0.0.1:8080/:path*",
+			},
+		];
 	},
 };
 

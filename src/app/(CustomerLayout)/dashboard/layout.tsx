@@ -26,7 +26,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { getMyProfile } from "@/services/userService";
-import AuthGuard from "@/components/AuthGuard";
+import AuthGuard from "@/components/AuthGuard/AuthGuard";
 import { useDashboardMenuStore } from "@/store/useDashboardMenuStore";
 
 interface Profile {

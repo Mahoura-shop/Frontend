@@ -24,7 +24,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useCartStore } from "@/store/useCartStore";
-import useUserStore from "@/store/userStore/userStore";
+import useUserStore from "@/store/useUserStore";
 import { useRouter } from "next/navigation";
 
 const VALID_COUPONS: Record<string, number> = {

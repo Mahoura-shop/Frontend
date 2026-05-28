@@ -39,7 +39,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { getMyProfile } from "@/services/userService";
 import { useDashboardMenuStore } from "@/store/useDashboardMenuStore";
-import useUserStore from "@/store/userStore/userStore";
+import useUserStore from "@/store/useUserStore";
 
 interface Profile {
 	firstName: string;
@@ -57,14 +57,15 @@ interface Item {
 	permission?: string;
 }
 
-export default function DashboardSidebar({ items }: { items: Item[] }) {
+export default function DashboardSidebar({ items }: { items?: Item[] }) {
 	const [profile, setProfile] = useState<Profile | null>(null);
 	const pathname = usePathname();
 	const router = useRouter();
 	const { theme, setTheme } = useTheme();
 	const { sidebarOpen, setSidebarOpen, isAdminView, toggleAdminView } =
 		useDashboardMenuStore();
-	const { isAdmin, logout, accessToken, permissions, _hasHydrated } = useUserStore();
+	const { isAdmin, logout, accessToken, permissions, _hasHydrated } =
+		useUserStore();
 
 	const hasPermission = (item: Item) => {
 		if (!item.permission) return true;
@@ -276,44 +277,50 @@ export default function DashboardSidebar({ items }: { items: Item[] }) {
 							</div>
 
 							{/* Scrollable Content */}
-							<div className="flex-1 overflow-y-auto px-4 flex flex-col gap-4 pb-2">
+							<div className="flex-1 overflow-y-auto px-4 flex flex-col gap-4">
 								{/* User Profile Card */}
-								<Card className="overflow-hidden">
-									<div className="h-20 bg-gradient-to-br from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20" />
-									<div className="relative px-6 pb-6">
-										<div className="absolute -top-10 right-6">
+								{!isAdminView && (
+									<Card className="overflow-hidden">
+										{/* <div className="h-12 bg-gradient-to-br from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20" /> */}
+										<div className="relative px-6 pb-2">
+											{/* <div className="absolute -top-10 right-6">
 											<div className="w-20 h-20 rounded-full border-4 border-background bg-gradient-to-br from-primary-rose to-secondary-plum flex items-center justify-center">
 												<User className="w-9 h-9 text-white" />
 											</div>
-										</div>
-										<div className="pt-14 space-y-2">
-											<div className="min-w-0">
-												<h3 className="text-base font-bold leading-tight truncate">
-													{profile
-														? [
-																profile.firstName,
-																profile.lastName,
-															]
-																.filter(Boolean)
-																.join(" ") ||
-															"بدون نام"
-														: "در حال بارگذاری..."}
-												</h3>
-												<p className="text-sm text-muted-foreground truncate">
-													{profile?.email || ""}
+										</div> */}
+											<div className="pt-4 space-y-2">
+												<div className="min-w-0">
+													<h3 className="text-base font-bold leading-tight truncate">
+														{profile
+															? [
+																	profile.firstName,
+																	profile.lastName,
+																]
+																	.filter(
+																		Boolean,
+																	)
+																	.join(
+																		" ",
+																	) ||
+																"بدون نام"
+															: "در حال بارگذاری..."}
+													</h3>
+													<p className="text-sm text-muted-foreground truncate">
+														{profile?.email || ""}
+													</p>
+												</div>
+												<Separator />
+												<p className="text-xs text-muted-foreground">
+													{profile?.phone && (
+														<span dir="ltr">
+															{profile.phone}
+														</span>
+													)}
 												</p>
 											</div>
-											<Separator />
-											<p className="text-xs text-muted-foreground">
-												{profile?.phone && (
-													<span dir="ltr">
-														{profile.phone}
-													</span>
-												)}
-											</p>
 										</div>
-									</div>
-								</Card>
+									</Card>
+								)}
 
 								{/* Admin View Toggle */}
 								{isAdmin && (
@@ -326,7 +333,7 @@ export default function DashboardSidebar({ items }: { items: Item[] }) {
 												<ArrowRightLeft className="w-4 h-4 text-amber-600 dark:text-amber-400" />
 												<span className="text-sm font-semibold text-amber-900 dark:text-amber-100">
 													{isAdminView
-														? "عودت به حساب"
+														? "رفتن به پنل کاربری"
 														: "رفتن به پنل مدیریت"}
 												</span>
 											</div>
@@ -337,27 +344,44 @@ export default function DashboardSidebar({ items }: { items: Item[] }) {
 								{/* Navigation Menu */}
 								<Card className="p-2">
 									<nav className="space-y-1">
-										{(isAdminView
+										{(items &&
+										items?.length > 0 &&
+										isAdminView
 											? items
 											: navigationItems
 										).map((item) => {
 											const allowed = hasPermission(item);
 											const content = (
 												<motion.div
-													whileHover={allowed ? { x: -5, scale: 0.97 } : {}}
-													whileTap={allowed ? { scale: 0.94 } : {}}
+													whileHover={
+														allowed
+															? {
+																	x: -5,
+																	scale: 0.97,
+																}
+															: {}
+													}
+													whileTap={
+														allowed
+															? { scale: 0.94 }
+															: {}
+													}
 													className={`flex items-center justify-between p-3 rounded-lg transition-colors ${
 														!allowed
 															? "opacity-40 cursor-not-allowed"
-															: isActive(item.href)
-															? "bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/5 text-primary-rose font-semibold"
-															: "hover:bg-muted/50"
+															: isActive(
+																		item.href,
+																  )
+																? "bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/5 text-primary-rose font-semibold"
+																: "hover:bg-muted/50"
 													}`}
 												>
 													<div className="flex items-center gap-3">
 														<item.icon
 															className={`w-5 h-5 ${
-																isActive(item.href)
+																isActive(
+																	item.href,
+																)
 																	? "text-primary-rose"
 																	: "text-muted-foreground"
 															}`}
@@ -368,10 +392,13 @@ export default function DashboardSidebar({ items }: { items: Item[] }) {
 													</div>
 													<div className="flex items-center gap-2">
 														{"badge" in item &&
-															item.badge !== null && (
+															item.badge !==
+																null && (
 																<Badge
 																	variant={
-																		isActive(item.href)
+																		isActive(
+																			item.href,
+																		)
 																			? "default"
 																			: "secondary"
 																	}
@@ -384,7 +411,9 @@ export default function DashboardSidebar({ items }: { items: Item[] }) {
 																	)}
 																</Badge>
 															)}
-														{isActive(item.href) && (
+														{isActive(
+															item.href,
+														) && (
 															<ChevronLeft className="w-4 h-4" />
 														)}
 													</div>
@@ -394,7 +423,9 @@ export default function DashboardSidebar({ items }: { items: Item[] }) {
 												<Link
 													key={item.href}
 													href={item.href}
-													onClick={() => setSidebarOpen(false)}
+													onClick={() =>
+														setSidebarOpen(false)
+													}
 												>
 													{content}
 												</Link>
@@ -412,7 +443,7 @@ export default function DashboardSidebar({ items }: { items: Item[] }) {
 							</div>
 
 							{/* Bottom Actions - always visible */}
-							<div className="px-4 pb-4 pt-2 flex-shrink-0">
+							<div className="px-4 pb-24 pt-2 flex-shrink-0">
 								<Card className="p-2">
 									<nav className="space-y-1">
 										{bottomNavigationItems.map((item) => {
@@ -425,41 +456,49 @@ export default function DashboardSidebar({ items }: { items: Item[] }) {
 														if (isLogout) {
 															handleLogout();
 														} else {
-															setSidebarOpen(false);
+															setSidebarOpen(
+																false,
+															);
 														}
 													}}
 												>
 													{!isLogout ? (
-														<Link href={item.href}>
-															<motion.div
-																whileHover={{
-																	x: -5,
-																}}
-																whileTap={{
-																	scale: 0.98,
-																}}
-																className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
-																	isActive(
-																		item.href,
-																	)
-																		? "bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/5 text-primary-rose font-semibold"
-																		: "hover:bg-muted/50"
-																}`}
+														!isAdminView && (
+															<Link
+																href={item.href}
 															>
-																<item.icon
-																	className={`w-5 h-5 ${
+																<motion.div
+																	whileHover={{
+																		x: -5,
+																	}}
+																	whileTap={{
+																		scale: 0.98,
+																	}}
+																	className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
 																		isActive(
 																			item.href,
 																		)
-																			? "text-primary-rose"
-																			: "text-muted-foreground"
+																			? "bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/5 text-primary-rose font-semibold"
+																			: "hover:bg-muted/50"
 																	}`}
-																/>
-																<span className="text-sm">
-																	{item.title}
-																</span>
-															</motion.div>
-														</Link>
+																>
+																	<item.icon
+																		className={`w-5 h-5 ${
+																			isActive(
+																				item.href,
+																			)
+																				? "text-primary-rose"
+																				: "text-muted-foreground"
+																		}`}
+																	/>
+																	<span className="text-sm">
+																		{
+																			item.title
+																		}
+																	</span>
+																</motion.div>
+															</Link>
+														)
 													) : (
 														<motion.button
 															whileHover={{

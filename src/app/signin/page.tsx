@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import InputFree from "@/components/Custom/Input/InputFree";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
-import useUserStore from "@/store/userStore/userStore";
+import useUserStore from "@/store/useUserStore";
 import { sendOTP, verifyOTP } from "@/services/authService";
 import { patchData } from "@/services/services";
 
@@ -227,7 +227,7 @@ export default function SignIn() {
 				transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1], delay: 0.1 }}
 				className="w-full md:max-w-5xl md:mx-4 relative z-10 flex-1 md:flex-none"
 			>
-				<div className="grid md:grid-cols-2 gap-0 md:rounded-2xl overflow-hidden md:shadow-[0_32px_80px_rgba(0,0,0,0.6)] h-full md:h-auto">
+				<div className="grid md:grid-cols-2 px-4 lg:px-0 gap-0 md:rounded-2xl overflow-hidden md:shadow-[0_32px_80px_rgba(0,0,0,0.6)] h-full md:h-auto">
 
 					{/* Left panel — desktop only */}
 					<div className="hidden md:flex bg-[oklch(13%_0.025_320)] p-14 flex-col justify-between text-white overflow-hidden">
@@ -236,9 +236,9 @@ export default function SignIn() {
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ delay: 0.3, duration: 0.55, ease: [0.25, 1, 0.5, 1] }}
 						>
-							<p className="text-xs font-medium tracking-[0.22em] uppercase text-white/35 mb-10">
+							{/* <p className="text-xs font-medium tracking-[0.22em] uppercase text-white/35 mb-10">
 								زیبایی لوکس ایرانی
-							</p>
+							</p> */}
 							<h1 className="text-[clamp(4.5rem,8vw,7rem)] font-black leading-[0.88] tracking-tight">
 								Mahoura
 							</h1>
@@ -259,7 +259,7 @@ export default function SignIn() {
 
 					{/* Right panel — form */}
 					<div
-						className="bg-white dark:bg-[oklch(14%_0.025_320)] rounded-t-[2rem] landscape:rounded-t-none md:rounded-none px-7 pt-9 pb-10 sm:px-10 sm:pt-11 sm:pb-12 md:px-14 md:py-16 flex flex-col justify-center md:block"
+						className="bg-white dark:bg-[oklch(14%_0.025_320)] rounded-t-[2rem] landscape:rounded-t-none rounded-b-[2rem] landscape:rounded-b-none md:rounded-none px-7 pt-9 pb-10 sm:px-10 sm:pt-11 sm:pb-12 md:px-14 md:py-16 flex flex-col justify-center md:block"
 						style={{ paddingBottom: "max(2.5rem, env(safe-area-inset-bottom))" }}
 					>
 
@@ -330,7 +330,7 @@ export default function SignIn() {
 											<Button
 												type="submit"
 												disabled={isLoading || !firstName.trim() || !lastName.trim()}
-												className="w-full h-12 text-base font-semibold bg-secondary-plum hover:bg-secondary-plum/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-40"
+												className="w-full h-12 text-base text-white font-semibold bg-secondary-plum hover:bg-secondary-plum/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-40"
 											>
 												{isLoading ? (
 													<span className="flex items-center gap-2">
@@ -383,6 +383,8 @@ export default function SignIn() {
 												value={phone}
 												autoFocus
 												autoComplete="tel"
+												maxLength={11}
+												onlyDigits
 												onValueChange={(v) => { setPhone(v); setPhoneError(""); }}
 											/>
 											{phoneError && (
@@ -398,7 +400,7 @@ export default function SignIn() {
 											<Button
 												type="submit"
 												disabled={isLoading || !phone || !isValidPhone(phone)}
-												className="w-full h-12 text-base font-semibold bg-secondary-plum hover:bg-secondary-plum/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-40"
+												className="w-full h-12 text-base text-white font-semibold bg-secondary-plum hover:bg-secondary-plum/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-40"
 											>
 												{isLoading ? (
 													<span className="flex items-center gap-2">
@@ -487,7 +489,7 @@ export default function SignIn() {
 											<Button
 												type="submit"
 												disabled={isLoading || otp.join("").length < 6}
-												className="w-full h-12 text-base font-semibold bg-secondary-plum hover:bg-secondary-plum/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-40"
+												className="w-full h-12 text-base text-white font-semibold bg-secondary-plum hover:bg-secondary-plum/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-40"
 											>
 												{isLoading ? (
 													<span className="flex items-center gap-2">

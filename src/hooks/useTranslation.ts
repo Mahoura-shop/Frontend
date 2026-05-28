@@ -1,4 +1,4 @@
-import { useUIStore } from "../store/store";
+import { useUIStore } from "../store/useUIStore";
 import { translations, TranslationKey } from "../utils/translations";
 
 export function useTranslation() {

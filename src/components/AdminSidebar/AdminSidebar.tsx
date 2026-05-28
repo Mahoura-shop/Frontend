@@ -9,7 +9,7 @@ import logo from "@/assets/logo.png";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useDashboardMenuStore } from "@/store/useDashboardMenuStore";
-import useUserStore from "@/store/userStore/userStore";
+import useUserStore from "@/store/useUserStore";
 
 interface Item {
 	title: string;

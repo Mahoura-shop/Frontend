@@ -149,7 +149,7 @@ export default function Footer() {
 				>
 					<div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-6" />
 					<div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-white/30 text-xs">
-						<p>© 1404 ماهورا. تمامی حقوق محفوظ است.</p>
+						<p>© 1405 ماهورا. تمامی حقوق محفوظ است.</p>
 						<span>ساخته شده با عشق در ایران</span>
 					</div>
 				</motion.div>
