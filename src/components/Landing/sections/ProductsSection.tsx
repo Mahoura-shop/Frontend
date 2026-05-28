@@ -4,10 +4,12 @@ import Link from "next/link";
 import { formatPrice } from "@/utils/formatPrice";
 import { Badge } from "@/components/ui/badge";
 import MagneticButton from "@/components/Custom/Button/MagneticButton";
+import BackgroundPortraits from "@/components/BackgroundPortraits/BackgroundPortraits";
 
 export default function ProductsSection({ products }: { products: Product[] }) {
 	return (
-		<section className="bg-landing-background py-24 px-4 md:px-14">
+		<section className="relative overflow-hidden bg-landing-background py-24 px-4 md:px-14">
+			<BackgroundPortraits count={3} seed={7} />
 			<div className="max-w-[1300px] mx-auto">
 				<motion.div
 					initial={{ opacity: 0, y: 30 }}

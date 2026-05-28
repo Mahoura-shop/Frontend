@@ -3,6 +3,7 @@ import Footer from "@/components/Footer/Footer";
 import PageTransition from "@/components/PageTransition/PageTransition";
 import DashboardSidebar from "@/components/DashboardSidebar/DashboardSidebar";
 import PageWrapper from "@/components/PageWrapper/PageWrapper";
+import BackgroundPortraits from "@/components/BackgroundPortraits/BackgroundPortraits";
 
 export default function RootLayout({
 	children,
@@ -10,7 +11,8 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<>
+		<div className="relative">
+			<BackgroundPortraits mode="absolute" count={8} seed={5} />
 			<Navbar />
 			<DashboardSidebar />
 			<PageTransition>
@@ -18,6 +20,6 @@ export default function RootLayout({
 				{/* <PageWrapper>{children}</PageWrapper> */}
 			</PageTransition>
 			<Footer />
-		</>
+		</div>
 	);
 }

@@ -1,9 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion, TargetAndTransition } from "framer-motion";
-import portrait from "@/assets/landing/7385752.jpeg";
-import woman1 from "@/assets/landing/woman1.jpeg";
-import woman2 from "@/assets/landing/woman2.jpeg";
+import portrait from "@/assets/landing/7385752.png";
+import woman1 from "@/assets/landing/woman1.png";
+import woman2 from "@/assets/landing/woman2.png";
 // --- Types ---
 interface CardData {
 	id: number;

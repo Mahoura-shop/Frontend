@@ -7,6 +7,7 @@ import Magnet from "@/components/utils/Magnet";
 import CardStack from "@/components/Landing/CardStack/CardStack";
 import styles from "@/components/Landing/Landing.module.css";
 import type { PublicStats } from "@/services/statsService";
+import BackgroundPortraits from "@/components/BackgroundPortraits/BackgroundPortraits";
 
 function roundUsersCount(count: number): string {
 	if (count < 100) {
@@ -38,6 +39,8 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 						}}
 					/>
 				</div>
+
+				<BackgroundPortraits count={6} />
 
 				<div className="container mx-auto px-6 relative z-10 max-w-[1300px]">
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-20 items-end">

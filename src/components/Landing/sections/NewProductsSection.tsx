@@ -4,11 +4,12 @@ import { ShoppingBag, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/utils/formatPrice";
-
+import BackgroundPortraits from "@/components/BackgroundPortraits/BackgroundPortraits";
 
 export default function NewProductsSection({ newProducts }: { newProducts: Product[] }) {
 	return (
-		<section className="bg-landing-background py-24 px-4 md:px-14 overflow-hidden">
+		<section className="relative overflow-hidden bg-landing-background py-24 px-4 md:px-14">
+			<BackgroundPortraits count={3} seed={12} />
 			<div className="max-w-[1300px] mx-auto">
 				<motion.div
 					initial={{ opacity: 0, y: 30 }}
@@ -27,15 +28,15 @@ export default function NewProductsSection({ newProducts }: { newProducts: Produ
 					</div>
 					<Link
 						href="/products"
-						className="text-xs font-bold text-[#0D0B0A]/40 hover:text-[#0D0B0A] hover:gap-2.5 inline-flex items-center gap-1.5 transition-all flex-shrink-0"
+						className="text-xs font-bold text-foreground/40 hover:text-foreground hover:gap-2.5 inline-flex items-center gap-1.5 transition-all flex-shrink-0"
 					>
 						مشاهده همه
 						<ArrowLeft className="w-3 h-3" />
 					</Link>
 				</motion.div>
 
-				<div className="flex gap-4 overflow-x-auto pb-6 scroll-smooth">
-					{newProducts.map((prod, i) => (
+				<div className="flex gap-4 scroll-smooth">
+					{newProducts.slice(0, 5).map((prod, i) => (
 						<motion.div
 							key={prod.id}
 							initial={{ opacity: 0, y: 28 }}
@@ -57,10 +58,10 @@ export default function NewProductsSection({ newProducts }: { newProducts: Produ
 								)}
 							</div>
 							<div className="p-4">
-								<p className="text-xs text-[#0D0B0A]/30 font-bold mb-1">
+								<p className="text-xs text-foreground/30 font-bold mb-1">
 									{prod?.brand?.name}
 								</p>
-								<h4 className="text-sm font-bold mb-2.5 text-[#0D0B0A] line-clamp-1">
+								<h4 className="text-sm font-bold mb-2.5 text-foreground line-clamp-1">
 									{prod.name}
 								</h4>
 								<div className="flex items-center justify-between">

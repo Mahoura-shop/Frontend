@@ -2,10 +2,12 @@
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import BackgroundPortraits from "@/components/BackgroundPortraits/BackgroundPortraits";
 
 export default function CategoriesSection({ categories }: { categories: Category[] }) {
 	return (
-		<section className="bg-landing-background py-24 px-4 md:px-14">
+		<section className="relative overflow-hidden bg-landing-background py-24 px-4 md:px-14">
+			<BackgroundPortraits count={3} seed={2} />
 			<div className="max-w-[1300px] mx-auto">
 				<motion.div
 					initial={{ opacity: 0, y: 30 }}
