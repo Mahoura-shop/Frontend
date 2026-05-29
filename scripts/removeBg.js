@@ -10,7 +10,7 @@ const fs = require("fs");
 const INPUT_DIR = path.join(__dirname, "../src/assets/landing");
 // Pixels within this distance from pure white become transparent.
 // Lower = stricter (only pure white). Raise to 50+ if light-gray remnants remain.
-const THRESHOLD = 35;
+const THRESHOLD = 50;
 
 async function processImage(filePath) {
 	const image = sharp(filePath);

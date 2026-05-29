@@ -1,4 +1,5 @@
 "use client";
+import BackgroundPortraits from "@/components/BackgroundPortraits/BackgroundPortraits";
 import { motion } from "framer-motion";
 
 const ITEMS = [
@@ -25,7 +26,10 @@ export default function MarqueeSection() {
 				className="flex flex-row-reverse whitespace-nowrap ltr w-fit"
 			>
 				{[...Array(2)].map((_, batch) => (
-					<div key={batch} className="flex flex-row-reverse items-center">
+					<div
+						key={batch}
+						className="flex flex-row-reverse items-center"
+					>
 						{ITEMS.map((item, i) => (
 							<div
 								key={`${batch}-${i}`}

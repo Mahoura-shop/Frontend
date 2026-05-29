@@ -5,11 +5,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Magnet from "@/components/utils/Magnet";
 import Grainient from "@/components/ReactBits/Grainient/Grainient";
+import BackgroundPortraits from "@/components/BackgroundPortraits/BackgroundPortraits";
 
 export default function BrandSection() {
 	return (
 		<>
-			<div style={{ width: "100%", height: "600px", position: "absolute" }}>
+			<div
+				style={{ width: "100%", height: "600px", position: "absolute" }}
+			>
 				<Grainient
 					color1="#D4A5A5"
 					color2="#6B4E71"
@@ -35,6 +38,7 @@ export default function BrandSection() {
 					zoom={0.9}
 				/>
 			</div>
+			{/* <BackgroundPortraits count={4} seed={79} /> */}
 			<section className="px-4 md:px-14 relative overflow-hidden h-screen m-auto flex place-items-center">
 				<div className="max-w-[900px] mx-auto flex place-content-center align-middle place-items-center text-center relative z-10">
 					<motion.div
@@ -55,7 +59,8 @@ export default function BrandSection() {
 
 						<p className="text-lg mb-12 font-bold max-w-[580px] mx-auto leading-[1.85]">
 							ماهورا با انتخاب بهترین محصولات آرایشی و بهداشتی،
-							تجربه‌ای منحصربه‌فرد از زیبایی را برای شما به ارمغان می‌آورد
+							تجربه‌ای منحصربه‌فرد از زیبایی را برای شما به ارمغان
+							می‌آورد
 						</p>
 
 						<Magnet>

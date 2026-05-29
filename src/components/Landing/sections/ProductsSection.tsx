@@ -9,7 +9,7 @@ import BackgroundPortraits from "@/components/BackgroundPortraits/BackgroundPort
 export default function ProductsSection({ products }: { products: Product[] }) {
 	return (
 		<section className="relative overflow-hidden bg-landing-background py-24 px-4 md:px-14">
-			<BackgroundPortraits count={3} seed={7} />
+			{/* <BackgroundPortraits count={4} seed={7} /> */}
 			<div className="max-w-[1300px] mx-auto">
 				<motion.div
 					initial={{ opacity: 0, y: 30 }}

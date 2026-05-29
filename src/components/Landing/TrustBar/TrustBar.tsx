@@ -3,6 +3,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { ShoppingBag, ShieldCheck, RefreshCcw, Headphones } from "lucide-react";
 import SpotlightCard from "@/components/ReactBits/SpotlightCard/SpotlightCard";
+import BackgroundPortraits from "@/components/BackgroundPortraits/BackgroundPortraits";
 
 const items = [
 	{
@@ -30,6 +31,7 @@ const items = [
 const TrustBar = () => {
 	return (
 		<section className="bg-landing-background py-20 px-6 md:px-14 no-select">
+			{/* <BackgroundPortraits count={2} seed={8} /> */}
 			<div className="max-w-[1300px] mx-auto">
 				<div className="border border-border shadow-sm rounded-2xl">
 					<SpotlightCard

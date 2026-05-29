@@ -1,4 +1,5 @@
 "use client";
+import BackgroundPortraits from "@/components/BackgroundPortraits/BackgroundPortraits";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -19,7 +20,11 @@ export default function BrandsMarquee({ brands }: { brands: Brand[] }) {
 			<div className="relative flex overflow-hidden ltr">
 				<motion.div
 					animate={{ x: ["0%", "-50%"] }}
-					transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+					transition={{
+						duration: 30,
+						repeat: Infinity,
+						ease: "linear",
+					}}
 					className="flex flex-row-reverse gap-6 shrink-0 py-8 w-fit "
 				>
 					{items.map((brand, i) => (

@@ -10,6 +10,7 @@ import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import useUserStore from "@/store/useUserStore";
 import { sendOTP, verifyOTP } from "@/services/authService";
 import { patchData } from "@/services/services";
+import BackgroundPortraits from "@/components/BackgroundPortraits/BackgroundPortraits";
 
 const spring = { type: "spring", stiffness: 400, damping: 30 };
 const stepVariants = {
@@ -30,7 +31,15 @@ export default function SignIn() {
 	const [stepAnnouncement, setStepAnnouncement] = useState("");
 	const shouldReduceMotion = useReducedMotion();
 	const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
-	const { setAccessToken, setRefreshToken, setFirstName: storeSetFirstName, setLastName: storeSetLastName, setIsAdmin, setUserType, setPermissions } = useUserStore();
+	const {
+		setAccessToken,
+		setRefreshToken,
+		setFirstName: storeSetFirstName,
+		setLastName: storeSetLastName,
+		setIsAdmin,
+		setUserType,
+		setPermissions,
+	} = useUserStore();
 	const router = useRouter();
 
 	useEffect(() => {
@@ -75,36 +84,53 @@ export default function SignIn() {
 		}
 	};
 
-	const handleVerifyOTP = useCallback(async (e: React.FormEvent) => {
-		e.preventDefault();
-		const code = otp.join("");
-		if (code.length < 6) return;
-		setIsLoading(true);
-		try {
-			const data = await verifyOTP(phone, code);
-			setAccessToken(data?.data?.accessToken);
-			setRefreshToken(data?.data?.refreshToken);
-			storeSetFirstName(data?.data?.firstName ?? "");
-			storeSetLastName(data?.data?.lastName ?? "");
-			setIsAdmin(data?.data?.isAdmin ?? false);
-			setUserType(data?.data?.type ?? "regular");
-			setPermissions(data?.data?.permissions ?? []);
-			CustomToast("خوش آمدید!", "success");
+	const handleVerifyOTP = useCallback(
+		async (e: React.FormEvent) => {
+			e.preventDefault();
+			const code = otp.join("");
+			if (code.length < 6) return;
+			setIsLoading(true);
+			try {
+				const data = await verifyOTP(phone, code);
+				setAccessToken(data?.data?.accessToken);
+				setRefreshToken(data?.data?.refreshToken);
+				storeSetFirstName(data?.data?.firstName ?? "");
+				storeSetLastName(data?.data?.lastName ?? "");
+				setIsAdmin(data?.data?.isAdmin ?? false);
+				setUserType(data?.data?.type ?? "regular");
+				setPermissions(data?.data?.permissions ?? []);
+				CustomToast("خوش آمدید!", "success");
 
-			const returnedFirstName = data?.data?.firstName ?? "";
-			const returnedLastName = data?.data?.lastName ?? "";
+				const returnedFirstName = data?.data?.firstName ?? "";
+				const returnedLastName = data?.data?.lastName ?? "";
 
-			if (!returnedFirstName || !returnedLastName) {
-				setStep("name");
-			} else {
-				router.push(data?.data?.isAdmin ? "/admin/dashboard" : "/");
+				if (!returnedFirstName || !returnedLastName) {
+					setStep("name");
+				} else {
+					router.push(data?.data?.isAdmin ? "/admin/dashboard" : "/");
+				}
+			} catch {
+				CustomToast(
+					"کد وارد شده اشتباه است. لطفا دوباره امتحان کنید",
+					"error",
+				);
+			} finally {
+				setIsLoading(false);
 			}
-		} catch {
-			CustomToast("کد وارد شده اشتباه است. لطفا دوباره امتحان کنید", "error");
-		} finally {
-			setIsLoading(false);
-		}
-	}, [otp, phone, setAccessToken, setRefreshToken, storeSetFirstName, storeSetLastName, setIsAdmin, setUserType, setPermissions, router]);
+		},
+		[
+			otp,
+			phone,
+			setAccessToken,
+			setRefreshToken,
+			storeSetFirstName,
+			storeSetLastName,
+			setIsAdmin,
+			setUserType,
+			setPermissions,
+			router,
+		],
+	);
 
 	const handleCompleteName = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -137,14 +163,19 @@ export default function SignIn() {
 		const digits = code.replace(/\D/g, "").slice(0, 6).split("");
 		if (digits.length === 0) return;
 		const next = ["", "", "", "", "", ""];
-		digits.forEach((d, i) => { next[i] = d; });
+		digits.forEach((d, i) => {
+			next[i] = d;
+		});
 		setOtp(next);
 		const lastFilled = Math.min(digits.length, 5);
 		otpRefs.current[lastFilled]?.focus();
 	};
 
 	const handleOtpChange = (index: number, value: string) => {
-		if (value.length > 1) { fillOtp(value); return; }
+		if (value.length > 1) {
+			fillOtp(value);
+			return;
+		}
 		if (!/^\d?$/.test(value)) return;
 		const next = [...otp];
 		next[index] = value;
@@ -170,7 +201,9 @@ export default function SignIn() {
 		const ac = new AbortController();
 		(navigator.credentials as any)
 			.get({ otp: { transport: ["sms"] }, signal: ac.signal })
-			.then((cred: any) => { if (cred?.code) fillOtp(cred.code); })
+			.then((cred: any) => {
+				if (cred?.code) fillOtp(cred.code);
+			})
 			.catch(() => {});
 		return () => ac.abort();
 	}, [step]);
@@ -191,7 +224,10 @@ export default function SignIn() {
 			setResendTimer(60);
 			otpRefs.current[0]?.focus();
 		} catch {
-			CustomToast("خطا در ارسال مجدد کد. لطفا دوباره امتحان کنید", "error");
+			CustomToast(
+				"خطا در ارسال مجدد کد. لطفا دوباره امتحان کنید",
+				"error",
+			);
 		} finally {
 			setIsLoading(false);
 		}
@@ -200,10 +236,18 @@ export default function SignIn() {
 	return (
 		<div
 			className="min-h-[100dvh] flex flex-col md:items-center md:justify-center relative overflow-x-hidden overflow-y-auto bg-[#1a0f1e]"
-			style={{ backgroundImage: "radial-gradient(ellipse 90% 60% at 0% 100%, oklch(20% 0.035 312) 0%, transparent 55%)" }}
+			style={{
+				backgroundImage:
+					"radial-gradient(ellipse 90% 60% at 0% 100%, oklch(20% 0.035 312) 0%, transparent 55%)",
+			}}
 		>
-
-			<div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+			<BackgroundPortraits mode="absolute" count={10} seed={12} />
+			<div
+				role="status"
+				aria-live="polite"
+				aria-atomic="true"
+				className="sr-only"
+			>
 				{stepAnnouncement}
 			</div>
 
@@ -215,8 +259,12 @@ export default function SignIn() {
 					transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
 					className="flex flex-col items-center"
 				>
-					<h1 className="text-4xl landscape:text-2xl font-black text-white tracking-tight mb-2 landscape:mb-1">Mahoura</h1>
-					<p className="text-white/40 text-xs tracking-[0.2em] uppercase">زیبایی لوکس ایرانی</p>
+					<h1 className="text-4xl landscape:text-2xl font-black text-white tracking-tight mb-2 landscape:mb-1">
+						Mahoura
+					</h1>
+					<p className="text-white/40 text-xs tracking-[0.2em] uppercase">
+						زیبایی لوکس ایرانی
+					</p>
 				</motion.div>
 			</div>
 
@@ -224,17 +272,24 @@ export default function SignIn() {
 			<motion.div
 				initial={{ opacity: 0, y: 40, scale: 0.97 }}
 				animate={{ opacity: 1, y: 0, scale: 1 }}
-				transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1], delay: 0.1 }}
+				transition={{
+					duration: 0.5,
+					ease: [0.25, 1, 0.5, 1],
+					delay: 0.1,
+				}}
 				className="w-full md:max-w-5xl md:mx-4 relative z-10 flex-1 md:flex-none"
 			>
 				<div className="grid md:grid-cols-2 px-4 lg:px-0 gap-0 md:rounded-2xl overflow-hidden md:shadow-[0_32px_80px_rgba(0,0,0,0.6)] h-full md:h-auto">
-
 					{/* Left panel — desktop only */}
 					<div className="hidden md:flex bg-[oklch(13%_0.025_320)] p-14 flex-col justify-between text-white overflow-hidden">
 						<motion.div
 							initial={{ opacity: 0, y: -20 }}
 							animate={{ opacity: 1, y: 0 }}
-							transition={{ delay: 0.3, duration: 0.55, ease: [0.25, 1, 0.5, 1] }}
+							transition={{
+								delay: 0.3,
+								duration: 0.55,
+								ease: [0.25, 1, 0.5, 1],
+							}}
 						>
 							{/* <p className="text-xs font-medium tracking-[0.22em] uppercase text-white/35 mb-10">
 								زیبایی لوکس ایرانی
@@ -250,8 +305,10 @@ export default function SignIn() {
 							transition={{ delay: 0.75, duration: 0.5 }}
 						>
 							<p className="text-sm text-white/45 leading-loose">
-								محصولات لوکس اصل.<br />
-								تحویل سریع.<br />
+								محصولات لوکس اصل.
+								<br />
+								تحویل سریع.
+								<br />
 								پشتیبانی دائم.
 							</p>
 						</motion.div>
@@ -260,9 +317,11 @@ export default function SignIn() {
 					{/* Right panel — form */}
 					<div
 						className="bg-white dark:bg-[oklch(14%_0.025_320)] rounded-t-[2rem] landscape:rounded-t-none rounded-b-[2rem] landscape:rounded-b-none md:rounded-none px-7 pt-9 pb-10 sm:px-10 sm:pt-11 sm:pb-12 md:px-14 md:py-16 flex flex-col justify-center md:block"
-						style={{ paddingBottom: "max(2.5rem, env(safe-area-inset-bottom))" }}
+						style={{
+							paddingBottom:
+								"max(2.5rem, env(safe-area-inset-bottom))",
+						}}
 					>
-
 						<AnimatePresence mode="wait">
 							{step === "name" ? (
 								<motion.div
@@ -271,7 +330,10 @@ export default function SignIn() {
 									initial="enter"
 									animate="center"
 									exit="exit"
-									transition={{ duration: 0.28, ease: "easeOut" }}
+									transition={{
+										duration: 0.28,
+										ease: "easeOut",
+									}}
 								>
 									{/* Step header */}
 									<div className="mb-9">
@@ -293,7 +355,10 @@ export default function SignIn() {
 										</motion.p>
 									</div>
 
-									<form onSubmit={handleCompleteName} className="space-y-4">
+									<form
+										onSubmit={handleCompleteName}
+										className="space-y-4"
+									>
 										<motion.div
 											initial={{ opacity: 0, y: 12 }}
 											animate={{ opacity: 1, y: 0 }}
@@ -329,15 +394,24 @@ export default function SignIn() {
 										>
 											<Button
 												type="submit"
-												disabled={isLoading || !firstName.trim() || !lastName.trim()}
+												disabled={
+													isLoading ||
+													!firstName.trim() ||
+													!lastName.trim()
+												}
 												className="w-full h-12 text-base text-white font-semibold bg-secondary-plum hover:bg-secondary-plum/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-40"
 											>
 												{isLoading ? (
 													<span className="flex items-center gap-2">
-														<Loader className="w-4 h-4 animate-spin" aria-hidden="true" />
+														<Loader
+															className="w-4 h-4 animate-spin"
+															aria-hidden="true"
+														/>
 														در حال ذخیره...
 													</span>
-												) : "تایید و ورود"}
+												) : (
+													"تایید و ورود"
+												)}
 											</Button>
 										</motion.div>
 									</form>
@@ -349,7 +423,10 @@ export default function SignIn() {
 									initial="enter"
 									animate="center"
 									exit="exit"
-									transition={{ duration: 0.28, ease: "easeOut" }}
+									transition={{
+										duration: 0.28,
+										ease: "easeOut",
+									}}
 								>
 									{/* Step header */}
 									<div className="mb-9">
@@ -371,7 +448,10 @@ export default function SignIn() {
 										</motion.p>
 									</div>
 
-									<form onSubmit={handleSendOTP} className="space-y-6">
+									<form
+										onSubmit={handleSendOTP}
+										className="space-y-6"
+									>
 										<motion.div
 											initial={{ opacity: 0, y: 12 }}
 											animate={{ opacity: 1, y: 0 }}
@@ -385,10 +465,15 @@ export default function SignIn() {
 												autoComplete="tel"
 												maxLength={11}
 												onlyDigits
-												onValueChange={(v) => { setPhone(v); setPhoneError(""); }}
+												onValueChange={(v) => {
+													setPhone(v);
+													setPhoneError("");
+												}}
 											/>
 											{phoneError && (
-												<p className="mt-1.5 text-xs text-red-500 text-right">{phoneError}</p>
+												<p className="mt-1.5 text-xs text-red-500 text-right">
+													{phoneError}
+												</p>
 											)}
 										</motion.div>
 
@@ -399,15 +484,24 @@ export default function SignIn() {
 										>
 											<Button
 												type="submit"
-												disabled={isLoading || !phone || !isValidPhone(phone)}
+												disabled={
+													isLoading ||
+													!phone ||
+													!isValidPhone(phone)
+												}
 												className="w-full h-12 text-base text-white font-semibold bg-secondary-plum hover:bg-secondary-plum/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-40"
 											>
 												{isLoading ? (
 													<span className="flex items-center gap-2">
-														<Loader className="w-4 h-4 animate-spin" aria-hidden="true" />
+														<Loader
+															className="w-4 h-4 animate-spin"
+															aria-hidden="true"
+														/>
 														در حال ارسال...
 													</span>
-												) : "دریافت کد تایید"}
+												) : (
+													"دریافت کد تایید"
+												)}
 											</Button>
 										</motion.div>
 									</form>
@@ -419,7 +513,10 @@ export default function SignIn() {
 									initial="enter"
 									animate="center"
 									exit="exit"
-									transition={{ duration: 0.28, ease: "easeOut" }}
+									transition={{
+										duration: 0.28,
+										ease: "easeOut",
+									}}
 								>
 									{/* Step header */}
 									<div className="mb-9">
@@ -438,12 +535,20 @@ export default function SignIn() {
 											className="text-muted-foreground text-sm sm:text-base"
 										>
 											کد ارسال شده به{" "}
-											<span className="font-medium text-foreground" dir="ltr">{phone}</span>{" "}
+											<span
+												className="font-medium text-foreground"
+												dir="ltr"
+											>
+												{phone}
+											</span>{" "}
 											را وارد کنید
 										</motion.p>
 									</div>
 
-									<form onSubmit={handleVerifyOTP} className="space-y-7">
+									<form
+										onSubmit={handleVerifyOTP}
+										className="space-y-7"
+									>
 										{/* OTP boxes */}
 										<motion.div
 											role="group"
@@ -457,17 +562,46 @@ export default function SignIn() {
 											{otp.map((digit, i) => (
 												<motion.input
 													key={i}
-													ref={(el) => { otpRefs.current[i] = el; }}
+													ref={(el) => {
+														otpRefs.current[i] = el;
+													}}
 													type="text"
 													inputMode="numeric"
 													maxLength={1}
 													aria-label={`رقم ${i + 1} از ۶`}
-													autoComplete={i === 0 ? "one-time-code" : "off"}
+													autoComplete={
+														i === 0
+															? "one-time-code"
+															: "off"
+													}
 													value={digit}
-													onChange={(e) => handleOtpChange(i, e.target.value)}
-													onKeyDown={(e) => handleOtpKeyDown(i, e)}
-													onPaste={i === 0 ? handleOtpPaste : undefined}
-													animate={shouldReduceMotion ? {} : (digit ? { scale: [1, 1.08, 1] } : { scale: 1 })}
+													onChange={(e) =>
+														handleOtpChange(
+															i,
+															e.target.value,
+														)
+													}
+													onKeyDown={(e) =>
+														handleOtpKeyDown(i, e)
+													}
+													onPaste={
+														i === 0
+															? handleOtpPaste
+															: undefined
+													}
+													animate={
+														shouldReduceMotion
+															? {}
+															: digit
+																? {
+																		scale: [
+																			1,
+																			1.08,
+																			1,
+																		],
+																	}
+																: { scale: 1 }
+													}
 													transition={spring}
 													autoFocus={i === 0}
 													className={[
@@ -488,12 +622,18 @@ export default function SignIn() {
 										>
 											<Button
 												type="submit"
-												disabled={isLoading || otp.join("").length < 6}
+												disabled={
+													isLoading ||
+													otp.join("").length < 6
+												}
 												className="w-full h-12 text-base text-white font-semibold bg-secondary-plum hover:bg-secondary-plum/90 active:scale-[0.98] transition-all duration-200 disabled:opacity-40"
 											>
 												{isLoading ? (
 													<span className="flex items-center gap-2">
-														<Loader className="w-4 h-4 animate-spin" aria-hidden="true" />
+														<Loader
+															className="w-4 h-4 animate-spin"
+															aria-hidden="true"
+														/>
 														در حال بررسی...
 													</span>
 												) : (
@@ -520,7 +660,17 @@ export default function SignIn() {
 											</button>
 											<button
 												type="button"
-												onClick={() => { setStep("phone"); setOtp(["", "", "", "", "", ""]); }}
+												onClick={() => {
+													setStep("phone");
+													setOtp([
+														"",
+														"",
+														"",
+														"",
+														"",
+														"",
+													]);
+												}}
 												className="min-h-[44px] px-3 text-xs text-muted-foreground hover:text-foreground transition-colors"
 											>
 												تغییر شماره

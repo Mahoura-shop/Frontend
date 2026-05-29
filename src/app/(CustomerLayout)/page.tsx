@@ -10,6 +10,7 @@ import BrandsMarquee from "@/components/Landing/sections/BrandsMarquee";
 import { getPublicStats, type PublicStats } from "@/services/statsService";
 import { productService } from "@/services/productService";
 import { getData } from "@/services/services";
+import BackgroundPortraits from "@/components/BackgroundPortraits/BackgroundPortraits";
 
 export const metadata: Metadata = {
 	title: "ماهورا — فروشگاه آرایشی و بهداشتی",
@@ -70,13 +71,16 @@ export default async function LandingPage() {
 
 	return (
 		<div>
+			<BackgroundPortraits mode="absolute" count={20} seed={5} />
 			<HeroSection stats={stats} />
 			<MarqueeSection />
 			<TrustBar />
 			<CategoriesSection categories={categories} />
 			<ProductsSection products={products.slice(0, 6)} />
 			<BrandSection />
-			{newProducts.length > 0 && <NewProductsSection newProducts={newProducts} />}
+			{newProducts.length > 0 && (
+				<NewProductsSection newProducts={newProducts} />
+			)}
 			<BrandsMarquee brands={brands} />
 		</div>
 	);

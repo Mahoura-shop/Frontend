@@ -1,9 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion, TargetAndTransition } from "framer-motion";
-import portrait from "@/assets/landing/7385752.png";
-import woman1 from "@/assets/landing/woman1.png";
-import woman2 from "@/assets/landing/woman2.png";
+import image1 from "@/assets/landing/image12.png";
+import image2 from "@/assets/landing/image1.png";
+import image3 from "@/assets/landing/image38.png";
 // --- Types ---
 interface CardData {
 	id: number;
@@ -111,21 +111,21 @@ const SLOT_TRANSITIONS = [
 const cardIcons: Record<number, (hue: number) => React.ReactNode> = {
 	3: (_hue) => (
 		<img
-			src={woman1.src}
+			src={image1.src}
 			alt=""
 			className="w-[88%] max-h-full object-contain mix-blend-multiply dark:invert dark:mix-blend-screen opacity-80 dark:opacity-70"
 		/>
 	),
 	2: (_hue) => (
 		<img
-			src={woman2.src}
+			src={image2.src}
 			alt=""
 			className="w-[88%] max-h-full object-contain mix-blend-multiply dark:invert dark:mix-blend-screen opacity-80 dark:opacity-70"
 		/>
 	),
 	1: (_hue) => (
 		<img
-			src={portrait.src}
+			src={image3.src}
 			alt=""
 			className="w-[88%] max-h-full object-contain mix-blend-multiply dark:invert dark:mix-blend-screen opacity-80 dark:opacity-70"
 		/>

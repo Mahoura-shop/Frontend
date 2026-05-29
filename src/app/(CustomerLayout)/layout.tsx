@@ -12,7 +12,7 @@ export default function RootLayout({
 }>) {
 	return (
 		<div className="relative">
-			<BackgroundPortraits mode="absolute" count={8} seed={5} />
+			{/* <BackgroundPortraits mode="absolute" count={20} seed={3} /> */}
 			<Navbar />
 			<DashboardSidebar />
 			<PageTransition>

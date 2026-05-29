@@ -40,7 +40,7 @@ export default function HeroSection({ stats }: { stats: PublicStats | null }) {
 					/>
 				</div>
 
-				<BackgroundPortraits count={6} />
+				{/* <BackgroundPortraits count={8} seed={0} /> */}
 
 				<div className="container mx-auto px-6 relative z-10 max-w-[1300px]">
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-20 items-end">

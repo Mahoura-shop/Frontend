@@ -9,11 +9,16 @@ import { useCategoryStore } from "@/store/useCategoryStore";
 import { useProductStore } from "@/store/useProductStore";
 import { useCartStore } from "@/store/useCartStore";
 import useUserStore from "@/store/useUserStore";
-import { getWishlist, addToWishlist, removeFromWishlist } from "@/services/wishlistService";
+import {
+	getWishlist,
+	addToWishlist,
+	removeFromWishlist,
+} from "@/services/wishlistService";
 import { ProductGridSkeleton } from "@/components/ui/product-card-skeleton";
 import { Pagination } from "@/components/ui/pagination";
 import ProductCard from "@/components/products/ProductCard";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
+import BackgroundPortraits from "@/components/BackgroundPortraits/BackgroundPortraits";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -36,14 +41,21 @@ export default function CategoryDetailClient() {
 
 	const category = categories.find((c) => c.slug === slug);
 
-	const loadProducts = useCallback(async (categoryId: number, page: number) => {
-		setIsLoading(true);
-		try {
-			await fetchProducts({ categoryID: categoryId, limit: ITEMS_PER_PAGE, offset: (page - 1) * ITEMS_PER_PAGE });
-		} finally {
-			setIsLoading(false);
-		}
-	}, [fetchProducts]);
+	const loadProducts = useCallback(
+		async (categoryId: number, page: number) => {
+			setIsLoading(true);
+			try {
+				await fetchProducts({
+					categoryID: categoryId,
+					limit: ITEMS_PER_PAGE,
+					offset: (page - 1) * ITEMS_PER_PAGE,
+				});
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[fetchProducts],
+	);
 
 	useEffect(() => {
 		if (!category) return;
@@ -57,7 +69,13 @@ export default function CategoryDetailClient() {
 	useEffect(() => {
 		if (!accessToken) return;
 		getWishlist()
-			.then((res) => setWishlistIds(new Set((res?.data ?? []).map((item: any) => item.product.id))))
+			.then((res) =>
+				setWishlistIds(
+					new Set(
+						(res?.data ?? []).map((item: any) => item.product.id),
+					),
+				),
+			)
 			.catch(() => {});
 	}, [accessToken]);
 
@@ -76,18 +94,27 @@ export default function CategoryDetailClient() {
 		try {
 			await addItem(productId);
 		} catch (error: any) {
-			CustomToast(error?.response?.data?.message || "خطایی رخ داد", "error");
+			CustomToast(
+				error?.response?.data?.message || "خطایی رخ داد",
+				"error",
+			);
 		} finally {
 			setAddingId(null);
 		}
 	};
 
-	const handleRemoveFromCart = async (e: React.MouseEvent, productId: number) => {
+	const handleRemoveFromCart = async (
+		e: React.MouseEvent,
+		productId: number,
+	) => {
 		e.preventDefault();
 		await removeItem(productId);
 	};
 
-	const handleToggleWishlist = async (e: React.MouseEvent, productId: number) => {
+	const handleToggleWishlist = async (
+		e: React.MouseEvent,
+		productId: number,
+	) => {
 		e.preventDefault();
 		if (!accessToken) {
 			CustomToast("برای افزودن به علاقه‌مندی‌ها وارد شوید", "error");
@@ -97,14 +124,19 @@ export default function CategoryDetailClient() {
 		try {
 			if (wishlistIds.has(productId)) {
 				await removeFromWishlist(productId);
-				setWishlistIds((prev) => { const next = new Set(prev); next.delete(productId); return next; });
+				setWishlistIds((prev) => {
+					const next = new Set(prev);
+					next.delete(productId);
+					return next;
+				});
 				CustomToast("از علاقه‌مندی‌ها حذف شد", "success");
 			} else {
 				await addToWishlist(productId);
 				setWishlistIds((prev) => new Set([...prev, productId]));
 				CustomToast("به علاقه‌مندی‌ها اضافه شد", "success");
 			}
-		} catch {} finally {
+		} catch {
+		} finally {
 			setWishlistingId(null);
 		}
 	};
@@ -112,7 +144,9 @@ export default function CategoryDetailClient() {
 	if (categories.length > 0 && !category) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
-				<p className="text-muted-foreground">دسته‌بندی‌ای با این مشخصات یافت نشد</p>
+				<p className="text-muted-foreground">
+					دسته‌بندی‌ای با این مشخصات یافت نشد
+				</p>
 			</div>
 		);
 	}
@@ -129,6 +163,7 @@ export default function CategoryDetailClient() {
 
 	return (
 		<div className="min-h-screen bg-background">
+			<BackgroundPortraits mode="absolute" count={20} seed={8} />
 			{/* Hero */}
 			<div className="bg-gradient-to-r from-primary-rose/20 via-accent-gold/10 to-secondary-plum/20 py-24">
 				<div className="container mx-auto px-4">
@@ -154,9 +189,13 @@ export default function CategoryDetailClient() {
 						</div>
 
 						<div>
-							<h1 className="text-4xl md:text-5xl font-bold gradient-text pb-3">{category.name}</h1>
+							<h1 className="text-4xl md:text-5xl font-bold gradient-text pb-3">
+								{category.name}
+							</h1>
 							{category.description && (
-								<p className="text-lg text-muted-foreground leading-relaxed text-justify">{category.description}</p>
+								<p className="text-lg text-muted-foreground leading-relaxed text-justify">
+									{category.description}
+								</p>
 							)}
 						</div>
 
@@ -175,8 +214,12 @@ export default function CategoryDetailClient() {
 				) : products.length === 0 ? (
 					<div className="text-center py-20">
 						<Package className="w-20 h-20 mx-auto text-muted-foreground mb-4" />
-						<h3 className="text-2xl font-bold mb-2">محصولی یافت نشد</h3>
-						<p className="text-muted-foreground">این دسته‌بندی در حال حاضر محصولی ندارد</p>
+						<h3 className="text-2xl font-bold mb-2">
+							محصولی یافت نشد
+						</h3>
+						<p className="text-muted-foreground">
+							این دسته‌بندی در حال حاضر محصولی ندارد
+						</p>
 					</div>
 				) : (
 					<div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -201,7 +244,11 @@ export default function CategoryDetailClient() {
 
 				{totalPages > 1 && (
 					<div className="mt-8">
-						<Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+						<Pagination
+							currentPage={currentPage}
+							totalPages={totalPages}
+							onPageChange={setCurrentPage}
+						/>
 					</div>
 				)}
 			</div>
