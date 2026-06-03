@@ -37,6 +37,7 @@ interface SelectProps {
 	iconClassName?: string;
 	icon?: LucideIcon;
 	onIconClick?: () => void;
+	"data-testid"?: string;
 }
 
 export default function Select({
@@ -50,6 +51,7 @@ export default function Select({
 	className = "",
 	iconClassName,
 	icon: Icon,
+	"data-testid": dataTestid,
 	onIconClick,
 }: SelectProps) {
 	const [field, meta, helpers] = useField(name);
@@ -86,6 +88,7 @@ export default function Select({
 						"[&>svg]:hidden",
 					)}
 					onBlur={() => helpers.setTouched(true)}
+					data-testid={dataTestid}
 				>
 					<SelectValue placeholder={" "} />
 				</SelectTrigger>
@@ -93,7 +96,11 @@ export default function Select({
 				<SelectContent>
 					<SelectGroup>
 						{safeOptions?.map((option) => (
-							<SelectItem key={option.value} value={option.value}>
+							<SelectItem
+								key={option.value}
+								value={option.value}
+								data-testid={option.value}
+							>
 								{option.label}
 							</SelectItem>
 						))}

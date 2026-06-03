@@ -168,7 +168,7 @@ export default function WalletPage() {
 										</Button>
 									</div>
 									<div className="space-y-2">
-										<p className="text-3xl font-bold gradient-text">
+										<p className="text-3xl font-bold gradient-text" data-testid="wallet-balance">
 											{showBalance
 												? balance === null
 													? "..."
@@ -288,7 +288,7 @@ export default function WalletPage() {
 									onOpenChange={setDepositDialogOpen}
 								>
 									<DialogTrigger asChild>
-										<Button variant="luxury" className="gap-2 h-14 w-full md:w-auto" size="lg">
+										<Button variant="luxury" className="gap-2 h-14 w-full md:w-auto" size="lg" data-testid="open-deposit">
 											<Plus className="w-5 h-5" />
 											شارژ کیف پول
 										</Button>
@@ -311,6 +311,7 @@ export default function WalletPage() {
 														icon={DollarSign}
 														label="مبلغ (ریال)"
 														placeholder="۱۰۰,۰۰۰"
+														data-testid="deposit-amount"
 													/>
 													<div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
 														<p className="text-sm text-blue-700 dark:text-blue-400">
@@ -333,6 +334,7 @@ export default function WalletPage() {
 															variant="luxury"
 															className="flex-1"
 															disabled={loading}
+															data-testid="submit-deposit"
 														>
 															{loading ? "در حال پردازش..." : "پرداخت"}
 														</Button>

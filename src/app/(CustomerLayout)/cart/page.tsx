@@ -100,7 +100,7 @@ export default function CartPage() {
 
 	if (!loading && items.length === 0) {
 		return (
-			<div className="min-h-screen bg-background">
+			<div className="min-h-screen bg-background pt-36">
 				<div className="container mx-auto px-4 py-20">
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
@@ -129,7 +129,7 @@ export default function CartPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-background">
+		<div className="min-h-screen bg-background pt-16">
 			<div className="container mx-auto px-4 py-8">
 				<motion.div
 					initial={{ opacity: 0, y: -20 }}

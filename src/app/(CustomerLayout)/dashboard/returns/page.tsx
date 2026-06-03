@@ -72,7 +72,7 @@ export default function CustomerReturnsPage() {
 						))}
 					</div>
 				) : returns.length === 0 ? (
-					<div className="text-center py-20 text-muted-foreground">
+					<div className="text-center py-20 text-muted-foreground" data-testid="returns-empty">
 						<PackageX className="w-16 h-16 mx-auto mb-4 opacity-40" />
 						<p>درخواست مرجوعی ندارید</p>
 					</div>

@@ -41,7 +41,8 @@ export default function UpdateCategoryDialog({
 	mode: "update" | "create";
 }) {
 	const isMobile = useIsMobile();
-	const [categoryDialogOpen, setCategoryDialogOpen] = useState<boolean>(false);
+	const [categoryDialogOpen, setCategoryDialogOpen] =
+		useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(false);
 
 	const updateCategory = async (
@@ -89,13 +90,12 @@ export default function UpdateCategoryDialog({
 			.finally(() => setLoading(false));
 	};
 
-	const title =
-		mode === "create" ? "افزودن دسته‌بندی" : "ویرایش دسته‌بندی";
+	const title = mode === "create" ? "افزودن دسته‌بندی" : "ویرایش دسته‌بندی";
 	const submitLabel = mode === "create" ? "افزودن" : "ویرایش";
 
 	const triggerButton =
 		mode === "create" ? (
-			<Button className="gap-2">
+			<Button className="gap-2" data-testid="create">
 				<Plus className="w-4 h-4" />
 				<p>{title}</p>
 			</Button>
@@ -135,11 +135,13 @@ export default function UpdateCategoryDialog({
 						name="name"
 						icon={Package}
 						label="نام فارسی دسته‌بندی"
+						data-testid="persian"
 					/>
 					<Input
 						name="slug"
 						icon={Globe}
 						label="نام انگلیسی دسته‌بندی"
+						data-testid="english"
 					/>
 				</div>
 
@@ -183,6 +185,7 @@ export default function UpdateCategoryDialog({
 							<Button
 								className="bg-primary-rose hover:bg-primary-rose/80 text-black"
 								type="submit"
+								data-testid="submit"
 								loading={loading}
 							>
 								{submitLabel}

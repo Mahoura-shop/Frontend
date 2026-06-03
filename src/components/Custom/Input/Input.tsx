@@ -13,8 +13,7 @@ import { formatPrice as formatPriceUtil } from "@/utils/formatPrice";
 import { persianToAscii } from "@/utils/translateNumber";
 import React, { useCallback, useRef, useState, useEffect } from "react";
 
-interface FormikInputProps
-	extends React.InputHTMLAttributes<HTMLInputElement> {
+interface FormikInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 	name: string;
 	label: string;
 	icon?: LucideIcon;
@@ -43,6 +42,7 @@ interface RawInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 	loading?: boolean;
 	error?: string;
 	isPriceInput?: boolean;
+	"data-testid"?: string;
 }
 
 type MergedInputProps = FormikInputProps | RawInputProps;
@@ -65,6 +65,7 @@ const RawInput = React.forwardRef<HTMLInputElement, RawInputProps>(
 			isPriceInput = false,
 			autoFocus = false,
 			disabled,
+			"data-testid": dataTestId,
 			...props
 		},
 		ref,
@@ -79,7 +80,8 @@ const RawInput = React.forwardRef<HTMLInputElement, RawInputProps>(
 			const cleaned = priceValue.replace(/[^\d.]/g, "");
 			if (!cleaned) return isNegative ? "-" : "";
 			const dotIndex = cleaned.indexOf(".");
-			const intPart = dotIndex >= 0 ? cleaned.slice(0, dotIndex) : cleaned;
+			const intPart =
+				dotIndex >= 0 ? cleaned.slice(0, dotIndex) : cleaned;
 			const decPart = dotIndex >= 0 ? cleaned.slice(dotIndex) : "";
 			const formatted = intPart ? formatPriceUtil(Number(intPart)) : "";
 			return isNegative ? "-" + formatted + decPart : formatted + decPart;
@@ -125,21 +127,30 @@ const RawInput = React.forwardRef<HTMLInputElement, RawInputProps>(
 				let formattedDisplayValue = "";
 
 				if (isPriceInput) {
-					const isNegative = originalInputValue.trimStart().startsWith("-");
+					const isNegative = originalInputValue
+						.trimStart()
+						.startsWith("-");
 					const asciiValue = persianToAscii(originalInputValue);
 					const rawCleaned = asciiValue.replace(/[^\d.]/g, "");
 					const firstDot = rawCleaned.indexOf(".");
-					const cleanedDigits = firstDot >= 0
-						? rawCleaned.slice(0, firstDot + 1) + rawCleaned.slice(firstDot + 1).replace(/\./g, "")
-						: rawCleaned;
-					valueToUpdateParent = isNegative ? "-" + cleanedDigits : cleanedDigits;
+					const cleanedDigits =
+						firstDot >= 0
+							? rawCleaned.slice(0, firstDot + 1) +
+								rawCleaned
+									.slice(firstDot + 1)
+									.replace(/\./g, "")
+							: rawCleaned;
+					valueToUpdateParent = isNegative
+						? "-" + cleanedDigits
+						: cleanedDigits;
 					midDecimalRef.current = cleanedDigits.endsWith(".");
 					formattedDisplayValue = formatPrice(valueToUpdateParent);
 
-					const digitsBeforeCursorInOriginal = countDigitsBeforeCursor(
-						originalInputValue,
-						originalCursorPos,
-					);
+					const digitsBeforeCursorInOriginal =
+						countDigitsBeforeCursor(
+							originalInputValue,
+							originalCursorPos,
+						);
 
 					let newCursorPos = 0;
 					let currentDigitCount = 0;
@@ -160,13 +171,20 @@ const RawInput = React.forwardRef<HTMLInputElement, RawInputProps>(
 
 					if (digitsBeforeCursorInOriginal === 0) {
 						newCursorPos = 0;
-					} else if (currentDigitCount < digitsBeforeCursorInOriginal) {
+					} else if (
+						currentDigitCount < digitsBeforeCursorInOriginal
+					) {
 						newCursorPos = formattedDisplayValue.length;
 					}
 
 					// If original cursor was past a ".", advance past "." in formatted string too
-					const hasDotBeforeCursor = asciiValue.slice(0, originalCursorPos).includes(".");
-					if (hasDotBeforeCursor && formattedDisplayValue[newCursorPos] === ".") {
+					const hasDotBeforeCursor = asciiValue
+						.slice(0, originalCursorPos)
+						.includes(".");
+					if (
+						hasDotBeforeCursor &&
+						formattedDisplayValue[newCursorPos] === "."
+					) {
 						newCursorPos++;
 					}
 
@@ -206,6 +224,7 @@ const RawInput = React.forwardRef<HTMLInputElement, RawInputProps>(
 					<input
 						ref={inputRef}
 						dir={currentDirection}
+						data-testid={dataTestId}
 						{...props}
 						autoFocus={autoFocus}
 						value={displayValue}
@@ -341,12 +360,7 @@ const Input = React.forwardRef<HTMLInputElement, MergedInputProps>(
 			}
 		}
 
-		return (
-			<RawInput
-				ref={ref}
-				{...(props as RawInputProps)}
-			/>
-		);
+		return <RawInput ref={ref} {...(props as RawInputProps)} />;
 	},
 );
 

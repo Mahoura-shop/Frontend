@@ -92,7 +92,7 @@ export default function UpdateBrandDialog({
 
 	const triggerButton =
 		mode === "create" ? (
-			<Button className="gap-2">
+			<Button className="gap-2" data-testid="create">
 				<Plus className="w-4 h-4" />
 				<p>{title}</p>
 			</Button>
@@ -132,19 +132,17 @@ export default function UpdateBrandDialog({
 						name="name"
 						icon={Package}
 						label="نام فارسی برند"
+						data-testid="persian"
 					/>
 					<Input
 						name="slug"
 						icon={Globe}
 						label="نام انگلیسی برند"
+						data-testid="english"
 					/>
 				</div>
 
-				<Textarea
-					name="description"
-					icon={List}
-					label="توضیحات برند"
-				/>
+				<Textarea name="description" icon={List} label="توضیحات برند" />
 
 				<Checkbox name="isActive" label="برند فعال است" />
 
@@ -178,6 +176,7 @@ export default function UpdateBrandDialog({
 								انصراف
 							</Button>
 							<Button
+								data-testid="submit"
 								className="bg-primary-rose hover:bg-primary-rose/80 text-black"
 								type="submit"
 								loading={loading}

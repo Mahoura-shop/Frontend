@@ -73,6 +73,7 @@ function AdminLogsPageContent() {
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
 						className="pr-9"
+						data-testid="logs-search"
 					/>
 				</div>
 				<span className="text-sm text-muted-foreground">

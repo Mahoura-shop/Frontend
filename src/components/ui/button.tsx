@@ -42,6 +42,7 @@ interface ButtonProps
 		React.ButtonHTMLAttributes<HTMLButtonElement>,
 		VariantProps<typeof buttonVariants> {
 	asChild?: boolean;
+	"data-testid"?: string;
 	variant?:
 		| "default"
 		| "destructive"

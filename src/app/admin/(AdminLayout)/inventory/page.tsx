@@ -118,6 +118,7 @@ function InventoryPageContent() {
 					<div className="flex gap-3">
 						<button
 							type="button"
+							data-testid="op-buy"
 							onClick={() => setOperationType("buy")}
 							className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 font-medium text-sm transition-all ${
 								operationType === "buy"
@@ -130,6 +131,7 @@ function InventoryPageContent() {
 						</button>
 						<button
 							type="button"
+							data-testid="op-sell"
 							onClick={() => setOperationType("sell")}
 							className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 font-medium text-sm transition-all ${
 								operationType === "sell"
@@ -208,6 +210,7 @@ function InventoryPageContent() {
 							</div>
 							<div className="w-20 sm:w-40 relative shrink-0">
 								<Input
+									data-testid={`row-qty-${index}`}
 									type="number"
 									min={1}
 									value={row.count}
@@ -222,6 +225,7 @@ function InventoryPageContent() {
 							</div>
 							<button
 								type="button"
+								data-testid={`remove-row-${index}`}
 								onClick={() => removeRow(row.id)}
 								disabled={rows.length === 1}
 								className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
@@ -233,6 +237,7 @@ function InventoryPageContent() {
 
 					<button
 						type="button"
+						data-testid="add-row"
 						onClick={addRow}
 						className="flex items-center gap-2 mt-2 text-sm text-primary-rose hover:opacity-70 transition-opacity font-medium"
 					>
@@ -244,6 +249,7 @@ function InventoryPageContent() {
 
 			<div className="flex justify-end">
 				<Button
+					data-testid="submit-inventory"
 					variant="primary"
 					onClick={handleSubmit}
 					disabled={submitting}

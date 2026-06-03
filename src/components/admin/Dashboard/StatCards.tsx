@@ -40,7 +40,7 @@ export default function StatCards({ stats, loading }: Props) {
 	}
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+		<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8" data-testid="stat-cards">
 			{stats.map((stat, i) => (
 				<motion.div
 					key={stat.title}

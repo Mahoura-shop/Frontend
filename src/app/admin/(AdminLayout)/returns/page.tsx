@@ -138,10 +138,11 @@ export default function AdminReturnsPage() {
 					<p>مرجوعی‌ای یافت نشد</p>
 				</div>
 			) : (
-				<div className="space-y-4">
+				<div className="space-y-4" data-testid="returns-list">
 					{returns.map((r, i) => (
 						<motion.div
 							key={r.id}
+							data-testid={`return-item-${r.id}`}
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ delay: i * 0.04, type: "spring" }}

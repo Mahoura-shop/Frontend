@@ -380,7 +380,7 @@ function PriceGroupPageContent() {
 			</div>
 
 			{/* Desktop Table */}
-			<Card className="hidden sm:block">
+			<Card className="hidden sm:block" data-testid="price-group-table">
 				<CardContent className="p-0">
 					<Table className="no-scrollbar">
 						<TableHeader>

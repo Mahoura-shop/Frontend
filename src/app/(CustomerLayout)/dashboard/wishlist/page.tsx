@@ -119,7 +119,7 @@ export default function WishlistPage() {
 							exit={{ opacity: 0, scale: 0.9 }}
 							transition={{ delay: index * 0.05 }}
 						>
-							<Card className="hover:shadow-md transition-shadow overflow-hidden">
+							<Card className="hover:shadow-md transition-shadow overflow-hidden" data-testid={`wishlist-item-${item.id}`}>
 								<CardContent className="p-4">
 									<div className="flex gap-4">
 										<div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20 flex items-center justify-center">
@@ -152,6 +152,7 @@ export default function WishlistPage() {
 													onClick={() => handleRemove(item.product.id)}
 													disabled={removing === item.product.id}
 													className="gap-1 text-xs border-destructive text-destructive hover:bg-destructive/10"
+													data-testid={`remove-wishlist-${item.product.id}`}
 												>
 													<Trash2 className="w-3 h-3" />
 												</Button>

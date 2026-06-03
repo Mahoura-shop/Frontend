@@ -162,11 +162,13 @@ export default function SettingsPage() {
 										name="firstName"
 										label="نام"
 										placeholder="نام خود را وارد کنید"
+										data-testid="first-name"
 									/>
 									<Input
 										name="lastName"
 										label="نام خانوادگی"
 										placeholder="نام خانوادگی خود را وارد کنید"
+										data-testid="last-name"
 									/>
 								</div>
 								<div>
@@ -175,6 +177,7 @@ export default function SettingsPage() {
 										label="ایمیل"
 										placeholder="ایمیل خود را وارد کنید"
 										type="email"
+										data-testid="email"
 									/>
 								</div>
 								<div className="p-3 bg-muted/40 rounded-lg text-xs text-muted-foreground">

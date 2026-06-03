@@ -124,7 +124,7 @@ export default function CreateUpdateRoleDialog({ mode, role, permissions, onDone
 
 	const trigger =
 		mode === "create" ? (
-			<Button className="gap-2">
+			<Button data-testid="create-role" className="gap-2">
 				<Plus className="w-4 h-4" />
 				نقش جدید
 			</Button>
@@ -193,7 +193,7 @@ export default function CreateUpdateRoleDialog({ mode, role, permissions, onDone
 					</DialogHeader>
 				)}
 
-				<Input name="name" icon={ShieldCheck} label="نام نقش" />
+				<Input name="name" icon={ShieldCheck} label="نام نقش" data-testid="role-name" />
 				<Textarea name="description" label="توضیحات" />
 
 				{permissions.length > 0 && permissionsBlock}
@@ -223,6 +223,7 @@ export default function CreateUpdateRoleDialog({ mode, role, permissions, onDone
 								انصراف
 							</Button>
 							<Button
+								data-testid="submit-role"
 								type="submit"
 								loading={loading}
 								className="bg-primary-rose hover:bg-primary-rose/80 text-black"

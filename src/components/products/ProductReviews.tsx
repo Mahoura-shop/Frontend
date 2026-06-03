@@ -65,7 +65,7 @@ export default function ProductReviews({
 					<h3 className="font-semibold text-base">ثبت نظر شما</h3>
 					<div className="flex items-center gap-1">
 						{[1, 2, 3, 4, 5].map((s) => (
-							<button key={s} type="button" onClick={() => onRatingChange(s)} onMouseEnter={() => onHoverRating(s)} onMouseLeave={onHoverLeave} className="transition-transform hover:scale-110">
+							<button key={s} type="button" data-testid={`review-star-${s}`} onClick={() => onRatingChange(s)} onMouseEnter={() => onHoverRating(s)} onMouseLeave={onHoverLeave} className="transition-transform hover:scale-110">
 								<Star className={`w-7 h-7 transition-colors ${s <= (hoverRating || reviewRating) ? "fill-amber-400 text-amber-400" : "text-muted-foreground"}`} />
 							</button>
 						))}
@@ -77,8 +77,9 @@ export default function ProductReviews({
 						placeholder="نظر خود را بنویسید... (اختیاری)"
 						rows={4}
 						className="w-full rounded-xl border bg-background px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary-rose/40"
+						data-testid="review-comment"
 					/>
-					<Button variant="luxury" className="gap-2" disabled={submittingReview || reviewRating === 0} onClick={onSubmit}>
+					<Button variant="luxury" className="gap-2" disabled={submittingReview || reviewRating === 0} onClick={onSubmit} data-testid="submit-review">
 						{submittingReview ? (
 							<motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }} className="w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
 						) : (
@@ -110,7 +111,7 @@ export default function ProductReviews({
 			) : (
 				<div className="space-y-4">
 					{reviews.map((review, i) => (
-						<motion.div key={review.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="rounded-2xl border bg-card p-5">
+						<motion.div key={review.id} data-testid={`review-item-${review.id}`} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="rounded-2xl border bg-card p-5">
 							<div className="flex items-start gap-4">
 								<div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-rose/30 to-secondary-plum/30 flex items-center justify-center shrink-0 text-sm font-bold text-primary-rose">
 									{review.userFirstName ? review.userFirstName.slice(0, 1) : "ک"}

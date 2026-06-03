@@ -473,11 +473,13 @@ function ProductForm({
 								name="name"
 								icon={Package}
 								label="نام فارسی محصول"
+								data-testid="persian"
 							/>
 							<Input
 								name="slug"
 								icon={Globe}
 								label="نام انگلیسی محصول"
+								data-testid="english"
 							/>
 						</div>
 
@@ -487,9 +489,11 @@ function ProductForm({
 								isPriceInput
 								label="قیمت"
 								icon={DollarSign}
+								data-testid="price"
 							/>
 							<Select
 								name="currencyID"
+								data-testid="currency"
 								label="واحد پول"
 								icon={DollarSign}
 								options={currencies?.map(
@@ -510,6 +514,7 @@ function ProductForm({
 								isPriceInput
 								label="قیمت مصرف کننده"
 								icon={ShoppingBag}
+								data-testid="consumer-price"
 							/>
 						</div>
 
@@ -586,7 +591,7 @@ function ProductForm({
 						</div>
 
 						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-							<Input name="quantity" icon={Hash} label="موجودی" />
+							<Input name="quantity" icon={Hash} label="موجودی" data-testid="inventory" />
 							<Input
 								name="quantityType"
 								icon={ShoppingCart}
@@ -613,6 +618,7 @@ function ProductForm({
 							<Select
 								name="categoryID"
 								label="دسته‌بندی"
+								data-testid="category"
 								icon={FolderTree}
 								helper="انتخاب دسته‌بندی"
 								options={[
@@ -629,6 +635,7 @@ function ProductForm({
 							<Select
 								name="brandID"
 								label="برند"
+								data-testid="brand"
 								icon={Tag}
 								helper="انتخاب برند"
 								options={[
@@ -709,6 +716,7 @@ function ProductForm({
 									<Button
 										className="bg-primary-rose hover:bg-primary-rose/80 text-black"
 										type="submit"
+										data-testid="submit"
 										loading={loading}
 									>
 										{submitLabel}
@@ -740,7 +748,7 @@ export default function UpdateProductDialog({
 
 	const triggerButton =
 		mode === "create" ? (
-			<Button className="gap-2">
+			<Button className="gap-2" data-testid="create">
 				<Plus className="w-4 h-4" />
 				<p>افزودن محصول</p>
 			</Button>

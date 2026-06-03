@@ -248,7 +248,7 @@ export default function DashboardPage() {
 				className="grid md:grid-cols-3 gap-4"
 			>
 				<Link href="/dashboard/wallet">
-					<Card className="hover:shadow-lg transition-all hover:border-primary-rose cursor-pointer">
+					<Card className="hover:shadow-lg transition-all hover:border-primary-rose cursor-pointer" data-testid="wallet-card">
 						<CardContent className="p-6 text-center">
 							<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary-rose/20 to-accent-gold/20 flex items-center justify-center">
 								<Wallet className="w-8 h-8 text-primary-rose" />
@@ -308,7 +308,7 @@ export default function DashboardPage() {
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ delay: 0.5 }}
 			>
-				<Card>
+				<Card data-testid="recent-orders">
 					<div className="bg-gradient-to-r from-primary-rose/10 via-accent-gold/10 to-secondary-plum/10 p-4 border-b">
 						<div className="flex items-center justify-between">
 							<h2 className="text-xl font-bold flex items-center gap-2">

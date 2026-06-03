@@ -412,7 +412,7 @@ export default function OrderDetailPage() {
 									سفارش شما ارسال شد
 								</p>
 								<p className="text-sm text-muted-foreground">
-									کد پیگیری پستی: <span className="font-mono font-bold text-foreground">{order.trackingCode}</span>
+									کد پیگیری پستی: <span data-testid="tracking-code" className="font-mono font-bold text-foreground">{order.trackingCode}</span>
 								</p>
 							</div>
 						</CardContent>

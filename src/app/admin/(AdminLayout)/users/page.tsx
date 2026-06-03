@@ -252,6 +252,7 @@ function AdminUsersPageContent() {
 						value={search}
 						onValueChange={setSearch}
 						inputClassName="pr-10"
+						data-testid="user-search"
 					/>
 				</div>
 			</div>
@@ -307,18 +308,18 @@ function AdminUsersPageContent() {
 									</div>
 									<div className="flex justify-end gap-2 flex-wrap">
 										{canEditRole && (
-											<Button variant="outline" size="sm" onClick={() => { setRoleDialog({ open: true, user }); setNewType(user.type); setSelectedRoleID("") }} className="text-xs gap-1">
+											<Button data-testid={`change-role-${user.id}`} variant="outline" size="sm" onClick={() => { setRoleDialog({ open: true, user }); setNewType(user.type); setSelectedRoleID("") }} className="text-xs gap-1">
 												<ShieldCheck className="w-3 h-3" />تغییر نقش
 											</Button>
 										)}
 										{isBanned
 											? canUnban && (
-												<Button variant="outline" size="sm" onClick={() => handleUnban(user)} disabled={actionLoading} className="text-xs gap-1 border-green-500 text-green-600 hover:bg-green-50">
+												<Button data-testid={`unban-${user.id}`} variant="outline" size="sm" onClick={() => handleUnban(user)} disabled={actionLoading} className="text-xs gap-1 border-green-500 text-green-600 hover:bg-green-50">
 													<CheckCircle2 className="w-3 h-3" />رفع مسدودیت
 												</Button>
 											)
 											: canBan && (
-												<Button variant="outline" size="sm" onClick={() => handleBan(user)} disabled={actionLoading} className="text-xs gap-1 border-destructive text-destructive hover:bg-destructive/10">
+												<Button data-testid={`ban-${user.id}`} variant="outline" size="sm" onClick={() => handleBan(user)} disabled={actionLoading} className="text-xs gap-1 border-destructive text-destructive hover:bg-destructive/10">
 													<Ban className="w-3 h-3" />مسدود
 												</Button>
 											)}
@@ -398,18 +399,18 @@ function AdminUsersPageContent() {
 										<TableCell>
 											<div className="flex items-center justify-center gap-2">
 												{canEditRole && (
-													<Button variant="outline" size="sm" onClick={() => { setRoleDialog({ open: true, user }); setNewType(user.type); setSelectedRoleID("") }} className="text-xs gap-1">
+													<Button data-testid={`change-role-${user.id}`} variant="outline" size="sm" onClick={() => { setRoleDialog({ open: true, user }); setNewType(user.type); setSelectedRoleID("") }} className="text-xs gap-1">
 														<ShieldCheck className="w-3 h-3" />تغییر نقش
 													</Button>
 												)}
 												{isBanned
 													? canUnban && (
-														<Button variant="outline" size="sm" onClick={() => handleUnban(user)} disabled={actionLoading} className="text-xs gap-1 border-green-500 text-green-600 hover:bg-green-50">
+														<Button data-testid={`unban-${user.id}`} variant="outline" size="sm" onClick={() => handleUnban(user)} disabled={actionLoading} className="text-xs gap-1 border-green-500 text-green-600 hover:bg-green-50">
 															<CheckCircle2 className="w-3 h-3" />رفع مسدودیت
 														</Button>
 													)
 													: canBan && (
-														<Button variant="outline" size="sm" onClick={() => handleBan(user)} disabled={actionLoading} className="text-xs gap-1 border-destructive text-destructive hover:bg-destructive/10">
+														<Button data-testid={`ban-${user.id}`} variant="outline" size="sm" onClick={() => handleBan(user)} disabled={actionLoading} className="text-xs gap-1 border-destructive text-destructive hover:bg-destructive/10">
 															<Ban className="w-3 h-3" />مسدود
 														</Button>
 													)}
@@ -451,7 +452,7 @@ function AdminUsersPageContent() {
 								setSelectedRoleID("");
 							}}
 						>
-							<SelectTrigger>
+							<SelectTrigger data-testid="user-type-select">
 								<SelectValue placeholder="انتخاب نوع حساب" />
 							</SelectTrigger>
 							<SelectContent>
@@ -503,6 +504,7 @@ function AdminUsersPageContent() {
 							انصراف
 						</Button>
 						<Button
+							data-testid="confirm-role-change"
 							onClick={handleChangeRole}
 							disabled={actionLoading || !newType}
 						>

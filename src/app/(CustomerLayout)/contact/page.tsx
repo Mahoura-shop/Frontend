@@ -304,6 +304,7 @@ export default function ContactPage() {
 										>
 											<Input
 												id="name"
+												data-testid="contact-name"
 												value={formData.name}
 												onChange={(e) =>
 													handleFieldChange(
@@ -377,6 +378,7 @@ export default function ContactPage() {
 										>
 											<Input
 												id="email"
+												data-testid="contact-email"
 												type="email"
 												value={formData.email}
 												onChange={(e) =>
@@ -451,6 +453,7 @@ export default function ContactPage() {
 										>
 											<Input
 												id="subject"
+												data-testid="contact-subject"
 												value={formData.subject}
 												onChange={(e) =>
 													handleFieldChange(
@@ -530,6 +533,7 @@ export default function ContactPage() {
 											}
 											variants={fieldVariants}
 											id="message"
+											data-testid="contact-message"
 											value={formData.message}
 											onChange={(e) =>
 												handleFieldChange(
@@ -582,6 +586,7 @@ export default function ContactPage() {
 										className="pt-2"
 									>
 										<Button
+											data-testid="contact-submit"
 											type="submit"
 											disabled={
 												isSubmitting || submitted

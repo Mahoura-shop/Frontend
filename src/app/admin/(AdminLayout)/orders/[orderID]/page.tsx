@@ -323,7 +323,7 @@ export default function AdminOrderDetailPage() {
 					{" · "}
 					{PAYMENT_METHOD_MAP[order.paymentMethod] ?? "—"}
 					{order.trackingCode && (
-						<span className="text-blue-600 font-medium">
+						<span data-testid="order-tracking-code" className="text-blue-600 font-medium">
 							کد پیگیری: {order.trackingCode}
 						</span>
 					)}
@@ -536,6 +536,7 @@ export default function AdminOrderDetailPage() {
 							/>
 							{nextStates.includes(3) && (
 								<input
+									data-testid="tracking-code"
 									type="text"
 									value={trackingCode}
 									onChange={(e) =>
@@ -551,6 +552,7 @@ export default function AdminOrderDetailPage() {
 									.map((nextStatus) => (
 										<Button
 											key={nextStatus}
+											data-testid={`status-to-${nextStatus}`}
 											onClick={() =>
 												handleStatusChange(nextStatus)
 											}
@@ -587,6 +589,7 @@ export default function AdminOrderDetailPage() {
 							{order.status !== 5 && (
 								<>
 									<textarea
+										data-testid="cancel-reason"
 										value={cancelReason}
 										onChange={(e) => setCancelReason(e.target.value)}
 										placeholder="دلیل لغو سفارش (اجباری)"
@@ -595,6 +598,7 @@ export default function AdminOrderDetailPage() {
 									/>
 									<div className="flex gap-3 flex-wrap">
 										<Button
+											data-testid="cancel-order"
 											variant="destructive"
 											onClick={handleCancel}
 											disabled={updating}

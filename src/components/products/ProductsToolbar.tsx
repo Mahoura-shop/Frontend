@@ -19,15 +19,15 @@ export default function ProductsToolbar({ searchQuery, sortBy, onSearchChange, o
 	return (
 		<div className="flex flex-col gap-3 mb-8">
 			<div className="flex items-center gap-3">
-				<Button variant="outline" className="lg:hidden gap-2 shrink-0" onClick={onShowFilters}>
+				<Button data-testid="filter-toggle" variant="outline" className="lg:hidden gap-2 shrink-0" onClick={onShowFilters}>
 					<SlidersHorizontal className="w-5 h-5" />
 					فیلترها
 				</Button>
 				<div className="hidden lg:block flex-1">
-					<InputFree label="نام محصول یا برند..." icon={Search} value={searchQuery} onValueChange={onSearchChange} inputClassName="pr-10" />
+					<InputFree label="نام محصول یا برند..." icon={Search} value={searchQuery} onValueChange={onSearchChange} inputClassName="pr-10" data-testid="product-search" />
 				</div>
 				<Select value={sortBy} onValueChange={onSortChange}>
-					<SelectTrigger className="flex-1 lg:flex-none lg:w-48 py-2 border rounded-lg bg-background text-foreground">
+					<SelectTrigger data-testid="sort-select" className="flex-1 lg:flex-none lg:w-48 py-2 border rounded-lg bg-background text-foreground">
 						<SelectValue placeholder="مرتب سازی" />
 					</SelectTrigger>
 					<SelectContent>
@@ -43,7 +43,7 @@ export default function ProductsToolbar({ searchQuery, sortBy, onSearchChange, o
 				</Select>
 			</div>
 			<div className="lg:hidden">
-				<InputFree label="نام محصول یا برند..." icon={Search} value={searchQuery} onValueChange={onSearchChange} inputClassName="pr-10" />
+				<InputFree label="نام محصول یا برند..." icon={Search} value={searchQuery} onValueChange={onSearchChange} inputClassName="pr-10" data-testid="product-search-mobile" />
 			</div>
 		</div>
 	);

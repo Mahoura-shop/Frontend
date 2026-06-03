@@ -365,7 +365,9 @@ export default function SignIn() {
 											transition={{ delay: 0.22 }}
 										>
 											<InputFree
+												data-testid="firstname"
 												label="نام"
+												// autoFocus
 												placeholder="نام شما"
 												value={firstName}
 												onValueChange={setFirstName}
@@ -379,6 +381,7 @@ export default function SignIn() {
 											transition={{ delay: 0.3 }}
 										>
 											<InputFree
+												data-testid="lastname"
 												label="نام خانوادگی"
 												placeholder="نام خانوادگی شما"
 												value={lastName}
@@ -394,6 +397,7 @@ export default function SignIn() {
 										>
 											<Button
 												type="submit"
+												data-testid="submit3"
 												disabled={
 													isLoading ||
 													!firstName.trim() ||
@@ -458,6 +462,7 @@ export default function SignIn() {
 											transition={{ delay: 0.22 }}
 										>
 											<InputFree
+												data-testid="phone"
 												label="شماره موبایل"
 												icon={Phone}
 												value={phone}
@@ -484,6 +489,7 @@ export default function SignIn() {
 										>
 											<Button
 												type="submit"
+												data-testid="submit1"
 												disabled={
 													isLoading ||
 													!phone ||
@@ -568,7 +574,8 @@ export default function SignIn() {
 													type="text"
 													inputMode="numeric"
 													maxLength={1}
-													aria-label={`رقم ${i + 1} از ۶`}
+													data-testid={`otp-${i}`}
+													aria-label={`رقم ${i + 1} از 6`}
 													autoComplete={
 														i === 0
 															? "one-time-code"
@@ -622,6 +629,7 @@ export default function SignIn() {
 										>
 											<Button
 												type="submit"
+												data-testid="submit2"
 												disabled={
 													isLoading ||
 													otp.join("").length < 6

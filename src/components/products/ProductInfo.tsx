@@ -52,7 +52,7 @@ export default function ProductInfo({
 				</div>
 				<div className="flex gap-2">
 					{accessToken && (
-						<Button variant="outline" size="icon" className="w-12 h-12" onClick={onToggleWishlist} disabled={wishlistLoading}>
+						<Button data-testid="wishlist-toggle" variant="outline" size="icon" className="w-12 h-12" onClick={onToggleWishlist} disabled={wishlistLoading}>
 							<Heart className={`w-5 h-5 transition-colors ${wishlisted ? "fill-red-500 text-red-500" : ""}`} />
 						</Button>
 					)}
@@ -73,7 +73,7 @@ export default function ProductInfo({
 			{/* Price */}
 			<div className="py-6 border-b space-y-4">
 				<div className="flex items-baseline gap-3">
-					<motion.span className="text-5xl font-bold text-primary-rose" initial={{ scale: 0.8 }} animate={{ scale: 1 }} transition={{ type: "spring" }}>
+					<motion.span data-testid="product-price" className="text-5xl font-bold text-primary-rose" initial={{ scale: 0.8 }} animate={{ scale: 1 }} transition={{ type: "spring" }}>
 						{formatPrice(price)}
 					</motion.span>
 					<span className="text-2xl text-muted-foreground">ریال</span>
@@ -117,16 +117,16 @@ export default function ProductInfo({
 			<div ref={addToCartRef} className="flex gap-4">
 				{!accessToken ? null : cartCount > 0 ? (
 					<div className="flex-1 flex items-center justify-between rounded-xl border border-primary-rose/40 bg-primary-rose/5 px-4 py-3">
-						<button className="w-10 h-10 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-primary-rose hover:border-primary-rose transition-colors" onClick={onRemoveFromCart}>
+						<button data-testid="remove-from-cart" className="w-10 h-10 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-primary-rose hover:border-primary-rose transition-colors" onClick={onRemoveFromCart}>
 							<Minus className="w-4 h-4" />
 						</button>
-						<span className="text-xl font-bold">{cartCount}</span>
-						<button className="w-10 h-10 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-primary-rose hover:border-primary-rose transition-colors disabled:opacity-50" disabled={adding || product.quantity === 0 || cartCount >= product.quantity} onClick={onAddToCart}>
+						<span data-testid="cart-count" className="text-xl font-bold">{cartCount}</span>
+						<button data-testid="add-to-cart-increment" className="w-10 h-10 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-primary-rose hover:border-primary-rose transition-colors disabled:opacity-50" disabled={adding || product.quantity === 0 || cartCount >= product.quantity} onClick={onAddToCart}>
 							{adding ? <div className="w-4 h-4 border-2 border-primary-rose border-t-transparent rounded-full animate-spin" /> : <Plus className="w-4 h-4" />}
 						</button>
 					</div>
 				) : (
-					<Button variant="luxury" size="lg" className="flex-1 gap-2" disabled={adding || product.quantity === 0 || cartCount >= product.quantity} onClick={onAddToCart}>
+					<Button data-testid="add-to-cart" variant="luxury" size="lg" className="flex-1 gap-2" disabled={adding || product.quantity === 0 || cartCount >= product.quantity} onClick={onAddToCart}>
 						<AnimatePresence mode="wait">
 							{adding ? (
 								<motion.div key="loading" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }} className="w-5 h-5 border-2 border-white border-t-transparent rounded-full" />

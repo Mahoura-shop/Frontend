@@ -68,7 +68,7 @@ export default function NotificationsPage() {
 					</p>
 				</div>
 				{unreadCount > 0 && (
-					<Button variant="outline" size="sm" onClick={handleMarkAll}>
+					<Button variant="outline" size="sm" onClick={handleMarkAll} data-testid="mark-all-read">
 						همه را خوانده‌شده علامت بزن
 					</Button>
 				)}
@@ -118,7 +118,7 @@ export default function NotificationsPage() {
 								onClick={() => !notif.isRead && handleMarkOne(notif.id)}
 								className={!notif.isRead ? "cursor-pointer" : ""}
 							>
-								<Card className={`transition-shadow hover:shadow-md ${!notif.isRead ? "border-primary-rose/40" : ""}`}>
+								<Card className={`transition-shadow hover:shadow-md ${!notif.isRead ? "border-primary-rose/40" : ""}`} data-testid={`notification-${notif.id}`}>
 									<CardContent className="p-4">
 										<div className="flex gap-4 items-start">
 											<div className={`w-12 h-12 flex-shrink-0 rounded-full bg-gradient-to-br ${colors.bg} flex items-center justify-center`}>

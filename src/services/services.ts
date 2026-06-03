@@ -14,12 +14,11 @@ import type {
 } from "../types/apiTypes";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 const isClient = typeof window !== "undefined";
-// export const baseURL = "https://rotten-glasses-run.loca.lt/"; // backend URL
-// export const baseURL = "http://192.168.1.115:8080/"; // backend URL
-// export const baseURL = "http://localhost:8080/"; // backend URL
-export const baseURL = isClient
-	? "http://192.168.1.115:3000/backend/"
-	: "http://127.0.0.1:8080/";
+export const baseURL = `${process.env.BACKEND_URL ?? "http://127.0.0.1:8081"}/`;
+// export const baseURL = "http://127.0.0.1:8080/"
+// export const baseURL = isClient
+// 	? `${window.location.origin}/backend/`
+// 	: `${process.env.BACKEND_URL ?? "http://127.0.0.1:8080"}/`;
 
 const apiClient: AxiosInstance = axios.create({
 	baseURL,

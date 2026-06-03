@@ -215,7 +215,7 @@ export default function OrderPage() {
 					<div className="w-24 h-24 mx-auto mb-6 bg-green-500/10 rounded-full flex items-center justify-center">
 						<CheckCircle2 className="w-12 h-12 text-green-600" />
 					</div>
-					<h2 className="text-3xl font-bold gradient-text mb-3">سفارش ثبت شد!</h2>
+					<h2 className="text-3xl font-bold gradient-text mb-3" data-testid="order-success">سفارش ثبت شد!</h2>
 					<p className="text-muted-foreground mb-6">سفارش شما با موفقیت پرداخت و ثبت شد.</p>
 					<div className="flex gap-3 justify-center">
 						<Link href="/dashboard/orders">
@@ -375,6 +375,7 @@ export default function OrderPage() {
 												checked={paymentMethod === PAYMENT_METHOD_ONLINE}
 												onChange={() => setPaymentMethod(PAYMENT_METHOD_ONLINE)}
 												className="w-5 h-5 accent-primary-rose"
+												data-testid="pay-online"
 											/>
 											<div className="flex-1">
 												<div className="flex items-center gap-2 mb-1">
@@ -398,6 +399,7 @@ export default function OrderPage() {
 												checked={paymentMethod === PAYMENT_METHOD_WALLET}
 												onChange={() => setPaymentMethod(PAYMENT_METHOD_WALLET)}
 												className="w-5 h-5 accent-primary-rose"
+												data-testid="pay-wallet"
 											/>
 											<div className="flex-1">
 												<div className="flex items-center gap-2 mb-1">
@@ -527,6 +529,7 @@ export default function OrderPage() {
 										size="lg"
 										onClick={handleSubmit}
 										disabled={submitting || items.length === 0 || (paymentMethod === PAYMENT_METHOD_WALLET && walletBalance !== null && walletBalance < subtotal)}
+										data-testid="place-order"
 									>
 										{submitting ? (
 											"در حال پردازش..."

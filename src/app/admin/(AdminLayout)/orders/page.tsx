@@ -83,6 +83,7 @@ function AdminOrdersPageContent() {
 					{STATUS_FILTER_OPTIONS.map((option) => (
 						<Button
 							key={option.value}
+							data-testid={`filter-${option.value}`}
 							variant={statusFilter === option.value ? "default" : "outline"}
 							size="sm"
 							onClick={() => setStatusFilter(option.value)}
@@ -159,7 +160,7 @@ function AdminOrdersPageContent() {
 											<p className="text-xs text-muted-foreground mt-0.5">{formatDate(order.createdAt)}</p>
 										</div>
 										<Link href={`/admin/orders/${order.id}`}>
-											<Button variant="outline" size="sm" className="gap-1 text-xs">
+											<Button data-testid={`order-details-${order.id}`} variant="outline" size="sm" className="gap-1 text-xs">
 												جزئیات
 												<ChevronLeft className="w-3 h-3" />
 											</Button>
@@ -250,7 +251,7 @@ function AdminOrdersPageContent() {
 										<TableCell>
 											<div className="flex items-center justify-center">
 												<Link href={`/admin/orders/${order.id}`}>
-													<Button variant="outline" size="sm" className="gap-1 text-xs">
+													<Button data-testid={`order-details-${order.id}`} variant="outline" size="sm" className="gap-1 text-xs">
 														جزئیات
 														<ChevronLeft className="w-3 h-3" />
 													</Button>

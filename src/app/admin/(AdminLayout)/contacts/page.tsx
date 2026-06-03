@@ -63,6 +63,7 @@ function AdminContactsPageContent() {
 				<div className="relative flex-1 max-w-sm">
 					<Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
 					<Input
+						data-testid="contacts-search"
 						placeholder="جستجو در نام، ایمیل یا موضوع..."
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
@@ -100,6 +101,7 @@ function AdminContactsPageContent() {
 								{!loading && filtered.map((msg) => (
 									<div
 										key={msg.id}
+										data-testid={`message-${msg.id}`}
 										className={`p-4 cursor-pointer transition-colors ${selected?.id === msg.id ? "bg-muted" : "hover:bg-muted/50"}`}
 										onClick={() => setSelected(selected?.id === msg.id ? null : msg)}
 									>
@@ -153,6 +155,7 @@ function AdminContactsPageContent() {
 											{filtered.map((msg) => (
 												<TableRow
 													key={msg.id}
+													data-testid={`message-${msg.id}`}
 													className={`cursor-pointer transition-colors ${selected?.id === msg.id ? "bg-muted" : "hover:bg-muted/50"}`}
 													onClick={() => setSelected(selected?.id === msg.id ? null : msg)}
 												>
@@ -178,7 +181,7 @@ function AdminContactsPageContent() {
 					transition={{ delay: 0.1 }}
 				>
 					{selected ? (
-						<Card>
+						<Card data-testid="message-detail">
 							<CardHeader>
 								<div className="flex items-center gap-2">
 									<Mail className="w-5 h-5 text-primary-rose" />

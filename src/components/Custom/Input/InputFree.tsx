@@ -28,6 +28,7 @@ interface Props {
 	placeholder?: string;
 	maxLength?: number;
 	onlyDigits?: boolean;
+	"data-testid"?: string;
 }
 
 export default function InputFree({
@@ -47,6 +48,7 @@ export default function InputFree({
 	disabled = false,
 	isPriceInput = false,
 	onlyDigits = false,
+	"data-testid": dataTestId,
 	...props
 }: Props) {
 	const { formatPrice: formatPriceFromStore } = useSettingsStore();
@@ -56,7 +58,12 @@ export default function InputFree({
 
 	const formatPrice = useCallback(
 		(priceValue: string | number | null | undefined): string => {
-			if (priceValue === null || priceValue === undefined || priceValue === "") return "";
+			if (
+				priceValue === null ||
+				priceValue === undefined ||
+				priceValue === ""
+			)
+				return "";
 
 			const stringValue = String(priceValue);
 			const isNegative = stringValue.trimStart().startsWith("-");
@@ -123,9 +130,11 @@ export default function InputFree({
 				const asciiValue = persianToAscii(originalValue);
 				const rawCleaned = asciiValue.replace(/[^\d.]/g, "");
 				const firstDot = rawCleaned.indexOf(".");
-				let rawDigits = firstDot >= 0
-					? rawCleaned.slice(0, firstDot + 1) + rawCleaned.slice(firstDot + 1).replace(/\./g, "")
-					: rawCleaned;
+				let rawDigits =
+					firstDot >= 0
+						? rawCleaned.slice(0, firstDot + 1) +
+							rawCleaned.slice(firstDot + 1).replace(/\./g, "")
+						: rawCleaned;
 				if (isNeg) rawDigits = "-" + rawDigits;
 
 				// If no digits are left after cleaning, reset
@@ -134,7 +143,9 @@ export default function InputFree({
 					newDisplayValue = rawDigits;
 					midDecimalRef.current = false;
 				} else {
-					midDecimalRef.current = rawDigits.replace(/^-/, "").endsWith(".");
+					midDecimalRef.current = rawDigits
+						.replace(/^-/, "")
+						.endsWith(".");
 					newDisplayValue = formatPrice(rawDigits);
 					valueToUpdateParent = rawDigits;
 				}
@@ -193,8 +204,13 @@ export default function InputFree({
 				}
 
 				// If original cursor was past a ".", advance past "." in formatted string too
-				const hasDotBeforeCursor = originalValue.slice(0, originalCursorPos).includes(".");
-				if (hasDotBeforeCursor && newDisplayValue[formattedCursorPos] === ".") {
+				const hasDotBeforeCursor = originalValue
+					.slice(0, originalCursorPos)
+					.includes(".");
+				if (
+					hasDotBeforeCursor &&
+					newDisplayValue[formattedCursorPos] === "."
+				) {
 					formattedCursorPos++;
 				}
 
@@ -243,12 +259,19 @@ export default function InputFree({
 					id={inputId}
 					dir={currentDirection}
 					{...props}
+					data-testid={dataTestId}
 					autoFocus={autoFocus}
 					value={displayValue}
 					placeholder=" " // Essential for label animation
 					type="text" // Keep as text for better control with mixed characters
 					// Use "decimal" for mobile keyboards that support it well for prices
-					inputMode={onlyDigits ? "numeric" : isPriceInput ? "decimal" : "text"}
+					inputMode={
+						onlyDigits
+							? "numeric"
+							: isPriceInput
+								? "decimal"
+								: "text"
+					}
 					disabled={loading || disabled}
 					className={cn(
 						"font-vazirmatn", // Ensure font is applied

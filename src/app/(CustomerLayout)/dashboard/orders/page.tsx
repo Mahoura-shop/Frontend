@@ -104,6 +104,7 @@ export default function OrdersPage() {
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
 				className="text-center py-20"
+				data-testid="orders-empty"
 			>
 				<div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20 rounded-full flex items-center justify-center">
 					<ShoppingBag className="w-12 h-12 text-muted-foreground" />
@@ -154,7 +155,7 @@ export default function OrdersPage() {
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ delay: index * 0.05 }}
 						>
-							<Card className="hover:shadow-md transition-shadow">
+							<Card className="hover:shadow-md transition-shadow" data-testid={`order-item-${order.id}`}>
 								<CardContent className="p-4">
 									<div className="flex items-center gap-4">
 										{/* Product thumbnail */}

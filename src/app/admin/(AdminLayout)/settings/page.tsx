@@ -104,7 +104,6 @@ function SettingsPageContent() {
 										<InputFree
 											label={`${currency.name} (${currency.code})`}
 											icon={DollarSign}
-											// id={currency.code}
 											isPriceInput
 											value={currency.convertRate}
 											onValueChange={(v: string) =>
@@ -112,6 +111,7 @@ function SettingsPageContent() {
 											}
 											disabled={currency.code === "IRR"}
 											inputClassName="text-left"
+											data-testid={`currency-rate-${currency.code}`}
 										/>
 										<span className="text-sm text-muted-foreground whitespace-nowrap">
 											ریال
@@ -135,6 +135,7 @@ function SettingsPageContent() {
 
 						<div className="flex gap-4 mt-8 pt-6 border-t">
 							<Button
+								data-testid="save-currencies"
 								onClick={saveAllCurrencies}
 								className="gap-2"
 							>

@@ -143,7 +143,7 @@ export default function AddressesPage() {
 
 				<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
 					<DialogTrigger asChild>
-						<Button variant="luxury" className="gap-2">
+						<Button variant="luxury" className="gap-2" data-testid="add-address">
 							<Plus className="w-4 h-4" />
 							افزودن آدرس
 						</Button>
@@ -171,6 +171,7 @@ export default function AddressesPage() {
 									label="آدرس خیابان"
 									placeholder="خیابان، کوچه، بن‌بست..."
 									icon={Home}
+									data-testid="street-address"
 								/>
 								<div className="grid grid-cols-2 gap-3">
 									<Input
@@ -207,6 +208,7 @@ export default function AddressesPage() {
 										variant="luxury"
 										className="flex-1"
 										disabled={submitting}
+										data-testid="submit-address"
 									>
 										{submitting
 											? "در حال ذخیره..."

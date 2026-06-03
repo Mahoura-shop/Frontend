@@ -52,7 +52,7 @@ export default function AboutPage() {
 					</div>
 				</div>
 
-				<BackgroundPortraits mode="absolute" count={20} seed={60} />
+				<BackgroundPortraits mode="absolute" count={20} seed={13} />
 				<div className="container mx-auto px-4 py-16">
 					<div className="mb-16">
 						<motion.h2

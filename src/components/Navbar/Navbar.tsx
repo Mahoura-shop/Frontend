@@ -346,7 +346,10 @@ export default function Navbar() {
 									transition={{ delay: 0.5 }}
 								>
 									<DropdownMenu>
-										<DropdownMenuTrigger asChild>
+										<DropdownMenuTrigger
+											asChild
+											data-testid="navbar-profile"
+										>
 											<button className="w-10 h-10 rounded-full bg-gradient-to-r from-secondary-plum to-primary-rose flex items-center justify-center text-white hover:shadow-lg transition-shadow">
 												<User className="w-5 h-5" />
 											</button>
@@ -393,6 +396,7 @@ export default function Navbar() {
 											</DropdownMenuItem> */}
 											<DropdownMenuSeparator />
 											<DropdownMenuItem
+												data-testid="logout"
 												onClick={handleLogout}
 												className="text-red-500 cursor-pointer focus:text-red-600 focus:bg-destructive/10 flex justify-end items-center gap-2"
 											>
