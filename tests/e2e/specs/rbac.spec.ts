@@ -17,10 +17,7 @@ test("admin can create a role", async ({ page }) => {
 	await page.goto("/admin/roles");
 
 	const createBtn = page.getByTestId("create-role");
-	if (!(await createBtn.isVisible({ timeout: 3000 }).catch(() => false))) {
-		test.skip();
-		return;
-	}
+	await expect(createBtn).toBeVisible({ timeout: 8000 });
 
 	await createBtn.click();
 	await page.getByTestId("role-name").fill("نقش تست");

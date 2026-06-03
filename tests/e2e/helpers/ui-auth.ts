@@ -44,4 +44,5 @@ export async function loginCustomerViaUI(
 	}
 
 	await page.waitForURL(/\/(?!signin)/, { timeout: 15000 });
+	await page.waitForLoadState("domcontentloaded");
 }

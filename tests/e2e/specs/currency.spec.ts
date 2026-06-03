@@ -37,10 +37,7 @@ test("admin can update USD rate and save", async ({ page }) => {
 	await page.goto("/admin/settings");
 
 	const usdInput = page.getByTestId("currency-rate-USD");
-	if (!(await usdInput.isVisible({ timeout: 5000 }).catch(() => false))) {
-		test.skip();
-		return;
-	}
+	await expect(usdInput).toBeVisible({ timeout: 10000 });
 
 	await usdInput.clear();
 	await usdInput.fill("700000");
