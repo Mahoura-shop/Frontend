@@ -57,6 +57,13 @@ export default function CartPage() {
 		code: string;
 		discount: number;
 	} | null>(null);
+	const [clearConfirm, setClearConfirm] = useState(false);
+
+	useEffect(() => {
+		if (!clearConfirm) return;
+		const t = setTimeout(() => setClearConfirm(false), 4000);
+		return () => clearTimeout(t);
+	}, [clearConfirm]);
 	useEffect(() => {
 		fetchCart();
 	}, []);
@@ -136,7 +143,7 @@ export default function CartPage() {
 					animate={{ opacity: 1, y: 0 }}
 					className="mb-8"
 				>
-					<h1 className="text-4xl font-bold gradient-text mb-2">
+					<h1 className="text-4xl font-bold text-foreground mb-2">
 						سبد خرید
 					</h1>
 					<p className="text-muted-foreground">
@@ -265,7 +272,7 @@ export default function CartPage() {
 												</div>
 
 												<div className="text-left">
-													<p className="text-2xl font-bold gradient-text">
+													<p className="text-2xl font-bold text-primary-rose">
 														{formatPrice(
 															resolvePrice(
 																item.product,
@@ -305,15 +312,47 @@ export default function CartPage() {
 							animate={{ opacity: 1 }}
 							transition={{ delay: 0.3 }}
 						>
-							<Button
-								variant="outline"
-								className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
-								disabled={loading}
-								onClick={clearCart}
-							>
-								<Trash2 className="w-4 h-4" />
-								پاک کردن سبد خرید
-							</Button>
+							<AnimatePresence mode="wait">
+								{clearConfirm ? (
+									<motion.div
+										key="confirm"
+										initial={{ opacity: 0, y: 4 }}
+										animate={{ opacity: 1, y: 0 }}
+										exit={{ opacity: 0, y: 4 }}
+										transition={{ duration: 0.18 }}
+										className="flex gap-2"
+									>
+										<Button
+											variant="outline"
+											className="flex-1 gap-2 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
+											disabled={loading}
+											onClick={() => { clearCart(); setClearConfirm(false); }}
+										>
+											<Trash2 className="w-4 h-4" />
+											تایید و پاک کردن
+										</Button>
+										<Button
+											variant="outline"
+											className="flex-1"
+											onClick={() => setClearConfirm(false)}
+										>
+											لغو
+										</Button>
+									</motion.div>
+								) : (
+									<motion.div key="initial" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
+										<Button
+											variant="outline"
+											className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+											disabled={loading}
+											onClick={() => setClearConfirm(true)}
+										>
+											<Trash2 className="w-4 h-4" />
+											پاک کردن سبد خرید
+										</Button>
+									</motion.div>
+								)}
+							</AnimatePresence>
 						</motion.div>
 					</div>
 
@@ -323,10 +362,10 @@ export default function CartPage() {
 							animate={{ opacity: 1, x: 0 }}
 							className="sticky top-24 space-y-6"
 						>
-							<Card className="overflow-hidden border-2">
-								<div className="bg-gradient-to-br from-primary-rose/10 via-accent-gold/10 to-secondary-plum/10 p-4">
-									<h2 className="text-xl font-bold flex items-center gap-2">
-										<ShoppingBag className="w-5 h-5" />
+							<Card className="overflow-hidden">
+								<div className="px-5 py-4 border-b">
+									<h2 className="text-base font-semibold flex items-center gap-2">
+										<ShoppingBag className="w-5 h-5 text-muted-foreground" />
 										خلاصه سفارش
 									</h2>
 								</div>
@@ -420,7 +459,7 @@ export default function CartPage() {
 
 									<div className="flex items-center justify-between text-xl font-bold ">
 										<span>مجموع نهایی</span>
-										<span className="gradient-text">
+										<span className="text-primary-rose">
 											{formatPrice(total)}
 										</span>
 									</div>
@@ -467,8 +506,8 @@ export default function CartPage() {
 									</div>
 									<Separator /> */}
 									<div className="flex items-center gap-3">
-										<div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
-											<ShoppingBag className="w-5 h-5 text-blue-600" />
+										<div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+											<ShoppingBag className="w-5 h-5 text-muted-foreground" />
 										</div>
 										<div className="flex-1">
 											<p className="font-medium text-sm">

@@ -284,10 +284,12 @@ export default function ProductsPage() {
 			<BackgroundPortraits mode="absolute" count={20} seed={15} />
 			{(pulling || refreshing) && (
 				<div
-					className="fixed top-0 inset-x-0 z-50 flex items-center justify-center pointer-events-none"
+					className="fixed top-0 inset-x-0 z-50 h-14 flex items-center justify-center pointer-events-none"
 					style={{
-						height: pullY || (refreshing ? 56 : 0),
-						transition: pulling ? "none" : "height 0.3s ease",
+						transform: refreshing
+							? "translateY(0)"
+							: `translateY(${Math.min(pullY, 56) - 56}px)`,
+						transition: pulling ? "none" : "transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
 					}}
 				>
 					<div className="flex items-center gap-2 bg-background/90 backdrop-blur border border-border rounded-full px-4 py-2 shadow-lg text-sm text-muted-foreground">
@@ -295,9 +297,7 @@ export default function ProductsPage() {
 							className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
 							style={
 								!refreshing
-									? {
-											transform: `rotate(${(pullY / 56) * 180}deg)`,
-										}
+									? { transform: `rotate(${(pullY / 56) * 180}deg)` }
 									: undefined
 							}
 						/>

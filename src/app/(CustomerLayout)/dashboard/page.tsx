@@ -1,20 +1,13 @@
-// src/app/dashboard/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-	ShoppingBag,
 	Package,
 	Clock,
-	CheckCircle2,
 	Truck,
-	Star,
-	Wallet,
-	Calendar,
 	CreditCard,
 	XCircle,
-	Heart,
 	UserCircle,
 	X,
 	AlertCircle,
@@ -23,7 +16,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice } from "@/utils/formatPrice";
 import { formatDate } from "@/utils/formatDate";
@@ -85,8 +77,7 @@ export default function DashboardPage() {
 	const showBanner = profile !== null && missingFields.length > 0 && !bannerDismissed;
 
 	return (
-		<div className="space-y-6">
-			{/* Profile completion banner */}
+		<div className="space-y-6" dir="rtl">
 			<AnimatePresence>
 				{showBanner && (
 					<motion.div
@@ -95,7 +86,7 @@ export default function DashboardPage() {
 						exit={{ opacity: 0, y: -10 }}
 						transition={{ duration: 0.3 }}
 					>
-						<Card className="border-amber-400/50 bg-gradient-to-r from-amber-50/80 to-orange-50/80 dark:from-amber-900/20 dark:to-orange-900/20 overflow-hidden">
+						<Card className="border-amber-400/50 bg-amber-50/80 dark:bg-amber-900/20 overflow-hidden">
 							<CardContent className="p-4">
 								<div className="flex items-start gap-4">
 									<div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center flex-shrink-0">
@@ -127,200 +118,72 @@ export default function DashboardPage() {
 				)}
 			</AnimatePresence>
 
-			{/* Welcome Section */}
-			{/* <motion.div
-				initial={{ opacity: 0, y: -20 }}
-				animate={{ opacity: 1, y: 0 }}
-			>
-				<h1 className="text-3xl font-bold gradient-text mb-2">
-					خوش آمدید! 👋
-				</h1>
-				<p className="text-muted-foreground">
-					خلاصه‌ای از فعالیت‌های شما در ماهورا
-				</p>
-			</motion.div> */}
-
-			{/* Stats Grid */}
-			{/* <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.1 }}
-				>
-					<Card className="hover:shadow-lg transition-shadow">
-						<CardContent className="p-6">
-							<div className="flex items-center justify-between mb-4">
-								<div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center">
-									<ShoppingBag className="w-6 h-6 text-blue-600" />
-								</div>
-								<TrendingUp className="w-5 h-5 text-green-600" />
-							</div>
-							<p className="text-2xl font-bold gradient-text mb-1">
-								{new Intl.NumberFormat("fa-IR").format(
-									MOCK_STATS.totalOrders,
-								)}
-							</p>
-							<p className="text-sm text-muted-foreground">
-								کل سفارش‌ها
-							</p>
-						</CardContent>
-					</Card>
-				</motion.div>
-
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.2 }}
-				>
-					<Card className="hover:shadow-lg transition-shadow">
-						<CardContent className="p-6">
-							<div className="flex items-center justify-between mb-4">
-								<div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center">
-									<Package className="w-6 h-6 text-green-600" />
-								</div>
-							</div>
-							<p className="text-2xl font-bold gradient-text mb-1">
-								{new Intl.NumberFormat("fa-IR").format(
-									MOCK_STATS.completedOrders,
-								)}
-							</p>
-							<p className="text-sm text-muted-foreground">
-								سفارش‌های کامل
-							</p>
-						</CardContent>
-					</Card>
-				</motion.div>
-
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.3 }}
-				>
-					<Card className="hover:shadow-lg transition-shadow">
-						<CardContent className="p-6">
-							<div className="flex items-center justify-between mb-4">
-								<div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
-									<Heart className="w-6 h-6 text-red-600" />
-								</div>
-							</div>
-							<p className="text-2xl font-bold gradient-text mb-1">
-								{new Intl.NumberFormat("fa-IR").format(
-									MOCK_STATS.wishlistItems,
-								)}
-							</p>
-							<p className="text-sm text-muted-foreground">
-								علاقه‌مندی
-							</p>
-						</CardContent>
-					</Card>
-				</motion.div>
-
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.4 }}
-				>
-					<Card className="hover:shadow-lg transition-shadow">
-						<CardContent className="p-6">
-							<div className="flex items-center justify-between mb-4">
-								<div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center">
-									<Gift className="w-6 h-6 text-amber-600" />
-								</div>
-							</div>
-							<p className="text-2xl font-bold gradient-text mb-1">
-								{new Intl.NumberFormat("fa-IR").format(
-									MOCK_STATS.loyaltyPoints,
-								)}
-							</p>
-							<p className="text-sm text-muted-foreground">
-								امتیاز پاداش
-							</p>
-						</CardContent>
-					</Card>
-				</motion.div>
-			</div> */}
-
-			{/* Quick Actions */}
 			<motion.div
-				initial={{ opacity: 0, y: 20 }}
+				initial={{ opacity: 0, y: 16 }}
 				animate={{ opacity: 1, y: 0 }}
-				transition={{ delay: 0.6 }}
-				className="grid md:grid-cols-3 gap-4"
+				transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
 			>
-				<Link href="/dashboard/wallet">
-					<Card className="hover:shadow-lg transition-all hover:border-primary-rose cursor-pointer" data-testid="wallet-card">
-						<CardContent className="p-6 text-center">
-							<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary-rose/20 to-accent-gold/20 flex items-center justify-center">
-								<Wallet className="w-8 h-8 text-primary-rose" />
-							</div>
-							<h3 className="font-bold mb-2">کیف پول</h3>
+				<div className="bg-card border border-border rounded-xl overflow-hidden">
+					<div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x sm:divide-x-reverse divide-border">
+						<Link href="/dashboard/wallet" className="p-6 hover:bg-muted/40 transition-colors group" data-testid="wallet-card">
+							<p className="text-xs text-muted-foreground mb-2 font-medium">موجودی کیف پول</p>
 							{walletBalance === null ? (
-								<Skeleton className="h-4 w-28 mx-auto mt-1" />
+								<Skeleton className="h-8 w-36 mb-2" />
 							) : (
-								<p className="text-sm text-muted-foreground">
-									موجودی {formatPrice(walletBalance)} ریال
+								<p className="text-3xl font-black text-foreground mb-2 tabular-nums">
+									{new Intl.NumberFormat("fa-IR").format(walletBalance)}
+									<span className="text-sm font-medium text-muted-foreground mr-1">ریال</span>
 								</p>
 							)}
-						</CardContent>
-					</Card>
-				</Link>
+							<span className="text-xs font-semibold text-primary-rose group-hover:underline">
+								شارژ کیف پول
+							</span>
+						</Link>
 
-				<Link href="/dashboard/wishlist">
-					<Card className="hover:shadow-lg transition-all hover:border-primary-rose cursor-pointer">
-						<CardContent className="p-6 text-center">
-							<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-500/20 to-pink-500/20 flex items-center justify-center">
-								<Heart className="w-8 h-8 text-red-600" />
-							</div>
-							<h3 className="font-bold mb-2">علاقه‌مندی‌ها</h3>
+						<Link href="/dashboard/wishlist" className="p-6 hover:bg-muted/40 transition-colors">
+							<p className="text-xs text-muted-foreground mb-2 font-medium">علاقه‌مندی‌ها</p>
 							{wishlistCount === null ? (
-								<Skeleton className="h-4 w-24 mx-auto mt-1" />
+								<Skeleton className="h-8 w-16 mb-2" />
 							) : (
-								<p className="text-sm text-muted-foreground">
-									{new Intl.NumberFormat("fa-IR").format(wishlistCount)} محصول ذخیره شده
+								<p className="text-3xl font-black text-foreground mb-2 tabular-nums">
+									{new Intl.NumberFormat("fa-IR").format(wishlistCount)}
+									<span className="text-sm font-medium text-muted-foreground mr-1">محصول</span>
 								</p>
 							)}
-						</CardContent>
-					</Card>
-				</Link>
+							<span className="text-xs text-muted-foreground">ذخیره شده</span>
+						</Link>
 
-				<div>
-					<Card className="hover:shadow-lg transition-all hover:border-primary-rose cursor-pointer">
-						<CardContent className="p-6 text-center">
-							<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center">
-								<Calendar className="w-8 h-8 text-amber-600" />
-							</div>
-							<h3 className="font-bold mb-2">تاریخ عضویت</h3>
+						<div className="p-6">
+							<p className="text-xs text-muted-foreground mb-2 font-medium">تاریخ عضویت</p>
 							{profile === null ? (
-								<Skeleton className="h-4 w-24 mx-auto mt-1" />
+								<Skeleton className="h-8 w-28 mb-2" />
 							) : (
-								<p className="text-sm text-muted-foreground">
+								<p className="text-xl font-bold text-foreground mb-2">
 									{formatDate(profile.createdAt)}
 								</p>
 							)}
-						</CardContent>
-					</Card>
+							<span className="text-xs text-muted-foreground">عضو ماهورا</span>
+						</div>
+					</div>
 				</div>
 			</motion.div>
 
-			{/* Recent Orders */}
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
-				transition={{ delay: 0.5 }}
+				transition={{ delay: 0.12, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
 			>
 				<Card data-testid="recent-orders">
-					<div className="bg-gradient-to-r from-primary-rose/10 via-accent-gold/10 to-secondary-plum/10 p-4 border-b">
-						<div className="flex items-center justify-between">
-							<h2 className="text-xl font-bold flex items-center gap-2">
-								<Package className="w-5 h-5" />
-								آخرین سفارش‌ها
-							</h2>
-							<Link href="/dashboard/orders">
-								<Button variant="ghost" size="sm">
-									مشاهده همه
-								</Button>
-							</Link>
-						</div>
+					<div className="px-5 py-4 border-b flex items-center justify-between">
+						<h2 className="text-base font-semibold flex items-center gap-2">
+							<Package className="w-4 h-4 text-muted-foreground" />
+							آخرین سفارش‌ها
+						</h2>
+						<Link href="/dashboard/orders">
+							<Button variant="ghost" size="sm" className="text-xs">
+								مشاهده همه
+							</Button>
+						</Link>
 					</div>
 
 					<CardContent className="p-0">
@@ -329,7 +192,7 @@ export default function DashboardPage() {
 								Array.from({ length: 3 }).map((_, i) => (
 									<div key={i} className="p-4">
 										<div className="flex items-center gap-4">
-											<Skeleton className="w-16 h-16 flex-shrink-0 rounded-lg" />
+											<Skeleton className="w-14 h-14 flex-shrink-0 rounded-lg" />
 											<div className="flex-1 space-y-2">
 												<div className="flex items-center gap-2">
 													<Skeleton className="h-4 w-28" />
@@ -353,35 +216,31 @@ export default function DashboardPage() {
 									const firstItem = order.items?.[0];
 									const itemCount = order.items?.reduce((sum, i) => sum + i.count, 0) ?? 0;
 									return (
-										<div
-											key={order.id}
-											className="p-4 hover:bg-muted/50 transition-colors"
-										>
+										<div key={order.id} className="p-4 hover:bg-muted/40 transition-colors">
 											<div className="flex items-center gap-4">
-												<div className="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-primary-rose/20 via-accent-gold/20 to-secondary-plum/20 flex items-center justify-center">
+												<div className="w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
 													{firstItem?.product?.productPic ? (
 														<img src={firstItem.product.productPic} alt={firstItem.product.name} className="w-full h-full object-cover" />
 													) : (
-														<Package className="w-8 h-8 text-muted-foreground" />
+														<Package className="w-6 h-6 text-muted-foreground" />
 													)}
 												</div>
 												<div className="flex-1 min-w-0">
 													<div className="flex items-center gap-2 mb-1">
-														<p className="font-semibold">
+														<p className="font-semibold text-sm">
 															سفارش #{new Intl.NumberFormat("fa-IR").format(order.id)}
 														</p>
 														<Badge variant={s.variant} className="text-xs">{s.label}</Badge>
 													</div>
-													<p className="text-sm text-muted-foreground mb-1">
-														{formatDate(order.createdAt)} •{" "}
-														{new Intl.NumberFormat("fa-IR").format(itemCount)} محصول
+													<p className="text-xs text-muted-foreground mb-1">
+														{formatDate(order.createdAt)} · {new Intl.NumberFormat("fa-IR").format(itemCount)} محصول
 													</p>
-													<p className="text-lg font-bold gradient-text">
+													<p className="text-base font-bold text-primary-rose">
 														{formatPrice(order.totalAmount)} ریال
 													</p>
 												</div>
-												<div className="flex items-center gap-3">
-													<StatusIcon className="w-5 h-5 text-muted-foreground" />
+												<div className="flex items-center gap-2">
+													<StatusIcon className="w-4 h-4 text-muted-foreground" />
 													<Link href={`/dashboard/orders/${order.id}`}>
 														<Button variant="outline" size="sm">جزئیات</Button>
 													</Link>

@@ -140,7 +140,7 @@ export default function AdminDashboard() {
 				title: "دسته‌بندی‌ها",
 				value: dashboardData?.categoriesCount || 0,
 				icon: FolderTree,
-				color: "from-purple-500 to-purple-600",
+				color: "from-secondary-plum to-secondary-plum/80",
 				route: "categories",
 			},
 			{

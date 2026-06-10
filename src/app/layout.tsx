@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { Vazirmatn } from "@/utils/fonts";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://mahoura.com";
+
 export const metadata: Metadata = {
 	title: {
 		template: "%s | ماهورا",
@@ -14,6 +16,10 @@ export const metadata: Metadata = {
 		"خرید آنلاین لوازم آرایشی و بهداشتی با بهترین کیفیت و قیمت از فروشگاه ماهورا. برندهای معتبر، ارسال سریع، تضمین اصالت کالا.",
 	keywords: ["آرایشی", "بهداشتی", "لوازم آرایشی", "خرید آنلاین", "ماهورا", "پوست", "مو", "رژ لب", "کرم"],
 	manifest: "/manifest.json",
+	icons: {
+		icon: "/icons/icon-192.png",
+		apple: "/icons/icon-192.png",
+	},
 	appleWebApp: {
 		capable: true,
 		statusBarStyle: "default",
@@ -26,12 +32,14 @@ export const metadata: Metadata = {
 		title: "ماهورا — فروشگاه آرایشی و بهداشتی",
 		description:
 			"خرید آنلاین لوازم آرایشی و بهداشتی با بهترین کیفیت و قیمت از فروشگاه ماهورا.",
+		images: [{ url: `${SITE_URL}/og-default.jpg`, width: 1200, height: 630, alt: "ماهورا" }],
 	},
 	twitter: {
 		card: "summary_large_image",
 		title: "ماهورا — فروشگاه آرایشی و بهداشتی",
 		description:
 			"خرید آنلاین لوازم آرایشی و بهداشتی با بهترین کیفیت و قیمت از فروشگاه ماهورا.",
+		images: [`${SITE_URL}/og-default.jpg`],
 	},
 	robots: {
 		index: true,

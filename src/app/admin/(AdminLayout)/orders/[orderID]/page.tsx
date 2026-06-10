@@ -104,7 +104,7 @@ const STATUS_MAP: Record<
 	},
 	3: {
 		label: "ارسال شده",
-		color: "from-purple-500 to-purple-600",
+		color: "from-secondary-plum to-secondary-plum/80",
 		icon: Truck,
 		nextStates: [],
 	},
@@ -299,7 +299,7 @@ export default function AdminOrderDetailPage() {
 			title: "مشتری",
 			value: order.user?.phone ?? "—",
 			icon: User,
-			color: "from-purple-500 to-purple-600",
+			color: "from-secondary-plum to-secondary-plum/80",
 		},
 	];
 

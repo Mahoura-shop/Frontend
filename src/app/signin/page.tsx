@@ -12,7 +12,7 @@ import { sendOTP, verifyOTP } from "@/services/authService";
 import { patchData } from "@/services/services";
 import BackgroundPortraits from "@/components/BackgroundPortraits/BackgroundPortraits";
 
-const spring = { type: "spring", stiffness: 400, damping: 30 };
+const spring = { duration: 0.35, ease: [0.22, 1, 0.36, 1] };
 const stepVariants = {
 	enter: { opacity: 0, scale: 0.96 },
 	center: { opacity: 1, scale: 1 },

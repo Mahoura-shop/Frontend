@@ -31,7 +31,7 @@ export default function MobileFilterSheet({ open, onClose, onClear, ...filterPro
 						initial={{ y: "100%" }}
 						animate={{ y: 0 }}
 						exit={{ y: "100%" }}
-						transition={{ type: "spring", damping: 30, stiffness: 300 }}
+						transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
 						className="absolute bottom-0 inset-x-0 glass-panel rounded-t-2xl max-h-[85vh] overflow-y-auto"
 						onClick={(e) => e.stopPropagation()}
 					>

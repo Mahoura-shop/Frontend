@@ -526,7 +526,7 @@ export default function LandingPage() {
 									whileInView={{ opacity: 1, y: 0 }}
 									viewport={{ once: true }}
 									transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1], delay: i * 0.1 }}
-									className="flex-shrink-0 w-[260px] rounded-[20px] overflow-hidden bg-white dark:bg-card border border-[#0D0B0A]/5 dark:border-border hover:shadow-[0_16px_48px_rgba(13,11,10,.1)] dark:hover:shadow-[0_16px_48px_rgba(0,0,0,.4)] hover:-translate-y-1.5 transition-all cursor-pointer group"
+									className="flex-shrink-0 w-[260px] rounded-[20px] overflow-hidden bg-card border border-border hover:shadow-[0_16px_48px_rgba(13,11,10,.1)] dark:hover:shadow-[0_16px_48px_rgba(0,0,0,.4)] hover:-translate-y-1.5 transition-all cursor-pointer group"
 								>
 									<div className="aspect-square overflow-hidden bg-gradient-to-br from-[#E8E6E3] to-[rgba(212,165,165,.25)] flex items-center justify-center">
 										{prod.productPic ? (
@@ -540,10 +540,10 @@ export default function LandingPage() {
 										)}
 									</div>
 									<div className="p-4">
-										<p className="text-xs text-[#0D0B0A]/30 font-bold mb-1">
+										<p className="text-xs text-muted-foreground font-semibold mb-1">
 											{prod?.brand?.name}
 										</p>
-										<h4 className="text-sm font-bold mb-2.5 text-[#0D0B0A] line-clamp-1">
+										<h4 className="text-sm font-bold mb-2.5 text-foreground line-clamp-1">
 											{prod.name}
 										</h4>
 										<div className="flex items-center justify-between">

@@ -4,10 +4,10 @@ import { useState, useEffect, useRef } from "react";
 import { Package } from "lucide-react";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useProductStore } from "@/store/useProductStore";
-import { getData, postData } from "@/services/services";
+import { postData } from "@/services/services";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 import { useSettingsStore } from "@/store/useSettingsStore";
 import { useCartStore } from "@/store/useCartStore";
@@ -28,10 +28,9 @@ interface Review {
 	createdAt: string;
 }
 
-export default function ProductDetailClient() {
-	const params = useParams();
+export default function ProductDetailClient({ initialProduct }: { initialProduct: Product | null }) {
 	const router = useRouter();
-	const [product, setProduct] = useState<Product | null>(null);
+	const [product, setProduct] = useState<Product | null>(initialProduct);
 	const [selectedImage, setSelectedImage] = useState(0);
 	const [adding, setAdding] = useState(false);
 	const addToCartRef = useRef<HTMLDivElement>(null);
@@ -55,15 +54,10 @@ export default function ProductDetailClient() {
 	};
 
 	useEffect(() => {
-		getData({ endPoint: `/v1/products/slug/${params.slug}` })
-			.then((data) => {
-				const p = data?.data;
-				setProduct(p);
-				if (p?.id) {
-					fetchReviews(p.id);
-					postData({ endPoint: `/v1/products/${p.id}/visit` }).catch(() => {});
-				}
-			});
+		if (product?.id) {
+			fetchReviews(product.id);
+			postData({ endPoint: `/v1/products/${product.id}/visit` }).catch(() => {});
+		}
 		if (accessToken) fetchCart();
 	}, []);
 

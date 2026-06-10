@@ -30,13 +30,13 @@ input[type="number"] {
 		--font-vazirmatn: "Vazirmatn", sans-serif;
 
 		/* Light Theme - Mahoura Colors */
-		--background: 0 0% 100%; /* White */
-		--foreground: 0 0% 3.9%; /* Almost black */
+		--background: 30 22% 96%; /* Aged Linen #F8F6F4 */
+		--foreground: 0 0% 3.9%;
 
-		--card: 0 0% 100%;
+		--card: 36 10% 90%; /* Raw Silk #E8E6E3 */
 		--card-foreground: 0 0% 3.9%;
 
-		--popover: 0 0% 100%;
+		--popover: 30 18% 99%; /* Surface-warm */
 		--popover-foreground: 0 0% 3.9%;
 
 		--primary: 0 0% 9%;
@@ -47,20 +47,20 @@ input[type="number"] {
 		--secondary-plum: hsl(283 18% 36%); /* #6B4E71 - Deep Plum */
 		--accent-gold: hsl(38 38% 62%); /* #C9A875 - Warm Gold */
 
-		--secondary: 0 0% 96.1%;
+		--secondary: 30 10% 92%;
 		--secondary-foreground: 0 0% 9%;
 
-		--accent: 0 0% 96.1%;
+		--accent: 30 10% 92%;
 		--accent-foreground: 0 0% 9%;
 
-		--muted: 0 0% 96.1%;
+		--muted: 30 10% 92%;
 		--muted-foreground: 0 0% 45.1%;
 
 		--destructive: 0 84.2% 60.2%;
 		--destructive-foreground: 0 0% 98%;
 
-		--border: 0 0% 89.8%;
-		--input: 0 0% 89.8%;
+		--border: 30 8% 87%;
+		--input: 30 8% 87%;
 		--ring: 0 0% 3.9%;
 
 		--radius: 0.5rem;
@@ -91,13 +91,13 @@ input[type="number"] {
 
 	.dark {
 		/* Dark Theme - Mahoura Colors */
-		--background: 0 0% 3.9%; /* #1A1A1A */
+		--background: 20 5% 4%; /* Deep Ink warm-tinted */
 		--foreground: 0 0% 98%;
 
-		--card: 0 0% 3.9%;
+		--card: 20 5% 6%;
 		--card-foreground: 0 0% 98%;
 
-		--popover: 0 0% 3.9%;
+		--popover: 20 5% 8%;
 		--popover-foreground: 0 0% 98%;
 
 		--primary: 0 0% 98%;
@@ -108,20 +108,20 @@ input[type="number"] {
 		--secondary-plum: hsl(283 18% 36%); /* #6B4E71 - Deep Plum */
 		--accent-gold: hsl(38 38% 62%); /* #C9A875 - Warm Gold */
 
-		--secondary: 0 0% 14.9%;
+		--secondary: 20 4% 14%;
 		--secondary-foreground: 0 0% 98%;
 
-		--accent: 0 0% 14.9%;
+		--accent: 20 4% 14%;
 		--accent-foreground: 0 0% 98%;
 
-		--muted: 0 0% 14.9%;
+		--muted: 20 4% 14%;
 		--muted-foreground: 0 0% 63.9%;
 
 		--destructive: 0 62.8% 30.6%;
 		--destructive-foreground: 0 0% 98%;
 
-		--border: 0 0% 14.9%;
-		--input: 0 0% 14.9%;
+		--border: 20 4% 14%;
+		--input: 20 4% 14%;
 		--ring: 0 0% 83.1%;
 
 		--chart-1: 220 70% 50%;
@@ -302,9 +302,8 @@ input[type="number"] {
 		animation: shimmer 3s infinite;
 	}
 
-	/* Gradient text */
 	.gradient-text {
-		@apply bg-gradient-to-r from-primary-rose via-accent-gold to-secondary-plum bg-clip-text text-transparent;
+		@apply text-primary-rose;
 	}
 
 	/* Magnetic button effect */
@@ -431,12 +430,12 @@ input[type="number"] {
 }
 
 .animate-fade-in-up {
-	animation: fadeInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+	animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 	opacity: 0;
 }
 
 .animate-fade-in-scale {
-	animation: fadeInScale 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+	animation: fadeInScale 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 	opacity: 0;
 }
 

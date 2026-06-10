@@ -67,13 +67,13 @@ export default function FilterPanel({
 				<div className="grid grid-cols-2 gap-4">
 					<div className="p-3 rounded-lg bg-background border text-center">
 						<p className="text-xs text-muted-foreground mb-1">حداکثر</p>
-						<p className="font-bold gradient-text">{formatPrice(priceRange[1])}</p>
-						<p className="font-bold gradient-text">ریال</p>
+						<p className="font-bold text-primary-rose">{formatPrice(priceRange[1])}</p>
+						<p className="font-bold text-primary-rose">ریال</p>
 					</div>
 					<div className="p-3 rounded-lg bg-background border text-center">
 						<p className="text-xs text-muted-foreground mb-1">حداقل</p>
-						<p className="font-bold gradient-text">{formatPrice(priceRange[0])}</p>
-						<p className="font-bold gradient-text">ریال</p>
+						<p className="font-bold text-primary-rose">{formatPrice(priceRange[0])}</p>
+						<p className="font-bold text-primary-rose">ریال</p>
 					</div>
 				</div>
 			</div>

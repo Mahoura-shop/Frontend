@@ -11,11 +11,17 @@ import { getPublicStats, type PublicStats } from "@/services/statsService";
 import { productService } from "@/services/productService";
 import { getData } from "@/services/services";
 import BackgroundPortraits from "@/components/BackgroundPortraits/BackgroundPortraits";
+import JsonLd from "@/components/JsonLd";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://mahoura.com";
 
 export const metadata: Metadata = {
 	title: "ماهورا — فروشگاه آرایشی و بهداشتی",
 	description:
 		"خرید آنلاین بهترین لوازم آرایشی و بهداشتی از برندهای معتبر در ماهورا. کیفیت برتر، قیمت مناسب، ارسال سریع.",
+	alternates: {
+		canonical: `${SITE_URL}/`,
+	},
 	openGraph: {
 		title: "ماهورا — فروشگاه آرایشی و بهداشتی",
 		description:
@@ -69,8 +75,34 @@ export default async function LandingPage() {
 
 	const newProducts = products.filter((p) => p.isNew).slice(0, 6);
 
+	const organizationJsonLd = {
+		"@context": "https://schema.org",
+		"@type": "Organization",
+		name: "ماهورا",
+		url: SITE_URL,
+		contactPoint: {
+			"@type": "ContactPoint",
+			contactType: "customer service",
+			availableLanguage: "Persian",
+		},
+	};
+
+	const websiteJsonLd = {
+		"@context": "https://schema.org",
+		"@type": "WebSite",
+		url: SITE_URL,
+		potentialAction: {
+			"@type": "SearchAction",
+			target: `${SITE_URL}/products?search={search_term_string}`,
+			"query-input": "required name=search_term_string",
+		},
+	};
+
 	return (
-		<div>
+		<>
+			<JsonLd data={organizationJsonLd} />
+			<JsonLd data={websiteJsonLd} />
+			<div>
 			<BackgroundPortraits mode="absolute" count={20} seed={5} />
 			<HeroSection stats={stats} />
 			<MarqueeSection />
@@ -83,5 +115,6 @@ export default async function LandingPage() {
 			)}
 			<BrandsMarquee brands={brands} />
 		</div>
+		</>
 	);
 }

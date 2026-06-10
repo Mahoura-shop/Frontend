@@ -528,7 +528,7 @@ export default function OrderPage() {
 										className="w-full gap-2"
 										size="lg"
 										onClick={handleSubmit}
-										disabled={submitting || items.length === 0 || (paymentMethod === PAYMENT_METHOD_WALLET && walletBalance !== null && walletBalance < subtotal)}
+										disabled={submitting || items.length === 0 || selectedAddressID === null || (paymentMethod === PAYMENT_METHOD_WALLET && walletBalance !== null && walletBalance < subtotal)}
 										data-testid="place-order"
 									>
 										{submitting ? (

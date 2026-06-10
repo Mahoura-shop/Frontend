@@ -27,7 +27,7 @@ const STATUS_MAP: Record<string, { label: string; icon: React.ElementType; color
 	requested: { label: "در انتظار بررسی", icon: Clock, color: "text-amber-600" },
 	approved: { label: "تایید شده", icon: Check, color: "text-blue-600" },
 	rejected: { label: "رد شده", icon: X, color: "text-red-600" },
-	shipped_back: { label: "ارسال شده", icon: PackageX, color: "text-purple-600" },
+	shipped_back: { label: "ارسال شده", icon: PackageX, color: "text-secondary-plum" },
 	received: { label: "دریافت شده", icon: Check, color: "text-green-600" },
 	refunded: { label: "مبلغ برگشت داده شد", icon: RefreshCw, color: "text-green-700" },
 };

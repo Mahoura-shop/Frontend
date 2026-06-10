@@ -17,9 +17,9 @@ export default function RootLayout({
 			<DashboardSidebar />
 			<PageTransition>
 				{children}
-				{/* <PageWrapper>{children}</PageWrapper> */}
 			</PageTransition>
 			<Footer />
+			<div className="h-48 md:hidden" aria-hidden="true" />
 		</div>
 	);
 }

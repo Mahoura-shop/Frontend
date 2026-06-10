@@ -237,3 +237,69 @@ MIT License - feel free to use this project for your own purposes.
 ---
 
 Built with ❤️ for Mahoura Cosmetics
+
+---
+
+## CI/CD Secrets
+
+### Hamgit (GitLab CI/CD Variables)
+
+Go to **Settings → CI/CD → Variables** and add:
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `FRONTEND_ENV_FILE` | File | Full content of `.env.local` (production environment) |
+| `REGISTRY` | Variable | `registry.hamdocker.ir` |
+| `REGISTRY_USERNAME` | Variable | Registry username |
+| `REGISTRY_PASSWORD` | Variable (masked) | Registry password |
+| `PAT` | Variable (masked) | Personal access token — used on server to pull image |
+| `SSH_PRIVATE_KEY` | File | SSH private key for server access |
+| `SERVER_HOST` | Variable | Production server IP or hostname |
+| `SERVER_USER` | Variable | SSH username (e.g. `root`) |
+| `BALE_BOT_TOKEN` | Variable (masked) | Bale bot token |
+| `BALE_CHAT_ID` | Variable | Bale group/channel ID |
+| `TELEGRAM_BOT_TOKEN` | Variable (masked) | Telegram bot token |
+| `TELEGRAM_CHAT_ID` | Variable | Telegram group chat ID |
+| `TELEGRAM_BUILD_THREAD_ID` | Variable | Telegram topic thread ID |
+
+### GitHub Actions (Settings → Secrets and variables → Actions)
+
+| Secret | Description |
+|--------|-------------|
+| `FRONTEND_ENV` | Full content of `.env.local` (production environment) |
+| `REGISTRY` | `registry.hamdocker.ir` |
+| `REGISTRY_USERNAME` | Registry username |
+| `REGISTRY_PASSWORD` | Registry password |
+| `FRONTEND_REGISTRY_IMAGE` | `registry.hamdocker.ir/mahoura/frontend` |
+| `SSH_PRIVATE_KEY` | SSH private key for server access |
+| `SERVER_HOST` | Production server IP or hostname |
+| `SERVER_USER` | SSH username |
+| `TELEGRAM_BOT_TOKEN` | Telegram bot token |
+| `TELEGRAM_CHAT_ID` | Telegram group chat ID |
+| `TELEGRAM_THREAD_ID` | Telegram topic thread ID |
+| `BALE_BOT_TOKEN` | Bale bot token |
+| `BALE_CHAT_ID` | Bale group/channel ID |
+
+### E2E tests (PR to `main` only)
+
+The E2E job also requires these — set them in whichever platform you use:
+
+| Secret / Variable | Description |
+|-------------------|-------------|
+| `BACKEND_E2E_ENV` / `BACKEND_E2E_ENV_FILE` | Content of `../Backend/.env.e2e` |
+| `JWT_PRIVATE_KEY` / `JWT_PRIVATE_KEY_FILE` | Backend JWT private key PEM |
+| `JWT_PUBLIC_KEY` / `JWT_PUBLIC_KEY_FILE` | Backend JWT public key PEM |
+
+The E2E runner starts the backend via `docker compose --profile e2e up` (port 8081), then runs `npm run dev` with `BACKEND_URL=http://127.0.0.1:8081`, then executes `npx playwright test`.
+
+### Server directory
+
+Deploy jobs place `docker-compose.yml` and `.env.local` at `/root/mahoura/frontend/` on the server.
+
+### Pipeline triggers
+
+| Event | What runs |
+|-------|-----------|
+| PR to `develop` | Frontend build check + notification |
+| PR to `main` | Frontend build check + Playwright E2E + notification |
+| Merge to `main` or push to `ops/**` | Build image → push → SSH deploy → notification |

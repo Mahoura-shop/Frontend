@@ -14,7 +14,7 @@ import type {
 } from "../types/apiTypes";
 import CustomToast from "@/components/Custom/CustomToast/CustomToast";
 const isClient = typeof window !== "undefined";
-export const baseURL = `${process.env.BACKEND_URL ?? "http://127.0.0.1:8081"}/`;
+export const baseURL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/`;
 // export const baseURL = "http://127.0.0.1:8080/"
 // export const baseURL = isClient
 // 	? `${window.location.origin}/backend/`

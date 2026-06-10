@@ -13,6 +13,12 @@ import {
 	LogOut,
 	LayoutDashboard,
 	Bell,
+	Menu,
+	X,
+	Info,
+	Phone,
+	Tag,
+	LayoutGrid,
 } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
@@ -319,11 +325,9 @@ export default function Navbar() {
 									variant="ghost"
 									size="icon"
 									className="rounded-full"
+									asChild
 								>
-									<Link
-										href="/cart"
-										className="flex items-center justify-end gap-2 cursor-pointer"
-									>
+									<Link href="/cart">
 										<ShoppingCart className="w-4 h-4" />
 									</Link>
 								</Button>
@@ -430,6 +434,13 @@ export default function Navbar() {
 	);
 }
 
+const moreLinks = [
+	{ label: "درباره ما", href: "/about", icon: Info },
+	{ label: "تماس با ما", href: "/contact", icon: Phone },
+	{ label: "برندها", href: "/brands", icon: Tag },
+	{ label: "دسته‌بندی‌ها", href: "/categories", icon: LayoutGrid },
+];
+
 function BottomNav({
 	isActive,
 	cartCount,
@@ -451,38 +462,206 @@ function BottomNav({
 	onLogout: () => void;
 	onAccountClick: () => void;
 }) {
+	const [moreOpen, setMoreOpen] = useState(false);
+	const pathname = usePathname();
+
+	const moreActive = moreLinks.some((l) => pathname?.startsWith(l.href));
+
 	return (
-		<motion.nav
-			initial={{ y: 100, opacity: 0 }}
-			animate={{ y: 0, opacity: 1 }}
-			transition={{ ...spring.bottomNav, delay: 0.1 }}
-			className="fixed bottom-0 inset-x-0 z-50 md:hidden px-3 pb-3"
-			style={{
-				paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)",
-			}}
-		>
-			<div
-				className="w-full rounded-2xl shadow-2xl shadow-black/20"
+		<>
+			<AnimatePresence>
+				{moreOpen && (
+					<>
+						<motion.div
+							key="backdrop"
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							exit={{ opacity: 0 }}
+							transition={{ duration: 0.2 }}
+							className="fixed inset-0 z-40 bg-foreground/30 md:hidden"
+							onClick={() => setMoreOpen(false)}
+						/>
+						<motion.div
+							key="sheet"
+							initial={{ y: "100%" }}
+							animate={{ y: 0 }}
+							exit={{ y: "100%" }}
+							transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+							className="fixed bottom-0 inset-x-0 z-50 md:hidden rounded-t-2xl pb-safe"
+							style={{
+								background: "hsl(var(--background) / 0.96)",
+								backdropFilter: "blur(32px) saturate(200%)",
+								WebkitBackdropFilter: "blur(32px) saturate(200%)",
+								border: "1px solid hsl(var(--border) / 0.5)",
+								borderBottom: "none",
+								paddingBottom: "calc(env(safe-area-inset-bottom) + 5.5rem)",
+							}}
+						>
+							<div className="flex justify-center pt-3 pb-1">
+								<div className="w-10 h-1 rounded-full bg-border" />
+							</div>
+							<div className="flex items-center justify-between px-5 pt-3 pb-4 border-b border-border/50">
+								<span className="text-base font-semibold">بیشتر</span>
+								<button
+									onClick={() => setMoreOpen(false)}
+									className="text-muted-foreground hover:text-foreground transition-colors"
+								>
+									<X className="w-5 h-5" />
+								</button>
+							</div>
+							<div className="grid grid-cols-2 gap-px bg-border/30 mx-5 mt-5 mb-2 rounded-xl overflow-hidden">
+								{moreLinks.map((link) => {
+									const active = pathname?.startsWith(link.href);
+									return (
+										<Link
+											key={link.href}
+											href={link.href}
+											onClick={() => setMoreOpen(false)}
+											className={`flex flex-col items-center justify-center gap-3 px-4 py-8 bg-background hover:bg-muted/60 transition-colors ${active ? "text-primary-rose" : "text-foreground"}`}
+										>
+											<link.icon className={`w-6 h-6 flex-shrink-0 ${active ? "text-primary-rose" : "text-muted-foreground"}`} />
+											<span className="text-sm font-medium">{link.label}</span>
+										</Link>
+									);
+								})}
+							</div>
+						</motion.div>
+					</>
+				)}
+			</AnimatePresence>
+
+			<motion.nav
+				initial={{ y: 100, opacity: 0 }}
+				animate={{ y: 0, opacity: 1 }}
+				transition={{ ...spring.bottomNav, delay: 0.1 }}
+				className="fixed bottom-0 inset-x-0 z-50 md:hidden px-3 pb-3"
 				style={{
-					background: "hsl(var(--background) / 0.78)",
-					backdropFilter: "blur(28px) saturate(200%)",
-					WebkitBackdropFilter: "blur(28px) saturate(200%)",
-					border: "1px solid hsl(var(--border) / 0.4)",
-					boxShadow:
-						"0 8px 32px hsl(var(--foreground) / 0.08), inset 0 1px 0 rgba(255,255,255,0.07)",
+					paddingBottom: "calc(env(safe-area-inset-bottom) + 0.75rem)",
 				}}
 			>
-				<div className="flex items-center justify-around px-2 py-2">
-					{bottomNavItems.map((item) => {
-						const isAccount = item.href === "/dashboard";
-						const href =
-							isAccount && !isLoggedIn ? "/signin" : item.href;
-						const active = isActive(href);
-						const isCart = item.href === "/cart";
+				<div
+					className="w-full rounded-2xl shadow-2xl shadow-black/20"
+					style={{
+						background: "hsl(var(--background) / 0.78)",
+						backdropFilter: "blur(28px) saturate(200%)",
+						WebkitBackdropFilter: "blur(28px) saturate(200%)",
+						border: "1px solid hsl(var(--border) / 0.4)",
+						boxShadow:
+							"0 8px 32px hsl(var(--foreground) / 0.08), inset 0 1px 0 rgba(255,255,255,0.07)",
+					}}
+				>
+					<div className="flex items-center justify-around px-2 py-2">
+						{bottomNavItems.map((item) => {
+							const isAccount = item.href === "/dashboard";
+							const href =
+								isAccount && !isLoggedIn ? "/signin" : item.href;
+							const active = isActive(href);
+							const isCart = item.href === "/cart";
 
-						const inner = (
+							const inner = (
+								<div className="relative flex flex-col items-center justify-center py-1">
+									{active && (
+										<motion.div
+											layoutId="bottom-nav-pill"
+											className="absolute inset-0 bg-gradient-to-br from-primary-rose/20 via-accent-gold/10 to-secondary-plum/10 rounded-xl"
+											transition={spring.snappy}
+										/>
+									)}
+									<motion.div
+										animate={
+											active
+												? { scale: 1.15, y: -2 }
+												: { scale: 1, y: 0 }
+										}
+										transition={spring.responsive}
+										whileTap={{ scale: 0.85 }}
+										className="relative flex flex-col items-center gap-1 py-1.5 px-3"
+									>
+										<div className="relative">
+											<item.icon
+												className={`w-5 h-5 transition-colors duration-200 ${
+													active
+														? "text-primary-rose"
+														: isAccount && !isLoggedIn
+															? "text-accent-gold"
+															: "text-muted-foreground"
+												}`}
+											/>
+											{isCart && cartCount > 0 && (
+												<span className="absolute -top-2 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-primary-rose text-white text-[10px] font-bold flex items-center justify-center leading-none">
+													{cartCount > 99
+														? "99+"
+														: cartCount}
+												</span>
+											)}
+										</div>
+										<motion.span
+											animate={
+												active
+													? { opacity: 1 }
+													: { opacity: 0.5 }
+											}
+											className={`text-[10px] font-medium transition-colors duration-200 ${
+												active
+													? "text-primary-rose"
+													: isAccount && !isLoggedIn
+														? "text-accent-gold opacity-100"
+														: "text-muted-foreground"
+											}`}
+										>
+											{isAccount && !isLoggedIn
+												? "ورود"
+												: item.label}
+										</motion.span>
+										{active && (
+											<motion.div
+												layoutId="bottom-nav-dot"
+												className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-primary-rose"
+												transition={spring.snappy}
+											/>
+										)}
+									</motion.div>
+								</div>
+							);
+
+							if (isCart) {
+								return (
+									<button
+										key={item.href}
+										className="flex-1"
+										onClick={onCartOpen}
+									>
+										{inner}
+									</button>
+								);
+							}
+
+							if (isAccount && isLoggedIn) {
+								return (
+									<button
+										key={item.href}
+										className="flex-1"
+										onClick={onAccountClick}
+									>
+										{inner}
+									</button>
+								);
+							}
+
+							return (
+								<Link
+									key={item.href}
+									href={href}
+									className="flex-1"
+								>
+									{inner}
+								</Link>
+							);
+						})}
+
+						<button className="flex-1" onClick={() => setMoreOpen((v) => !v)}>
 							<div className="relative flex flex-col items-center justify-center py-1">
-								{active && (
+								{moreActive && (
 									<motion.div
 										layoutId="bottom-nav-pill"
 										className="absolute inset-0 bg-gradient-to-br from-primary-rose/20 via-accent-gold/10 to-secondary-plum/10 rounded-xl"
@@ -490,52 +669,24 @@ function BottomNav({
 									/>
 								)}
 								<motion.div
-									animate={
-										active
-											? { scale: 1.15, y: -2 }
-											: { scale: 1, y: 0 }
-									}
+									animate={moreOpen ? { scale: 1.15, y: -2 } : { scale: 1, y: 0 }}
 									transition={spring.responsive}
 									whileTap={{ scale: 0.85 }}
 									className="relative flex flex-col items-center gap-1 py-1.5 px-3"
 								>
-									<div className="relative">
-										<item.icon
-											className={`w-5 h-5 transition-colors duration-200 ${
-												active
-													? "text-primary-rose"
-													: isAccount && !isLoggedIn
-														? "text-accent-gold"
-														: "text-muted-foreground"
-											}`}
-										/>
-										{isCart && cartCount > 0 && (
-											<span className="absolute -top-2 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-primary-rose text-white text-[10px] font-bold flex items-center justify-center leading-none">
-												{cartCount > 99
-													? "99+"
-													: cartCount}
-											</span>
-										)}
-									</div>
-									<motion.span
-										animate={
-											active
-												? { opacity: 1 }
-												: { opacity: 0.5 }
-										}
+									<Menu
+										className={`w-5 h-5 transition-colors duration-200 ${
+											moreOpen || moreActive ? "text-primary-rose" : "text-muted-foreground"
+										}`}
+									/>
+									<span
 										className={`text-[10px] font-medium transition-colors duration-200 ${
-											active
-												? "text-primary-rose"
-												: isAccount && !isLoggedIn
-													? "text-accent-gold opacity-100"
-													: "text-muted-foreground"
+											moreOpen || moreActive ? "text-primary-rose" : "text-muted-foreground opacity-50"
 										}`}
 									>
-										{isAccount && !isLoggedIn
-											? "ورود"
-											: item.label}
-									</motion.span>
-									{active && (
+										بیشتر
+									</span>
+									{moreActive && (
 										<motion.div
 											layoutId="bottom-nav-dot"
 											className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-primary-rose"
@@ -544,44 +695,10 @@ function BottomNav({
 									)}
 								</motion.div>
 							</div>
-						);
-
-						if (isCart) {
-							return (
-								<button
-									key={item.href}
-									className="flex-1"
-									onClick={onCartOpen}
-								>
-									{inner}
-								</button>
-							);
-						}
-
-						if (isAccount && isLoggedIn) {
-							return (
-								<button
-									key={item.href}
-									className="flex-1"
-									onClick={onAccountClick}
-								>
-									{inner}
-								</button>
-							);
-						}
-
-						return (
-							<Link
-								key={item.href}
-								href={href}
-								className="flex-1"
-							>
-								{inner}
-							</Link>
-						);
-					})}
+						</button>
+					</div>
 				</div>
-			</div>
-		</motion.nav>
+			</motion.nav>
+		</>
 	);
 }

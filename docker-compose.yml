@@ -1,7 +1,7 @@
 services:
   frontend:
     build: .
-    image: ghcr.io/bargheno/frontend
+    image: ${FRONTEND_REGISTRY_IMAGE:-mahoura/frontend}
     container_name: frontend
     ports:
       - 3000:3000
